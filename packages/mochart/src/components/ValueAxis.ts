@@ -21,6 +21,8 @@ interface ValueAxisProps {
   titleClipPathUniqueId: string;
   focusedValueAxisId: string | null;
   onFocus: (focus: ValueAxisFocus) => void;
+  accessibility: boolean;
+  accessibleLabel: string;
 }
 interface ValueAxisState {
   onValueAxisEnter: () => void;
@@ -76,7 +78,7 @@ export default class ValueAxis extends Renderer<ValueAxisProps, ValueAxisState> 
 
   sync() {
     const { front, valueAxisConfig, valueAxisLayoutInfo, plotLayoutInfo, focusPercentages, axisFocusPercentage, seriesFocusPercentage,
-      seriesCount, valueAxisData, titleClipPathUniqueId } = this.props;
+      seriesCount, valueAxisData, titleClipPathUniqueId, accessibility, accessibleLabel } = this.props;
     const { onValueAxisEnter, onValueAxisLeave, onValueAxisClick } = this.state;
     if (valueAxisConfig.visibleWhenAllFiltered || seriesCount > 0) {
       const axisId = valueAxisConfig.id;
@@ -85,7 +87,7 @@ export default class ValueAxis extends Renderer<ValueAxisProps, ValueAxisState> 
         focusPercentages, axisTicks: valueAxisData.axisTickData[axisId],
         axisFocusPercentage, seriesFocusPercentage,
         titleClipPathUniqueId, onMouseEnter: onValueAxisEnter,
-        onMouseLeave: onValueAxisLeave, onClick: onValueAxisClick });
+        onMouseLeave: onValueAxisLeave, onClick: onValueAxisClick, accessibility, accessibleLabel });
     }
     else {
       this.axis!.set(null);

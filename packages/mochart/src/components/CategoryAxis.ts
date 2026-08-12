@@ -16,6 +16,8 @@ interface CategoryAxisProps {
   categoryAxisData: CategoryAxisData;
   titleClipPathUniqueId: string;
   tickLabelClipPathUniqueId: string;
+  accessibility: boolean;
+  accessibleLabel: string;
 }
 
 export default class CategoryAxis extends Renderer<CategoryAxisProps> {
@@ -28,11 +30,11 @@ export default class CategoryAxis extends Renderer<CategoryAxisProps> {
 
   sync() {
     const { front, categoryAxisConfig, categoryAxisLayoutInfo, plotLayoutInfo, focusPercentages,
-      categoryAxisData, titleClipPathUniqueId, tickLabelClipPathUniqueId } = this.props;
+      categoryAxisData, titleClipPathUniqueId, tickLabelClipPathUniqueId, accessibility, accessibleLabel } = this.props;
 
     this.axis!.set(Axis, { front, axisClass: mochartCssClasses['categoryAxis'], axisConfig: categoryAxisConfig, axisLayoutInfo: categoryAxisLayoutInfo,
       plotLayoutInfo, axisTicks: categoryAxisData.axisTickData,
       focusPercentages, tickSpacing: categoryAxisData.maxTickLabelLength,
-      titleClipPathUniqueId, tickLabelClipPathUniqueId });
+      titleClipPathUniqueId, tickLabelClipPathUniqueId, accessibility, accessibleLabel });
   }
 }

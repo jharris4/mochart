@@ -75,7 +75,8 @@ describe('chart aria semantics', () => {
 
   it('hides the decorative geometry from assistive tech', () => {
     const container = mountChart(makeConfig());
-    for (const selector of [getCssSelector('plotBack'), getCssSelector('plotFront'), getCssSelector('crosshair')]) {
+    // the plot halves stay exposed: their axis tick labels are text (see AxisAria)
+    for (const selector of [getCssSelector('crosshair'), getCssSelector('axisThresholdContainer')]) {
       const el = container.querySelector(selector);
       expect(el, selector).not.toBeNull();
       expect(el!.getAttribute('aria-hidden'), selector).toBe('true');

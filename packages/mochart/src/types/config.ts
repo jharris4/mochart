@@ -240,6 +240,32 @@ export interface AccessibilityConfig {
    */
   seriesLabel: string;
   /**
+   * The screen-reader name for the category axis group when the axis has no
+   * title.
+   *
+   * The accessible name of the group that wraps the category axis’ tick labels,
+   * used when `categoryAxis.title` is unset; a set title always wins, and it is
+   * the untruncated title even when the drawn one is ellipsised. The group is
+   * what tells a screen reader which axis the run of tick labels belongs to, so
+   * the labels read as a scale instead of as loose numbers. Replace to localize
+   * it.
+   *
+   * @default "Category axis"
+   */
+  categoryAxisLabel: string;
+  /**
+   * The screen-reader name for a value axis group when the axis has no title.
+   *
+   * The accessible name of the group that wraps a value axis’ tick labels, used
+   * when that axis’ `title` is unset; a set title always wins, and it is the
+   * untruncated title even when the drawn one is ellipsised. Every untitled
+   * value axis gets this same name, so give the axes titles when a chart has
+   * more than one and the distinction matters. Replace to localize it.
+   *
+   * @default "Value axis"
+   */
+  valueAxisLabel: string;
+  /**
    * The screen-reader label for the legend.
    *
    * The accessible name of the legend group that contains the

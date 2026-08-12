@@ -10,6 +10,8 @@ export default function getValidators() {
     chartRoleDescription: validators.string(),
     plotLabel: validators.string(),
     seriesLabel: validators.string(),
+    categoryAxisLabel: validators.string(),
+    valueAxisLabel: validators.string(),
     legendLabel: validators.string(),
     tooltipLabel: validators.string(),
     tooltipPreviousLabel: validators.string(),

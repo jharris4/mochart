@@ -3,6 +3,8 @@ import { Renderer, svgEl } from '../render';
 import { mochartCssClasses } from '../utils/ChartDom';
 
 import Axis from './Axis';
+import { getAxisAccessibleLabel } from './AxisContainer';
+import { accessibilityActive } from '../utils/utils';
 import type { EnhancedMochartConfig, EnhancedValueAxisConfig } from '../types/enhanced';
 import type { AxisTick } from '../types/data';
 import type { AxisLayoutInfo, CategoryAxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
@@ -32,19 +34,21 @@ export default class PlotEmpty extends Renderer<PlotEmptyProps> {
   sync() {
     const { mochartConfig, categoryAxisLayoutInfo, valueAxisLayoutInfos, plotLayoutInfo,
       categoryAxisTitleClipPathUniqueId, categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds } = this.props;
-    const { categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
+    const { categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs, accessibility: accessibilityConfig } = mochartConfig;
 
     const commonProps = {
       plotLayoutInfo,
       focusPercentages: emptyFocusPercentages,
       tickSpacing: null,
-      axisTicks: emptyTicks
+      axisTicks: emptyTicks,
+      accessibility: accessibilityActive(accessibilityConfig)
     };
 
     this.root.set({ className: mochartCssClasses['plot'] });
 
     this.categoryAxis.set(Axis, { front: false, axisClass: mochartCssClasses['categoryAxis'], axisConfig: categoryAxisConfig, axisLayoutInfo: categoryAxisLayoutInfo,
       titleClipPathUniqueId: categoryAxisTitleClipPathUniqueId, tickLabelClipPathUniqueId: categoryAxisTickLabelClipPathUniqueId,
+      accessibleLabel: getAxisAccessibleLabel(categoryAxisConfig.title, accessibilityConfig.categoryAxisLabel),
       ...commonProps });
 
     this.valueAxes.sync(valueAxisConfigs.map((axisConfig: EnhancedValueAxisConfig) => {
@@ -54,6 +58,7 @@ export default class PlotEmpty extends Renderer<PlotEmptyProps> {
         ctor: Axis,
         props: { front: false, axisClass: mochartCssClasses['valueAxis'] + id, axisConfig,
           axisLayoutInfo: valueAxisLayoutInfos[id], titleClipPathUniqueId: valueAxisTitleClipPathUniqueIds[id],
+          accessibleLabel: getAxisAccessibleLabel(axisConfig.title, accessibilityConfig.valueAxisLabel),
           ...commonProps }
       };
     }));

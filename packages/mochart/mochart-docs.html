@@ -89,6 +89,10 @@ table thead td { border-bottom-width: 2px; }
 <th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
 </tr>
 </thead>
+<tr id="accessibility.categoryAxisLabel">
+<td><a href="#accessibility.categoryAxisLabel">categoryAxisLabel</a></td><td>the screen-reader name for the category axis group when the axis has no title<br/><br/>The accessible name of the group that wraps the category axis’ tick labels, used when `categoryAxis.title` is unset; a set title always wins, and it is the untruncated title even when the drawn one is ellipsised. The group is what tells a screen reader which axis the run of tick labels belongs to, so the labels read as a scale instead of as loose numbers. Replace to localize it.</td><td>should be a string</td><td><div>"Category axis"</div>
+</td>
+</tr>
 <tr id="accessibility.chartLabel">
 <td><a href="#accessibility.chartLabel">chartLabel</a></td><td>the screen-reader name for the chart when the title has no text<br/><br/>The accessible name of the chart svg when `title.text` is unset; a set title always wins. Replace to localize the announced name.</td><td>should be a string</td><td><div>"Chart"</div>
 </td>
@@ -135,6 +139,10 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="accessibility.tooltipPreviousLabel">
 <td><a href="#accessibility.tooltipPreviousLabel">tooltipPreviousLabel</a></td><td>the label for the tooltip controls’ previous-category button (aria-label and hover title)<br/><br/>The accessible name and hover title of the ‹ button shown when `tooltip.showControls` is on; the button itself shows only the glyph. Replace to localize it.</td><td>should be a string</td><td><div>"Previous category"</div>
+</td>
+</tr>
+<tr id="accessibility.valueAxisLabel">
+<td><a href="#accessibility.valueAxisLabel">valueAxisLabel</a></td><td>the screen-reader name for a value axis group when the axis has no title<br/><br/>The accessible name of the group that wraps a value axis’ tick labels, used when that axis’ `title` is unset; a set title always wins, and it is the untruncated title even when the drawn one is ellipsised. Every untitled value axis gets this same name, so give the axes titles when a chart has more than one and the distinction matters. Replace to localize it.</td><td>should be a string</td><td><div>"Value axis"</div>
 </td>
 </tr>
 </table>

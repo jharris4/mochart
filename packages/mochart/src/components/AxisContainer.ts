@@ -2,6 +2,8 @@ import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { getAggregateSeriesFocusPercentage } from '../utils/FocusValue';
+import { accessibilityActive } from '../utils/utils';
+import { NONE } from '../config/core/constants';
 
 import CategoryAxis from './CategoryAxis';
 import ValueAxis from './ValueAxis';
@@ -43,7 +45,8 @@ export default class AxisContainer extends Renderer<AxisContainerProps> {
       valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
     const { category: categoryAxisData, value: valueAxisData } = axisData;
 
-    const { categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
+    const { categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs, accessibility: accessibilityConfig } = mochartConfig;
+    const accessibility = accessibilityActive(accessibilityConfig);
 
     this.root.set({ className: mochartCssClasses['axisContainer'] });
 
@@ -51,7 +54,8 @@ export default class AxisContainer extends Renderer<AxisContainerProps> {
       focusPercentages: categoryFocusDomainPercentages, categoryAxisData,
       titleClipPathUniqueId: categoryAxisTitleClipPathUniqueId,
       tickLabelClipPathUniqueId: categoryAxisTickLabelClipPathUniqueId,
-      plotLayoutInfo });
+      plotLayoutInfo, accessibility,
+      accessibleLabel: getAxisAccessibleLabel(categoryAxisConfig.title, accessibilityConfig.categoryAxisLabel) });
 
     this.valueAxes.sync(valueAxisConfigs.map((axisConfig: EnhancedValueAxisConfig) => {
       const { id, seriesConfigs, useSeriesFocus } = axisConfig;
@@ -66,8 +70,14 @@ export default class AxisContainer extends Renderer<AxisContainerProps> {
           axisFocusPercentage, seriesFocusPercentage,
           titleClipPathUniqueId: valueAxisTitleClipPathUniqueIds[id],
           focusedValueAxisId: focusData.focusedValueAxisId,
-          plotLayoutInfo, onFocus }
+          plotLayoutInfo, onFocus, accessibility,
+          accessibleLabel: getAxisAccessibleLabel(axisConfig.title, accessibilityConfig.valueAxisLabel) }
       };
     }));
   }
+}
+
+// the untruncated title names the axis group; the drawn title may be ellipsised
+export function getAxisAccessibleLabel(title: string | null, defaultLabel: string): string {
+  return title === NONE || title === '' ? defaultLabel : title!;
 }

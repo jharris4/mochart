@@ -8,6 +8,8 @@ export default function getDefaults() {
     chartRoleDescription: 'chart',
     plotLabel: 'Chart values',
     seriesLabel: 'Chart series',
+    categoryAxisLabel: 'Category axis',
+    valueAxisLabel: 'Value axis',
     legendLabel: 'Legend',
     tooltipLabel: 'Tooltip values',
     tooltipPreviousLabel: 'Previous category',

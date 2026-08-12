@@ -30,6 +30,8 @@ interface AxisProps {
   onMouseEnter?: (() => void) | null;
   onMouseLeave?: (() => void) | null;
   onClick?: (() => void) | null;
+  accessibility: boolean;
+  accessibleLabel: string;
 }
 
 export default class Axis extends Renderer<AxisProps> {
@@ -51,12 +53,17 @@ export default class Axis extends Renderer<AxisProps> {
   sync() {
     const { front, axisConfig, axisLayoutInfo, plotLayoutInfo, axisClass, axisTicks, axisFocusPercentage, seriesFocusPercentage,
       focusPercentages, tickSpacing, titleClipPathUniqueId, tickLabelClipPathUniqueId,
-      onMouseEnter, onMouseLeave, onClick } = this.props;
+      onMouseEnter, onMouseLeave, onClick, accessibility, accessibleLabel } = this.props;
     if (axisConfig.visible) {
       const { backgroundFront, axisLineFront, focusRangeFront, focusTickMarkFront, tickLabelFront, tickMarkFront, titleFront } = axisConfig;
 
+      // the front and back passes split one axis in two; only the half that draws tick labels is a named group
+      const namedGroup = front === tickLabelFront && axisTicks.length > 0;
+
       this.setPresent(true);
-      this.root.set({ className: axisClass });
+      this.root.set({ className: axisClass,
+        role: accessibility && namedGroup ? 'group' : null,
+        ariaLabel: accessibility && namedGroup ? accessibleLabel : null });
       this.inner.set({ transform: translateObject(axisLayoutInfo), onMouseEnter, onMouseLeave, onClick });
 
       if (front !== backgroundFront) {
@@ -94,14 +101,14 @@ export default class Axis extends Renderer<AxisProps> {
         this.tickLabelsSlot.set(AxisTickLabels, { axisLayoutInfo, plotLayoutInfo,
           axisFocusPercentage: axisFocusPercentage ?? null, seriesFocusPercentage: seriesFocusPercentage ?? null,
           axisConfig, axisTicks,
-          tickSpacing: tickSpacing ?? null, tickLabelClipPathUniqueId });
+          tickSpacing: tickSpacing ?? null, tickLabelClipPathUniqueId, accessibility });
       }
 
       if (front !== titleFront) {
         this.titleSlot.set(null);
       }
       else {
-        this.titleSlot.set(AxisTitle, { axisConfig, axisLayoutInfo, titleClipPathUniqueId, axisFocusPercentage: axisFocusPercentage ?? null, seriesFocusPercentage: seriesFocusPercentage ?? null });
+        this.titleSlot.set(AxisTitle, { axisConfig, axisLayoutInfo, titleClipPathUniqueId, axisFocusPercentage: axisFocusPercentage ?? null, seriesFocusPercentage: seriesFocusPercentage ?? null, ariaHidden: accessibility && namedGroup });
       }
 
       if (front !== focusTickMarkFront) {
