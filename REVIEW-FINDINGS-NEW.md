@@ -38,10 +38,15 @@ cases that pass did not reach, and those are flagged as such.
 **161 findings: 1 critical, 33 high, 72 medium, 55 low.** (145 from the Opus pass,
 5 from the SOL pass, 11 found while implementing.)
 
-**Status: 61 fixed, 2 needing an answer, 100 open.** TOOL-2 is deferred to release time by
-decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
+**Status: 97 fixed, 65 open** (34 medium, 29 low, and 2 high that are waiting on an answer).
+Three of the open findings are blocked on a decision rather than on work — TOOL-2, VAL-1 and
+COMP-8 — and each has its question written up in `REVIEW-QUESTIONS.md`. TOOL-2 is deferred to
+release time by decision rather than waiting on an answer. Nothing is partially fixed. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
-build revised each design. The two remaining High findings are waiting on an answer.
+build revised each design.
+
+This line is regenerated from the per-finding markers, not maintained by hand; recount at any
+time with `python3 ~/.claude/scripts/review-findings.py` from the repo root.
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
