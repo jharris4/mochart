@@ -5570,7 +5570,7 @@ Left as a separate matter: the file header calls this ratchet "the backstop for 
 undocumented interface", which is aspirational either way — a member moved into `ChartDomAccessors` or
 `InternalFocus` still drops silently out of the walk, since those are deliberately not walked.
 ### TEST-21 — text is measured in two spaces that differ by a constant 4px in Gecko
-**Low · Bug · [TextTruncation.ts:154](packages/mochart/src/utils/TextTruncation.ts#L154) vs [TextMeasurement.ts:164](packages/mochart/src/utils/TextMeasurement.ts#L164), [:182](packages/mochart/src/utils/TextMeasurement.ts#L182)** — **Open**
+**Low · Bug · [TextTruncation.ts:154](packages/mochart/src/utils/TextTruncation.ts#L154) vs [TextMeasurement.ts:164](packages/mochart/src/utils/TextMeasurement.ts#L164), [:182](packages/mochart/src/utils/TextMeasurement.ts#L182)** — **Fixed**
 
 *Found while implementing [TEST-15](#test-15--the-claimed-three-engine-browser-support-is-only-ever-tested-in-chromium), not by either review pass.*
 
@@ -5603,6 +5603,75 @@ width — but it needs care where `getBBox()` is currently measuring a `<text>` 
 Golden snapshots are produced against the synthetic font harness from
 [TEST-6](#test-6--the-golden-oracle-depends-on-the-machines-fonts), so they will not move; the change
 is only observable in a real Gecko browser.
+
+Fixed by taking width from `getComputedTextLength()` — the same call truncation fits
+text with — at the only two `getBBox()` call sites in the package. A new private
+`getSvgWidth()` in `utils/TextMeasurement.ts` does that; `getBBox()` is still called
+once per element but only its `height` is used, and both `getSvgWidthAndHeight()` and
+`getSvgMaxWidthAndHeight()` route through it. No caller changed.
+
+**The inconsistency is removed for width, not merely reduced.** Every consumer of a
+measured SVG text bound reads both width and height; not one site needs the box
+itself — `x`/`y` are never returned, let alone read. Height keeps a single source
+too (`getBBox().height`), so no quantity is measured two ways any more. What remains
+is an unfixable asymmetry rather than an inconsistency: there is no advance-based
+height API, and the em-box height is genuinely wanted for descenders.
+
+**The `<tspan>` worry was empty** — `grep tspan packages/mochart/src` returns zero
+hits. Core renders one `<text>` per label with a single text node, so
+`getComputedTextLength()` on the parent is exactly the string's advance at every
+site. That was the main reason to look before leaping and it turned out to be a
+non-issue.
+
+**Real-browser confirmation, which is the only verification that matters here.** With
+Firefox running the edited source through Vite's `development` condition, on the
+grouped demo at 1280×800: value-axis tick-label group width 35 → **31** (Chromium
+30), value axis width 39 → **35** (Chromium 34), series container x 44 → **40** and
+first bar x 46.67 → **42.75**, both now exactly Chromium's. Legend width 688 →
+**668.1**. Firefox's plot geometry lands on Chromium's to the pixel. No new
+truncation appeared — truncated-label count is 0 on `grouped` and 10 on
+`truncated-text` before and after, matching Chromium. Full e2e suite green on all
+three engines, 89 passed.
+
+**Nothing depended on the +4 slack**, and the argument is structural rather than
+empirical: Blink and WebKit have shipped with zero slack all along, so a layout that
+clipped without it would already be clipping in Chrome.
+
+`Math.ceil` stays and is now load-bearing on purpose. When a title fits,
+`TitleLayout` sets `textWidth = textRawWidth`, so truncation tests
+`advance > ceil(advance)` — false. With `floor` or `round` it can go true and the
+title truncates a character it had room for. Pinned by a test and a one-line comment.
+
+`getBounds`'s `width === 0 || height === 0` → `defaultBounds` retry guard is
+unaffected: it is an OR and height still comes from the box, so a hidden container
+still marks itself for re-measure.
+
+**Goldens: zero movement**, confirmed empirically. The harness's `getBBox` and
+`getComputedTextLength` agree *by construction* — both are
+`measureTextWidth(textContent)` — and that agreement is deliberate and documented in
+the harness. The harness is not what should change: it should model one coherent
+synthetic font, and the Gecko divergence belongs in a targeted unit test plus a real
+browser, which is where it now lives.
+
+New `test/utils/TextWidthMeasurement.test.ts`, 6 tests. Its fake `<text>` disagrees
+with its own advance in *both* dimensions, so a width leaking in from the box and a
+height leaking in from the advance both fail. Bite proofs: reverting the width source
+to `getBBox().width` fails 2 tests off by exactly 4 (`expected 20 to be 16`); changing
+`ceil` to `floor` fails 4, including the whole string truncating away
+(`expected '' to be 'M'`).
+
+Five corrections to the filing, four of them mine: Chromium's delta is 0.00–0.09 on
+live chart labels, not 0.00 exactly (`Prefix #`: advance 55.38, box 55.46) — Firefox
+was exactly 4.00 on all 56, so the headline holds. The `<tspan>` care was unnecessary.
+"2px-per-side inflation" is confirmed for width only; vertically Firefox reports 20px
+against Chromium's 18px, a 2px total that cannot be decomposed into inflation versus
+font metrics, so nothing claims it. The tooltip sizer was never part of this — it is
+measured with `getBoundingClientRect`. And the legend was understated: it loses ~20px
+on the grouped demo, not ~4, because the over-reservation is per item.
+
+Suite excluding three files being live-edited by concurrent agents: 117 files / 1627
+tests pass. Those 126 failures were confirmed foreign by reverting the one-line width
+change and re-running to an identical count; nothing was regenerated.
 
 
 
