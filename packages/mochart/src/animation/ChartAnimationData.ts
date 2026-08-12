@@ -48,7 +48,7 @@ export function getChartAnimationData(
     }
     categoryDeltaData = getCategoryDeltaData(mochartConfig.categoryAxis, oldChartData.categoryData, newChartData.categoryData);
     const filterDeltaData = getFilterDeltaData(mochartConfig, oldChartData.seriesData, newChartData.seriesData);
-    let startSeriesData = getSeriesDataWithSeriesCounts(oldChartData.seriesData, filterDeltaData.axisSeriesCounts, filterDeltaData.stackSeriesCounts, filterDeltaData.groupSeriesCounts);
+    let startSeriesData = getSeriesDataWithSeriesCounts(oldChartData.seriesData, filterDeltaData.axisSeriesCounts);
     startSeriesData = getSeriesDataWithFilteredFlags(startSeriesData, newChartData.seriesData.filteredFlags);
     const startChartData = getChartDataWithSeriesData(oldChartData, startSeriesData);
     axisExpansionData = getTransitionAxisExpansionData(mochartConfig, startChartData, newChartData, categoryDeltaData) as AxisTransitionData;

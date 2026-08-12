@@ -15,7 +15,7 @@ type SeriesBundle = { data: SeriesDataSet };
 export function getSeriesData(mochartConfig: EnhancedMochartConfig, dataProvider: DataProvider, filteredSeriesMap: Record<string, unknown>, categoryData: CategoryData): SeriesData {
   const rawCategoryValues = categoryData.values.raw;
 
-  const { series: seriesConfigs, seriesGroups: seriesGroupConfigs, seriesStacks: seriesStackConfigs, valueAxes: valueAxisConfigs } = mochartConfig;
+  const { series: seriesConfigs, seriesStacks: seriesStackConfigs, valueAxes: valueAxisConfigs } = mochartConfig;
 
   const rawSeriesBundle = getRawSeriesBundle(valueAxisConfigs, seriesConfigs, seriesStackConfigs, rawCategoryValues, dataProvider);
   const seriesFilteredFlags = getSeriesFilteredFlags(seriesConfigs, filteredSeriesMap);
@@ -24,14 +24,10 @@ export function getSeriesData(mochartConfig: EnhancedMochartConfig, dataProvider
   // bases derive from the render domains: a semantic (collapsed) min would draw zero-height bars
   const axisBases = getValueAxisBases(valueAxisConfigs, rawSeriesBundle.data.renderAxisDomains, filteredSeriesBundle.data.renderAxisDomains);
   const axisSeriesCounts = getSeriesContainerFilteredSeriesCounts(valueAxisConfigs, seriesFilteredFlags);
-  const stackSeriesCounts = getSeriesContainerFilteredSeriesCounts(seriesStackConfigs, seriesFilteredFlags);
-  const groupSeriesCounts = getSeriesContainerFilteredSeriesCounts(seriesGroupConfigs, seriesFilteredFlags);
 
   return {
     axisBases,
     axisSeriesCounts,
-    stackSeriesCounts,
-    groupSeriesCounts,
     raw: rawSeriesBundle.data,
     filteredFlags: seriesFilteredFlags,
     filtered: filteredSeriesBundle.data
@@ -48,10 +44,8 @@ export function getSeriesDataWithAxisBases(seriesData: SeriesData, valueAxisBase
   return Object.assign({}, seriesData, { axisBases: valueAxisBases });
 }
 
-export function getSeriesDataWithSeriesCounts(seriesData: SeriesData, valueAxisSeriesCounts: Record<string, number>, seriesStackSeriesCounts: Record<string, number>, seriesGroupSeriesCounts: Record<string, number>): SeriesData {
-  return Object.assign({}, seriesData, {
-    axisSeriesCounts: valueAxisSeriesCounts, stackSeriesCounts: seriesStackSeriesCounts, groupSeriesCounts: seriesGroupSeriesCounts
-  });
+export function getSeriesDataWithSeriesCounts(seriesData: SeriesData, valueAxisSeriesCounts: Record<string, number>): SeriesData {
+  return Object.assign({}, seriesData, { axisSeriesCounts: valueAxisSeriesCounts });
 }
 
 export function getSeriesDataWithFilteredFlags(seriesData: SeriesData, filteredFlags: Record<string, boolean>): SeriesData {
@@ -504,13 +498,11 @@ function getCategorySeriesValueObject(seriesValueObject: SeriesValueObject, cate
 }
 
 export function getSeriesValueObjects(seriesData: SeriesData, categoryIndex: number) {
-  const { axisBases, axisSeriesCounts, stackSeriesCounts, groupSeriesCounts, filteredFlags, raw, filtered } = seriesData;
+  const { axisBases, axisSeriesCounts, filteredFlags, raw, filtered } = seriesData;
 
   return {
     axisBases,
     axisSeriesCounts,
-    stackSeriesCounts,
-    groupSeriesCounts,
     filteredFlags,
     raw:  {
       axisDomains: raw.axisDomains,

@@ -44,8 +44,6 @@ export interface SeriesDataSet {
 export interface SeriesData {
   axisBases: Record<string, number | null>;
   axisSeriesCounts: Record<string, number>;
-  stackSeriesCounts: Record<string, number>;
-  groupSeriesCounts: Record<string, number>;
   raw: SeriesDataSet;
   filteredFlags: Record<string, boolean>;
   filtered: SeriesDataSet;
