@@ -176,6 +176,67 @@ describe('getChartSvgText', () => {
   });
 });
 
+// BIND-7: font styles are inlined by family name only, so a web font the page loaded is absent from
+// the exported file. fontFaceCss is the host's way to put the font data in it.
+describe('fontFaceCss', () => {
+  const fontFaceCss = "@font-face { font-family: 'Test Sans'; src: url(data:font/woff2;base64,AAAA) format('woff2'); }";
+
+  it('adds no style element when not asked for', () => {
+    expect(getChartSvgText(container)).not.toContain('<style');
+  });
+
+  it('injects the css into a style element in the exported svg', () => {
+    const svgText = getChartSvgText(container, { fontFaceCss })!;
+    expect(svgText).toContain('<style');
+    expect(svgText).toContain("font-family: 'Test Sans'");
+    expect(svgText).toContain('data:font/woff2;base64,AAAA');
+  });
+
+  it('ignores an empty or whitespace-only value', () => {
+    expect(getChartSvgText(container, { fontFaceCss: '' })).not.toContain('<style');
+    expect(getChartSvgText(container, { fontFaceCss: '   ' })).not.toContain('<style');
+  });
+
+  it('reaches the transparent path too', () => {
+    expect(getChartSvgText(container, { fontFaceCss, transparent: true })).toContain('<style');
+  });
+
+  describe('in a stitched grid', () => {
+    let second: HTMLDivElement;
+    let secondChart: ChartHandle<DefaultChartProps> | null = null;
+
+    beforeEach(() => {
+      second = document.createElement('div');
+      document.body.appendChild(second);
+      secondChart = createDefaultChart(second, { config: rawConfig(), data: rows, width: 400, height: 300 });
+    });
+
+    afterEach(() => {
+      secondChart?.destroy();
+      secondChart = null;
+      second.remove();
+    });
+
+    it('adds one style element for the whole grid, not one per tile', () => {
+      const svgText = getStitchedChartsSvgText([container, second], { cols: 2, fontFaceCss })!;
+      // a base64 font repeated per tile would multiply the file size by the chart count
+      expect(svgText.match(/<style/g)).toHaveLength(1);
+      const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+      expect(doc.querySelector('parsererror')).toBeNull();
+      expect(doc.documentElement.querySelector(':scope > style')).not.toBeNull();
+    });
+
+    it('round-trips css that xml has to escape', () => {
+      // query-string ampersands are common in font urls; serialized as raw & the file would not parse
+      const css = '@font-face { font-family: A & B; src: url(font.woff2?v=1&w=2); }';
+      const svgText = getStitchedChartsSvgText([container, second], { cols: 2, fontFaceCss: css })!;
+      const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+      expect(doc.querySelector('parsererror')).toBeNull();
+      expect(doc.querySelector('style')!.textContent).toBe(css);
+    });
+  });
+});
+
 describe('exportSVG', () => {
   it('downloads a file named from the chart title', () => {
     const createObjectURL = vi.fn(() => 'blob:mock');

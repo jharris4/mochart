@@ -35,6 +35,8 @@ export interface ExportSvgOptions {
   transparent?: boolean;
   /** Background color painted behind the chart when not transparent. Defaults to the effective page background behind the chart (white when untraceable). */
   backgroundColor?: string;
+  /** CSS injected verbatim into a `<style>` element in the exported svg, once per file. For `@font-face` rules whose `src` is base64 data — the only way a web font survives the export (see the web fonts section of the README). */
+  fontFaceCss?: string;
 }
 
 export interface ExportPngOptions extends ExportSvgOptions {
@@ -71,7 +73,8 @@ export function findChartSvg(element: Element): SVGSVGElement | null {
 /**
  * Copy the computed svg presentation styles (fill, stroke, fonts on text)
  * onto the cloned nodes as inline styles, so the serialized svg renders the
- * same outside the page's stylesheets.
+ * same outside the page's stylesheets. Fonts are inlined by family name only, never as font data,
+ * so a web font the page loaded is absent from the export unless the caller passes fontFaceCss.
  */
 function inlineComputedStyles(targetNode: Element, sourceNode: Element): void {
   const targetChildren = targetNode.children;
@@ -123,8 +126,8 @@ function getSvgSize(svgElement: SVGSVGElement): { width: number; height: number 
 
 /**
  * Serialize the chart svg to standalone markup: computed styles inlined, the
- * crosshair stripped, and (unless transparent) a solid background rect
- * inserted beneath the chart.
+ * crosshair stripped, any fontFaceCss added as a style element, and (unless
+ * transparent) a solid background rect inserted beneath the chart.
  */
 export function getChartSvgText(element: Element, options: ExportSvgOptions = {}): string | null {
   const svgElement = findChartSvg(element);
@@ -155,6 +158,19 @@ function getEffectiveBackgroundColor(element: Element): string {
     current = current.parentElement;
   }
   return '#ffffff';
+}
+
+/**
+ * A style element carrying host-supplied @font-face CSS, null when there is none. One per exported
+ * file, never per chart clone: a base64 font would otherwise repeat in every tile of a grid.
+ */
+function makeFontFaceStyle(fontFaceCss: string | undefined): SVGStyleElement | null {
+  if (!fontFaceCss || !fontFaceCss.trim()) {
+    return null;
+  }
+  const styleElement = document.createElementNS(SVG_NS, 'style') as SVGStyleElement;
+  styleElement.textContent = fontFaceCss;
+  return styleElement;
 }
 
 function makeBackgroundRect(width: number, height: number, backgroundColor: string): SVGRectElement {
@@ -197,12 +213,17 @@ function cloneChartSvg(svgElement: SVGSVGElement): SVGSVGElement {
 }
 
 function getSvgText(svgElement: SVGSVGElement, options: ExportSvgOptions): string {
-  const { transparent = false, backgroundColor = getEffectiveBackgroundColor(svgElement) } = options;
+  const { transparent = false, fontFaceCss, backgroundColor = getEffectiveBackgroundColor(svgElement) } = options;
   const svgCloneElement = cloneChartSvg(svgElement);
 
   if (!transparent) {
     const { width, height } = getSvgSize(svgElement);
     svgCloneElement.insertBefore(makeBackgroundRect(width, height, backgroundColor), svgCloneElement.firstChild);
+  }
+
+  const fontFaceStyle = makeFontFaceStyle(fontFaceCss);
+  if (fontFaceStyle) {
+    svgCloneElement.insertBefore(fontFaceStyle, svgCloneElement.firstChild);
   }
 
   return new XMLSerializer().serializeToString(svgCloneElement);
@@ -214,7 +235,7 @@ function getSvgText(svgElement: SVGSVGElement, options: ExportSvgOptions): strin
  * chart so the grid stays aligned. Returns null when no chart svg is found.
  */
 function getStitchedSvgText(elements: Element[], options: StitchOptions): string | null {
-  const { transparent = false, cols, gap = 0 } = options;
+  const { transparent = false, cols, gap = 0, fontFaceCss } = options;
   const charts: { svg: SVGSVGElement; width: number; height: number }[] = [];
   for (const element of elements) {
     const svg = findChartSvg(element);
@@ -241,6 +262,12 @@ function getStitchedSvgText(elements: Element[], options: StitchOptions): string
   outer.setAttribute('width', String(totalWidth));
   outer.setAttribute('height', String(totalHeight));
   outer.setAttribute('viewBox', '0 0 ' + totalWidth + ' ' + totalHeight);
+
+  // one style element for the whole grid; css applies to the nested tiles too
+  const fontFaceStyle = makeFontFaceStyle(fontFaceCss);
+  if (fontFaceStyle) {
+    outer.appendChild(fontFaceStyle);
+  }
 
   if (!transparent) {
     outer.appendChild(makeBackgroundRect(totalWidth, totalHeight, backgroundColor));
