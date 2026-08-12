@@ -153,17 +153,26 @@ export function getBoundsWithMutations<T extends Size>(oldBounds: T | null, newB
   return getWithMutations(oldBounds, newBounds);
 }
 
+/** Text width is the advance TextTruncation fits to, never `getBBox().width` — Gecko inflates text boxes 2px per side. */
+function getSvgWidth(domElement: SVGGraphicsElement, boundingBox: { width: number }): number {
+  const textElement = domElement as SVGTextContentElement;
+  return typeof textElement.getComputedTextLength === 'function' ? textElement.getComputedTextLength() : boundingBox.width;
+}
+
 export function getSvgMaxWidthAndHeight(domElements: ArrayLike<SVGGraphicsElement>): Size {
   // 0 seeds, never Number.MIN_VALUE: all-zero bboxes (hidden container) must
   // measure 0x0 so the default-bounds fallback marks them for re-measure
   let maxWidth = 0;
   let maxHeight = 0;
   let boundingBox;
+  let width;
   const count = domElements.length;
   for (let i = 0; i < count; i++) {
+    // the box is still read for the height, which has no advance-based equivalent
     boundingBox = domElements[i].getBBox();
-    if (boundingBox.width > maxWidth) {
-      maxWidth = boundingBox.width;
+    width = getSvgWidth(domElements[i], boundingBox);
+    if (width > maxWidth) {
+      maxWidth = width;
     }
     if (boundingBox.height > maxHeight) {
       maxHeight = boundingBox.height;
@@ -179,8 +188,10 @@ export function getSvgWidthAndHeight(domElement: SVGGraphicsElement | null): Siz
   let width = 0;
   let height = 0;
   if (domElement !== null) {
+    // the box is still read for the height, which has no advance-based equivalent
     const boundingBox = domElement.getBBox();
-    width = Math.ceil(boundingBox.width);
+    // ceil, never floor: a reserved width below the fitted width truncates text that exactly fits
+    width = Math.ceil(getSvgWidth(domElement, boundingBox));
     height = Math.ceil(boundingBox.height);
   }
   return {
