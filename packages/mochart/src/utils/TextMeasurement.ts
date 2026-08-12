@@ -31,7 +31,7 @@ export function getChartTextBoundsData(mochartConfig: EnhancedMochartConfig, dom
   const legendBounds = getLegendBounds(mochartConfig, domAccessors);
   const legendItemTextBounds = getLegendItemTextBounds(mochartConfig, domAccessors);
   const legendItemTextRawBounds = getLegendItemTextRawBounds(mochartConfig, domAccessors);
-  const legendItemMaxTextBounds = getMaxBounds(legendItemTextBounds);
+  const legendItemMaxTextBounds = getMaxBounds(Object.values(legendItemTextBounds));
 
   const chartTextBoundsData = {
     titleTextBounds,
@@ -362,26 +362,41 @@ export function getLegendBounds(mochartConfig: EnhancedMochartConfig, domAccesso
 // list must be filtered the same way — a full seriesConfigs list would never
 // match the element count and every item would fall back to default bounds,
 // leaving phantom legend slots for the hidden series.
-function getLegendSeriesConfigs(mochartConfig: EnhancedMochartConfig) {
+export function getLegendSeriesConfigs(mochartConfig: EnhancedMochartConfig) {
   return mochartConfig.series.filter(seriesConfig => seriesConfig.showInLegend);
 }
 
-export function getLegendItemTextBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): TextBounds[] {
-  // one entry per legend series either way: layout reads this a frame after the legend turns visible
-  let legendItemTextBounds: TextBounds[] = getLegendSeriesConfigs(mochartConfig).map(() => unmeasuredBounds);
-  if (mochartConfig.legend.visible) {
-    legendItemTextBounds = getSvgAllBoundsWithFontSize(domAccessors, 'getLegendItemTextDomElements', defaultBounds, getLegendSeriesConfigs(mochartConfig));
-  }
-  return legendItemTextBounds;
+// Keyed by series id, not position: measuring runs a frame behind drawing, so when a series
+// joins or leaves the legend the stored set describes the old items. An id-keyed map simply has
+// no entry for a series that just joined, which reads as unmeasured for one frame and corrects
+// on the next — the same path first render already takes. Positional entries instead silently
+// described the wrong series, or ran short and indexed past the end.
+export function getLegendItemBoundsList(mochartConfig: EnhancedMochartConfig, legendItemBounds: Record<string, TextBounds>): TextBounds[] {
+  return getLegendSeriesConfigs(mochartConfig).map(seriesConfig => legendItemBounds[seriesConfig.id] ?? unmeasuredBounds);
 }
 
-export function getLegendItemTextRawBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): TextBounds[] {
-  // one entry per legend series either way: layout reads this a frame after the legend turns visible
-  let legendItemTextBounds: TextBounds[] = getLegendSeriesConfigs(mochartConfig).map(() => unmeasuredBounds);
-  if (mochartConfig.legend.visible) {
-    legendItemTextBounds = getSvgAllBounds(domAccessors, 'getLegendItemTextRawDomElements', defaultBounds, getLegendSeriesConfigs(mochartConfig));
+function getLegendItemBoundsById(mochartConfig: EnhancedMochartConfig, allBounds: TextBounds[]): Record<string, TextBounds> {
+  const boundsById: Record<string, TextBounds> = Object.create(null);
+  getLegendSeriesConfigs(mochartConfig).forEach((seriesConfig, index) => {
+    boundsById[seriesConfig.id] = allBounds[index] ?? unmeasuredBounds;
+  });
+  return boundsById;
+}
+
+export function getLegendItemTextBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): Record<string, TextBounds> {
+  if (!mochartConfig.legend.visible) {
+    return getLegendItemBoundsById(mochartConfig, []);
   }
-  return legendItemTextBounds;
+  return getLegendItemBoundsById(mochartConfig,
+    getSvgAllBoundsWithFontSize(domAccessors, 'getLegendItemTextDomElements', defaultBounds, getLegendSeriesConfigs(mochartConfig)));
+}
+
+export function getLegendItemTextRawBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): Record<string, TextBounds> {
+  if (!mochartConfig.legend.visible) {
+    return getLegendItemBoundsById(mochartConfig, []);
+  }
+  return getLegendItemBoundsById(mochartConfig,
+    getSvgAllBounds(domAccessors, 'getLegendItemTextRawDomElements', defaultBounds, getLegendSeriesConfigs(mochartConfig)));
 }
 
 export function getTooltipBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): TextBounds {

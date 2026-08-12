@@ -129,9 +129,9 @@ export interface ChartTextBoundsData {
   valueAxisTitleBounds: Record<string, TextBounds>;
   valueAxisThresholdTitleBounds: Record<string, Record<number, TextBounds>>;
   legendBounds: TextBounds;
-  /** One entry per legend series, measured or not, so layout can index them by position. */
-  legendItemTextBounds: TextBounds[];
-  legendItemTextRawBounds: TextBounds[];
+  /** Keyed by series id, so a set measured one frame ago cannot describe the wrong series. */
+  legendItemTextBounds: Record<string, TextBounds>;
+  legendItemTextRawBounds: Record<string, TextBounds>;
   legendItemMaxTextBounds: TextBounds;
   hasDefault: boolean;
 }

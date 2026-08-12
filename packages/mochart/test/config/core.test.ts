@@ -181,14 +181,17 @@ describe('hasConfigStructureChange', () => {
     expect(hasConfigStructureChange(withId('a'), withId('b'))).toBe(true);
   });
 
-  it('reports a change when a series showInLegend differs', () => {
+  // ANIM-7: showInLegend only decides whether a series appears in the legend - no data, no
+  // colours, no series rendering - so it must not tear the chart down and replay its opening
+  // animation. The legend's measured sizes are keyed by series id, so a stale set is harmless.
+  it('reports no change when only a series showInLegend differs', () => {
     const withShowInLegend = (showInLegend: boolean) =>
       makeConfig({
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         series: [{ property: 'sales', showInLegend }]
       });
     expect(hasConfigStructureChange(withShowInLegend(true), withShowInLegend(true))).toBe(false);
-    expect(hasConfigStructureChange(withShowInLegend(false), withShowInLegend(true))).toBe(true);
-    expect(hasConfigStructureChange(withShowInLegend(true), withShowInLegend(false))).toBe(true);
+    expect(hasConfigStructureChange(withShowInLegend(false), withShowInLegend(true))).toBe(false);
+    expect(hasConfigStructureChange(withShowInLegend(true), withShowInLegend(false))).toBe(false);
   });
 });

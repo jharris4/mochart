@@ -1,4 +1,5 @@
 import { ALIGN_LEFT, ALIGN_CENTER, AUTO } from '../config/core/constants';
+import { getLegendItemBoundsList } from '../utils/TextMeasurement';
 import { createSpacingLayoutInfo, getSpacingLeft, getSpacingWidth, getSpacingTop, getSpacingHeight } from './SpacingLayoutInfo';
 import type { Bounds, TextBounds } from '../types/geometry';
 import type { LegendConfig } from '../types/config';
@@ -19,7 +20,8 @@ export function getLegendHeight(mochartConfig: EnhancedMochartConfig, chartTextB
   const { legend: legendConfig, series: seriesConfigs } = mochartConfig;
   if (legendConfig.visible === true && seriesConfigs.length > 0) {
     const { margin, padding, itemMargin, itemPadding, alignedToAxes, iconSpacerSize } = legendConfig;
-    const { legendItemTextRawBounds, legendItemMaxTextBounds } = chartTextBoundsData;
+    const { legendItemMaxTextBounds } = chartTextBoundsData;
+    const legendItemTextRawBounds = getLegendItemBoundsList(mochartConfig, chartTextBoundsData.legendItemTextRawBounds);
     const { width } = contentBounds;
     const iconSize = resolveLegendIconSize(legendConfig, legendItemMaxTextBounds);
 
@@ -71,7 +73,8 @@ export function getLegendLayoutInfo(mochartConfig: EnhancedMochartConfig, chartT
   const { legend: legendConfig, series: seriesConfigs } = mochartConfig;
   if (legendConfig.visible === true && seriesConfigs.length > 0) {
     const { margin, padding, itemMargin, itemPadding, alignedToAxes, align, iconSpacerSize } = legendConfig;
-    const { legendItemTextRawBounds, legendItemMaxTextBounds } = chartTextBoundsData;
+    const { legendItemMaxTextBounds } = chartTextBoundsData;
+    const legendItemTextRawBounds = getLegendItemBoundsList(mochartConfig, chartTextBoundsData.legendItemTextRawBounds);
     const iconSize = resolveLegendIconSize(legendConfig, legendItemMaxTextBounds);
     // Carry the placeholder marker into the item layouts so the rendered icon
     // uses the same fallback size as the layout pass.

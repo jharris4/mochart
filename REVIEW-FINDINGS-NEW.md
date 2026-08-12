@@ -858,7 +858,7 @@ The earlier note that the account of this finding was unconfirmed is resolved: t
 at `ChartTweens.ts:417`, and the arithmetic matches all four rows above.
 
 ### ANIM-7 — `showInLegend` rebuilds the whole chart and replays its opening animation
-**High · Bug · [mochartConfig.ts:360](packages/mochart/src/config/core/mochartConfig.ts#L360)** **[verified]** — **Open**
+**High · Bug · [mochartConfig.ts:360](packages/mochart/src/config/core/mochartConfig.ts#L360)** **[verified]** — **Fixed**
 
 `hasConfigStructureChange` treats a change to any series' `showInLegend` as structural, so the
 chart is torn down and rebuilt, replaying the opening animation
@@ -891,6 +891,32 @@ change, and the rendered output should be identical, so golden snapshots should 
 
 Worth a `ConfigUpdateSmoke` scenario toggling `showInLegend` with `structural: false`, which is
 where the wrong-length array would show up.
+
+**Fixed to the recommended strategy.** The legend's measured text sizes are keyed by series id
+instead of by legend position, and `showInLegend` is out of the structural list, so flipping it now
+takes the ordinary update path.
+
+* `getLegendItemTextBounds`/`getLegendItemTextRawBounds` return `Record<string, TextBounds>`, built
+  by zipping the measured elements against the `showInLegend` series that produced them.
+* A new exported `getLegendItemBoundsList` turns that map back into a positional list *for the
+  current* series set, falling back to `unmeasuredBounds` for a series with no entry. The two
+  `LegendLayout` loops call it, so their arithmetic and their output arrays are unchanged in shape —
+  the list now always describes the series being drawn.
+* `legendItemMaxTextBounds` is taken over `Object.values`, and `hasDefault` already recursed through
+  plain objects, so it needed no change.
+* `hasConfigStructureChange` no longer tests `showInLegend`.
+
+Golden snapshots did not move, as the finding predicted, and no public API changed.
+
+Three tests moved with the behaviour: `core.test.ts` now asserts the flag reports *no* structural
+change, and the two `TextMeasurement` legend tests assert the id-keyed shape. New coverage:
+`getLegendItemBoundsList` for a series joining and a series leaving the legend, and
+`test/components/LegendMembershipAnimation.test.ts`, which drives real frames on a fake clock and
+checks the frame *straight after* the flip — the only frame where a rebuild is visible. Verified to
+bite: with `showInLegend` put back in the structural list that test fails with bar heights
+`[4, 9]` (restarted from the baseline) against the expected settled `[204, 503]`.
+
+106 files / 1603 tests pass, whole-repo typecheck, lint and deadcode clean.
 
 
 ---
