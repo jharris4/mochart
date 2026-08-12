@@ -170,15 +170,33 @@ export interface CategoryValueObject {
  * `ObjectOfArraysDataProvider` cover the common dataset shapes; implement
  * this to read straight from an existing store without copying.
  *
- * Providers may expose loading and error state in addition to the two data
- * accessors. Series values remain unknown until the chart config selects and
- * validates a property.
+ * A provider is a read-only lookup over one dataset: the category values as a
+ * whole array, then any other property the config names, one category at a
+ * time. Both accessors are required — a provider missing either is invalid
+ * (`isDataProviderValid` is false and `getDataErrors` names what is missing).
+ * The other four members are optional and independent; each one buys a single
+ * behaviour, and a provider that wants none of them can omit all four.
  */
-export interface DataProvider<TCategoryValue = CategoryValue, TSeriesValue = unknown> {
+export interface DataProvider<TCategoryValue = CategoryValue> {
   /** The category values, one per category, in display order. */
   getCategoryValues(): readonly TCategoryValue[];
-  /** The value of `seriesProperty` for the given category (numeric or undefined for series values). */
-  getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, seriesProperty: string): TSeriesValue;
+  /**
+   * The value of one data property for one category. The chart calls it for
+   * every property its config names, which means two kinds of value:
+   *
+   * - a series `property`, `rangeProperty`, `errorLowProperty`,
+   *   `errorHighProperty`, `markerProperty`, `colorProperty`,
+   *   `labelProperty` or `tooltipProperty` must return a number, or
+   *   `undefined` for a missing value;
+   * - `categoryAxis.displayProperty` must return a string, number or `Date`
+   *   matching `categoryAxis.type`, exactly like a raw category value.
+   *
+   * The return type is `unknown` because of that second case; `getDataErrors`
+   * checks both against the config. Return the stored cell either way — this
+   * runs once per category per configured property whenever the chart
+   * recomputes its data, so it should stay a plain lookup.
+   */
+  getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, property: string): unknown;
   /** The data property the category values come from; when present, `getDataErrors` flags a mismatch with `categoryAxis.property`. */
   getCategoryProperty?(): string;
   /** When it returns anything but null/undefined, the chart shows its error state — `''` and `0` count. */

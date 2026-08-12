@@ -95,9 +95,11 @@ Both implement the `DataProvider` interface, which custom providers can
 implement to read straight from an existing store:
 
 ```ts
-interface DataProvider<TCategoryValue, TSeriesValue> {
+interface DataProvider<TCategoryValue> {
+  // required
   getCategoryValues(): readonly TCategoryValue[];
-  getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, seriesProperty: string): TSeriesValue;
+  getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, property: string): unknown;
+  // optional
   getCategoryProperty?(): string;  // when present, getDataErrors flags a mismatch with categoryAxis.property
   getError?(): unknown;    // non-null → the chart shows its error state ('' and 0 count)
   getLoading?(): boolean;  // true → the chart shows its loading state
@@ -105,7 +107,15 @@ interface DataProvider<TCategoryValue, TSeriesValue> {
 }
 ```
 
-See [Data providers](/guide/data-providers) for which properties are read.
+`getSeriesValue` is the interface's one property accessor: the chart calls it
+for every property the config names, which is why it returns `unknown`. A
+series property must yield a number or `undefined`; `categoryAxis.displayProperty`
+must yield a string, number, or `Date` matching `categoryAxis.type`. A provider
+missing either required member is invalid, and `getDataErrors` says which one
+is missing.
+
+See [Data providers](/guide/data-providers) for the full contract and which
+properties are read.
 
 ## Config helpers
 

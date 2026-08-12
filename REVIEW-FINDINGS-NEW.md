@@ -2448,7 +2448,7 @@ load, non-null after — and delete the casts; or stop presenting `ChartDataSour
 supported public extension contract. Either way, correct the `REVIEW-FINDINGS.md` summary.
 
 ### API-14 — the `DataProvider` contract needs revisiting; `getSeriesValue` serves two unrelated jobs
-**Medium · Inconsistency · [types/data.ts:183](packages/mochart/src/types/data.ts#L183)** — **Open**
+**Medium · Inconsistency · [types/data.ts:183](packages/mochart/src/types/data.ts#L183)** — **Fixed**
 
 `DataProvider` is the one interface hosts implement themselves, so its shape is the part of the
 public API that most needs to be self-explanatory. It currently is not.
@@ -2482,6 +2482,55 @@ package publishes. The weakest type on the interface exists to paper over the am
 
 Any of these is a breaking change to the provider contract, including both built-in providers and
 the demo helpers, so they are worth deciding together rather than one at a time.
+
+Fixed as a contract-honesty change, not a split.
+
+**Why no split.** The two "jobs" are one operation. Both built-in providers answer
+`getSeriesValue` identically for a display property and a series property — row
+cell by category key, or column cell by index. A `getCategoryDisplayValues()`
+would make every host write a second method that duplicates the first, keyed the
+same way, for zero new capability. The ambiguity is in the *types*, not the shape.
+
+So: `TSeriesValue` is dropped and `getSeriesValue` returns plainly `unknown`, with
+the per-consumer requirement documented in the JSDoc, the guide's new "The provider
+interface" section, `reference/api.md`, and core's README — a series property must
+yield a number or `undefined`, `categoryAxis.displayProperty` a string, number or
+`Date`. Both built-ins carry the dual-role comment and the parameter is renamed
+`seriesProperty` → `property`.
+
+The required/optional line is now enforced in code rather than only described:
+`getMissingDataProviderMembers` in `data/ChartData.ts`, a shape gate in
+`isDataProviderValid`, and a `data provider must implement: …` message from
+`getDataErrors`. Previously a provider missing `getCategoryValues` passed validation
+and threw later inside `getChartData`. The display-property type error also names
+the property now — the finding's "error they cannot explain" case.
+
+**No per-call cost.** The only changes at `getSeriesValue` are compile-time. The
+finding's brief said "per category per series per frame"; that is wrong.
+`getSeriesValue` is reached only from `getChartData`, called from the data sources'
+`start`/`update` on config, provider-identity or legend-filter change; frames
+interpolate precomputed values. What *does* run per frame is `isDataProviderValid`
+(in `Chart.sync`), which is why its shape check is two inline `typeof` tests while
+the array-allocating `getMissingDataProviderMembers` is used only for the error
+message — the duplication is deliberate and commented.
+
+**Left open deliberately:** the column-accessor reshape
+(`getSeriesValues(property): NumericValues`). It is the one item that would also
+help performance — one call per property, and `ObjectOfArraysDataProvider` could
+return its column with no copy — but it forces row-backed hosts to materialize an
+array per property per recompute, which is exactly the copying the current shape
+avoids. Worth deciding separately.
+
+Two corrections to the finding: splitting would *not* let `TSeriesValue` default to
+`NumericValue` honestly, since neither built-in can promise numbers, so the default
+would be a claim the package cannot keep; and "any of these is a breaking change to
+the provider contract" is wrong for the change actually made — no file in the repo
+passes a second type argument, and `implements DataProvider<X>` with a narrower own
+return type still compiles. Adjacent, not in the finding: `getLoading` is
+implemented by nothing in the repo and consumed only in `Chart.sync`.
+
+Six new tests plus one updated; 111 files / 1689 tests pass, coverage above all four
+thresholds, no golden movement.
 
 ---
 

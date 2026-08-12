@@ -44,8 +44,9 @@ export class ArrayOfObjectsDataProvider<
     return this.categoryProperty;
   }
 
-  getSeriesValue(categoryValue: TRow[TCategoryProperty], _categoryIndex: number, seriesProperty: string): unknown {
-    return this.rowsByCategoryValue[getCategoryValueKey(categoryValue)]?.[seriesProperty];
+  /** Any property of the row a category value keys, series values and categoryAxis.displayProperty alike. */
+  getSeriesValue(categoryValue: TRow[TCategoryProperty], _categoryIndex: number, property: string): unknown {
+    return this.rowsByCategoryValue[getCategoryValueKey(categoryValue)]?.[property];
   }
 }
 
@@ -96,8 +97,9 @@ export class ObjectOfArraysDataProvider<
     return this.categoryProperty;
   }
 
-  getSeriesValue(_categoryValue: TData[TCategoryProperty][number], categoryIndex: number, seriesProperty: string): unknown {
+  /** Any column at the category's index, series values and categoryAxis.displayProperty alike. */
+  getSeriesValue(_categoryValue: TData[TCategoryProperty][number], categoryIndex: number, property: string): unknown {
     // a property absent from the data reads as missing, like the row provider
-    return this.data[seriesProperty]?.[categoryIndex];
+    return this.data[property]?.[categoryIndex];
   }
 }

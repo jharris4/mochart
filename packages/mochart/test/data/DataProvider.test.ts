@@ -127,6 +127,25 @@ describe('missing properties and categories', () => {
   });
 });
 
+// getSeriesValue is the contract's one property accessor: the chart reads
+// categoryAxis.displayProperty through it as well as the series properties, so
+// both built-ins must return non-numeric cells unchanged.
+describe('display property values', () => {
+  const rows = [{ id: 1, label: 'Jan', sales: 10 }, { id: 2, label: 'Feb', sales: 20 }];
+  const columns = { id: [1, 2], label: ['Jan', 'Feb'], sales: [10, 20] };
+
+  it('returns a string display value from both providers', () => {
+    expect(new ArrayOfObjectsDataProvider(rows, 'id').getSeriesValue(2, 1, 'label')).toBe('Feb');
+    expect(new ObjectOfArraysDataProvider(columns, 'id').getSeriesValue(2, 1, 'label')).toBe('Feb');
+  });
+
+  it('returns a Date display value unconverted', () => {
+    const instant = new Date('2020-01-01T00:00:00.000Z');
+    const dateRows = [{ id: 1, at: instant }];
+    expect(new ArrayOfObjectsDataProvider(dateRows, 'id').getSeriesValue(1, 0, 'at')).toBe(instant);
+  });
+});
+
 // Regression: a category property absent from every row collapsed the whole
 // row index onto the "undefined" key — every category silently rendered the
 // last row's values. Both providers now report the mistake through getError.

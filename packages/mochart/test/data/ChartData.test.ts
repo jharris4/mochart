@@ -49,6 +49,22 @@ describe('isDataProviderValid', () => {
     expect(isDataProviderValid(provider)).toBe(false);
   });
 
+  // Regression: a provider missing a required accessor used to pass here and throw inside getChartData
+  it('is false for a provider missing a required accessor', () => {
+    const noCategoryValues = { getSeriesValue: () => 0 } as unknown as DataProvider;
+    expect(isDataProviderValid(noCategoryValues)).toBe(false);
+    const noSeriesValue = { getCategoryValues: () => [] } as unknown as DataProvider;
+    expect(isDataProviderValid(noSeriesValue)).toBe(false);
+    // an error-free provider that only reports state is not a provider
+    const stateOnly = { getError: () => null, getLoading: () => false } as unknown as DataProvider;
+    expect(isDataProviderValid(stateOnly)).toBe(false);
+  });
+
+  it('is true for a provider with both accessors and none of the optional members', () => {
+    const bare = { getCategoryValues: () => [], getSeriesValue: () => 0 } as unknown as DataProvider;
+    expect(isDataProviderValid(bare)).toBe(true);
+  });
+
   // Regression: truthiness let '' and 0 through, though the error prop honors them
   it('is false for a provider whose getError returns a falsy non-null error', () => {
     const emptyStringProvider = { getCategoryValues: () => [], getSeriesValue: () => 0, getError: () => '' } as unknown as DataProvider;

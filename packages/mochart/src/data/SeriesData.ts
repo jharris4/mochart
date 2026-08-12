@@ -118,6 +118,7 @@ function createEmptySeriesValueObjects(seriesConfigs: EnhancedSeriesConfig[]): S
   }));
 }
 
+/** The numeric half of the provider contract: the cast trusts the values getDataErrors checks with its numeric validator. */
 function getSeriesValuesForProperty(seriesProperty: string, rawCategoryValues: readonly CategoryValue[], dataProvider: DataProvider): NumericValues {
   const seriesValues: NumericValues = [];
   const categoryCount = rawCategoryValues.length;
