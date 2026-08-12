@@ -3210,7 +3210,7 @@ Worth noting for future work: the build is plain `ngc -p tsconfig.build.json`; `
 dependency anywhere in the monorepo.
 
 ### BIND-12 — assorted example and type-export nits
-**Low · Doc gap** — **Open**
+**Low · Doc gap** — **Fixed**
 
 (a) The React and Angular quick-starts use TS fences with an unannotated `const config = {…}`;
 `categoryAxis.type`/`scale` and `seriesDefaults.renderer` are literal unions that widen to `string`,
@@ -3224,6 +3224,38 @@ shared prop type in a Svelte host.
 
 **Fix:** annotate `config: MochartInputConfig` in the two quick-starts; retag the Svelte fences;
 document Lit's child-position requirement; export a `ChartRef` alias from `@mochart/svelte`.
+
+All four items fixed.
+
+(a) React's and Angular's quick-starts now annotate the config
+`MochartInputConfig` (with the `import type`), which is what widens the literal
+unions. Verified by probe, not by eye: the unannotated const really does fail
+with `Type 'string' is not assignable to type 'Scale | undefined'` on
+`categoryAxis.scale`; the annotated form compiles. The `data` array needs no
+annotation (`DataRow = Record<string, unknown>`). Vue's quick-starts use
+`<script setup>` without `lang="ts"`, so the finding was right to name only
+those two.
+
+(b) The two Svelte fences holding bare JS are retagged `js` — matching Vue's
+equivalent snippet, which was already tagged that way. Every fence in all five
+guides and all five READMEs was audited; those were the only two.
+
+(c) The Lit child-position constraint is documented in the guide and the README,
+naming the thrown message. A probe confirmed it: attribute and property parts
+both throw, child position inside an element and as the whole template body both
+render.
+
+(d) `@mochart/svelte` now declares `ChartRef` — in `src/types.ts`, re-exported
+from `index.ts`, which is where the other bindings keep theirs — with prose in
+the guide and README saying it types the `bind:this` handle. `svelte-package`
+was re-run so the shipped `.d.ts` carries it.
+
+Two corrections to the finding: (d)'s "the only binding with no `ChartRef`" is
+imprecise — Angular has none either, deliberately, since `refresh()` is a public
+method on `BaseChart` and `angular.md` already tells hosts to type a `@ViewChild`
+as `BaseChart`. And the generated framework-props model reads the bindings' prop
+interfaces from `types.ts` rather than `index.ts`, so the new export needed no
+model change.
 
 ---
 

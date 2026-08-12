@@ -30,9 +30,10 @@ import '@mochart/core/mochart.css';
 array-of-objects dataset:
 
 ```tsx
+import type { MochartInputConfig } from '@mochart/core';
 import { DefaultChart } from '@mochart/react';
 
-const config = {
+const config: MochartInputConfig = {
   title: { text: 'Revenue' },
   categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
   seriesDefaults: { renderer: 'bar' },
