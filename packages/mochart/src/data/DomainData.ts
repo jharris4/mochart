@@ -3,7 +3,8 @@ import type { DomainValue, NullableDomain } from '../types/data';
 
 export const nullDomain: NullableDomain = [null, null];
 
-function numericValue(value: DomainValue): number {
+/** A domain value as something comparable. Shared with AxisDomainData; does not parse date strings. */
+export function numericValue(value: DomainValue): number {
   return value instanceof Date ? value.getTime() : value;
 }
 
