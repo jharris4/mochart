@@ -98,9 +98,9 @@ content, so the pointer does not reach the chart underneath it.
 
 ## Customizing what renders
 
-Each state has a factory prop that returns a DOM node (or string). The
-factory receives a context object with the current
-`{ width, height, mochartConfig, dataProvider, error, hasData }`:
+Each state has a factory prop that returns a DOM node (or string). Every
+factory receives the same context object, with all six members present on every
+call:
 
 ```js
 createDefaultChart(container, {
@@ -115,11 +115,25 @@ createDefaultChart(container, {
 });
 ```
 
-Available factories: `getLoadingComponent`, `getErrorComponent`,
-`getNoDataComponent`, `getNoSizeComponent`, `getNoSeriesComponent`, and
-`getConfigErrorComponent` — see [State factories](/reference/props#factories)
-for what each one renders, and
-[`ChartFactoryContext`](/reference/props#factoryContext) for the context
+| Member | Value |
+| --- | --- |
+| `width` / `height` | Pixel size of the box the returned content fills; which box depends on the state (see below) |
+| `mochartConfig` | The enhanced config as supplied, including the invalid one in the config-error state; `null` before the host has a config |
+| `dataProvider` | The current provider, or `null` when there is none |
+| `error` | The active error (the `error` prop or the provider's); `undefined` outside the error state |
+| `hasData` | True when the committed dataset holds at least one category |
+
+`width`/`height` are the only members whose meaning moves between states,
+because the content is placed in a different box:
+
+| Factory | `width`/`height` measure |
+| --- | --- |
+| `getNoSizeComponent`, `getConfigErrorComponent` | The chart — there is no plot yet |
+| `getLoadingComponent`, `getErrorComponent` | The chart before a config arrives, the plot area once the chart is laid out |
+| `getNoSeriesComponent`, `getNoDataComponent` | The plot area, with the axes drawn around it |
+
+See [State factories](/reference/props#factories) for what each one renders,
+and [`ChartFactoryContext`](/reference/props#factoryContext) for the context
 fields.
 
 The same loading chart as above, with a custom factory (a spinner driven by

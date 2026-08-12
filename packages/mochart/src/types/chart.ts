@@ -61,19 +61,27 @@ export interface ChartDomAccessors {
   getTooltipDomElement(): HTMLElement | null;
 }
 
+/** The argument every state factory receives; all six members are always present. */
 export interface ChartFactoryContext {
-  /** The chart's current width in pixels. */
-  width?: number;
-  /** The chart's current height in pixels. */
-  height?: number;
-  /** The enhanced config, or null when the config failed validation. */
-  mochartConfig?: MochartConfig | null;
+  /**
+   * Width in pixels of the box the returned content fills: the chart for the
+   * no-size, config-error and no-config loading/error states, the plot area for
+   * the no-series, no-data, loading and error content inside a laid-out chart.
+   */
+  width: number;
+  /** Height in pixels of the same box `width` measures. */
+  height: number;
+  /**
+   * The enhanced config as supplied — including the invalid one in the
+   * config-error state; null when the host has not supplied a config yet.
+   */
+  mochartConfig: MochartConfig | null;
   /** The current data provider, or null when there is none. */
-  dataProvider?: DataProvider | null;
-  /** The `error` prop, when the chart is in its error state. */
-  error?: unknown;
-  /** False when the dataset has no categories. */
-  hasData?: boolean;
+  dataProvider: DataProvider | null;
+  /** The active error — the `error` prop or the provider's; undefined outside the error state. */
+  error: unknown;
+  /** True when the committed dataset holds at least one category. */
+  hasData: boolean;
 }
 
 /** Content accepted from loading, error, and empty-state factories. */
@@ -135,7 +143,9 @@ export interface ChartCallbacks {
 
 /**
  * Factories customizing what renders in each non-chart state. Each is called
- * with a {@link ChartFactoryContext} and returns a DOM node or string.
+ * with the same {@link ChartFactoryContext} members and returns a DOM node or
+ * string; only `width`/`height` differ between the states, per the box the
+ * content fills.
  */
 export interface ChartFactories {
   /** Rendered while the `loading` prop is true. */

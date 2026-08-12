@@ -251,10 +251,28 @@ createDefaultChart(container, {
 });
 ```
 
-Available factories: `getLoadingComponent`, `getErrorComponent`,
-`getNoDataComponent`, `getNoSizeComponent`, `getNoSeriesComponent`, and
-`getConfigErrorComponent` — each called with a context object
-(`{ width, height, mochartConfig, dataProvider, error, hasData }`).
+Every factory is called with the same context object — all six members are
+always present:
+
+| Member | Value |
+| --- | --- |
+| `width` / `height` | Pixel size of the box the returned content fills; which box depends on the state (see the table below) |
+| `mochartConfig` | The enhanced config as supplied, including the invalid one in the config-error state; `null` before the host has a config |
+| `dataProvider` | The current provider, or `null` when there is none |
+| `error` | The active error (the `error` prop or the provider's); `undefined` outside the error state |
+| `hasData` | True when the committed dataset holds at least one category |
+
+| Factory | Rendered when | `width`/`height` measure |
+| --- | --- | --- |
+| `getNoSizeComponent` | `width` or `height` is not a positive number | The chart (so the values given, `0` before a container is laid out) |
+| `getConfigErrorComponent` | The config fails validation | The chart |
+| `getLoadingComponent` | The `loading` prop is true | The chart before a config arrives, the plot area once the chart is laid out |
+| `getErrorComponent` | The `error` prop is set, or the provider reports one | The chart before a config arrives, the plot area once the chart is laid out |
+| `getNoSeriesComponent` | The config declares no series | The plot area |
+| `getNoDataComponent` | The dataset has no categories | The plot area |
+
+The plot-area states place their content over the plot with the axes drawn, so
+sizing a placeholder from `width`/`height` fits the box it actually occupies.
 
 ## Framework wrappers
 

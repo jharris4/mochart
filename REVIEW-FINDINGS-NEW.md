@@ -2235,7 +2235,7 @@ pass-through. No golden snapshot moved: `cssStyleColor` feeds only the html tool
 lint pass.
 
 ### API-9 — state-factory context members arrive inconsistently; the README implies otherwise
-**Low · Doc gap · [packages/mochart/README.md:238](packages/mochart/README.md#L238)** — **Open**
+**Low · Doc gap · [packages/mochart/README.md:238](packages/mochart/README.md#L238)** — **Fixed**
 
 README says all six factories are "each called with a context object
 (`{ width, height, mochartConfig, dataProvider, error, hasData }`)". Actually:
@@ -2267,6 +2267,34 @@ public JSDoc lives at [types/chart.ts:64](packages/mochart/src/types/chart.ts#L6
 state-dependent slot dimensions and `mochartConfig` as the config as supplied, valid or not — or,
 for a cleaner API, expose unambiguous `chartWidth`/`chartHeight`/`plotBounds` fields and deprecate
 the overloaded pair.
+
+**Fixed by making the runtime match the documented contract, not by narrowing the documentation.** All six
+`ChartFactoryContext` members are now non-optional and every call site passes the full context through one
+`factoryContext(width, height, error)` helper, so a factory can rely on what the README always claimed. The
+alternative — documenting that each state supplies a different subset — would have left every host writing
+defensive checks for members the chart could perfectly well supply.
+
+The six built-in factories dropped their `width = 0, height = 0` defaults, which existed only to cope with the
+context arriving incomplete. `hasChartDataContent(error)` became `hasCategories()`, since the error term was
+doing two jobs.
+
+The documentation now says what each member means rather than just listing names, and resolves the ambiguity the
+finding's second amendment raised: `width`/`height` are the box the returned content fills, which is the whole
+chart for the no-size, config-error and no-config loading and error states, and the plot area for content inside
+a laid-out chart. `mochartConfig` is the config as supplied — *including* the invalid one in the config-error
+state — and null only before a host has supplied one.
+
+Eight tests in `EmptyStates.test.ts`, one per state and per size regime, asserting the whole context rather than
+the member each state was previously missing. They bite: stubbing the helper to return a partial context fails
+four of them immediately.
+
+No golden moved — the factory content is not snapshotted. 109 files / 1661 tests pass, typecheck and lint clean,
+`generate-docs` regenerates the props reference from the new JSDoc without integrity errors, and the docs site
+builds.
+
+Note this finding's agent was interrupted by a server error just after its own bite proofs, mid-restore; the
+verification above, the regeneration and the bite proof were redone by hand to confirm the tree held the fixed
+state rather than a half-restored one.
 
 ### API-10 — `ChartEventPayload.categoryPercentage`/`valuePercentage` violate the `Fraction` convention
 **Low · Inconsistency · [types/chart.ts:16-20](packages/mochart/src/types/chart.ts#L16)** **[verified]** — **Fixed**
