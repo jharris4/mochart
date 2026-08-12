@@ -12,16 +12,32 @@ or the [core README](packages/mochart/README.md).
 npm install     # runs prepare → build:libs, which builds every library dist
 npm run dev     # demo gallery dev server (@mochart/demo-vanilla)
 npm run dev:docs  # documentation site dev server (port 5181)
-npm test        # tests in every workspace that has them
-npm run typecheck
+```
+
+Every pull request is gated on the root scripts below. CI runs them in this
+order and stops at the first failure, so running them in the same order locally
+is the quickest way to reproduce a red build:
+
+```sh
+npm run lint      # eslint over the whole repo
+npm run deadcode  # knip: unused exports, files and dependencies
+npm run typecheck # every workspace that has a typecheck script
+npm test          # tests in every workspace that has them
 npm run test:e2e  # Playwright suite (hosted by @mochart/demo-basic)
 ```
+
+`test:e2e` needs a browser once per machine: `npx playwright install chromium`.
+CI then runs `build:pages` twice, once per base path; the checks that step
+carries are listed under [CI guardrails, in one
+place](#ci-guardrails-in-one-place).
 
 The library packages ship built `dist/` output that is gitignored, so a fresh
 clone must `npm install` before anything imports `@mochart/core` by its
 default export condition (dev servers use the `development` condition and run
 from `src/`). Target one workspace with `-w`, e.g.
-`npm test -w @mochart/core`.
+`npm test -w @mochart/core`. `lint` and `deadcode` exist only at the root;
+narrow them with a path (`npx eslint packages/mochart`) or a workspace
+(`npx knip --workspace packages/mochart`) instead.
 
 ## The config metadata pipeline
 
@@ -141,12 +157,30 @@ repository variables — see `.github/workflows/ci.yml`.
 
 | Check | Where it runs |
 | --- | --- |
+| ESLint rules | `eslint .` → `npm run lint` |
+| Unused exports, files and dependencies | `knip` → `npm run deadcode` |
+| Types, per workspace | `tsc` / `svelte-check` / `vue-tsc` / `ngc` → `npm run typecheck` |
 | Config sources key parity | generator exits 1 → docs build → `build:pages` |
 | Generated JSDoc freshness | `test/config/jsdocSync.test.ts` → root `npm test` |
 | Docs example validity | `checkExamples.ts` → root `npm test` |
 | Golden rendering snapshots | core vitest → root `npm test` |
 | Dead docs links | VitePress build → `build:pages` |
 | Demo behavior | Playwright e2e → `npm run test:e2e` |
+
+The first two are worth a word on scope:
+
+- **Lint** (`eslint.config.mjs`, one flat config for the whole monorepo) is
+  configured to catch bugs, not style: there are no formatting rules, and every
+  disabled rule carries a comment explaining why it is off. Type-aware rules
+  run on plain `.ts`/`.tsx`; `.svelte` and `.vue` files get their framework
+  plugin's syntactic rules only, because `svelte-check`/`vue-tsc` in
+  `typecheck` already cover their types. `npm run lint:fix` applies the
+  autofixable subset, and a deliberately unused binding is spelled with a
+  leading `_`.
+- **Dead code** is knip over every workspace: it reports exports, types and
+  files that nothing in the repo reaches, and declared dependencies nothing
+  imports. Reachability starts from the `entry` patterns in `knip.json`, which
+  is where an export that is public API but has no in-repo consumer belongs.
 
 ## Config format versioning
 

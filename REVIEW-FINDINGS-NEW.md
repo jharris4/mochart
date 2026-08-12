@@ -4075,7 +4075,7 @@ it only because it uses a relative path inside the repo.
 `"./package.json": "./package.json"`) to the map.
 
 ### TOOL-7 — `lint` and `deadcode` gate every PR but are documented nowhere
-**Medium · Doc gap · [CONTRIBUTING.md:12](CONTRIBUTING.md#L12), [:150](CONTRIBUTING.md#L150); [README.md:78](README.md#L78)** — **Open**
+**Medium · Doc gap · [CONTRIBUTING.md:12](CONTRIBUTING.md#L12), [:150](CONTRIBUTING.md#L150); [README.md:78](README.md#L78)** — **Fixed**
 
 CI runs `lint`, `deadcode` and `typecheck` before anything else. CONTRIBUTING's Getting-started
 block lists `npm test`, `npm run typecheck` and `npm run test:e2e` but not lint or deadcode; its
@@ -4086,6 +4086,31 @@ letter pushes and gets a CI failure from a check no document mentioned.
 
 **Fix:** add both to the quickstart, add Lint / Dead code / Typecheck rows to the guardrails table,
 and sync the README Scripts block with `package.json`.
+
+**Fixed in both places the finding names.** `CONTRIBUTING.md` now documents the PR gate in CI's exact
+order — `lint`, `deadcode`, `typecheck`, `test`, `test:e2e` — as a runnable block in Getting started,
+notes that `test:e2e` needs `npx playwright install chromium` once per machine and that CI then runs
+`build:pages` twice (once per base path), and adds `lint`, `deadcode` and `typecheck` rows to the
+existing "CI guardrails, in one place" table. Two bullets cover what each of the two new gates actually
+checks: lint is configured for bugs rather than formatting, type-aware rules cover `.ts`/`.tsx` while
+`svelte-check`/`vue-tsc` cover `.svelte`/`.vue`, and knip's reachability starts from `knip.json`'s
+`entry` patterns. Both notes say `lint` and `deadcode` exist only at the root and give the narrowing
+forms.
+
+The root `README.md`'s Scripts block — the second half of the finding's fix — was out of sync in both
+directions and is now complete: it lists the CI gate as its own block, adds `build:libs`,
+`build:pages`, `preview:pages`, `preview:pages:serve`, `screenshots` and `screenshots:compare`, and
+mentions `lint:fix`. Checked mechanically: every script in the root `package.json` now appears in the
+README.
+
+Every documented command was run and exits 0, including the full e2e suite (79 tests) and
+`build:pages`. `lint:fix` was verified through `eslint . --fix-dry-run` rather than by writing.
+Nothing in CI turned out to lack a local equivalent; only `PAGES_BASE` differs, which the existing
+"Site assembly and deployment" section already covers.
+
+Wording note: the dead-code row describes the gate as it stands after
+[TOOL-4](#tool-4--knips-most-valuable-checks-are-filtered-out-of-the-deadcode-gate) unfiltered it, so
+it names the dependency check too.
 
 ### TOOL-8 — no `engines` field on any package, and CI tests exactly one Node version
 **Medium · Missing feature · all 21 `package.json` files; [ci.yml:12](.github/workflows/ci.yml#L12)** — **Open**
