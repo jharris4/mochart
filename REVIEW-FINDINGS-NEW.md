@@ -4998,7 +4998,7 @@ propagation is skipped entirely while a value axis is focused. Confirmed by prob
 focus), but pinning it is a separate case from the two this finding names.
 
 ### TEST-8 — 72 of 349 documented config properties are never set in any test or demo
-**Medium · Test gap** — **Open**
+**Medium · Test gap** — **Fixed**
 
 Cross-referencing every leaf property in `types/config.ts` against all of `packages/mochart/test/**`
 *and* every JSON in `packages/mochart-demo-data/src` leaves 72 properties that are only ever their
@@ -5020,6 +5020,70 @@ for localization, and no test proves an override is honoured.
 (`legend: {position: 'top'}`, assert the legend group's `y` is above the plot, plus the
 title-bottom + legend-top combination) and an addition to `ChartAria.test.ts` asserting all four
 a11y overrides appear. Treat the rest as a backlog; the enumeration is reproducible from `types/config.ts`.
+
+Fixed as seven new test files, 65 new tests, no source changes.
+
+**Neither of the finding's numbers reproduces.** Walking the config-reference model
+to leaf properties gives **962 documented leaf paths / 282 unique leaf names** (335
+counting nested-object parents, 433 section-level paths) — nothing reproduces 349.
+And **58 unique leaf names** are never used as a config key in any test or demo JSON,
+not 72 (75 are never used in tests, 17 of those appearing only in demo JSON). A
+per-path AST scan of the test sources was tried and discarded: tests routinely pass
+partial config through helper parameters (`renderChart({ ticks: [...] })`), so a
+structural scan reports properties as unset that are demonstrably covered. The
+name-based 58 is a lower bound, section-checked by hand for the behavioural
+candidates.
+
+**25 properties got real assertions.** The ones that earn them: `legend.position`
+(genuinely dead code — `ChartLayout.ts:50` and `:59` were both uncovered at
+baseline); the **nine** `*Front` z-order switches, which `Axis.ts` reads out of one
+destructure, so a key mix-up between them is invisible to coverage because both
+sides of each `if` run from the defaults; `valueAxes.showBaseLine`;
+`maxTickCount`/`minTickSpacing` (real arithmetic, and on an ordinal axis the cap
+becomes an exact label interval, so it pins precisely); the four `accessibility`
+label overrides, whose only purpose is being overridden; the icon
+`showIconColors`/`showIconPlaceholders`/`iconUnfilteredColor` two-term gate that
+decides whether an icon exists at all; `series.missingValueMarkers`;
+`seriesStacks.outerCapExpand` (real cap geometry); `tooltip.adjustSizeForFiltering`;
+`crosshair.showBehindTooltip` (a real uncovered branch); and
+`pie.centerOffsetXFraction`, whose vertical twin is exercised on the adjacent line of
+the same expression — exactly where a copy-paste lands. Six more got
+attribute-equality smoke assertions, which is as strong as those behaviours get.
+
+**28 left uncovered, with reasons.** The 16 axis spacing numbers (32 paths) are each
+a single addend inside one axis-layout sum, so a real assertion has to restate the
+sum and a "the DOM changed" assertion is a weak oracle — that is the biggest single
+item left. `series.animateBaseFromAdjacent`'s default is *conditional* (`true` for
+line and area, `false` for bar), so both sides already run and an override pins
+nothing new. The six `labelAboveBase*`/`labelBelowBase*` fractions are only
+meaningful in combination with `labelPosition` and the base, which
+`SeriesLabels.test.ts` already covers. `colorPalette.*.fillColors` resolves through
+the `SeriesColors.ts` mapping the other palette keys exercise. `useSeriesFocus`,
+`adjustTickLabelSizeForFiltering` and `tickLabelTruncationMinLength` are real
+branches that each need their own focus/filter/measurement setup — a fair second
+slice.
+
+Every property in both covered groups was proved by breaking the source, watching the
+test fail, and restoring; `git diff -- packages/mochart/src` shows no trace of any
+breakage. Selectors are built only from `ChartDom.ts` helpers, no `mochart-*`
+literals.
+
+Four further corrections to the finding: there are **nine** `*Front` switches, not
+six (`backgroundFront`, `axisLineFront`, `focusRangeFront`, `tickMarkFront`,
+`tickLabelFront`, `titleFront`, `focusTickMarkFront`, `gridLineFront`,
+`baseLineFront`); `showIconShapes` is not unexercised (`NegativeBounds.test.ts:61`
+sets it); and the `SeriesColorIcon` dead code is misattributed — lines 138-143/158-164/168
+are `syncColorDefs`, reached only from `syncHTML`, which is the **tooltip** row icon.
+The legend swatch goes through `syncSVG` and reuses the chart-level gradient defs, so
+"a legend swatch for a gradient-filled series is never rendered" is wrong; it is the
+tooltip swatch. It is also not gated by `showIconColors`/`showIconPlaceholders` but by
+`series.gradient`/`colorScale`.
+
+Found while measuring, recorded here rather than filed because the queue is closed:
+**`tooltip.minWidth` is documented, defaulted to 120 and validated, but never read.**
+The only `minWidth` occurrences in `src/` are an unrelated runtime prop threaded from
+`tooltipBounds.width` through `Tooltip` → `TooltipContent` → `TooltipControls`. No
+code reads `tooltipConfig.minWidth`, so the docs promise a knob that does nothing.
 
 ### TEST-9 — nothing tests the published build; every test and the e2e suite run against `src`
 **Medium · Tooling gap · [demo-basic/playwright.config.ts:18](packages/mochart-demo-basic/playwright.config.ts#L18)** — **Open**
