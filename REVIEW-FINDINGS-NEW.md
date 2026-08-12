@@ -4517,7 +4517,7 @@ core's typecheck is clean and its validation suites pass — its three `regexp` 
 `g` nor `y`, so the change is behaviour-neutral there.
 
 ### VAL-5 — `instanceOf`'s error message inlines the entire class source
-**Medium · Bug · [validators.ts:211](packages/movalid/src/validators.ts#L211)** **[verified]** — **Open**
+**Medium · Bug · [validators.ts:211](packages/movalid/src/validators.ts#L211)** **[verified]** — **Fixed**
 
 `message: (type) => "should be an instanceof " + type` string-coerces the constructor:
 
@@ -4530,6 +4530,21 @@ The package's headline claim is "human-readable error messages"; here the whole 
 class body ends up in a user-facing string.
 
 **Fix:** `"should be an instanceof " + (type.name || 'the given class')`.
+
+**Fixed exactly as recommended.** `instanceOf`'s message is now
+`'should be an instanceof ' + (type.name || 'the given class')`, so a named class or built-in reads
+`should be an instanceof Date` instead of the constructor's whole source text. A genuinely anonymous
+class expression, whose `.name` is empty, falls back to `the given class` rather than producing a
+dangling message.
+
+Three tests cover a named class, a built-in constructor and the anonymous fallback; all three fail
+against the old message. movalid 400 tests, typecheck and lint clean; core typecheck and its 1626 tests
+pass.
+
+Blast radius is zero beyond the message text: `instanceOf` has no call site outside movalid — core never
+uses it — so no core validation output or golden snapshot is affected. Worth noting for anyone rereading
+the finding: the `static{__name(this,"MyThing")}` form in its first example is esbuild-transformed
+output, not raw source; the tests assert against the raw form.
 
 ### VAL-6 — `equal()` renders functions and symbols as "undefined"
 **Low · Bug · [validators.ts:94](packages/movalid/src/validators.ts#L94)** — **Open**

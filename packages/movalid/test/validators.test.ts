@@ -788,6 +788,20 @@ describe("validators", () => {
         class BClass {}
         expect(baseValidators.instanceOf(AClass)(new BClass())).toBe(false);
       });
+
+      it("should name the class in its error message", () => {
+        class AClass {}
+        expect(baseValidators.instanceOf(AClass).errorMessage).toBe("should be an instanceof AClass");
+      });
+
+      it("should name a built in constructor in its error message", () => {
+        expect(baseValidators.instanceOf(Date).errorMessage).toBe("should be an instanceof Date");
+      });
+
+      it("should fall back to a generic name for an anonymous class", () => {
+        const anonymousClass = (() => class {})();
+        expect(baseValidators.instanceOf(anonymousClass).errorMessage).toBe("should be an instanceof the given class");
+      });
     });
 
     describe("type of", () => {
