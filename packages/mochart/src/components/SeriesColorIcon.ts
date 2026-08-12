@@ -190,7 +190,9 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     const { opacity, focusedOpacity, defocusedOpacity } = getSeriesOpacities(seriesConfig);
     const seriesGradientColors = gradient !== NONE || getSeriesGradientColors(seriesConfig);
     const halfBorderSize = iconBorderSize / 2.0;
-    const shapeSize = iconSize - iconBorderSize;
+    // iconSize and iconBorderSize validate independently, so a border wider than the icon would
+    // otherwise put a negative width on the rect and the browser would drop the element
+    const shapeSize = Math.max(iconSize - iconBorderSize, 0);
     const gradientFillColor = getGradientReference(gradientId);
     const seriesColor = getSeriesColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, iconUnfilteredColor);
 
@@ -212,7 +214,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     };
 
     if (showIconShapes && markerShape !== NONE) {
-      const symbolSize = shapeSize - 3;
+      const symbolSize = Math.max(shapeSize - 3, 0);
       const halfSize = Math.floor(iconSize / 2.0);
       const symbolGenerator = getSymbolGenerator(symbolSize, markerShape);
       const symbolTransform = translate(halfSize, halfSize);

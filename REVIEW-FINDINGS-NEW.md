@@ -1142,7 +1142,7 @@ Test focuses the middle legend item, removes it from the legend, and asserts foc
 land on the next item rather than on the page body; it fails on the unpatched source.
 
 ### COMP-7 — negative `width`/`height` on the legend icon when `iconBorderSize` exceeds `iconSize`
-**Low · Bug · [SeriesColorIcon.ts:193](packages/mochart/src/components/SeriesColorIcon.ts#L193)** — **Open**
+**Low · Bug · [SeriesColorIcon.ts:193](packages/mochart/src/components/SeriesColorIcon.ts#L193)** — **Fixed**
 
 Both validate as `numberMin(0)` independently, so `shapeSize = iconSize - iconBorderSize` can
 go negative and is written straight to the rect: `legend: { iconSize: 4, iconBorderSize: 10,
@@ -1151,6 +1151,17 @@ the element, so the icon vanishes with no diagnostic.
 
 **Fix:** `Math.max(iconSize - iconBorderSize, 0)` (and clamp `symbolSize` likewise), or add a
 cross-field validation warning.
+
+**Fixed by clamping.** `shapeSize` is `Math.max(iconSize - iconBorderSize, 0)` and `symbolSize` is
+clamped the same way, so `legend: { iconSize: 4, iconBorderSize: 10 }` now emits a zero-size rect
+instead of `width="-6" height="-6"`. Taken over the cross-field validation warning because the
+clamp matches how the rest of the layout already handles spacing that exceeds its box (see
+[LAYOUT-1](#layout-1--negative-widthheight-reach-background-rects-on-small-or-heavily-spaced-charts));
+a warning would still leave the icon undrawable.
+
+Covered in `test/layout/NegativeBounds.test.ts`, which already sweeps a rendered chart for rects
+with a negative dimension. Verified to bite: without the clamp it reports
+`mochart-legend-item-icon -6x-6`. 1604 tests, typecheck and lint pass.
 
 ### COMP-8 — thresholds on an ordinal category axis render nothing, silently
 **Low · Inconsistency · [AxisThresholdLine.ts:63](packages/mochart/src/components/AxisThresholdLine.ts#L63)** — **Open**
