@@ -29,7 +29,7 @@ import * as barCapsStacked from '../examples/barCapsStacked'
 - When a bar is shorter than its cap,
   [`capExpand`](/reference/series#series.capExpand) decides what
   gives: `true` (the default) keeps the cap at full size, `false` shrinks the
-  cap to fit the bar. The Capped Bars demo in the gallery draws every shape
+  cap to fit the bar. The Capped demo in the gallery draws every shape
   both ways on an axis pinned well past the data, so the difference is easy
   to compare.
 

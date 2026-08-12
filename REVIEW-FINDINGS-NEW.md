@@ -3066,7 +3066,7 @@ The docs site builds clean (no dead links or anchors) and the new `valueAxes.bas
 resolves; core's 1612 tests and typecheck pass.
 
 ### DOC-12 — two small factual slips in the recipes
-**Low · Doc inconsistency · [recipes/bar-caps.md:32](packages/mochart-docs/recipes/bar-caps.md#L32); [candlestick.md:36](packages/mochart-docs/recipes/candlestick.md#L36), [ohlc.md:40](packages/mochart-docs/recipes/ohlc.md#L40), [waterfall.md:31](packages/mochart-docs/recipes/waterfall.md#L31)** — **Open**
+**Low · Doc inconsistency · [recipes/bar-caps.md:32](packages/mochart-docs/recipes/bar-caps.md#L32); [candlestick.md:36](packages/mochart-docs/recipes/candlestick.md#L36), [ohlc.md:40](packages/mochart-docs/recipes/ohlc.md#L40), [waterfall.md:31](packages/mochart-docs/recipes/waterfall.md#L31)** — **Fixed**
 
 (a) "The **Capped Bars** demo in the gallery" — the demo is titled `"Capped"`.
 (b) "The default direction colors are **aqua**/red" — the up/increase colour is `#1baf7a`
@@ -3082,6 +3082,29 @@ comments, or shift the hue toward the name.
 [API-9](#api-9--state-factory-context-members-arrive-inconsistently-the-readme-implies-otherwise),
 [CONFIG-9](#config-9--validateconfigs-strict-parameter-is-undocumented),
 [BIND-10](#bind-10--datatestid-is-documented-in-every-guide-page-and-no-readme).)*
+
+**Both slips fixed, in the docs and at the source of the wrong word.**
+
+(a) `recipes/bar-caps.md` now names the demo *Capped*, which is what
+[demos.json:86](packages/mochart-demo-data/src/demos.json#L86) declares (`"id": "capped"`,
+`"title": "Capped"`). "Capped Bars" is the chart's own title text inside its config, not the gallery
+entry. The rest of the sentence held up: that config really does carry Round, Curve and Point each with
+`capExpand` both ways, plus a None series.
+
+(b) The direction colours are described as **teal-green/red** (and teal-green/red/blue for the
+waterfall) rather than aqua/red. `#1baf7a` sits at a hue near 158°, which is a green with a teal cast,
+not an aqua. The old framing also undercut itself — it contrasted the default with "the conventional
+green/red" when the default *is* a green — so the sentence now says the distinction is the shift toward
+teal, keeping the accessibility rationale unchanged. Fixed in `recipes/candlestick.md`, `recipes/ohlc.md`
+(which shares `DEFAULT_COLORS` with candlestick via
+[Ohlc.ts:2](packages/mochart/src/data/Ohlc.ts#L2)) and `recipes/waterfall.md`.
+
+The finding's second half — the two source comments that were the origin of the word — is included:
+`Candlestick.ts:144` and `Waterfall.ts:85` no longer say "Aqua". `grep -ri aqua` over
+`packages/mochart/src` and the recipes now returns nothing, so the docs and the code agree.
+
+Docs site builds clean (via `npm run gen` + `vitepress build`; the packaged `build` script's
+lib-freshness prebuild was failing on other in-flight work at the time, unrelated to these edits).
 
 ### DOC-13 — filtering every series does not activate the documented no-series state
 **Medium · Doc gap · [chart-states.md:60](packages/mochart-docs/guide/chart-states.md#L60) vs [Chart.ts:1234](packages/mochart/src/components/Chart.ts#L1234)** **[from SOL review]** — **Fixed** (docs); behaviour question open
