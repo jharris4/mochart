@@ -110,6 +110,16 @@ Decorative geometry — axes, grid lines, series shapes, the crosshair — is
 `aria-hidden`, so a screen reader lands on the meaningful stops: the plot
 area button, the legend, and the tooltip.
 
+Each set of roving tab stops is announced as a named group, so a screen
+reader says what you have entered before it reads the first item: the legend
+group is named from
+[`accessibility.legendLabel`](/reference/accessibility#accessibility.legendLabel),
+the interactive series or pie slices from
+[`accessibility.seriesLabel`](/reference/accessibility#accessibility.seriesLabel),
+and an open tooltip's rows from
+[`accessibility.tooltipLabel`](/reference/accessibility#accessibility.tooltipLabel).
+Each group appears only while its items are actually tab stops.
+
 Keyboard navigation speaks. Opening or stepping the tooltip announces its
 content through a visually-hidden live region — "Mon: Trial: 18, Paid: 6" —
 mirroring exactly what the tooltip shows, including per-series value
@@ -183,7 +193,9 @@ const config = {
     chartLabel: 'Diagramm',        // svg name when the title has no text
     chartRoleDescription: 'Diagramm',
     plotLabel: 'Diagrammwerte',    // the plot-area tab stop
+    seriesLabel: 'Datenreihen',    // the interactive series / pie slices group
     legendLabel: 'Legende',        // the legend group
+    tooltipLabel: 'Tooltip-Werte', // the tooltip rows group
     tooltipPreviousLabel: 'Vorherige Kategorie', // the tooltip controls' ‹ button
     tooltipNextLabel: 'Nächste Kategorie'        // … and its › button
   }
@@ -224,7 +236,18 @@ this when the surrounding page already conveys what the chart shows.
 
 A downloaded SVG is a static image, so [exporting](/guide/export) removes
 the interactive semantics — the tab stops and their `role`, `aria-label`,
-`aria-expanded`, and `aria-pressed` attributes — and marks the root svg
-`role="img"`. The chart's own `aria-label` (its title, or
-[`chartLabel`](/reference/accessibility#accessibility.chartLabel)) is left
-in place, so the exported image is still announced by the chart's name.
+`aria-expanded`, and `aria-pressed` attributes.
+
+What the root svg gets depends on whether the chart has an accessible name
+to carry. With accessibility enabled, the chart's own `aria-label` (its
+title, or
+[`chartLabel`](/reference/accessibility#accessibility.chartLabel)) is left in
+place and the svg is marked `role="img"`, so the exported image is announced
+by the chart's name. With
+[`accessibility.enabled`](/reference/accessibility#accessibility.enabled)
+`false` or
+[`hidden`](/reference/accessibility#accessibility.hidden) `true` there is no
+`aria-label` to keep, so the export is marked `aria-hidden="true"` instead —
+an unnamed `role="img"` would be a worse result than the unroled svg it came
+from. Add your own `aria-label`, `figcaption` or adjacent text where you
+place the image if it needs a name in that case.

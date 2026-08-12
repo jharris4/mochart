@@ -2395,7 +2395,7 @@ loses their place.
 replacing it and re-focus a surviving stop; have `closeTooltip` do what `escapeTooltip` does.
 
 ### A11Y-4 — export stamps `role="img"` on charts that carry no accessible name
-**Medium · Bug + doc inconsistency · WCAG 1.1.1 · [export/index.ts:182-189](packages/mochart-export/src/index.ts#L182)** **[verified]** — **Open**
+**Medium · Bug + doc inconsistency · WCAG 1.1.1 · [export/index.ts:182-189](packages/mochart-export/src/index.ts#L182)** **[verified]** — **Fixed**
 
 `cloneChartSvg` sets `role="img"` unconditionally, but `aria-label` is only written when
 `accessibilityActive(...)` ([Chart.ts:1176](packages/mochart/src/components/Chart.ts#L1176)). So
@@ -2406,6 +2406,25 @@ default configuration.
 
 **Fix:** set `role="img"` only when the clone has an `aria-label`/`aria-labelledby`; otherwise set
 `aria-hidden="true"` (or accept an `ariaLabel` export option). Correct the guide's Exports paragraph.
+
+**Fixed as recommended.** `cloneChartSvg` sets `role="img"` only when the clone actually carries an
+`aria-label` or `aria-labelledby`; otherwise it sets `aria-hidden="true"`. So exporting a chart with
+`accessibility.enabled: false` or `hidden: true` produces a hidden decorative image rather than an unnamed
+one, which is the harder failure the finding identifies.
+
+The `ariaLabel` export option the finding offers as an alternative was not added: the chart already decides
+whether it has a name, and a second source of truth in the export options would let the two disagree. A
+host that wants a name on a decorative chart's export can put it on the element it places the image into,
+which is what the guide now says.
+
+The guide's Exports paragraph was rewritten rather than patched: it now states both outcomes explicitly —
+`role="img"` plus the chart's own label when accessibility is on, `aria-hidden="true"` when it is off or
+hidden — and says what a host should do in the second case. The old text claimed the export "is still
+announced by the chart's name", which was true only in the default configuration.
+
+Covered by a test that exports both configurations and asserts no `aria-label`, no `role="img"` and
+`aria-hidden="true"`. It fails against the unconditional version. The export suite's 35 tests pass,
+typecheck and lint clean, docs site builds.
 
 ### A11Y-5 — `accessibility.enabled: true` removes more text from the a11y tree than it adds
 **Medium · Bug · WCAG 1.3.1 / 1.1.1 · [Plot.ts:65-66](packages/mochart/src/components/Plot.ts#L65), [Series.ts:360](packages/mochart/src/components/Series.ts#L360)** — **Open**
