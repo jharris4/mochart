@@ -228,10 +228,6 @@ function setKeyedSeriesDomainForDelta(
   deltaPercentage: number,
   percentage: number
 ): void {
-  if (domainDelta[valueKey].deltaPercentage < deltaPercentage) {
-    seriesDomainObject[valueKey] = endSeriesDomainObject[valueKey];
-  }
-
   seriesDomainObject[valueKey] = getDomainForDelta(startSeriesDomainObject[valueKey] as NumericDomain, endSeriesDomainObject[valueKey] as NumericDomain, domainDelta[valueKey], deltaPercentage, percentage)
 }
 

@@ -742,7 +742,7 @@ The helper had no direct test, so `test/layout/TooltipLayout.test.ts` now covers
 pulled-back-from-the-max-edges, and oversized in both directions and in one only. 1597 tests pass.
 
 ### ANIM-4 — dead store in `setKeyedSeriesDomainForDelta`
-**Low · Bug · [ChartAnimation.ts:231-235](packages/mochart/src/animation/ChartAnimation.ts#L231)** — **Open**
+**Low · Bug · [ChartAnimation.ts:231-235](packages/mochart/src/animation/ChartAnimation.ts#L231)** — **Fixed**
 
 The `if (domainDelta[valueKey].deltaPercentage < deltaPercentage)` branch assigns
 `seriesDomainObject[valueKey]`, then line 235 unconditionally overwrites it. Harmless today
@@ -750,6 +750,15 @@ only because `getDomainForDelta` re-tests the same condition, but the code says 
 does not do.
 
 **Fix:** delete lines 231-233, or make 235 the `else` branch.
+
+**Fixed by deleting the dead store.** The `if (domainDelta[valueKey].deltaPercentage <
+deltaPercentage)` branch assigned `endSeriesDomainObject[valueKey]` and was then overwritten
+unconditionally by the `getDomainForDelta` call. `getDomainForDelta` re-tests exactly that condition
+and returns `endDomain` for it ([ChartAnimation.ts:140](packages/mochart/src/animation/ChartAnimation.ts#L140)),
+so the branch was doing the same work one line early and throwing it away.
+
+`setKeyedSeriesDomainForDelta` is now the single assignment. No behaviour change; 1597 tests,
+typecheck and lint pass.
 
 ### ANIM-5 — shared delta constants are mutated in place
 **Low · Bug · [SeriesAnimationData.ts:843-844](packages/mochart/src/animation/SeriesAnimationData.ts#L843)** — **Open**
