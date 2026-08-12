@@ -1,6 +1,8 @@
 import type { Page } from '@playwright/test';
 import { test, expect, openDemo } from './helpers';
+import { mochartCssClasses } from '@mochart/core';
 
+const crosshairLineSelector = `.${mochartCssClasses['crosshair']} .${mochartCssClasses['crosshairLine']}`;
 const categoryTickLabels = '.mochart-category-axis .mochart-axis-tick-label';
 
 function barGeometry(page: Page): Promise<string> {
@@ -23,7 +25,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('clicking the plot opens a tooltip and crosshair with one line per series', async ({ page }) => {
-  const crosshairLines = page.locator('.mochart-crosshair .crosshair-line');
+  const crosshairLines = page.locator(crosshairLineSelector);
   await expect(crosshairLines).toHaveCount(0);
 
   await hoverPlotCenter(page);
@@ -86,7 +88,7 @@ test('the tooltip and crosshair are keyboard accessible from the plot area', asy
   const tooltip = page.locator('.mochart-tooltip');
   await expect(tooltip).toBeVisible();
   await expect(plotRect).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.locator('.mochart-crosshair .crosshair-line').first()).toBeAttached();
+  await expect(page.locator(crosshairLineSelector).first()).toBeAttached();
 
   // compare category labels only: series values animate, and the demo's
   // category values are not consecutive

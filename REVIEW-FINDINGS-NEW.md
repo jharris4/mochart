@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 60 fixed, 2 needing an answer, 99 open.** TOOL-2 is deferred to release time by
+**Status: 61 fixed, 2 needing an answer, 98 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1794,7 +1794,7 @@ now a published type-surface break.
 consumers actually need.
 
 ### API-3 — crosshair elements get unnamespaced CSS classes
-**Medium · Bug · [ChartDom.ts:69](packages/mochart/src/utils/ChartDom.ts#L69)** — **Open**
+**Medium · Bug · [ChartDom.ts:69](packages/mochart/src/utils/ChartDom.ts#L69)** — **Fixed**
 
 `crosshairCategoryLines: 'crosshair-category-lines'`, `crosshairSeriesLines`, `crosshairLine` —
 the only three of ~90 entries without the `mochart-` prefix. `Crosshair.ts` writes them straight
@@ -1802,8 +1802,14 @@ onto the rendered SVG, so a host page with any rule matching `.crosshair-line` r
 The e2e suite already has to qualify them
 ([interactions.spec.ts:26](packages/mochart-demo-basic/e2e/interactions.spec.ts#L26)).
 
-**Fix:** rename to `mochart-crosshair-*`, update the three core tests and two e2e selectors, and
-regenerate goldens.
+**Fixed:** renamed to `mochart-crosshair-*`, with the six core assertions and two e2e selectors
+updated and goldens regenerated. The regeneration touched 418 files but exactly two lines each —
+the `crosshair-category-lines` and `crosshair-series-lines` group attributes. `crosshair-line`
+appears in no golden, since crosshairs only draw on interaction.
+
+`test/utils/ChartDom.test.ts` (added for [API-4](#api-4--mochartcssclasses-values-are-not-all-class-names-contradicting-the-api-reference))
+now asserts every token in the map carries the `mochart-` prefix, so a new unprefixed class fails
+the suite.
 
 ### API-4 — `mochartCssClasses` values are not all class names, contradicting the API reference
 **Medium · Doc gap · [reference/api.md:212](packages/mochart-docs/reference/api.md#L212)** — **Fixed**
