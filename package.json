@@ -37,7 +37,7 @@
     "screenshots:compare": "node scripts/screenshots/compare.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "deadcode": "knip --include exports,types,files",
+    "deadcode": "knip",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "devDependencies": {
