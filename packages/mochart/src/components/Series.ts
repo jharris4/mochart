@@ -207,8 +207,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
     const { key } = event as KeyboardEvent;
     if (key === 'Enter' || key === ' ') {
       event.preventDefault();
-      // the series half only (focus toggle / onSeriesClick); the container
-      // forwards the same keydown to the plot handler for the tooltip half
+      // activation is the focus toggle / onSeriesClick only: the tooltip belongs to the plot rect
       this.state.onSeriesClick(event);
     }
   }

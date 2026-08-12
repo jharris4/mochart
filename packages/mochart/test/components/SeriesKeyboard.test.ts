@@ -4,7 +4,8 @@
  * between series in config order (the DOM is focus-ordered, so it cannot drive
  * navigation), Enter/Space clicks the whole series (categoryIndex -1, like a
  * line/area path click), and follower series stay pointer-only. Non-interactive
- * series stay aria-hidden.
+ * series stay aria-hidden. Activation does not touch the tooltip: the plot rect one
+ * Tab earlier is the chart's category cursor, and only Escape crosses between them.
  */
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
@@ -47,6 +48,14 @@ function seriesNodes(container: Element): SVGElement[] {
   return ['S0', 'S1', 'S2']
     .map(id => container.querySelector<SVGElement>(getCssSelector('seriesContainer') + ' g[data-series-id="' + id + '"]'))
     .filter((node): node is SVGElement => node !== null);
+}
+
+function plotRect(container: Element): SVGElement {
+  return container.querySelector<SVGElement>(getCssSelector('seriesBackground') + ' rect')!;
+}
+
+function announcement(container: Element): string {
+  return container.querySelector('[role="status"]')?.textContent ?? '';
 }
 
 function key(target: Element, keyValue: string): void {
@@ -144,19 +153,67 @@ describe('cartesian series keyboard semantics', () => {
     expect(document.activeElement).toBe(items[0]);
   });
 
-  it('toggles the tooltip with Enter and closes it with Escape', () => {
-    const container = mountChart(makeConfig(), () => {});
+  // A11Y-8: Enter on a series did two things at once — the whole-series click and a
+  // tooltip opened at the *remembered* category, which has nothing to do with the series
+  // activated. A cartesian series spans every category, so there is no category to open at.
+  it('activates the series only, without opening the tooltip', () => {
+    const clicks: ChartSeriesClickPayload[] = [];
+    const container = mountChart(makeConfig(), payload => clicks.push(payload));
     const items = seriesNodes(container);
-    const rect = container.querySelector<SVGElement>(getCssSelector('seriesBackground') + ' rect')!;
+    const rect = plotRect(container);
 
     key(items[0], 'Enter');
-    expect(rect.getAttribute('aria-expanded')).toBe('true');
-    expect(container.querySelector(getCssSelector('tooltip'))).not.toBeNull();
-    // keyboard activation announces like the plot rect does
-    expect(container.querySelector('[role="status"]')?.textContent ?? '').not.toBe('');
+    expect(clicks).toEqual([{ seriesId: 'S0', categoryIndex: -1, nearestCategoryIndex: -1 }]);
+    expect(rect.getAttribute('aria-expanded')).toBe('false');
+    expect(container.querySelector(getCssSelector('tooltip'))?.textContent ?? '').toBe('');
+    // activating a series is not a value readout, so nothing is announced
+    expect(announcement(container)).toBe('');
 
+    key(items[1], ' ');
+    expect(clicks.length).toBe(2);
+    expect(rect.getAttribute('aria-expanded')).toBe('false');
+
+    // and still not once the plot rect has left a remembered category behind
+    key(rect, 'Enter');
+    key(rect, 'ArrowRight');
+    key(rect, 'Escape');
+    key(items[0], 'Enter');
+    expect(rect.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  // A11Y-8: the category cursor lives on the plot rect alone, and arrows inside the
+  // series group are sibling navigation — they must not double as a second cursor
+  it('steps between series with arrows without moving the open tooltip', () => {
+    const container = mountChart(makeConfig(), () => {});
+    const items = seriesNodes(container);
+    const rect = plotRect(container);
+
+    key(rect, 'Enter');
+    const opened = announcement(container);
+    expect(rect.getAttribute('aria-expanded')).toBe('true');
+    expect(opened).not.toBe('');
+
+    items[0].focus();
+    key(items[0], 'ArrowRight');
+    expect(document.activeElement).toBe(items[1]);
+    expect(announcement(container)).toBe(opened);
+  });
+
+  // Escape is not a roving-group key, so it stays forwarded: a keyboard user who opened
+  // the tooltip on the plot rect and tabbed on to a series can still dismiss it
+  it('closes the tooltip with Escape from a series without taking focus back', () => {
+    const container = mountChart(makeConfig(), () => {});
+    const items = seriesNodes(container);
+    const rect = plotRect(container);
+
+    key(rect, 'Enter');
+    expect(rect.getAttribute('aria-expanded')).toBe('true');
+
+    items[0].focus();
     key(items[0], 'Escape');
     expect(rect.getAttribute('aria-expanded')).toBe('false');
+    expect(container.querySelector(getCssSelector('tooltip'))?.textContent ?? '').toBe('');
+    expect(document.activeElement).toBe(items[0]);
   });
 
   it('keeps follower series pointer-only', () => {

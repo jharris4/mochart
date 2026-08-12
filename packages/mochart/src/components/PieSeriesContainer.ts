@@ -76,6 +76,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     if (key === 'Escape' || key === 'Enter' || key === ' ') {
       // mirror the plot rect: Enter/Space toggles the tooltip (and announces),
       // Escape closes it — the slice itself handles only focus/selection
+      // a pie has one category, so unlike a cartesian series (A11Y-8) no category is invented here
       this.props.a11yProps?.onKeyDown(event);
       return;
     }

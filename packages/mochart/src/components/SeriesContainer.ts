@@ -72,10 +72,14 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
     if (target.getAttribute?.('data-series-id') == null) {
       return; // not a series (e.g. the plot-area rect handles its own keys)
     }
-    if (key === 'Escape' || key === 'Enter' || key === ' ') {
-      // mirror the plot rect: Enter/Space toggles the tooltip (and announces),
-      // Escape closes it — the series itself handles only focus/onSeriesClick
+    if (key === 'Escape') {
+      // Escape is not a roving-group key, so it still reaches the plot rect and closes the tooltip
       this.props.a11yProps?.onKeyDown(event);
+      return;
+    }
+    if (key === 'Enter' || key === ' ') {
+      // the series handles its own activation; a series spans every category, so
+      // there is no category for it to open the tooltip at — the plot rect owns that
       return;
     }
     const nodes = this.orderedSeriesNodes();
