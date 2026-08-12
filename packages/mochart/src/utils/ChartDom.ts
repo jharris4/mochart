@@ -97,73 +97,99 @@ export const mochartCssClasses = {
   chartError: 'mochart-chart mochart-chart-error'
 };
 
-function getTitleTextCssSelector() {
-  return '.' + mochartCssClasses['titleText'];
+export type MochartCssClassKey = keyof typeof mochartCssClasses;
+
+// the attribute Chart.ts stamps the library version onto every chart root with
+export const mochartVersionAttribute = 'data-mochart-version';
+
+// a value is one class, a class plus the prefix its per-item class is built from, or (chartError
+// only) two complete classes; the prefix is the token ending in a dash and is never a class itself
+function getCompleteCssClassTokens(key: MochartCssClassKey) {
+  return mochartCssClasses[key].split(' ').filter(token => !token.endsWith('-'));
 }
 
-function getTitleTextRawCssSelector() {
-  return '.' + mochartCssClasses['titleTextRaw'];
+/** The class or classes the renderer writes for a key, without any per-item id class. */
+export function getCssClass(key: MochartCssClassKey) {
+  return getCompleteCssClassTokens(key).join(' ');
 }
 
-function getTitlePrefixCssSelector() {
-  return '.' + mochartCssClasses['titlePrefix'];
+/** The per-item class a key builds from an id or index, e.g. `series` and `sales`. */
+export function getIdCssClass(key: MochartCssClassKey, id: string | number) {
+  const prefix = mochartCssClasses[key].split(' ').find(token => token.endsWith('-'));
+  if (prefix === undefined) {
+    throw new Error(`mochartCssClasses['${key}'] has no id prefix`);
+  }
+  return prefix + id;
 }
 
-function getTitleSuffixCssSelector() {
-  return '.' + mochartCssClasses['titleSuffix'];
+/** Selector matching a key's own element. */
+export function getCssSelector(key: MochartCssClassKey) {
+  return '.' + getCompleteCssClassTokens(key).join('.');
+}
+
+/** Selector matching one item of a per-item key. */
+export function getIdCssSelector(key: MochartCssClassKey, id: string | number) {
+  return '.' + getIdCssClass(key, id);
+}
+
+/** Selector matching the last key nested anywhere under the ones before it. */
+export function getDescendantCssSelector(...keys: MochartCssClassKey[]) {
+  return keys.map(key => getCssSelector(key)).join(' ');
+}
+
+/** Selector matching a class by substring, for elements that also carry a per-item id class. */
+export function getCssClassMatchSelector(cssClass: string) {
+  return '[class*="' + cssClass + '"]';
+}
+
+/** Selector matching the chart root in every state — only the root carries the version attribute. */
+export function getChartRootCssSelector() {
+  return '[' + mochartVersionAttribute + ']';
 }
 
 function getCategoryAxisTickLabelsCssSelector() {
-  return '.' + [mochartCssClasses['categoryAxis'], mochartCssClasses['axisTickLabels'], mochartCssClasses['axisTickLabel'].split(' ')[0]].join(' .') + ' text';
+  return getDescendantCssSelector('categoryAxis', 'axisTickLabels', 'axisTickLabel') + ' text';
 }
 
 function getCategoryAxisSizeTickLabelCssSelector() {
-  return '.' + [mochartCssClasses['categoryAxis'], mochartCssClasses['axisSizeTickLabel']].join(' .') + ' text';
+  return getDescendantCssSelector('categoryAxis', 'axisSizeTickLabel') + ' text';
 }
 
 function getCategoryAxisTitleCssSelector() {
-  return '.' + [mochartCssClasses['categoryAxis'], mochartCssClasses['axisTitle']].join(' .') + ' text';
+  return getDescendantCssSelector('categoryAxis', 'axisTitle') + ' text';
 }
 
 function getCategoryAxisThresholdTitleCssSelector() {
-  return '.' + [mochartCssClasses['categoryAxisThreshold'], mochartCssClasses['axisThresholdTitle'].split(' ')[0]].join(' .');
+  return getDescendantCssSelector('categoryAxisThreshold', 'axisThresholdTitle');
 }
 
 function getValueAxisTickLabelsCssSelectorForId(axisId: string) {
-  return '.' + [mochartCssClasses['valueAxis'].split(' ')[1] + axisId, mochartCssClasses['axisTickLabels']].join(' .') + ' text';
+  return getIdCssSelector('valueAxis', axisId) + ' ' + getCssSelector('axisTickLabels') + ' text';
 }
 
 function getValueAxisTitleCssSelectorForId(axisId: string) {
-  return '.' + [mochartCssClasses['valueAxis'].split(' ')[1] + axisId, mochartCssClasses['axisTitle']].join(' .') + ' text';
+  return getIdCssSelector('valueAxis', axisId) + ' ' + getCssSelector('axisTitle') + ' text';
 }
 
 function getValueAxisThresholdTitleCssSelectorForId(axisId: string) {
-  return '.' + [mochartCssClasses['valueAxisThreshold'].split(' ')[1] + axisId, mochartCssClasses['axisThresholdTitle'].split(' ')[0]].join(' .');
-}
-
-function getLegendCssSelector() {
-  return '.' + mochartCssClasses['legend'];
+  return getIdCssSelector('valueAxisThreshold', axisId) + ' ' + getCssSelector('axisThresholdTitle');
 }
 
 function getLegendItemTextsCssSelector() {
-  return '.' + mochartCssClasses['legendItemText'] + ' text';
+  return getCssSelector('legendItemText') + ' text';
 }
 
 function getLegendItemTextRawsCssSelector() {
-  return '.' + mochartCssClasses['legendItemTextRaw'] + ' text';
-}
-
-function getTooltipCssSelector() {
-  return '.' + mochartCssClasses['tooltipSizer'];
+  return getCssSelector('legendItemTextRaw') + ' text';
 }
 
 
 export function getDomAccessors(chartElement: Element): ChartDomAccessors {
   return {
-    getTitleTextDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getTitleTextCssSelector()),
-    getTitleTextRawDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getTitleTextRawCssSelector()),
-    getTitlePrefixDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getTitlePrefixCssSelector()),
-    getTitleSuffixDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getTitleSuffixCssSelector()),
+    getTitleTextDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getCssSelector('titleText')),
+    getTitleTextRawDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getCssSelector('titleTextRaw')),
+    getTitlePrefixDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getCssSelector('titlePrefix')),
+    getTitleSuffixDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getCssSelector('titleSuffix')),
     getCategoryAxisTicksDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getCategoryAxisTickLabelsCssSelector()),
     getCategoryAxisSizeTickDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getCategoryAxisSizeTickLabelCssSelector()),
     getCategoryAxisTitleDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getCategoryAxisTitleCssSelector()),
@@ -171,10 +197,10 @@ export function getDomAccessors(chartElement: Element): ChartDomAccessors {
     getValueAxisTicksDomElementsForId: (axisId: string) => chartElement.querySelectorAll<SVGGraphicsElement>(getValueAxisTickLabelsCssSelectorForId(axisId)),
     getValueAxisTitleDomElementForId: (axisId: string) => chartElement.querySelector<SVGGraphicsElement>(getValueAxisTitleCssSelectorForId(axisId)),
     getValueAxisThresholdTitleDomElementsForId: (axisId: string) => chartElement.querySelectorAll<SVGGraphicsElement>(getValueAxisThresholdTitleCssSelectorForId(axisId)),
-    getLegendDomElement: () => chartElement.querySelector<HTMLElement>(getLegendCssSelector()),
+    getLegendDomElement: () => chartElement.querySelector<HTMLElement>(getCssSelector('legend')),
     getLegendItemTextDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getLegendItemTextsCssSelector()),
     getLegendItemTextRawDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getLegendItemTextRawsCssSelector()),
-    getTooltipDomElement: () => chartElement.querySelector<HTMLElement>(getTooltipCssSelector())
+    getTooltipDomElement: () => chartElement.querySelector<HTMLElement>(getCssSelector('tooltipSizer'))
   };
 }
 import type { ChartDomAccessors } from '../types/chart';

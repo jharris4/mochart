@@ -7,6 +7,7 @@
  * category pin. The target must always derive from the input focus.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
+import { getIdCssSelector } from '../../src/utils/ChartDom';
 
 const FRAME_MS = 16;
 
@@ -79,7 +80,7 @@ function mountChart() {
 }
 
 function barOpacities(container: Element, seriesId: string): (string | null)[] {
-  return Array.from(container.querySelectorAll(`.mochart-series-${seriesId} path`))
+  return Array.from(container.querySelectorAll(getIdCssSelector('series', seriesId) + ' path'))
     .map(path => path.getAttribute('fill-opacity'));
 }
 

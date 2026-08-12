@@ -10,6 +10,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartFocus, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector, getIdCssSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 const WIDTH = 800;
@@ -72,13 +73,13 @@ describe('missingValues base', () => {
       errorLowProperty: 'low', errorHighProperty: 'high'
     }), rows);
 
-    const labels = container.querySelectorAll('.mochart-series-label');
+    const labels = container.querySelectorAll(getCssSelector('seriesLabel'));
     expect(labels.length).toBe(2);
     expect([...labels].map(label => label.textContent)).toEqual(['10.00', '30.00']);
-    expect(container.querySelectorAll('.mochart-series-marker').length).toBe(2);
-    expect(container.querySelectorAll('.mochart-series-error-bar').length).toBe(2);
+    expect(container.querySelectorAll(getCssSelector('seriesMarker')).length).toBe(2);
+    expect(container.querySelectorAll(getCssSelector('seriesErrorBar')).length).toBe(2);
 
-    const fills = [...container.querySelectorAll('.mochart-series-bar')].map(bar => bar.getAttribute('fill'));
+    const fills = [...container.querySelectorAll(getCssSelector('seriesBar'))].map(bar => bar.getAttribute('fill'));
     expect(fills.length).toBe(3);
     expect(fills.some(fill => fill !== null && fill.includes('NaN'))).toBe(false);
   });
@@ -94,12 +95,12 @@ describe('missingValues connect category-index remapping', () => {
     );
 
     // bars are keyed by compacted index: bar-1 is raw category 2 (Mar)
-    click(container.querySelector('.mochart-series-bar-1')!);
+    click(container.querySelector(getIdCssSelector('seriesBar', '1'))!);
     expect(focuses[focuses.length - 1]!.focusedCategoryIndex).toBe(2);
 
     // same categories, but now Feb is defined and Mar is missing: bar-1 is raw category 1
     handle.update({ data: [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }, { month: 'Mar' }] } as Partial<DefaultChartProps>);
-    click(container.querySelector('.mochart-series-bar-1')!);
+    click(container.querySelector(getIdCssSelector('seriesBar', '1'))!);
     expect(focuses[focuses.length - 1]!.focusedCategoryIndex).toBe(1);
   });
 
@@ -110,7 +111,7 @@ describe('missingValues connect category-index remapping', () => {
     }), [{ month: 'Jan', sales: 10 }, { month: 'Feb' }, { month: 'Mar', sales: 30 }]);
 
     // bar-1 is raw category 2, so it takes palette slot 2, not slot 1
-    const bar = container.querySelector('.mochart-series-bar-1')!;
+    const bar = container.querySelector(getIdCssSelector('seriesBar', '1'))!;
     expect(bar.getAttribute('fill')).toBe(PALETTE_2);
     expect(bar.getAttribute('fill')).not.toBe(PALETTE_1);
   });
@@ -125,8 +126,8 @@ describe('missingValues connect category-index remapping', () => {
     ]);
 
     // Feb has a value but no marker value: only its own marker is dropped
-    expect(container.querySelector('.mochart-series-marker-0')).not.toBeNull();
-    expect(container.querySelector('.mochart-series-marker-1')).toBeNull();
-    expect(container.querySelector('.mochart-series-marker-2')).not.toBeNull();
+    expect(container.querySelector(getIdCssSelector('seriesMarker', '0'))).not.toBeNull();
+    expect(container.querySelector(getIdCssSelector('seriesMarker', '1'))).toBeNull();
+    expect(container.querySelector(getIdCssSelector('seriesMarker', '2'))).not.toBeNull();
   });
 });

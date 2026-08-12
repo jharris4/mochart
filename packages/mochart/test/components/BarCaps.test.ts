@@ -9,6 +9,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -38,7 +39,7 @@ function mount(overrides: Record<string, unknown>, data: readonly unknown[] = ro
 }
 
 function barPaths(container: Element): string[] {
-  return [...container.querySelectorAll('.mochart-series-bar')].map(el => el.getAttribute('d') ?? '');
+  return [...container.querySelectorAll(getCssSelector('seriesBar'))].map(el => el.getAttribute('d') ?? '');
 }
 
 /** A stacked pair where the second series is the outer one. */
@@ -166,7 +167,7 @@ describe('ranged line series', () => {
         plot: { inverted },
         series: [{ property: 'a', rangeProperty: 'b', renderer: 'line' }]
       });
-      expect(container.querySelectorAll('.mochart-series-line').length).toBe(2);
+      expect(container.querySelectorAll(getCssSelector('seriesLine')).length).toBe(2);
     });
   }
 });

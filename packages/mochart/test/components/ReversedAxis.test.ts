@@ -9,6 +9,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 400;
 const HEIGHT = 300;
@@ -35,7 +36,7 @@ function mount(overrides: Record<string, unknown>, data: readonly unknown[] = ro
 
 /** Each bar as `{ top, bottom }` in plot-local coordinates. */
 function bars(container: Element) {
-  return [...container.querySelectorAll('.mochart-series path')].map((path) => {
+  return [...container.querySelectorAll(getCssSelector('series') + ' path')].map((path) => {
     const match = /^M(-?[\d.]+),(-?[\d.]+)h(-?[\d.]+)v(-?[\d.]+)/.exec(path.getAttribute('d') ?? '');
     expect(match, `unexpected bar path: ${path.getAttribute('d')}`).not.toBeNull();
     return { x: Number(match![1]), top: Number(match![2]), bottom: Number(match![2]) + Number(match![4]) };
@@ -44,13 +45,14 @@ function bars(container: Element) {
 
 /** Vertices of the first line path, in plot-local coordinates. */
 function linePoints(container: Element) {
-  const path = container.querySelector('.mochart-series path')!;
+  const path = container.querySelector(getCssSelector('series') + ' path')!;
   const d = path.getAttribute('d') ?? '';
   return [...d.matchAll(/[ML](-?[\d.]+),(-?[\d.]+)/g)].map((match) => ({ x: Number(match[1]), y: Number(match[2]) }));
 }
 
 function tickLabels(container: Element, axis: 'value' | 'category') {
-  return [...container.querySelectorAll(`.mochart-${axis}-axis text`)].map((text) => text.textContent);
+  const axisKey = axis === 'value' ? 'valueAxis' : 'categoryAxis';
+  return [...container.querySelectorAll(getCssSelector(axisKey) + ' text')].map((text) => text.textContent);
 }
 
 beforeAll(() => {

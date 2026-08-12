@@ -11,6 +11,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartFactoryContext, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -71,14 +72,14 @@ afterEach(() => {
 describe('no-data state', () => {
   it('renders the default message for a zero-row provider', () => {
     const container = mountChart({}, makeConfig(), []);
-    const noData = container.querySelector('.mochart-no-data');
+    const noData = container.querySelector(getCssSelector('noData'));
     expect(noData).not.toBeNull();
     expect(noData!.textContent).toContain('No Data');
   });
 
   it('positions the overlay inside the chart rather than at the origin', () => {
     const container = mountChart({}, makeConfig(), []);
-    const overlay = container.querySelector<HTMLElement>('.mochart-no-data')!;
+    const overlay = container.querySelector<HTMLElement>(getCssSelector('noData'))!;
 
     // absolutely positioned from seriesLayoutInfo: a layout regression would park it at 0,0
     // or size it past the chart, and nothing else in the suite would notice
@@ -98,24 +99,24 @@ describe('no-data state', () => {
       config: makeConfig(), data: [], width: WIDTH, height: HEIGHT
     } as DefaultChartProps);
     handles.push(handle);
-    expect(container.querySelector('.mochart-no-data')).not.toBeNull();
+    expect(container.querySelector(getCssSelector('noData'))).not.toBeNull();
 
     handle.update({ config: makeConfig(), data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps);
-    expect(container.querySelector('.mochart-no-data')).toBeNull();
+    expect(container.querySelector(getCssSelector('noData'))).toBeNull();
   });
 });
 
 describe('no-series state', () => {
   it('renders the default message when the config declares no series', () => {
     const container = mountChart({}, makeConfig({ series: [] }));
-    const noSeries = container.querySelector('.mochart-no-series');
+    const noSeries = container.querySelector(getCssSelector('noSeries'));
     expect(noSeries).not.toBeNull();
     expect(noSeries!.textContent).toContain('No Series');
   });
 
   it('draws no series groups in that state', () => {
     const container = mountChart({}, makeConfig({ series: [] }));
-    expect(container.querySelectorAll('.mochart-series').length).toBe(0);
+    expect(container.querySelectorAll(getCssSelector('series')).length).toBe(0);
   });
 });
 

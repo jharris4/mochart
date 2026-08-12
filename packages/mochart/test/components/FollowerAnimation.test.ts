@@ -8,6 +8,7 @@
  * the library import and frames are driven manually.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
+import { getCssClass, getIdCssClass, getIdCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -90,7 +91,7 @@ function mountHollowCandlestick(items: typeof ITEMS) {
 interface BarRect { y: number; height: number }
 
 function barRects(container: Element, seriesId: string): BarRect[] {
-  const paths = container.querySelectorAll(`.mochart-series-${seriesId} path[class*="mochart-series-bar"]`);
+  const paths = container.querySelectorAll(getIdCssSelector('series', seriesId) + ' path' + getCssClassMatchSelector(getCssClass('seriesBar')));
   return Array.from(paths).map((path) => {
     const d = path.getAttribute('d') ?? '';
     const match = /^M(-?[\d.]+),(-?[\d.]+)h(-?[\d.]+)v(-?[\d.]+)/.exec(d);
@@ -100,7 +101,7 @@ function barRects(container: Element, seriesId: string): BarRect[] {
 }
 
 function barOpacity(container: Element, seriesId: string): string {
-  const opacity = container.querySelector(`.mochart-series-${seriesId} path`)!.getAttribute('fill-opacity');
+  const opacity = container.querySelector(getIdCssSelector('series', seriesId) + ' path')!.getAttribute('fill-opacity');
   expect(opacity, `no fill-opacity on ${seriesId}`).not.toBeNull();
   return opacity!;
 }
@@ -158,7 +159,7 @@ describe('followSeries animation sync (hollow candlestick)', () => {
     runFrames();
     expectSegmentsGluedToBody(container, 'settled');
 
-    container.querySelector('[class*="mochart-legend-item-up"]')!
+    container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', 'up')))!
       .dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     // sample several mid-animation frames — before the fix the segments'
@@ -173,7 +174,7 @@ describe('followSeries animation sync (hollow candlestick)', () => {
     runFrames();
 
     // restoring the series animates back in, glued throughout
-    container.querySelector('[class*="mochart-legend-item-up"]')!
+    container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', 'up')))!
       .dispatchEvent(new MouseEvent('click', { bubbles: true }));
     for (const step of [2, 3, 3, 3]) {
       advanceFrames(step);

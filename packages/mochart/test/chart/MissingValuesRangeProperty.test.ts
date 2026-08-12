@@ -11,6 +11,7 @@
  * shapes stay connected through half-defined categories.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 const FRAME_MS = 16;
 
@@ -92,7 +93,7 @@ describe('partialRangeIsMissing on a connect bar series with a rangeProperty', (
 
     // Each step belongs to exactly one direction series; the other two series
     // must skip the category rather than draw a zero-extent bar at `start`.
-    const bars = container.querySelectorAll('path.mochart-series-bar');
+    const bars = container.querySelectorAll('path' + getCssSelector('seriesBar'));
     expect(bars.length).toBe(4);
 
     chart.destroy();
@@ -103,7 +104,7 @@ describe('partialRangeIsMissing on a connect bar series with a rangeProperty', (
 
     // Every series keeps every category: the missing direction value is
     // back-filled from the shared `start` range value.
-    const bars = container.querySelectorAll('path.mochart-series-bar');
+    const bars = container.querySelectorAll('path' + getCssSelector('seriesBar'));
     expect(bars.length).toBe(12);
 
     chart.destroy();

@@ -61,6 +61,7 @@ function runFrames(maxFrames = 500) {
 }
 
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 const config = {
   version: '1.0.0',
@@ -89,7 +90,7 @@ function mountContainer(): HTMLDivElement {
 }
 
 function barPaths(container: HTMLElement): string[] {
-  return Array.from(container.querySelectorAll('path.mochart-series-bar'))
+  return Array.from(container.querySelectorAll('path' + getCssSelector('seriesBar')))
     .map(path => path.getAttribute('d') ?? '');
 }
 

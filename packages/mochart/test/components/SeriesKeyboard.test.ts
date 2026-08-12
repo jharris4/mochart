@@ -12,6 +12,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartSeriesClickPayload, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector, getIdCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
 
 const rows = [
   { month: 'Jan', s0: 10, s1: 4, s2: 6 },
@@ -44,7 +45,7 @@ function mountChart(config: MochartInputConfig, onSeriesClick?: (payload: ChartS
 function seriesNodes(container: Element): SVGElement[] {
   // config order: the legend also carries data-series-id, so scope to the series groups
   return ['S0', 'S1', 'S2']
-    .map(id => container.querySelector<SVGElement>('.mochart-series-container g[data-series-id="' + id + '"]'))
+    .map(id => container.querySelector<SVGElement>(getCssSelector('seriesContainer') + ' g[data-series-id="' + id + '"]'))
     .filter((node): node is SVGElement => node !== null);
 }
 
@@ -85,7 +86,7 @@ describe('cartesian series keyboard semantics', () => {
   it('keeps non-clickable series hidden and unfocusable', () => {
     const container = mountChart(makeConfig());
     expect(seriesNodes(container).length).toBe(0);
-    const groups = container.querySelectorAll('.mochart-series-container .mochart-series');
+    const groups = container.querySelectorAll(getDescendantCssSelector('seriesContainer', 'series'));
     expect(groups.length).toBe(3);
     for (const group of groups) {
       expect(group.getAttribute('aria-hidden')).toBe('true');
@@ -96,7 +97,7 @@ describe('cartesian series keyboard semantics', () => {
   it('has no keyboard semantics when chart accessibility is disabled', () => {
     const container = mountChart(makeConfig({ accessibility: { enabled: false } }), () => {});
     expect(seriesNodes(container).length).toBe(0);
-    const groups = container.querySelectorAll('.mochart-series-container .mochart-series');
+    const groups = container.querySelectorAll(getDescendantCssSelector('seriesContainer', 'series'));
     expect(groups.length).toBe(3);
     for (const group of groups) {
       expect(group.getAttribute('aria-hidden')).toBeNull();
@@ -146,11 +147,11 @@ describe('cartesian series keyboard semantics', () => {
   it('toggles the tooltip with Enter and closes it with Escape', () => {
     const container = mountChart(makeConfig(), () => {});
     const items = seriesNodes(container);
-    const rect = container.querySelector<SVGElement>('.mochart-series-background rect')!;
+    const rect = container.querySelector<SVGElement>(getCssSelector('seriesBackground') + ' rect')!;
 
     key(items[0], 'Enter');
     expect(rect.getAttribute('aria-expanded')).toBe('true');
-    expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+    expect(container.querySelector(getCssSelector('tooltip'))).not.toBeNull();
     // keyboard activation announces like the plot rect does
     expect(container.querySelector('[role="status"]')?.textContent ?? '').not.toBe('');
 
@@ -168,7 +169,7 @@ describe('cartesian series keyboard semantics', () => {
     }), () => {});
     const items = seriesNodes(container);
     expect(items.map(item => item.getAttribute('data-series-id'))).toEqual(['S0', 'S2']);
-    const follower = container.querySelector('.mochart-series-container .mochart-series-S1')!;
+    const follower = container.querySelector(getCssSelector('seriesContainer') + ' ' + getIdCssSelector('series', 'S1'))!;
     expect(follower.getAttribute('aria-hidden')).toBe('true');
     expect(follower.getAttribute('tabindex')).toBeNull();
   });

@@ -12,6 +12,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartEventPayload, ChartFocus, ChartSeriesClickPayload, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -39,7 +40,7 @@ function mountChart(config: MochartInputConfig, extra: Partial<DefaultChartProps
   return { container, handle };
 }
 
-const root = (container: Element) => container.querySelector('[data-mochart-version]')!;
+const root = (container: Element) => container.querySelector(getChartRootCssSelector())!;
 
 function mouse(target: Element, type: string, clientX: number, clientY: number): void {
   target.dispatchEvent(new MouseEvent(type, { clientX, clientY, bubbles: true }));
@@ -111,7 +112,7 @@ describe('while loading, the chart does not commit', () => {
   it('ignores series activation, which names a category that may not survive', () => {
     const clicks: ChartSeriesClickPayload[] = [];
     const { container, handle } = mountChart(makeConfig(), { onSeriesClick: payload => { clicks.push(payload); } });
-    const shape = container.querySelector('.mochart-series-bar, .mochart-series-marker, .mochart-series-line')!;
+    const shape = container.querySelector(getCssSelector('seriesBar') + ', ' + getCssSelector('seriesMarker') + ', ' + getCssSelector('seriesLine'))!;
     handle.update({ loading: true } as Partial<DefaultChartProps>);
 
     shape.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -123,7 +124,7 @@ describe('while loading, the chart does not commit', () => {
     handle.update({ loading: true } as Partial<DefaultChartProps>);
 
     mouse(root(container), 'mouseenter', 100, 100);
-    expect(container.querySelector('.mochart-tooltip')).toBeNull();
+    expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
   });
 });
 
@@ -133,7 +134,7 @@ describe('while loading, ids keep working', () => {
     const { container, handle } = mountChart(makeConfig(), { onFocus: focus => { focuses.push(focus); } });
     handle.update({ loading: true } as Partial<DefaultChartProps>);
 
-    const axisInner = container.querySelector('.mochart-value-axis > g')!;
+    const axisInner = container.querySelector(getCssSelector('valueAxis') + ' > g')!;
     mouse(axisInner, 'mouseenter', 40, 300);
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedValueAxisId: 'VA0' });
   });

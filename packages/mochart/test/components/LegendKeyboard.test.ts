@@ -10,6 +10,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector, getIdCssSelector } from '../../src/utils/ChartDom';
 
 const rows = [
   { month: 'Jan', sales: 10, costs: 5, profit: 5 },
@@ -93,10 +94,10 @@ describe('legend keyboard semantics', () => {
     expect(legendItems(container).length).toBe(0);
     expect(container.querySelectorAll('g[tabindex], [role], [aria-pressed]').length).toBe(0);
 
-    expect(container.querySelectorAll('.mochart-series').length).toBe(3);
-    container.querySelector('.mochart-legend-item-S0')!
+    expect(container.querySelectorAll(getCssSelector('series')).length).toBe(3);
+    container.querySelector(getIdCssSelector('legendItem', 'S0'))!
       .dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(container.querySelectorAll('.mochart-series').length).toBe(2);
+    expect(container.querySelectorAll(getCssSelector('series')).length).toBe(2);
   });
 
   it('toggles filtering with Enter and Space and updates aria-pressed', () => {

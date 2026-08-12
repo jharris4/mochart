@@ -4040,7 +4040,7 @@ config error and compared equal. The title is hidden with `text: null`, and that
 converge; the scenario added here uses the real property.
 
 ### TEST-18 — tests hard-code CSS class literals instead of reading `mochartCssClasses`
-**Low · Maintainability · [ChartDom.ts:8](packages/mochart/src/utils/ChartDom.ts#L8)** — **Open**
+**Low · Maintainability · [ChartDom.ts:8](packages/mochart/src/utils/ChartDom.ts#L8)** — **Fixed**
 
 The class names are constants in the source so a rename is a single edit. The test and e2e suites
 mostly ignore them: roughly 466 hard-coded `'.mochart-…'` literals across ~43 files, against 2
@@ -4055,6 +4055,42 @@ Golden snapshots are excluded — they are rendered output, and the literals in 
 space-separated tokens need `.split(' ')` first. Although adding helpers to ChartDom.ts could be cleaner than having all the tests repeat that logic all over the place.
 (see [API-4](#api-4--mochartcssclasses-values-are-not-all-class-names-contradicting-the-api-reference)).
 A lint rule banning the `'.mochart-'` literal in `test/`/`e2e/` would keep it from coming back.
+
+**Fixed for the core suite, with the helper functions the follow-up note asked for.**
+`src/utils/ChartDom.ts` gained eight of them, and its own private selector getters were rewritten to use
+them — which removed the four ad-hoc `.split(' ')` workarounds
+[API-4](#api-4--mochartcssclasses-values-are-not-all-class-names-contradicting-the-api-reference) cites
+in that file:
+
+* `getCssClass(key)` — the bare class, for `classList.contains`
+* `getIdCssClass(key, id)` — the per-item class, and it **throws** when the key has no id prefix, so
+  misuse fails loudly instead of silently matching nothing
+* `getCssSelector(key)` / `getIdCssSelector(key, id)` — `'.'`-joined over every *complete* token, so a
+  prefix token can never leak into a selector and `chartError` correctly becomes
+  `.mochart-chart.mochart-chart-error`
+* `getDescendantCssSelector(...keys)` — the commonest shape in the suite
+* `getCssClassMatchSelector(cssClass)` — `[class*="…"]`, preserving the deliberate substring matches on
+  elements that also carry an id class
+* `getChartRootCssSelector()` and `mochartVersionAttribute` — 22 tests reach the chart root that way
+* a `MochartCssClassKey` type, so a renamed key breaks the build rather than leaving a dead selector,
+  which is the exact failure mode the finding describes
+
+**460 occurrences converted across 44 test files** — 437 class literals, 22 `data-mochart-version`, one
+`data-mochart-focus-restored`. `grep -rnE "[.'\"\`]mochart-" packages/mochart/test --exclude-dir=__snapshots__`
+now returns nothing; the five remaining `mochart-` hits are three prose comments, one filesystem path, and
+`ChartDom.test.ts`'s regex that *is* the prefix-convention pin. 109 files / 1628 tests pass, typecheck,
+lint and deadcode clean.
+
+**Scoped deliberately to `packages/mochart/test`.** The finding also covers
+`packages/mochart-demo-basic/e2e`, which is a separate package and cannot import these helpers without
+making them public API — a decision that belongs with
+[API-2](#api-2--55-layoutanimationdata-internals-ship-as-public-types). That remainder, the four
+`data-mochart-version` literals `Chart.ts` still writes inline, and the finding's suggested lint rule are
+filed as [TEST-19](#test-19--the-e2e-suite-and-chartts-still-carry-hard-coded-mochart--literals).
+
+Two corrections to the finding: five test files already imported `mochartCssClasses`, not two — four of
+them with hand-rolled `.split(' ')` — and its ~466 count folds in the 22 `data-mochart-version`
+occurrences, which are an attribute rather than a CSS class.
 
 
 ---

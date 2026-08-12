@@ -8,6 +8,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getDescendantCssSelector } from '../../src/utils/ChartDom';
 
 const PX_PER_CHAR = 9.7;
 let measureCalls = 0;
@@ -68,7 +69,7 @@ afterEach(() => {
 describe('tick-label truncation state across updates', () => {
   it('keeps the measured truncation and stops measuring once settled', () => {
     const { container, handle } = mountChart();
-    const labelTexts = () => [...container.querySelectorAll('.mochart-category-axis .mochart-axis-tick-label text')]
+    const labelTexts = () => [...container.querySelectorAll(getDescendantCssSelector('categoryAxis', 'axisTickLabel') + ' text')]
       .map(label => label.textContent ?? '');
 
     // one update flushes any tail of the mount-time measurement passes
@@ -90,7 +91,7 @@ describe('tick-label truncation state across updates', () => {
 
   it('re-truncates from the new labels when a data update replaces them', () => {
     const { container, handle } = mountChart();
-    const labelTexts = () => [...container.querySelectorAll('.mochart-category-axis .mochart-axis-tick-label text')]
+    const labelTexts = () => [...container.querySelectorAll(getDescendantCssSelector('categoryAxis', 'axisTickLabel') + ' text')]
       .map(label => label.textContent ?? '');
     const isTruncationOf = (rendered: string, full: string) =>
       rendered.endsWith('…') && rendered.length > 1 && full.startsWith(rendered.slice(0, -1));

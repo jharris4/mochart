@@ -14,6 +14,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 400;
 const HEIGHT = 300;
@@ -40,7 +41,7 @@ function mount(config = makeConfig(), data: readonly unknown[] = rows): Element 
 }
 
 function plotRect(container: Element) {
-  const rect = container.querySelector('.mochart-series-background rect')!;
+  const rect = container.querySelector(getCssSelector('seriesBackground') + ' rect')!;
   return {
     x: Number(rect.getAttribute('x')), y: Number(rect.getAttribute('y')),
     width: Number(rect.getAttribute('width')), height: Number(rect.getAttribute('height'))
@@ -70,7 +71,7 @@ afterEach(() => {
 describe('series clip', () => {
   it('clips the series container to the plot', () => {
     const container = mount(makeConfig({ valueAxes: [{ min: 0, max: 10 }] }));
-    const seriesContainer = container.querySelector('.mochart-series-container')!;
+    const seriesContainer = container.querySelector(getCssSelector('seriesContainer'))!;
     const clipPath = container.querySelector('clipPath[id^="series__clippath__"]')!;
 
     expect(clipPath).not.toBeNull();
@@ -81,7 +82,7 @@ describe('series clip', () => {
 
   it('leaves the out-of-range geometry alone — clipping is a viewport operation', () => {
     const container = mount(makeConfig({ valueAxes: [{ min: 0, max: 10 }] }));
-    const paths = [...container.querySelectorAll('.mochart-series path')];
+    const paths = [...container.querySelectorAll(getCssSelector('series') + ' path')];
     const tops = paths.map((path) => Number(/^M(-?[\d.]+),(-?[\d.]+)/.exec(path.getAttribute('d') ?? '')![2]));
     // the value-50 bar still starts far above the plot; the clip is what hides it
     expect(Math.min(...tops)).toBeLessThan(0);
@@ -97,7 +98,7 @@ describe('series clip', () => {
   it('is not emitted for a pie chart, which has no axis bounds to exceed', () => {
     const container = mount(makeConfig({ chart: { type: 'pie' } }));
     expect(container.querySelector('clipPath[id^="series__clippath__"]')).toBeNull();
-    expect(container.querySelector('.mochart-series-container')!.getAttribute('clip-path')).toBeNull();
+    expect(container.querySelector(getCssSelector('seriesContainer'))!.getAttribute('clip-path')).toBeNull();
   });
 });
 

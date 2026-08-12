@@ -8,6 +8,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getIdCssClass, getIdCssSelector, getDescendantCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 
@@ -37,7 +38,7 @@ afterEach(() => {
 });
 
 function thresholdTranslateY(container: Element): number {
-  const lineGroup = container.querySelector('.mochart-category-axis-threshold .mochart-axis-threshold > g');
+  const lineGroup = container.querySelector(getDescendantCssSelector('categoryAxisThreshold', 'axisThreshold') + ' > g');
   expect(lineGroup).not.toBeNull();
   const transform = lineGroup!.getAttribute('transform')!;
   return Number(transform.match(/translate\([^,]+,\s*([^)]+)\)/)![1]);
@@ -70,7 +71,7 @@ describe('per-side series label positions', () => {
   ];
 
   function labelAttrs(container: Element, index: number): { dy: string | null; anchor: string | null } {
-    const label = container.querySelector('.mochart-series-label-' + index);
+    const label = container.querySelector(getIdCssSelector('seriesLabel', index));
     expect(label).not.toBeNull();
     return { dy: label!.getAttribute('dy'), anchor: label!.getAttribute('text-anchor') };
   }
@@ -111,9 +112,9 @@ describe('multiple thresholds on one axis', () => {
       }],
       series: [{ property: 'value', renderer: 'bar' }]
     }, rows);
-    const lines = container.querySelectorAll('.mochart-axis-threshold-container .mochart-axis-threshold line');
+    const lines = container.querySelectorAll(getDescendantCssSelector('axisThresholdContainer', 'axisThreshold') + ' line');
     expect(lines.length).toBe(3);
-    const titles = container.querySelectorAll('[class*="mochart-axis-threshold-title-"]');
+    const titles = container.querySelectorAll(getCssClassMatchSelector(getIdCssClass('axisThresholdTitle', '')));
     expect(titles.length).toBe(2);
     expect(container.textContent).toContain('Warning');
     expect(container.textContent).toContain('Critical');

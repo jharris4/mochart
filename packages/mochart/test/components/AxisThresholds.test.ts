@@ -9,6 +9,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -57,7 +58,7 @@ function categoryThreshold(threshold: Record<string, unknown>, axisExtra: Record
 }
 
 function titlePosition(container: Element): { x: number; y: number } {
-  const title = container.querySelector('.mochart-axis-threshold-title');
+  const title = container.querySelector(getCssSelector('axisThresholdTitle'));
   expect(title).not.toBeNull();
   const match = /translate\(([^,]+),([^)]+)\)/.exec(title!.getAttribute('transform') ?? '');
   expect(match).not.toBeNull();
@@ -84,18 +85,18 @@ afterEach(() => {
 
 describe('threshold lines', () => {
   it('draws a value axis threshold', () => {
-    expect(valueThreshold({ value: 50 }).querySelector('.mochart-axis-threshold')).not.toBeNull();
+    expect(valueThreshold({ value: 50 }).querySelector(getCssSelector('axisThreshold'))).not.toBeNull();
   });
 
   it('draws a threshold behind the series when front is off', () => {
     expect(valueThreshold({ value: 50, front: false })
-      .querySelector('.mochart-axis-threshold')).not.toBeNull();
+      .querySelector(getCssSelector('axisThreshold'))).not.toBeNull();
   });
 
   // the axis need not be drawn for its thresholds to be
   it('draws a threshold on a hidden axis', () => {
     const container = valueThreshold({ value: 50, title: 'T' }, { visible: false });
-    expect(container.querySelector('.mochart-value-axis')).toBeNull();
+    expect(container.querySelector(getCssSelector('valueAxis'))).toBeNull();
     expect(container.textContent).toContain('T');
   });
 
@@ -118,13 +119,13 @@ describe('threshold lines', () => {
     const container = mount({
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', thresholds: [{ value: 1, title: 'Cut' }] }
     });
-    expect(container.querySelector('.mochart-category-axis-threshold .mochart-axis-threshold')).toBeNull();
+    expect(container.querySelector(getDescendantCssSelector('categoryAxisThreshold', 'axisThreshold'))).toBeNull();
     expect(container.textContent).not.toContain('Cut');
   });
 
   it('draws no line for a threshold outside the domain', () => {
     const container = valueThreshold({ value: 500, title: 'Far' });
-    expect(container.querySelector('.mochart-axis-threshold')).toBeNull();
+    expect(container.querySelector(getCssSelector('axisThreshold'))).toBeNull();
     expect(container.textContent).not.toContain('Far');
   });
 });
@@ -207,10 +208,10 @@ describe('threshold styling', () => {
           fillColor: '#008000', fillOpacity: 0.8 }
       }
     });
-    const line = container.querySelector('.mochart-axis-threshold line')!;
+    const line = container.querySelector(getCssSelector('axisThreshold') + ' line')!;
     expect(line.getAttribute('stroke')).toBe('#ff0000');
     expect(line.getAttribute('stroke-dasharray')).toBe('4 2');
-    const text = container.querySelector('.mochart-axis-threshold-title text')!;
+    const text = container.querySelector(getCssSelector('axisThresholdTitle') + ' text')!;
     expect(text.getAttribute('fill')).toBe('#008000');
     expect(text.getAttribute('stroke')).toBe('#0000ff');
   });
@@ -233,7 +234,7 @@ describe('threshold styling', () => {
         } as unknown as MochartInputConfig,
         data: rows, width: WIDTH, height: HEIGHT, focusedSeriesId: 'sales'
       } as DefaultChartProps));
-      expect(container.querySelector('.mochart-axis-threshold')).not.toBeNull();
+      expect(container.querySelector(getCssSelector('axisThreshold'))).not.toBeNull();
     });
   }
 
@@ -261,7 +262,7 @@ describe('degenerate thresholds', () => {
   // datePrimitive lets an iso string through on a numeric axis, where it is not a number
   it('draws no line for a date-string threshold on a numeric axis', () => {
     const container = valueThreshold({ value: '2024-01-01T00:00:00.000Z', title: 'Wrong' });
-    expect(container.querySelector('.mochart-axis-threshold')).toBeNull();
+    expect(container.querySelector(getCssSelector('axisThreshold'))).toBeNull();
     expect(container.textContent).not.toContain('Wrong');
   });
 

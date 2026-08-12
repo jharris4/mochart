@@ -14,6 +14,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssClass, getIdCssClass, getCssSelector, getCssClassMatchSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 const WIDTH = 800;
@@ -60,7 +61,7 @@ function mountChart(config: MochartInputConfig): Element {
 }
 
 function chartRoot(container: Element): Element {
-  const root = container.querySelector('[data-mochart-version]');
+  const root = container.querySelector(getChartRootCssSelector());
   expect(root).not.toBeNull();
   return root!;
 }
@@ -92,7 +93,8 @@ function focusSeries(container: Element, seriesId: string): void {
   const root = chartRoot(container);
   mouse(root, 'mouseenter', 100, 100);
   mouse(root, 'click', 100, 100);
-  const line = container.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-' + seriesId + '"]');
+  const line = container.querySelector(getCssSelector('tooltip') + ' '
+    + getCssClassMatchSelector(getIdCssClass('tooltipSeriesLine', seriesId)));
   expect(line).not.toBeNull();
   line!.dispatchEvent(new MouseEvent('mouseenter', {}));
 }
@@ -119,17 +121,17 @@ describe('axis box placement along the axis', () => {
   it('starts the title and tick label boxes at the top of a vertical axis', () => {
     const container = mountChart(makeConfig());
     for (const axisId of ['VA0', 'VA1']) {
-      const group = axisGroup(container, 'mochart-value-axis-' + axisId);
-      expect({ axisId, y: rect(group, '.mochart-axis-title rect').y }).toEqual({ axisId, y: 0 });
-      expect({ axisId, y: rect(group, '.mochart-axis-tick-labels rect').y }).toEqual({ axisId, y: 0 });
+      const group = axisGroup(container, getIdCssClass('valueAxis', axisId));
+      expect({ axisId, y: rect(group, getCssSelector('axisTitle') + ' rect').y }).toEqual({ axisId, y: 0 });
+      expect({ axisId, y: rect(group, getCssSelector('axisTickLabels') + ' rect').y }).toEqual({ axisId, y: 0 });
     }
   });
 
   it('starts the title and tick label boxes at the left of the category axis', () => {
     const container = mountChart(makeConfig());
-    const group = axisGroup(container, 'mochart-category-axis');
-    expect(rect(group, '.mochart-axis-title rect').x).toBe(0);
-    expect(rect(group, '.mochart-axis-tick-labels rect').x).toBe(0);
+    const group = axisGroup(container, getCssClass('categoryAxis'));
+    expect(rect(group, getCssSelector('axisTitle') + ' rect').x).toBe(0);
+    expect(rect(group, getCssSelector('axisTickLabels') + ' rect').x).toBe(0);
   });
 });
 
@@ -137,11 +139,11 @@ describe('value axis focus range placement', () => {
   it('places the focus range identically on titled before and after axes', () => {
     const before = mountChart(makeConfig());
     focusSeries(before, 'S0');
-    const beforeRange = rect(axisGroup(before, 'mochart-value-axis-VA0'), '.mochart-axis-focus-range rect');
+    const beforeRange = rect(axisGroup(before, getIdCssClass('valueAxis', 'VA0')), getCssSelector('axisFocusRange') + ' rect');
 
     const after = mountChart(makeConfig());
     focusSeries(after, 'S1');
-    const afterRange = rect(axisGroup(after, 'mochart-value-axis-VA1'), '.mochart-axis-focus-range rect');
+    const afterRange = rect(axisGroup(after, getIdCssClass('valueAxis', 'VA1')), getCssSelector('axisFocusRange') + ' rect');
 
     expect(afterRange.y).toBe(beforeRange.y);
     expect(afterRange.height).toBe(beforeRange.height);
@@ -150,10 +152,10 @@ describe('value axis focus range placement', () => {
   it('keeps the focus range within the axis bounds', () => {
     const container = mountChart(makeConfig());
     focusSeries(container, 'S1');
-    const group = axisGroup(container, 'mochart-value-axis-VA1');
-    const range = rect(group, '.mochart-axis-focus-range rect');
+    const group = axisGroup(container, getIdCssClass('valueAxis', 'VA1'));
+    const range = rect(group, getCssSelector('axisFocusRange') + ' rect');
     // the tick label box spans the axis' full length, so it gives the bounds
-    const axisHeight = rect(group, '.mochart-axis-tick-labels rect').height;
+    const axisHeight = rect(group, getCssSelector('axisTickLabels') + ' rect').height;
 
     expect(range.y).toBeGreaterThan(0);
     // the focused category's value runs down to the axis base, which sits at the
@@ -165,8 +167,8 @@ describe('value axis focus range placement', () => {
   it('styles the focus range with the host page color', () => {
     const container = mountChart(makeConfig());
     focusSeries(container, 'S1');
-    const el = axisGroup(container, 'mochart-value-axis-VA1')
-      .querySelector('.mochart-axis-focus-range rect')!;
+    const el = axisGroup(container, getIdCssClass('valueAxis', 'VA1'))
+      .querySelector(getCssSelector('axisFocusRange') + ' rect')!;
     expect(el.getAttribute('stroke')).toBe('currentColor');
     expect(el.getAttribute('fill')).toBe('currentColor');
     // subtle under the plot on a light page, still readable on a dark one
@@ -179,8 +181,8 @@ describe('value axis focus range placement', () => {
       valueAxisDefaults: { showFocusTickMarks: true }
     }));
     focusSeries(container, 'S1');
-    const el = axisGroup(container, 'mochart-value-axis-VA1')
-      .querySelector('.mochart-axis-focus-tick-marks line')!;
+    const el = axisGroup(container, getIdCssClass('valueAxis', 'VA1'))
+      .querySelector(getCssSelector('axisFocusTickMarks') + ' line')!;
     expect(el.getAttribute('stroke')).toBe('currentColor');
     expect(el.getAttribute('stroke-opacity')).toBe('1');
   });

@@ -11,6 +11,7 @@ import { getSymbolGenerator } from '../../src/utils/shapeUtils';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getIdCssSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 const MARKER_MIN_SIZE = 4;
@@ -44,7 +45,7 @@ function mountChart(data: readonly unknown[], seriesOverrides: Record<string, un
 }
 
 function renderedMarkerPaths(container: Element): Array<string | null> {
-  return [0, 1, 2].map(i => container.querySelector('.mochart-series-marker-' + i)!.getAttribute('d'));
+  return [0, 1, 2].map(i => container.querySelector(getIdCssSelector('seriesMarker', i))!.getAttribute('d'));
 }
 
 beforeAll(() => {

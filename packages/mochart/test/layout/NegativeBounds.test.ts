@@ -8,6 +8,7 @@ import { installSvgMeasurementShims } from '../components/svgShims';
 import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps, MochartInputConfig } from '../../src';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 let handles: ChartHandle<DefaultChartProps>[] = [];
 const rows = [{ c: 'a', v: 1 }, { c: 'b', v: 2 }];
@@ -64,6 +65,6 @@ describe('charts smaller than their own spacing', () => {
   it('still lays out a normal chart', () => {
     expect(negativeRects(config({ title: { text: 'T' }, legend: { visible: true } }), 640, 420)).toEqual([]);
     const container = document.body.querySelector('div')!;
-    expect(container.querySelectorAll('.mochart-series-bar').length).toBe(2);
+    expect(container.querySelectorAll(getCssSelector('seriesBar')).length).toBe(2);
   });
 });

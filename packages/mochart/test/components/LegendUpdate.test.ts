@@ -9,6 +9,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 
@@ -39,7 +40,7 @@ function mountChart(config: MochartInputConfig): { container: Element; handle: C
 }
 
 function legendItemCount(container: Element): number {
-  return container.querySelectorAll('.mochart-legend-item').length;
+  return container.querySelectorAll(getCssSelector('legendItem')).length;
 }
 
 beforeAll(() => {

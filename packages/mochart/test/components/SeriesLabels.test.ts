@@ -8,6 +8,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -33,7 +34,7 @@ function labelCount(seriesOverrides: Record<string, unknown>, valueAxes?: unknow
   handles.push(createDefaultChart(container, {
     config, data: rows, width: WIDTH, height: HEIGHT
   } as DefaultChartProps));
-  return container.querySelectorAll('.mochart-series-label').length;
+  return container.querySelectorAll(getCssSelector('seriesLabel')).length;
 }
 
 beforeAll(() => {
@@ -91,7 +92,7 @@ describe('series label fraction guards', () => {
       } as unknown as MochartInputConfig,
       data: rows, width: WIDTH, height: HEIGHT
     } as DefaultChartProps));
-    expect(container.querySelectorAll('.mochart-series-label').length).toBeLessThan(rows.length);
+    expect(container.querySelectorAll(getCssSelector('seriesLabel')).length).toBeLessThan(rows.length);
   });
 
   it('measures a ranged series against its own range property', () => {

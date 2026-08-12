@@ -12,6 +12,7 @@ import type { ChartHandle } from '../../src/createChart';
 import type { ChartFocus, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getIdCssClass, getCssSelector, getDescendantCssSelector, getCssClassMatchSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
+import { focusRestoredAttribute } from '../../src/utils/utils';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -176,7 +177,7 @@ describe('tooltip row keyboard semantics', () => {
     expect((document.activeElement as HTMLElement).getAttribute('data-row-key')).toBe('series-S1');
     // A11Y-10: the same restore is reachable by clicking the row, where :focus-visible never
     // matches, so the moved focus is marked for the stylesheet to ring
-    expect((document.activeElement as HTMLElement).hasAttribute('data-mochart-focus-restored')).toBe(true);
+    expect((document.activeElement as HTMLElement).hasAttribute(focusRestoredAttribute)).toBe(true);
   });
 
   it('adds the category row and focuses on Enter in focus mode', () => {
