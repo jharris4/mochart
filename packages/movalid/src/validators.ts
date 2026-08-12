@@ -93,6 +93,9 @@ const printAny = (value: any, recurse?: boolean): string => {
   } else if (typeof value === "symbol") {
     // JSON.stringify drops symbols entirely
     return String(value);
+  } else if (typeof value === "bigint") {
+    // the literal form, since JSON.stringify throws on a bigint and 1n must not read as 1
+    return String(value) + "n";
   } else {
     return JSON.stringify(value);
   }
