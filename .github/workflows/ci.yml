@@ -17,6 +17,16 @@ concurrency:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    strategy:
+      # Both legs report so a failure is attributable to a Node version.
+      fail-fast: false
+      matrix:
+        node-version: ['22', '24']
+        # Site builds and uploads run on one leg only: artifact names are
+        # workflow-global, so a second upload of the same name fails.
+        include:
+          - node-version: '24'
+            site: true
     # Mirrors the two deploy jobs' conditions so a site is only built for a
     # deploy that will actually happen; otherwise one build verifies the site.
     env:
@@ -26,7 +36,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ matrix.node-version }}
           cache: npm
       # npm ci runs the root prepare script, which builds all the library
       # packages (movalid, mochart, and the framework bindings).
@@ -54,30 +64,30 @@ jobs:
       - if: failure() && steps.e2e.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-traces
+          name: playwright-traces-node${{ matrix.node-version }}
           path: packages/mochart-demo-basic/test-results
           retention-days: 7
       - name: Build site
-        if: env.DEPLOY_PAGES != 'true' && env.DEPLOY_CLOUDFLARE != 'true'
+        if: matrix.site && env.DEPLOY_PAGES != 'true' && env.DEPLOY_CLOUDFLARE != 'true'
         run: npm run build:pages
         env:
           PAGES_BASE: /
       - name: Build GitHub Pages site
-        if: env.DEPLOY_PAGES == 'true'
+        if: matrix.site && env.DEPLOY_PAGES == 'true'
         run: npm run build:pages
         env:
           PAGES_BASE: /${{ github.event.repository.name }}/
-      - if: env.DEPLOY_PAGES == 'true'
+      - if: matrix.site && env.DEPLOY_PAGES == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
       # Cloudflare Pages serves from the domain root, so rebuild with base /.
       - name: Build Cloudflare Pages site
-        if: env.DEPLOY_CLOUDFLARE == 'true'
+        if: matrix.site && env.DEPLOY_CLOUDFLARE == 'true'
         run: npm run build:pages
         env:
           PAGES_BASE: /
-      - if: env.DEPLOY_CLOUDFLARE == 'true'
+      - if: matrix.site && env.DEPLOY_CLOUDFLARE == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: cloudflare-site
