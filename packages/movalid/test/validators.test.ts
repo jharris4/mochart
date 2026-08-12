@@ -1178,6 +1178,27 @@ describe("validators", () => {
       it("should not allow values that are not equal to the argument", () => {
         expect(baseValidators.equal(undefined)(1)).toBe(false);
       });
+
+      it("should name a function argument in its error message", () => {
+        const namedFunction = () => true;
+        expect(baseValidators.equal(namedFunction).errorMessage).toBe("should be equal to function namedFunction");
+      });
+
+      it("should describe an anonymous function argument in its error message", () => {
+        const anonymousFunction = (() => function () {})();
+        expect(baseValidators.equal(anonymousFunction).errorMessage).toBe("should be equal to an anonymous function");
+      });
+
+      it("should print a symbol argument in its error message", () => {
+        expect(baseValidators.equal(Symbol("aSymbol")).errorMessage).toBe("should be equal to Symbol(aSymbol)");
+      });
+
+      it("should print function and symbol members of an object argument", () => {
+        const object = { fn: function aFunction() {}, sym: Symbol("aSymbol") };
+        expect(baseValidators.equal(object).errorMessage).toBe(
+          "should be equal to { fn: function aFunction, sym: Symbol(aSymbol) }"
+        );
+      });
     });
 
     describe("one of", () => {

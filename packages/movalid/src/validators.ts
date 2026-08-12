@@ -87,6 +87,12 @@ const printAny = (value: any, recurse?: boolean): string => {
     return printArray(value);
   } else if (typeof value === "object") {
     return printObject(value);
+  } else if (typeof value === "function") {
+    // the name only, since string-coercing a function inlines its whole source
+    return value.name ? "function " + value.name : "an anonymous function";
+  } else if (typeof value === "symbol") {
+    // JSON.stringify drops symbols entirely
+    return String(value);
   } else {
     return JSON.stringify(value);
   }
