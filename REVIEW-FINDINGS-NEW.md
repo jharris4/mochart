@@ -35,10 +35,10 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
-5 from the SOL pass, 4 found while implementing.)
+**160 findings: 1 critical, 33 high, 71 medium, 55 low.** (145 from the Opus pass,
+5 from the SOL pass, 10 found while implementing.)
 
-**Status: 61 fixed, 2 needing an answer, 98 open.** TOOL-2 is deferred to release time by
+**Status: 61 fixed, 2 needing an answer, 99 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -62,10 +62,10 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [8](#8-framework-bindings-export-and-editor) | Bindings, export & editor | – | 2 | 6 | 4 | 12 |
 | [9](#9-documentation) | Documentation | – | 3 | 7 | 3 | 13 |
 | [10](#10-demo-applications) | Demo applications | – | 5 | 10 | 7 | 22 |
-| [11](#11-tests-and-coverage) | Tests & coverage | – | 4 | 8 | 5 | 17 |
+| [11](#11-tests-and-coverage) | Tests & coverage | – | 4 | 8 | 6 | 18 |
 | [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 7 | 6 | 16 |
 | [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **33** | **71** | **54** | **159** |
+| | **Total** | **1** | **33** | **71** | **55** | **160** |
 
 `§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
 counted twice. Several other findings are cross-linked between sections for the same reason.
@@ -3408,6 +3408,23 @@ One correction to the probe that found this: the original sweep reported "chart 
 converging, but it used `title.visible`, which is not a config property — both sides rendered a
 config error and compared equal. The title is hidden with `text: null`, and that transition does
 converge; the scenario added here uses the real property.
+
+### TEST-18 — tests hard-code CSS class literals instead of reading `mochartCssClasses`
+**Low · Maintainability · [ChartDom.ts:8](packages/mochart/src/utils/ChartDom.ts#L8)** — **Open**
+
+The class names are constants in the source so a rename is a single edit. The test and e2e suites
+mostly ignore them: roughly 466 hard-coded `'.mochart-…'` literals across ~43 files, against 2
+files that import `mochartCssClasses`. [API-3](#api-3--crosshair-elements-get-unnamespaced-css-classes)
+renamed three classes and had to hand-patch every literal it happened to break; a rename that
+missed one would leave a test asserting on a class nothing writes, which passes as a `toBe(0)` and
+fails as nothing.
+
+Golden snapshots are excluded — they are rendered output, and the literals in them are the point.
+
+**Fix:** import `mochartCssClasses` and build named selector consts per file. Values with two
+space-separated tokens need `.split(' ')` first
+(see [API-4](#api-4--mochartcssclasses-values-are-not-all-class-names-contradicting-the-api-reference)).
+A lint rule banning the `'.mochart-'` literal in `test/`/`e2e/` would keep it from coming back.
 
 ---
 
