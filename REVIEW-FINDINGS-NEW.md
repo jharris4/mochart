@@ -3565,7 +3565,7 @@ still pointed at rather than duplicated: `demoText`'s row states the all-copy-li
 to the file's own header for the `{ label, tooltip, aria }` convention. Workspace lint and typecheck pass.
 
 ### DEMO-16 — docs claim the test demos are "intentionally invalid"; they are not
-**Low · Doc gap · [demo-data/README.md:28](packages/mochart-demo-data/README.md#L28)** — **Open**
+**Low · Doc gap · [demo-data/README.md:28](packages/mochart-demo-data/README.md#L28)** — **Fixed**
 
 The 21 `testDemos` entries are ordinary valid configs, and the gallery describes them correctly as
 "Feature-coverage demos exercising less common config options". The stale claim also drives a
@@ -3574,6 +3574,33 @@ where test demos are only mounted and never checked for a rendered series. `READ
 `{ id, title, config, data, random }` also omits `description`, `notes` and `generator`.
 
 **Fix:** correct the wording, complete the `Demo` shape example, and tighten `demos.spec.ts`.
+
+**Fixed by correcting the documentation, because the demos are the side that is right.** Every one of the
+**24** `testDemos` entries (the finding says 21) was pushed through the real pipeline — `enhanceConfig`,
+which runs `migrateConfig` → `getDefaults` → `validateConfig` in strict mode, exactly what demo-basic's
+`mountDemo` reports — and all 24 came back `valid, errors=0, warnings=0`. So did all 37 gallery demos: the
+two sets are indistinguishable on validity.
+
+What the test configs actually exercise is edge-case *data and layout*, not invalid config: zero-extent
+series domains (`same-values`, `one-value`), the nine `undefined-*` missing-value treatments, crowded,
+ordinal and date tick behaviour, DST-offset categories, inverted plots and cap shapes. Making them invalid
+to match the prose would delete real coverage, and nothing else covers these cases.
+
+So `mochart-demo-data/README.md`'s two "invalid" claims are corrected (the manifest row and the
+`src/config/test/*.json` row), and its `Demo` shape example completed. `CONTRIBUTING.md` needed nothing —
+it makes no invalidity claim — and demo-common's gallery copy already described them correctly.
+
+The claim had also propagated into `e2e/demos.spec.ts`, where test demos took a weaker assertion path than
+gallery demos. Both sets now assert the same thing — the error region hidden, at least one series element
+attached — in one merged table so the two cannot drift apart again. All 24 pass, including the degenerate
+ones (`undefined-all`, `undefined-single`, `one-value`), so series elements really are emitted there.
+
+`npm run test:e2e -w @mochart/demo-basic`: 79 tests pass (61 demo-gallery = 37 + 24, plus 18
+export/interaction/pie). Typecheck and lint clean.
+
+One thing found and not folded in: the same README table under-lists `src/types.ts`, which also holds
+`DemoRandomConfig` and the six per-generator random config types, and `DemoManifestEntry` is not
+re-exported from `src/index.ts`.
 
 ### DEMO-17 — the series editor cannot show or edit error-bar values
 **Low · Missing feature · [vanilla EditableChart.ts:565](packages/mochart-demo-vanilla/src/components/single/EditableChart.ts#L565), all six ports** — **Open**
