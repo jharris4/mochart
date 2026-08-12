@@ -23,6 +23,8 @@ import * as dateAxis from '../examples/dateAxis'
   takes a d3 time-format string for date axes (`'%b %d'` → "Jun 01").
 - With `scale: 'ordinal'` instead, dates are spaced evenly in data order —
   useful when the gaps are noise (e.g. trading days).
-- The `area` renderer fills to the value axis base; swap in `line` or `bar`
-  per series via
+- The `area` renderer fills to the value axis
+  [`base`](/reference/valueAxes#valueAxes.base) when one is set; with no base
+  set — the default for an axis without stacks, as here — it fills to the
+  minimum end of the axis. Swap in `line` or `bar` per series via
   [`renderer`](/reference/series#series.renderer).

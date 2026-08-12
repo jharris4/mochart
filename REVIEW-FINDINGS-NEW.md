@@ -2791,7 +2791,7 @@ inventories, so the two missing members are precisely the ones a reader meets fi
 **Fix:** add both.
 
 ### DOC-11 — `date-axis.md` says an area fills to "the value axis base", which is unset by default
-**Low · Doc inconsistency · [recipes/date-axis.md:26](packages/mochart-docs/recipes/date-axis.md#L26)** — **Open**
+**Low · Doc inconsistency · [recipes/date-axis.md:26](packages/mochart-docs/recipes/date-axis.md#L26)** — **Fixed**
 
 `valueAxes.base` defaults to `null` for an unstacked axis — which the date-axis example is — and
 `SeriesPositions` then falls back to `valueAxisScale.range()[0]`, the axis's lower edge. On an axis
@@ -2800,6 +2800,28 @@ reaches the bottom of the plot.
 
 **Fix:** "The `area` renderer fills down to the axis base when one is set (`valueAxes.base`), and
 otherwise to the bottom of the axis."
+
+**Fixed, and in the generated reference too.** Verified against the source before rewriting: `base`
+is a conditional default — `0` in pie mode, `0` when the value axis has stacks, and `null` otherwise
+([valueAxisConfig.ts:55-62](packages/mochart/src/config/defaults/valueAxisConfig.ts#L55)) — and
+`seriesBasePosition` starts at `valueAxisScale.range()[0]` and only moves to `valueAxisScale(base)`
+when `base !== null` ([SeriesPositions.ts:42-54](packages/mochart/src/utils/SeriesPositions.ts#L42)).
+The recipe's own example declares no stacks and no base, so it takes the `null` branch. The finding's
+premise holds.
+
+`recipes/date-axis.md` now says the area fills to the value axis `base` when one is set and to the
+minimum end of the axis when it is not, noting that unset is the default for an axis without stacks.
+"Minimum end of the axis" rather than "the bottom": the fallback is `range()[0]`, which is the left
+edge on an inverted chart.
+
+The same imprecision was in `config/docs/seriesConfig.ts`'s `renderer` detail — "fills between the
+value line and the value axis base" — which feeds both the generated JSDoc in `types/config.ts` and
+the reference table in `mochart-docs.html`, so that is corrected and both generated files regenerated.
+`recipes/positive-negative.md` and `examples/posNeg.ts` already described the unset default correctly
+and needed nothing.
+
+The docs site builds clean (no dead links or anchors) and the new `valueAxes.base` link target
+resolves; core's 1612 tests and typecheck pass.
 
 ### DOC-12 — two small factual slips in the recipes
 **Low · Doc inconsistency · [recipes/bar-caps.md:32](packages/mochart-docs/recipes/bar-caps.md#L32); [candlestick.md:36](packages/mochart-docs/recipes/candlestick.md#L36), [ohlc.md:40](packages/mochart-docs/recipes/ohlc.md#L40), [waterfall.md:31](packages/mochart-docs/recipes/waterfall.md#L31)** — **Open**
