@@ -31,7 +31,7 @@ import { getClippedEdges } from '../data/ClipData';
 import SeriesColorGradient from './SeriesColorGradient';
 import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
-import { accessibilityActive, translateObject } from '../utils/utils';
+import { accessibilityActive, focusRestored, translateObject } from '../utils/utils';
 import { getSeriesGradientColors } from '../utils/SeriesColors';
 import { getTooltipAnnouncement } from '../utils/TooltipFormat';
 import type { ChartFactoryContent, ChartFactoryContext, ChartContentFactory, ChartEventPayload, ChartSeriesClickPayload, ChartSliceClickPayload, InternalFocus } from '../types/chart';
@@ -322,6 +322,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   uniqueId: string;
   chartRef: Element | null = null;
   chartRectRef: Element | null = null;
+  /** the no-data/error/loading message region while it is focusable: the fallback stop when a teardown removes the plot */
+  messageRef: HTMLElement | null = null;
   isMouseWithinChart = false;
   chartEventHandler: Record<string, (event: ChartPointerEvent) => void>;
   _simpleNodeContent: FactoryContent = null;
@@ -762,15 +764,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
   }
 
+  /** Closing unmounts the tooltip's own tab stops; the render's teardown restore hands focus back to the plot stop. */
   closeTooltip = () => {
     this.announceTooltipCategory(null);
     this.setState({ ...getInitialTooltipState(), tooltipBounds: null });
-  }
-
-  /** Escape pressed inside the tooltip: close it and hand keyboard focus back to the plot tab stop */
-  escapeTooltip = () => {
-    this.closeTooltip();
-    (this.chartRectRef as SVGElement | null)?.focus();
   }
 
   updateTooltipCategoryIndex = (tooltipCategoryIndex: number): void => {
@@ -1070,6 +1067,25 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     this.chartRectRef = chartRectRef;
   }
 
+  /** the chart element holding keyboard focus, if any */
+  private getFocusedChartNode(): Element | null {
+    const activeElement = document.activeElement;
+    return activeElement !== null && activeElement !== document.body && this.root.node.contains(activeElement) ? activeElement : null;
+  }
+
+  /**
+   * A render that tears down the focused tab stop — a refresh dropping to zero categories or an
+   * error, a closing tooltip — must not leave keyboard focus on <body>: hand it to a stop that
+   * survived. The plot stop when it is still there, else the message that replaced the plot.
+   */
+  private restoreTornDownFocus(focusedNode: Element | null): void {
+    // an inner component may have moved focus itself (series reorder, tooltip row filtering)
+    if (focusedNode === null || focusedNode.isConnected || this.getFocusedChartNode() !== null) {
+      return;
+    }
+    focusRestored((this.chartRectRef as SVGElement | null) ?? this.messageRef);
+  }
+
   create() {
     return this.root.node;
   }
@@ -1190,6 +1206,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     } = this.props;
     const { layoutInfo, tooltipLayoutInfo, axisData, stackData, tooltipVisible, tooltipCategoryIndex, tooltipBounds, uniqueIds, tooltipValueObject } = this.state;
     const { error, loading } = body.props;
+    // read before the slots below can unmount whatever holds focus
+    const focusedNode = this.getFocusedChartNode();
 
     const {
       svgUniqueId, tooltipClipPathUniqueId, titleClipPathUniqueId, legendClipPathUniqueId, categoryAxisTitleClipPathUniqueId,
@@ -1336,7 +1354,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         focusedSeriesId, valueAxisFocusPercentages, seriesFocusPercentages,
         tooltipVisible, categoryCount: chartData.categoryData.values.raw.length,
         tooltipLayoutInfo: tooltipLayoutInfo!, tooltipBounds, svgUniqueId,
-        onClose: this.closeTooltip, onEscape: this.escapeTooltip, updateTooltipCategoryIndex: this.updateTooltipCategoryIndex,
+        // Escape and a click inside close the same way, focus included
+        onClose: this.closeTooltip, onEscape: this.closeTooltip, updateTooltipCategoryIndex: this.updateTooltipCategoryIndex,
         onFocus: onFocus ?? (() => {}), onSeriesFilter: onSeriesFilter ?? (() => {}) });
 
       if (mochartConfig.series.length === 0) {
@@ -1359,6 +1378,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       }
 
       body.noDataSlot.set(null);
+      this.messageRef = null;
     }
     else {
       body.plot.set(null);
@@ -1393,8 +1413,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       }
 
       const noDataEl = body.noDataSlot.set('div', () => htmlEl('div'));
-      noDataEl!.set({ className: mochartCssClasses['noData'], style: noDataStyle });
+      // -1: never a tab stop, but focusable for the teardown restore below, which reads out the message
+      noDataEl!.set({ className: mochartCssClasses['noData'], style: noDataStyle, tabindex: accessibility ? '-1' : null });
       setFactoryContent(noDataEl!, noDataContent);
+      this.messageRef = accessibility ? noDataEl!.node as HTMLElement : null;
     }
 
     body.legend.set(Legend, { mochartConfig, filteredFlags, focusedSeriesId,
@@ -1421,5 +1443,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     else {
       body.loadingSlot.set(null);
     }
+
+    this.restoreTornDownFocus(focusedNode);
   }
 }
