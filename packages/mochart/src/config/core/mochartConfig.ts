@@ -356,9 +356,7 @@ export function hasConfigStructureChange(configOld: MochartConfig | null, config
         seriesConfig.labelProperty !== newSeriesConfig.labelProperty ||
         seriesConfig.axis !== newSeriesConfig.axis ||
         seriesConfig.stack !== newSeriesConfig.stack ||
-        seriesConfig.group !== newSeriesConfig.group ||
-        // showInLegend changes the measured legend item set
-        seriesConfig.showInLegend !== newSeriesConfig.showInLegend) {
+        seriesConfig.group !== newSeriesConfig.group) {
       return true;
     }
   }
