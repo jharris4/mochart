@@ -2888,7 +2888,7 @@ package.json script lines, and doing it partially would silently switch the demo
 binding suites onto a stale `dist`.
 
 ### BIND-4 — Angular placeholders keep stale inputs when core omits a context key
-**Medium · Bug · [mochart-angular/src/placeholders.ts:56-60](packages/mochart-angular/src/placeholders.ts#L56)** — **Open**
+**Medium · Bug · [mochart-angular/src/placeholders.ts:56-60](packages/mochart-angular/src/placeholders.ts#L56)** — **Fixed**
 
 `renderSlot` iterates `Object.keys(context)` and calls `setInput` only for keys present, so a key
 dropped by a later call retains its previous value. Core calls one slot with different key sets —
@@ -2899,6 +2899,33 @@ and Svelte all reset (Svelte explicitly deletes absent keys).
 
 **Fix:** before applying, `setInput(key, undefined)` for every name in `slot.inputNames` that is a
 `PlaceholderProps` key and absent from `context`.
+
+**Fixed by tracking what was applied, not by clearing a fixed key list.** `renderSlot` only walked
+`Object.keys(context)`, so any chart-context key core stopped passing kept its previous value on the same
+`ComponentRef`. Each slot now keeps an `appliedKeys` set of the keys it actually pushed; before applying a new
+context, any tracked key absent from it gets `setInput(key, undefined)`, the set is rebuilt from this call's
+keys, and it is cleared when a component swap creates a fresh instance.
+
+Confirmed against core rather than assumed: the loading slot is called with
+`{mochartConfig, dataProvider, width, height, hasData}` while a chart is mounted
+([Chart.ts:1412](packages/mochart/src/components/Chart.ts#L1412)) and with only `{width, height}` when there is
+no config ([:1141](packages/mochart/src/components/Chart.ts#L1141)); the error slot loses `mochartConfig` the
+same way. The slot's factory identity and container are stable, so the same instance is reused across those
+states and `hasData`, `mochartConfig` and `dataProvider` stayed stale.
+
+Deliberate divergence from the prescribed fix, which says to clear every `PlaceholderProps` key absent from the
+context: taken literally, the first render would `setInput(…, undefined)` over inputs core never set, blanking
+a placeholder's own field default — `@Input() hasData = true` on a component used in a state where core never
+passes `hasData`. Tracking what was applied clears exactly the stale values, and needs no runtime copy of the
+`PlaceholderProps` key list to drift out of step with `types.ts`.
+
+One test pins it: a loading component declaring `width`/`height`/`hasData`, mounted with a valid config and
+`loading: true`, then `mochartConfig` set to null so the same slot is called with two keys. Without the fix it
+still renders `Loading [true]` instead of `Loading []`. 19 tests pass (was 18), typecheck and lint clean, and
+the ngc build still emits partial-Ivy — `ɵɵngDeclareComponent` present, zero `ɵɵdefineComponent` in `dist`.
+
+The finding's line citations are stale (1034/1311 against the actual 1141/1412) and it names only the loading
+slot; the error slot has the same asymmetry and is covered by the same fix.
 
 ### BIND-5 — placeholder instances leak when the placeholder prop is removed (Vue, Svelte, Lit, Angular)
 **Medium · Bug · [vue/placeholders.ts:61](packages/mochart-vue/src/placeholders.ts#L61), [lit:57](packages/mochart-lit/src/placeholders.ts#L57), [svelte:77](packages/mochart-svelte/src/placeholders.svelte.ts#L77), [angular:86](packages/mochart-angular/src/placeholders.ts#L86)** — **Fixed**

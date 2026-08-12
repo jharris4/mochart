@@ -78,6 +78,17 @@ class ConfigError {
   @Input() height?: number;
 }
 
+// Declares a context input the core only passes in some of its placeholder states.
+@Component({
+  selector: 'test-context-loading',
+  template: '<div>Loading [{{ hasData }}]</div>'
+})
+class ContextLoading {
+  @Input() width?: number;
+  @Input() height?: number;
+  @Input() hasData?: boolean;
+}
+
 // Stands in for whatever work a placeholder starts: counts its own destruction.
 @Component({
   selector: 'test-tracked-loading',
@@ -338,6 +349,31 @@ describe('removed placeholder components', () => {
 
     fixture.destroy();
     expect(TrackedLoading.destroyed).toBe(before + 2);
+  });
+});
+
+// Regression: only the keys present in a factory context were applied, so a key
+// the core stops passing kept the value from the previous state.
+describe('placeholder context keys the core drops', () => {
+  it('clears an input the next factory call omits', () => {
+    const mochartConfig = enhanceConfig(rawConfig());
+    const fixture = createWith(Chart, {
+      mochartConfig,
+      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      loading: true,
+      loadingComponent: ContextLoading,
+      width: 400,
+      height: 300
+    });
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.textContent).toContain('Loading [true]');
+
+    // without a config the core calls the same slot with only width and height
+    fixture.componentRef.setInput('mochartConfig', null);
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Loading []');
+
+    fixture.destroy();
   });
 });
 
