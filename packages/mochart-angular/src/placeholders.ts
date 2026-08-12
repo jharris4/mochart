@@ -82,6 +82,17 @@ export function createPlaceholderAdapter(environmentInjector: EnvironmentInjecto
     return slot;
   }
 
+  // Destroys a slot's component instance and forgets it; a later input gets a fresh slot.
+  function releaseSlot(propName: string): void {
+    const slot = slots.get(propName);
+    if (!slot) {
+      return;
+    }
+    slot.ref?.destroy();
+    slot.ref = null;
+    slots.delete(propName);
+  }
+
   return {
     transform(props: Record<string, any>): Record<string, any> {
       const out = { ...props };
@@ -91,15 +102,17 @@ export function createPlaceholderAdapter(environmentInjector: EnvironmentInjecto
         if (component) {
           out[FACTORY_PROP_NAMES[propName]] = getSlot(propName, component).factory;
         }
+        else {
+          // the chart falls back to its built-in placeholder, so nothing keeps this instance alive
+          releaseSlot(propName);
+        }
       }
       return out;
     },
     destroy(): void {
-      for (const slot of slots.values()) {
-        slot.ref?.destroy();
-        slot.ref = null;
+      for (const propName of [...slots.keys()]) {
+        releaseSlot(propName);
       }
-      slots.clear();
     }
   };
 }

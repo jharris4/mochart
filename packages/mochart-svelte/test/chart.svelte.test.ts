@@ -7,6 +7,7 @@ import { Chart, DefaultChart } from '../src/index';
 import Loading from './Loading.svelte';
 import ConfigError from './ConfigError.svelte';
 import MountMutation from './MountMutation.svelte';
+import TrackedLoading, { destroyLog } from './TrackedLoading.svelte';
 
 beforeAll(() => {
   // jsdom has no SVG layout engine; return zero sizes so the library takes its
@@ -274,6 +275,41 @@ describe('removed props', () => {
     expect(el.querySelector('svg')).not.toBeNull();
 
     void unmount(instance);
+    el.remove();
+  });
+});
+
+// BIND-5: clearing the prop left the mounted instance alive in its detached
+// container, so its onDestroy, effects and subscriptions never ran down.
+describe('removed placeholder components', () => {
+  it('destroys the placeholder instance when the component is cleared', () => {
+    const el = target();
+    const before = destroyLog.destroyed;
+    const props: { mochartConfig: any; dataProvider: any; loading: boolean; loadingComponent?: any; width: number; height: number } = $state({
+      mochartConfig: null,
+      dataProvider: null,
+      loading: true,
+      loadingComponent: TrackedLoading,
+      width: 400,
+      height: 300
+    });
+    const instance = mount(Chart, { target: el, props });
+    flushSync();
+    expect(el.textContent).toContain('Custom loading');
+    expect(destroyLog.destroyed).toBe(before);
+
+    props.loadingComponent = undefined;
+    flushSync();
+    expect(destroyLog.destroyed).toBe(before + 1);
+
+    // the released slot is rebuilt when the prop comes back
+    props.loadingComponent = TrackedLoading;
+    flushSync();
+    expect(el.textContent).toContain('Custom loading');
+    expect(destroyLog.destroyed).toBe(before + 1);
+
+    void unmount(instance);
+    flushSync();
     el.remove();
   });
 });

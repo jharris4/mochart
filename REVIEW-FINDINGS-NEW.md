@@ -2780,7 +2780,7 @@ and Svelte all reset (Svelte explicitly deletes absent keys).
 `PlaceholderProps` key and absent from `context`.
 
 ### BIND-5 — placeholder instances leak when the placeholder prop is removed (Vue, Svelte, Lit, Angular)
-**Medium · Bug · [vue/placeholders.ts:61](packages/mochart-vue/src/placeholders.ts#L61), [lit:57](packages/mochart-lit/src/placeholders.ts#L57), [svelte:77](packages/mochart-svelte/src/placeholders.svelte.ts#L77), [angular:86](packages/mochart-angular/src/placeholders.ts#L86)** — **Open**
+**Medium · Bug · [vue/placeholders.ts:61](packages/mochart-vue/src/placeholders.ts#L61), [lit:57](packages/mochart-lit/src/placeholders.ts#L57), [svelte:77](packages/mochart-svelte/src/placeholders.svelte.ts#L77), [angular:86](packages/mochart-angular/src/placeholders.ts#L86)** — **Fixed**
 
 `transform()` deletes the prop key and installs a factory only when the component is truthy. There
 is no `else` branch, so a slot whose prop was removed keeps its mounted instance alive in a
@@ -2791,6 +2791,42 @@ subscriptions still running. React handles this correctly at
 **Fix:** add the missing branch to the other four — Vue `render(null, slot.container)`, Svelte
 `slot.destroy()`, Lit `render(nothing, slot.container)`, Angular `slot.ref?.destroy()` — and drop
 the slot from the map.
+
+**Fixed in all four bindings, with a measured teardown per framework.** Each `transform()` gained the missing
+`else` branch, calling a new `releaseSlot(propName)` that tears the slot down and deletes it from the map;
+`destroy()` was rewritten to loop over the slot keys through the same helper, so there is exactly one teardown
+path per binding.
+
+What was actually retained differed by framework, and so does the release:
+
+* **Vue** — a component instance mounted by `render(vnode, container)`, whose `onUnmounted`, watchers and
+  timers never ran down. Released by `render(null, slot.container)`.
+* **Svelte** — an instance from `mount()` plus its `$state` props object; `onDestroy` and effect cleanups
+  never ran. Released by `slot.destroy()`.
+* **Lit** — no component at all, just a rendered template, so "placeholder instance" does not apply here: the
+  observable leak is that its `AsyncDirective`s were never disconnected, so anything they subscribed to kept
+  running. Released by `render(nothing, slot.container)`, which clears the root part and notifies
+  disconnection.
+* **Angular** — a `ComponentRef` still attached to `ApplicationRef`, so it stayed in the change-detection view
+  list and its `ngOnDestroy` never ran. Released by `slot.ref.destroy()`.
+
+Each has a test that fails before the fix, and each counts the framework's own teardown hook rather than
+asserting on the DOM: Vue's `onUnmounted`, Lit's `AsyncDirective.disconnected()`, Svelte's `onDestroy` (via a
+new `TrackedLoading.svelte` fixture) and Angular's `ngOnDestroy` — all `expected +0 to be 1` beforehand. Each
+test then re-adds the prop and asserts the placeholder renders again with no extra teardown, so discarding the
+slot does not break the round trip; the Angular one also checks `fixture.destroy()` tears the rebuilt slot
+down.
+
+No host or component file needed changing: every binding's host already calls `placeholders.transform` on each
+update and pushes the result through `chart.replace`, which replaces core props wholesale, so a removed
+factory is genuinely dropped and no stale factory can be called against a released slot.
+
+One divergence from the finding worth recording: it cites React as the model, but React does *not* drop the
+slot — it keeps the slot and container and nulls the context so the portal unmounts. These four now discard the
+slot entirely, which is what the finding's own instruction says; the round trip is verified in all four, so the
+difference is internal only.
+
+Vue 18, Svelte 17, Lit 17, Angular 18 tests pass; each package's typecheck and lint are clean.
 
 ### BIND-6 — the React guide claims placeholder-context parity that only Svelte has
 **Medium · Doc inconsistency · [guide/frameworks/react.md:128](packages/mochart-docs/guide/frameworks/react.md#L128)** — **Open**
