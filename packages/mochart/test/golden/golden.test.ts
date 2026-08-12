@@ -491,13 +491,11 @@ describe('config updates on a mounted chart', () => {
     expect(normalizeHtml(container.innerHTML)).toBe(appliedHtml);
     await expectSnapshot(container, demo.id, 'config-animate-off');
 
-    // animate back on with unchanged data settles to the same DOM — modulo
-    // empty style="" residue, which the animated settle strips but the static
-    // path leaves in place (the goldens keep the artifact, so normalize only here)
-    const stripEmptyStyles = (html: string) => html.replace(/ style=""/g, '');
+    // animate back on with unchanged data settles to the same DOM, style attributes included:
+    // B12 made an emptied style remove its attribute, so neither path leaves style="" behind
     chart.update({ mochartConfig: animatedConfig });
     runFrames();
-    expect(stripEmptyStyles(normalizeHtml(container.innerHTML))).toBe(stripEmptyStyles(appliedHtml));
+    expect(normalizeHtml(container.innerHTML)).toBe(appliedHtml);
 
     // and the next data change tweens again
     const tweenedRows = transformValues(animatedConfig, changedRows);

@@ -360,9 +360,42 @@ describe('setProperty', () => {
     expect(div.style.color).toBe('');
     expect(div.style.height).toBe('5px');
 
-    // null-valued style properties clear back to empty
+    // null-valued style properties clear back to empty, but the emptied
+    // attribute stays: an object style is truthy, so the removal branch is skipped
     setProperty(div, 'style', { height: 5 }, { height: null }, false);
     expect(div.style.height).toBe('');
+    expect(div.getAttribute('style')).toBe('');
+  });
+
+  it('removes the emptied style attribute when the style value itself is cleared', () => {
+    const div = document.createElement('div');
+    setProperty(div, 'style', undefined, { height: 5 }, false);
+    expect(div.getAttribute('style')).toBe('height: 5px;');
+
+    // object -> null: the declaration empties and style="" goes with it
+    setProperty(div, 'style', { height: 5 }, null, false);
+    expect(div.hasAttribute('style')).toBe(false);
+
+    // string form: cssText is emptied and the attribute removed
+    const stringDiv = document.createElement('div');
+    setProperty(stringDiv, 'style', undefined, 'width: 10px;', false);
+    setProperty(stringDiv, 'style', 'width: 10px;', '', false);
+    expect(stringDiv.hasAttribute('style')).toBe(false);
+
+    // and a string cleared with null takes the same path
+    const nulledDiv = document.createElement('div');
+    setProperty(nulledDiv, 'style', undefined, 'width: 10px;', false);
+    setProperty(nulledDiv, 'style', 'width: 10px;', null, false);
+    expect(nulledDiv.hasAttribute('style')).toBe(false);
+  });
+
+  it('keeps a style attribute that still holds declarations after a clear', () => {
+    const div = document.createElement('div');
+    // a declaration this renderer never wrote must survive the removal branch
+    div.style.color = 'red';
+    setProperty(div, 'style', undefined, { height: 5 }, false);
+    setProperty(div, 'style', { height: 5 }, null, false);
+    expect(div.getAttribute('style')).toBe('color: red;');
   });
 });
 
