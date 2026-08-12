@@ -3213,7 +3213,7 @@ editor has to rediscover both the algorithm and the mutation footgun.
 `buildMochartConfig`) from `@mochart/core`, and have `buildMochartDemoConfig` call it.
 
 ### DEMO-15 — `@mochart/demo-common`'s README documents 10 of its 23 modules
-**Medium · Doc gap · [demo-common/README.md:23](packages/mochart-demo-common/README.md#L23)** — **Open**
+**Medium · Doc gap · [demo-common/README.md:23](packages/mochart-demo-common/README.md#L23)** — **Fixed**
 
 Undocumented: `demoText`, `theme`, `viewport`, `menu`, `gallery`, `shareState`, `pieDemo`,
 `sparklines`, `chartTypeGenerators`, `docsLinks`, `errorDataProvider`, `jsonEditorContent` — plus
@@ -3222,6 +3222,25 @@ home of the project's "all demo copy lives here" rule, and the README meant to t
 not mention it.
 
 **Fix:** extend the table to every module in `src/`, plus rows for the CSS exports and the script.
+
+**Fixed; all modules documented.** The README's `Contents` table covered 10; it now covers all 22,
+grouped into three tables that follow how the package is actually used — editing a demo's config and
+data (5), demo modes and showcase pages (9), and shell/copy/shared browser plumbing (8) — plus new
+sections for the two CSS subpath exports and the `generate-demos` script. The original 10 rows survive
+verbatim.
+
+Two corrections to the finding's own numbers and to the README beyond the gap it names. `src/` holds 23
+*files*, one of which is the `index.ts` barrel, so there are 22 modules. And the README's closing claim
+that "everything is exported from the package root" was false: `randomGenerator.ts` is not re-exported
+at all — it is reached only through `chartTypeGenerators.generateDemoDataProvider`, which dispatches to
+it for demos whose manifest entry names no `generator` — and a few per-module helpers
+(`dataEditing`'s `isObject`/`isArrayOfObjects`, `viewport`'s breakpoint constants) sit outside the
+barrel too. That sentence is corrected and both facts are documented, so a port knows to import those
+from the module directly.
+
+Every module name, file path and export name in the new text was checked against the source. Copy is
+still pointed at rather than duplicated: `demoText`'s row states the all-copy-lives-here rule and refers
+to the file's own header for the `{ label, tooltip, aria }` convention. Workspace lint and typecheck pass.
 
 ### DEMO-16 — docs claim the test demos are "intentionally invalid"; they are not
 **Low · Doc gap · [demo-data/README.md:28](packages/mochart-demo-data/README.md#L28)** — **Open**
