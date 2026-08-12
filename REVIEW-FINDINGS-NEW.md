@@ -4273,7 +4273,7 @@ the fix with `c.orEqual is not a function`. movalid 385 tests, core 1612 tests, 
 lint and deadcode all pass.
 
 ### VAL-3 — the `numeric` family accepts single-element arrays
-**Medium · Bug · [validators.ts:123](packages/movalid/src/validators.ts#L123)** **[verified]** — **Open**
+**Medium · Bug · [validators.ts:123](packages/movalid/src/validators.ts#L123)** **[verified]** — **Fixed**
 
 `v => !isNaN(parseFloat(v)) && isFinite(v)` uses the *global* `isFinite`, which coerces:
 
@@ -4289,6 +4289,29 @@ scalar is expected gets no error, and the value flows into `>=`/`<=` comparisons
 
 **Fix:** gate on the scalar type first —
 `v => (typeof v === 'string' || typeof v === 'number') && Number.isFinite(Number(v))`.
+
+**Fixed by gating on scalar type first.** `customTypeValidatorDefinitions.numeric` now tests
+`typeValidators.number(v) || (typeValidators.string(v) && v.trim() !== '')` before
+`Number.isFinite(Number(v))`, so the global `isFinite`'s coercion is gone and `[5]`, `[' 5 ']`, `{}` and
+friends no longer validate. `numericMin`/`Max`/`MinMax` call `customTypeValidators.numeric` first, so
+they inherit it with no edit of their own.
+
+Two deliberate deviations from the finding's suggested one-liner, both worth recording:
+
+* `typeValidators.number`/`.string` rather than bare `typeof`. That is the surrounding style — `integer`,
+  `color`, `datePrimitive` and `dateAny` all gate through `typeValidators` — and bare `typeof` would have
+  silently started rejecting boxed `new Number(5)`, which `typeValidators.number` still accepts. That
+  would have created a fresh sibling disagreement of exactly the kind this finding is about.
+* The `v.trim() !== ''` clause. The finding's literal form is a regression: `Number('')` and
+  `Number('   ')` are both `0`, so `numeric('')` would have started passing where `parseFloat('')` had
+  correctly rejected it. Without the clause the fix trades one coercion hole for another.
+
+Seven tests: four single-element-array cases across `numeric`, `numericMin`, `numericMax` and
+`numericMinMax`, plus object, empty-string and whitespace-string guards pinning the two deviations. The
+array cases fail against the old implementation. movalid 392 tests, core 1614 tests, typecheck and lint
+pass — nothing in the repo depended on `[5]` validating.
+
+Note the finding's line reference is stale: `numeric` is at `validators.ts:119-122`; `:123` is `integer`.
 
 ### VAL-4 — `regexp()` is stateful when handed a global-flagged regex
 **Medium · Bug · [validators.ts:259](packages/movalid/src/validators.ts#L259)** **[verified]** — **Open**

@@ -117,7 +117,9 @@ const isValidDate: Predicate = v => v instanceof Date && isFinite(v.getTime());
 
 const customTypeValidatorDefinitions = {
   numeric: {
-    validator: () => v => !isNaN(parseFloat(v)) && isFinite(v),
+    // scalar gate first: the global isFinite coerces, so arrays like [5] used to pass
+    validator: () => v =>
+      (typeValidators.number(v) || (typeValidators.string(v) && v.trim() !== "")) && Number.isFinite(Number(v)),
     message: () => "should be numeric"
   },
   integer: {
