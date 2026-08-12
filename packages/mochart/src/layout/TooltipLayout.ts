@@ -48,18 +48,10 @@ export function getTooltipLayoutInfo(mochartConfig: EnhancedMochartConfig, toolt
 }
 
 export function fitRectangleWithinRectangle({x: bx, y: by, width: bwidth, height: bheight}: Bounds, { x, y, width, height }: Bounds): Bounds {
-  if (x < bx) {
-    x = bx;
-  }
-  if (x + width > bx + bwidth) {
-    x = bx + bwidth - width;
-  }
-  if (y < by) {
-    y = by;
-  }
-  if (y + height > by + bheight) {
-    y = by + bheight - height;
-  }
+  // min last, so a rectangle larger than the bounds stays pinned to the near edge instead of
+  // being pushed out past the opposite one
+  x = Math.max(bx, Math.min(x, bx + bwidth - width));
+  y = Math.max(by, Math.min(y, by + bheight - height));
   return { x, y, width, height };
 }
 
