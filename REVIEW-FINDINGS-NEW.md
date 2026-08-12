@@ -2976,7 +2976,7 @@ difference is internal only.
 Vue 18, Svelte 17, Lit 17, Angular 18 tests pass; each package's typecheck and lint are clean.
 
 ### BIND-6 — the React guide claims placeholder-context parity that only Svelte has
-**Medium · Doc inconsistency · [guide/frameworks/react.md:128](packages/mochart-docs/guide/frameworks/react.md#L128)** — **Open**
+**Medium · Doc inconsistency · [guide/frameworks/react.md:128](packages/mochart-docs/guide/frameworks/react.md#L128)** — **Fixed**
 
 "Placeholder components render through portals … so they inherit the app's context providers …
 **as in the other bindings**." Portals are React-only. Vue passes `vnode.appContext` — **app-level**
@@ -2987,6 +2987,43 @@ that `inject()`s a component-provided value and gets `undefined`.
 
 **Fix:** replace the parity clause with the per-binding truth, and mirror it in the Vue and Angular
 guide pages.
+
+**Fixed across all five guides and READMEs, and the finding's scope was too narrow.** It names only Vue and
+Angular as needing the correction, but the Svelte and Lit pages were also silent about context — and silence is
+the same defect here, because a reader carries React's sentence across. Lit's case is qualitatively different
+again, so mirroring two pages would have left the comparison unanswerable.
+
+What each placeholder actually resolves, read from source:
+
+* **React** — rendered through `createPortal` into the host component tree, so it inherits *any* ancestor's React
+  context and re-renders when a provider updates. The widest reach, and the only one with live inheritance.
+* **Vue** — `vnode.appContext` is captured at setup, so app-level `app.provide()` values and globally registered
+  components and directives resolve; an ancestor *component*'s `provide()` does not, because a `render()`ed root
+  has no parent for `inject()` to walk.
+* **Svelte** — mounted with the full `getAllContexts()` map, so every ancestor `setContext` entry resolves. But it
+  is a snapshot taken at chart init on a separate `mount()` root, so unlike React it does not track later
+  provider changes.
+* **Lit** — a template function the binding calls, not an instantiated component, so no framework context at all;
+  only its lexical closure. Directives work and are disconnected on removal.
+* **Angular** — only declared inputs among the context names, with DI through the *environment* injector, so
+  application and route providers resolve while an ancestor's `providers`/`viewProviders` do not.
+
+Only `react.md` actively overclaimed — "inherit the app's context providers … **as in the other bindings**" — and
+it now states the portal behaviour, that reach differs per binding, and links the other four. Each of the other
+four pages gained a paragraph stating what its placeholder can and cannot resolve, with the workaround where one
+exists (Vue: `app.provide()`, or close over an injected value in the host; Angular: register at application or
+route level, or share a service). All five READMEs carry the matching sentences so README and guide agree.
+
+Two things worth correcting beyond scope. **"Only Svelte matches" is too strong**: Svelte matches on the context
+axis but not on liveness, so React is the only true match. And **Angular's failure mode is worse than
+"environment providers only"**: a service with `providedIn: 'root'` resolves to the *root* instance rather than
+throwing, which is a silent wrong-instance bug rather than an error — that is now stated explicitly.
+
+BIND-5 and BIND-4, which landed just before this, change nothing about context parity — `releaseSlot` is
+teardown and the clear-then-apply is context-key hygiene. What they did equalise is that removing a placeholder
+prop now tears the instance down in all five, which React always did.
+
+Docs site builds clean, no dead links.
 
 ### BIND-7 — exports lose web fonts, and nothing says so
 **Medium · Doc gap · [export/index.ts:20-22](packages/mochart-export/src/index.ts#L20), [export README](packages/mochart-export/README.md#L5)** — **Open**

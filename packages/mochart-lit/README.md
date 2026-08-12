@@ -146,6 +146,11 @@ const loadingTemplate = ({ width, height }) => html`<div>Loading ${width}x${heig
 html`${chart({ mochartConfig, dataProvider, loading, loadingTemplate })}`
 ```
 
+A placeholder template is a plain function the binding calls and renders with
+lit-html rather than a component the framework instantiates, so nothing is
+injected into it: it sees the chart context it is called with plus whatever its
+closure captures.
+
 Both directives also accept `loading` and `error` to force the loading or
 error state.
 

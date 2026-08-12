@@ -125,9 +125,15 @@ that receives the [chart state context](/guide/chart-states) (`width`,
 state. Both components also accept `loading` and `error` to force the
 loading or error state.
 
-Placeholder components render through portals in the host tree, so they
-inherit the app's context providers (theme, router, i18n, …) like any other
-component — as in the other bindings.
+Placeholder components render through a portal in the host component tree, so
+they read any React context an ancestor provides (theme, router, i18n, …) like
+any other component, and they re-render when a provider's value changes.
+
+How much of the surrounding app a placeholder can reach is not the same in
+every binding, and React reaches the furthest. What each of the others gives a
+placeholder is stated on its own page: [Vue](/guide/frameworks/vue),
+[Svelte](/guide/frameworks/svelte), [Lit](/guide/frameworks/lit),
+[Angular](/guide/frameworks/angular).
 
 Every prop, with its type and its core counterpart, is listed in
 [Framework props](/reference/framework-props#react).

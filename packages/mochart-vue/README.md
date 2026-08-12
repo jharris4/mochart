@@ -134,8 +134,11 @@ Both components accept the chart callbacks (`onChartClick`, `onSliceClick`, `onS
 (`loadingComponent`, `errorComponent`, `noDataComponent`, `noSizeComponent`,
 `noSeriesComponent`, `configErrorComponent`). Each placeholder prop takes a
 **Vue component** that receives the chart context (`width`, `height`, `error`,
-…) as props and is rendered while the chart is in that state. Both components
-also accept `loading` and `error` to force the loading or error state.
+…) as props and is rendered while the chart is in that state. A placeholder is
+rendered as its own root carrying the chart component's app context, so it can
+`inject()` a value passed to `app.provide()` but not one an ancestor component
+supplied with `provide()`. Both components also accept `loading` and `error` to
+force the loading or error state.
 
 ### Controlled state
 

@@ -143,6 +143,16 @@ placeholder prop takes a **Vue component** that receives the
 props and is rendered while the chart is in that state. Both components also
 accept `loading` and `error` to force the loading or error state.
 
+A placeholder is rendered as its own Vue root that carries the chart
+component's **app context**, so it can use globally registered components and
+directives and can `inject()` a value passed to `app.provide()`. It has no
+parent component, so a value an ancestor component supplied with `provide()` is
+not reachable — `inject()` returns its default (and warns when there is none).
+If a placeholder needs such a value, either move it to `app.provide()`, or
+`inject()` it in the host component and define the placeholder there as a
+component that closes over it. This is narrower than React, where a placeholder
+reads any ancestor's context; see [React](/guide/frameworks/react).
+
 Every prop, with its type and its core counterpart, is listed in
 [Framework props](/reference/framework-props#vue).
 
