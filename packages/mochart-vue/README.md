@@ -147,3 +147,24 @@ series id → `true` = filtered out). Pass back what `onFocus` and
 `onSeriesFilter` report to keep focus and filtering in sync across several
 charts; leave a prop `undefined` to let the chart keep managing that piece
 itself.
+
+## The `development` export condition
+
+The `exports` map has a `development` entry pointing at this package's
+TypeScript sources, alongside the `default` entry pointing at the built
+`dist/`. It exists for this repository's own dev servers and `tsx` scripts,
+which run the library from source.
+
+Bundlers that enable the `development` condition resolve it as well. Vite does:
+its default `resolve.conditions` are `['module', 'browser',
+'development|production']`, so `vite dev` (and Vite's SSR dev pipeline) load
+`src/` out of `node_modules`, while `vite build` matches `production` and loads
+`dist/`. If loading unbuilt source is a problem for your dev server, list the
+conditions explicitly and leave `development` out:
+
+```js
+// vite.config.ts
+export default defineConfig({
+  resolve: { conditions: ['module', 'browser', 'production'] }
+});
+```
