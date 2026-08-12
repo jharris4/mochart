@@ -260,6 +260,50 @@ describe('Renderer', () => {
     expect(calls).toEqual(['outer dispose', 'inner dispose']);
     expect(parent.innerHTML).toBe('');
   });
+
+  // COMP-9: a slot rebuilt inside an ElSlot init callback (the tooltip row's icon, which changes
+  // host when rightAlignValues flips) left the previous slot registered and its child mounted.
+  it('releaseRegion destroys a replaced slot and drops it from the cascade', () => {
+    const parent = host();
+    const disposed: string[] = [];
+    class Inner extends Renderer<{ id: string }> {
+      root = htmlEl('em');
+      create() {
+        return this.root.node;
+      }
+      sync() {}
+      dispose() {
+        disposed.push(this.props.id);
+      }
+    }
+    class Outer extends Renderer<{ id: string }> {
+      root = htmlEl('div');
+      child: ReturnType<Renderer<object>['slot']> | null = null;
+      create() {
+        return this.root.node;
+      }
+      sync() {
+        if (this.child !== null) {
+          this.releaseRegion(this.child);
+        }
+        this.child = this.slot(this.root);
+        this.child.set(Inner, { id: this.props.id });
+      }
+    }
+    const r = new Outer();
+    r.mount(parent, null, { id: 'first' });
+    expect(markup(parent)).toBe('<div><em></em></div>');
+
+    r.update({ id: 'second' });
+    expect(disposed).toEqual(['first']);
+    // exactly one child remains: the replaced slot took its DOM with it
+    expect(markup(parent)).toBe('<div><em></em></div>');
+
+    r.destroy();
+    // the released slot is not disposed twice, and the live one still cascades
+    expect(disposed).toEqual(['first', 'second']);
+    expect(parent.innerHTML).toBe('');
+  });
 });
 
 describe('setProperty', () => {

@@ -269,6 +269,15 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
     return created;
   }
 
+  /** Destroy one region early, for a slot that is replaced rather than kept for this renderer's life. */
+  protected releaseRegion(region: ChildRegion): void {
+    const index = this.regions.indexOf(region);
+    if (index !== -1) {
+      this.regions.splice(index, 1);
+    }
+    region.destroy(true);
+  }
+
   destroy(removeDom = true): void {
     if (this._unmounted) {
       return;

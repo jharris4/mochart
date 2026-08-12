@@ -1177,7 +1177,7 @@ emitted but empty, so it reads as a rendering failure rather than an unsupported
 does), or emit a validation warning and document the restriction.
 
 ### COMP-9 — `TooltipSeriesLine` leaks a child `Slot` on every `rightAlignValues` flip
-**Low · Bug (teardown) · [TooltipContent.ts:171](packages/mochart/src/components/TooltipContent.ts#L171), [:190](packages/mochart/src/components/TooltipContent.ts#L190)** — **Open**
+**Low · Bug (teardown) · [TooltipContent.ts:171](packages/mochart/src/components/TooltipContent.ts#L171), [:190](packages/mochart/src/components/TooltipContent.ts#L190)** — **Fixed**
 
 The icon `Slot` is created inside the `ElSlot` `init` callback, so each `'aligned' ↔ 'plain'`
 key change registers a new region on the renderer while the old one — still holding a mounted
@@ -1187,6 +1187,25 @@ but never destroys the child renderer. Unbounded growth for a host that lets use
 
 **Fix:** create a single `iconSlot` per layout in `create()`, or destroy the previous slot
 before reassigning.
+
+**Fixed by destroying the outgoing slot.** The finding's first option — one `iconSlot` created in
+`create()` — is not available: the icon's host differs per layout (a `left` span when values are
+right-aligned, the row container otherwise), so the slot genuinely has to be rebuilt. Instead
+`TooltipSeriesLine.replaceIconSlot` destroys the previous slot before creating the new one, which
+tears down the `SeriesColorIcon` it was holding.
+
+That needed one addition to the renderer: `Renderer.releaseRegion`, which destroys a child region and
+drops it from `this.regions` so `destroy()` does not visit it twice. It is the general form of what
+the finding asked for — a slot that is replaced rather than kept for the renderer's lifetime.
+
+Two tests. `test/render/render.test.ts` covers `releaseRegion` itself: the replaced slot's child is
+disposed at replacement, the live one still cascades on destroy, and the released one is not disposed
+twice. `test/components/TooltipIconSlot.test.ts` covers the wiring by flipping
+`tooltip.rightAlignValues` on a mounted chart. Note the leak was *not* observable through the DOM —
+the abandoned icon's markup went with the detached container — so the test asserts the teardown
+instead: without the fix `SeriesColorIcon.prototype.destroy` is called 0 times across a flip.
+
+107 files / 1607 tests pass, typecheck and lint clean.
 
 ### COMP-10 — `liveRegionNode` retains a detached node after the body is torn down
 **Low · Bug · [Chart.ts:1181](packages/mochart/src/components/Chart.ts#L1181)** **[verified]** — **Open**

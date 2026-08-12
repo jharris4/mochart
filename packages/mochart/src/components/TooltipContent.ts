@@ -140,9 +140,18 @@ class TooltipCategoryLine extends Renderer<TooltipCategoryLineProps> {
 class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
   root = htmlEl('div');
   line = this.elSlot(this.root);
-  iconSlot!: Slot;
+  iconSlot: Slot | null = null;
   labelValue: TextEl | null = null;
   valueValue: TextEl | null = null;
+
+  // the icon sits in a different host per layout, so the slot is rebuilt when rightAlignValues
+  // flips; the outgoing one still holds a mounted SeriesColorIcon and has to be destroyed
+  private replaceIconSlot(host: El): void {
+    if (this.iconSlot !== null) {
+      this.releaseRegion(this.iconSlot);
+    }
+    this.iconSlot = this.slot(host);
+  }
 
   onKeyDown = (event: Event) => {
     const { key } = event as KeyboardEvent;
@@ -168,7 +177,7 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
   buildAlignedLine(): AlignedLineEl {
     const container = htmlEl('div') as AlignedLineEl;
     const left = htmlEl('span');
-    this.iconSlot = this.slot(left);
+    this.replaceIconSlot(left);
     const label = htmlEl('span');
     this.labelValue = textEl();
     label.append(this.labelValue);
@@ -187,7 +196,7 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
 
   buildPlainLine(): PlainLineEl {
     const container = htmlEl('span') as PlainLineEl;
-    this.iconSlot = this.slot(container);
+    this.replaceIconSlot(container);
     const text = htmlEl('span');
     this.labelValue = textEl();
     text.append(this.labelValue);
@@ -228,7 +237,7 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
       const container = this.line.set('aligned', () => this.buildAlignedLine()) as AlignedLineEl;
       container.set({ style: alignedLineStyle });
       container.leftHandle.set({ style: { float: 'left' } });
-      this.iconSlot.set(SeriesColorIcon, iconProps);
+      this.iconSlot!.set(SeriesColorIcon, iconProps);
       container.labelHandle.set({ className: mochartCssClasses['tooltipLineLabel'], style: labelStyle });
       this.labelValue!.set(labelText);
       container.spacerHandle.set({ style: { float: 'left', width: 2, height: 4 } });
@@ -238,7 +247,7 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
     else {
       const container = this.line.set('plain', () => this.buildPlainLine()) as PlainLineEl;
       container.set({ className: mochartCssClasses['tooltipLineIcon'] });
-      this.iconSlot.set(SeriesColorIcon, iconProps);
+      this.iconSlot!.set(SeriesColorIcon, iconProps);
       // label and value share one text node here, so the strike-through covers both
       container.textHandle.set({ className: mochartCssClasses['tooltipLineText'], style: labelStyle });
       this.labelValue!.set(labelText + valueText);
