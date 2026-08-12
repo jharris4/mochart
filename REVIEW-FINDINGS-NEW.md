@@ -2022,7 +2022,7 @@ behaviour change and belongs with
 [CONFIG-6](#config-6--the-documented-migration-path-is-never-wired-into-any-entry-point).
 
 ### API-7 — text truncation splits surrogate pairs, emitting lone surrogates
-**Low · Bug · [TextTruncation.ts:127](packages/mochart/src/utils/TextTruncation.ts#L127)** — **Open**
+**Low · Bug · [TextTruncation.ts:127](packages/mochart/src/utils/TextTruncation.ts#L127)** — **Fixed**
 
 `truncateSVGText` slices with `substr` and narrows one UTF-16 code unit at a time, so astral
 characters get cut in half. Probed with a stubbed `getComputedTextLength`: `"😀😀😀😀😀"` at 65px
@@ -2032,6 +2032,23 @@ titles and legend items.
 
 **Fix:** slice on code-point boundaries — use `Array.from(text)` for the length and index
 arithmetic, or back off one more unit while the last code unit is a high surrogate.
+
+**Fixed by cutting on character boundaries.** `truncateSVGText` counted and sliced UTF-16 code units,
+so every cut could land inside a surrogate pair. All five length reads and all four slices now go
+through `unitLength`/`sliceUnits`, which work on user-perceived characters.
+
+The finding suggested `Array.from`, which fixes lone surrogates but not the flag case it also cites: a
+flag is two regional-indicator code points, so `Array.from` still splits it. The helper therefore uses
+`Intl.Segmenter` with `granularity: 'grapheme'` where available and falls back to `Array.from`
+otherwise — the fallback still never splits a surrogate pair, it just cannot keep a flag, a skin-tone
+modifier or a combining mark attached. `Intl.Segmenter` is typed locally rather than by widening the
+package's TS `lib`, so `build:types` is unaffected.
+
+Five cases in `test/utils/TextTruncation.test.ts` cover the initial proportional guess, the
+shrink-by-one and grow-by-one steps, a flag and a combining mark, with a lone-surrogate assertion
+(one that checks for an *unpaired* surrogate — an emoji legitimately contains a pair). Three of the
+five fail without the fix. ASCII behaviour is byte-identical, so no golden snapshot moved: 1619 tests,
+typecheck, `build:types` and lint all pass.
 
 ### API-8 — `cssStyleColor` silently drops the configured opacity for `currentColor`
 **Low · Bug · [utils/style.ts:35](packages/mochart/src/utils/style.ts#L35)** — **Open**

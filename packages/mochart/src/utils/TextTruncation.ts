@@ -108,6 +108,37 @@ export function updateTruncation(truncationValue: string, oldTruncationData: Tru
   };
 }
 
+// Truncation counts and cuts text in user-perceived characters, never UTF-16 code units: slicing
+// by code unit halves an astral character and emits a lone surrogate. Intl.Segmenter also keeps a
+// flag, a skin-tone modifier or a combining mark with the character it belongs to; Array.from is
+// the fallback where it is missing, which still never splits a surrogate pair.
+// typed locally rather than from lib.esnext.intl, so the package's TS lib target is unaffected
+interface GraphemeSegmenter {
+  segment(text: string): Iterable<{ segment: string }>;
+}
+
+const segmenterIntl = Intl as unknown as {
+  Segmenter?: new (locales: undefined, options: { granularity: 'grapheme' }) => GraphemeSegmenter;
+};
+
+const graphemeSegmenter: GraphemeSegmenter | null = typeof segmenterIntl.Segmenter === 'function'
+  ? new segmenterIntl.Segmenter(undefined, { granularity: 'grapheme' })
+  : null;
+
+function textUnits(text: string): string[] {
+  return graphemeSegmenter === null
+    ? Array.from(text)
+    : Array.from(graphemeSegmenter.segment(text), segment => segment.segment);
+}
+
+function unitLength(text: string): number {
+  return textUnits(text).length;
+}
+
+function sliceUnits(text: string, unitCount: number): string {
+  return textUnits(text).slice(0, unitCount).join('');
+}
+
 export function truncateSVGText(textElement: SVGTextContentElement, maxTextLength: number, truncationText: string, truncationData: TruncationData): TruncationData {
   const { text, truncatedText = text, lastText } = truncationData;
   if (text.length === 0) {
@@ -124,19 +155,19 @@ export function truncateSVGText(textElement: SVGTextContentElement, maxTextLengt
   if (textLength > maxTextLength) {
     if (lastText === undefined) {
       // ratio against what is actually rendered (truncatedText + suffix after a reset, not the full text)
-      const renderedLength = truncatedText === text ? text.length : truncatedText.length + truncationText.length;
-      const initialTruncatedLength = Math.min(text.length - 1,
-        Math.max(0, Math.floor((maxTextLength / textLength) * renderedLength) - truncationText.length));
+      const renderedLength = truncatedText === text ? unitLength(text) : unitLength(truncatedText) + unitLength(truncationText);
+      const initialTruncatedLength = Math.min(unitLength(text) - 1,
+        Math.max(0, Math.floor((maxTextLength / textLength) * renderedLength) - unitLength(truncationText)));
       return {
         text,
-        truncatedText: text.substr(0, initialTruncatedLength),
+        truncatedText: sliceUnits(text, initialTruncatedLength),
         lastText: text
       };
     }
     else {
       return {
         text,
-        truncatedText: truncatedText.substr(0, truncatedText.length-1),
+        truncatedText: sliceUnits(truncatedText, unitLength(truncatedText) - 1),
         lastText: truncatedText
       };
     }
@@ -150,10 +181,10 @@ export function truncateSVGText(textElement: SVGTextContentElement, maxTextLengt
       }
     }
     else {
-      if (lastText === undefined || lastText.length < truncatedText.length ) {
+      if (lastText === undefined || unitLength(lastText) < unitLength(truncatedText)) {
         return {
           text,
-          truncatedText: text.substr(0, truncatedText.length+1),
+          truncatedText: sliceUnits(text, unitLength(truncatedText) + 1),
           lastText: truncatedText
         };
       }
