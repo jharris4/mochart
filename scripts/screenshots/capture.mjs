@@ -130,8 +130,16 @@ function isPhoneViewport(viewport) {
 
 const tabConfig = { kind: 'tab', name: 'Config' };
 const tabData = { kind: 'tab', name: 'Data' };
-const clickEditMode = { kind: 'click', selector: '#edit-mode' };
-const clickChartCount = { kind: 'click', selector: '#edit-chart-count' };
+
+// Controls are addressed by `aria-label`, not by id: DEMO-3 deleted the whole
+// `edit-*` id set (they were duplicated once a second chart mounted, and
+// nothing consumed them). The aria name is the stable hook because it does not
+// change with state the way the visible label and the tooltip do — the mode
+// button reads "Edit Series" or "Edit Categories" depending on which panel is
+// showing, but is always named "Toggle Mode". Strings mirror
+// demo-common/src/demoText.ts, which this plain-node script cannot import.
+const clickEditMode = { kind: 'click', selector: '[aria-label="Toggle Mode"]' };
+const clickChartCount = { kind: 'click', selector: '[aria-label="Toggle Chart Count"]' };
 
 // Open-menu steps. A `menu` step is a click that additionally waits for the
 // panel it discloses to actually be `.open` and visible before the shot is
@@ -142,13 +150,17 @@ const clickChartCount = { kind: 'click', selector: '#edit-chart-count' };
 // trigger, so where it lands relative to the viewport edges IS the behaviour
 // under test — that is why these shots are full-viewport rather than scoped to
 // the menu element, which would frame out exactly the clamping being checked.
-function openExportShareMenu(idPrefix) {
-  return {
-    kind: 'menu',
-    selector: '#' + idPrefix + '-export-share',
-    panel: '.mochart-export-share-menu .demo-menu'
-  };
-}
+//
+// No per-view prefix: DEMO-3 removed `ExportShareMenu`'s `idPrefix`, since every
+// port's menu helper already mints a unique trigger id when none is supplied.
+// Each of these shots is on its own path (single / random / multi), so the first
+// menu on the page is the right one — which is what the old `#edit-`/`#random-`/
+// `#multi-` ids resolved to anyway.
+const openExportShareMenu = {
+  kind: 'menu',
+  selector: '.mochart-export-share-menu > .demo-menu-trigger',
+  panel: '.mochart-export-share-menu .demo-menu'
+};
 
 const openNotesMenu = {
   kind: 'menu',
@@ -278,10 +290,10 @@ function buildShots(options) {
     //
     // All three modes get an export menu because each mounts its own instance
     // with its own id prefix, in a differently-sized controls row.
-    push(viewport, single, singlePath, 'menu-export', 'light', [openExportShareMenu('edit')]);
-    push(viewport, `random-${barDemo}-0`, `/random/${barDemo}/0`, 'menu-export', 'light', [openExportShareMenu('random')]);
+    push(viewport, single, singlePath, 'menu-export', 'light', [openExportShareMenu]);
+    push(viewport, `random-${barDemo}-0`, `/random/${barDemo}/0`, 'menu-export', 'light', [openExportShareMenu]);
     if (!isPhoneViewport(viewport)) {
-      push(viewport, `multi-${barDemo}`, `/multi/${barDemo}`, 'menu-export', 'light', [openExportShareMenu('multi')]);
+      push(viewport, `multi-${barDemo}`, `/multi/${barDemo}`, 'menu-export', 'light', [openExportShareMenu]);
     }
     push(viewport, `single-${notesDemo}`, `/single/${notesDemo}`, 'menu-notes', 'light', [notesStep(viewport)]);
 
@@ -294,7 +306,7 @@ function buildShots(options) {
     // sends eight buttons over, the series panel Reset plus the mode toggle,
     // the slice panel Reset plus the play/stop pair. `clickEditMode` reaches
     // the series panel through the category panel's own fold (revealControl opens
-    // the ⋯ to get at `#edit-mode`), and the trigger follows the panel it
+    // the ⋯ to get at the mode toggle), and the trigger follows the panel it
     // switched to, so the second step finds it in place.
     //
     // The shortest phone tier does double duty: at 896x414 the category panel's
@@ -355,7 +367,7 @@ function buildShots(options) {
   for (const name of ['320x568', '390x844']) {
     const viewport = viewports.find(entry => entry.name === name);
     push(viewport, `single-${barDemo}`, `/single/${barDemo}`, 'menu-export-flushright', 'light',
-      [openExportShareMenu('edit')], { extraCss: flushRightCss });
+      [openExportShareMenu], { extraCss: flushRightCss });
   }
 
   for (const name of ['1440x900', '390x844']) {
@@ -549,7 +561,7 @@ function overflowTriggerIndexOf(element, selectors) {
  * Make `locator` clickable, opening whatever the phone fold hid it behind.
  *
  * The fold MOVES controls into a `…` panel rather than duplicating them, so
- * below the phone breakpoint a control like `#edit-mode` is still in the
+ * below the phone breakpoint a control like the mode toggle is still in the
  * document, still the same element, but sitting inside a `display: none` panel.
  * Waiting for it to become visible therefore times out and the step used to be
  * abandoned — which quietly deleted five phone shots from the matrix.
