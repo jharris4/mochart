@@ -3731,7 +3731,7 @@ than decided here.
 ---
 
 ### DOC-14 — `generateBindings` writes its model before reporting integrity errors
-**Low · Bug (docs generator) · [generateBindings.ts](packages/mochart-docs/scripts/generateBindings.ts)** — **Open**
+**Low · Bug (docs generator) · [generateBindings.ts](packages/mochart-docs/scripts/generateBindings.ts)** — **Fixed**
 
 *Found while implementing [DOC-8](#doc-8--contributor-docs-omit-the-generated-apipropsframework-props-pipeline-and-its-ci-ratchets), not by either review pass.*
 
@@ -3746,6 +3746,30 @@ committed. It can still be picked up by the next docs build, which is exactly th
 
 **Fix:** build the model, report the errors, return early when there are any, then write — mirroring
 `generateDocs`.
+
+Fixed by reordering `generateBindings` to build → check → report → exit before it
+writes anything, so a failing integrity check leaves the previous model on disk
+untouched.
+
+Bite proof, with a bogus entry added to React's `expectedMissing` (a real integrity
+failure): under the old ordering the model's md5 changed and the bogus key landed
+in the written JSON; under the new ordering the md5 is unchanged and the key does
+not appear. The perturbation was restored byte-identically (md5-verified, empty
+`git diff`).
+
+One case the finding does not mention: a *first-ever* failing run now leaves no
+artifact at all. Checked every consumer — only `.vitepress/lib/bindingModel.ts`
+reads `binding-reference.json`, and it already throws a clear "run npm run gen"
+error; the three gate scripts do not read it and `checkApiCoverage` exits 0
+without it. So nothing downstream gets confusing, and the script's final error
+line now names which state it left behind rather than exiting 1 silently.
+
+No test added: `mochart-docs` has no unit-test runner (its `test` script is the
+three gate scripts) and the behaviour is only observable as process ordering.
+
+`npm run gen` exits 0 and leaves `binding-reference.json` byte-identical to the
+pre-change baseline; the three gates pass (41 examples, 233 exports, 18 sections);
+typecheck and `eslint packages/mochart-docs` clean.
 
 
 # 10. Demo applications
