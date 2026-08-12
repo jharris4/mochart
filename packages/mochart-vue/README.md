@@ -104,6 +104,9 @@ the current config/data, re-indexing the built-in providers:
 
 ```vue
 <script setup>
+import { ref } from 'vue';
+import { DefaultChart } from '@mochart/vue';
+
 const chart = ref(null);
 
 function addRow(row) {

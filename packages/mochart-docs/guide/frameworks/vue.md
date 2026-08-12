@@ -95,6 +95,8 @@ re-renders your own template after an in-place `push`, but the chart still
 sees the same array — replace instead of mutate:
 
 ```js
+import { ref } from 'vue';
+
 const data = ref(initialData);
 
 // ✓ a new array — the chart animates to it
@@ -115,6 +117,9 @@ it re-reads the current config/data, re-indexing the built-in providers:
 
 ```vue
 <script setup>
+import { ref } from 'vue';
+import { DefaultChart } from '@mochart/vue';
+
 const chart = ref(null);
 
 function addRow(row) {

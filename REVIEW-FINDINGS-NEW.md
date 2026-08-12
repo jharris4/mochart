@@ -2561,13 +2561,31 @@ diagnostic, no hover. (Unknown/newer `version` values are handled acceptably.)
 warn once at `createMochartConfigSupport()` when `getVersionString()` disagrees.
 
 ### BIND-9 — both Vue `refresh()` examples throw `ref is not defined`
-**Low · Doc gap · [mochart-vue/README.md:105](packages/mochart-vue/README.md#L105), [guide/frameworks/vue.md:116](packages/mochart-docs/guide/frameworks/vue.md#L116)** — **Open**
+**Low · Doc gap · [mochart-vue/README.md:105](packages/mochart-vue/README.md#L105), [guide/frameworks/vue.md:116](packages/mochart-docs/guide/frameworks/vue.md#L116)** — **Fixed**
 
 The `<script setup>` snippets use `const chart = ref(null);` with no `import { ref } from 'vue'`.
 `ref` is not auto-imported in a plain Vue project, so copy-pasting the only documented `refresh()`
 example throws at runtime. `vue.md:98` has the same gap.
 
 **Fix:** add the import to both snippets.
+
+**Fixed in both places.** The `refresh()` snippets in `packages/mochart-vue/README.md` and
+`guide/frameworks/vue.md` now import `ref` from `vue` and `DefaultChart` from `@mochart/vue` —
+the component import matters too, because the same `<script setup>` block's template renders
+`<DefaultChart ref="chart">`, which would not resolve in a real project. The guide's adjacent
+replace-don't-mutate example had the same missing `ref` import and is fixed with it.
+
+Checked against the binding rather than assumed: `expose({ refresh })` at
+[DefaultChart.ts:25](packages/mochart-vue/src/DefaultChart.ts#L25), the `ChartRef` shape a template
+ref resolves to at [types.ts:13-15](packages/mochart-vue/src/types.ts#L13), and `DefaultChart` as a
+named export at [index.ts:2](packages/mochart-vue/src/index.ts#L2). The binding's own tests obtain the
+handle exactly this way, so the corrected snippets match working code.
+
+No other framework has the same defect: React's and Lit's snippets already import what they use, and
+Svelte's need no import. One adjacent asymmetry was left alone as outside this finding: the Angular
+snippets are class-body fragments using `@ViewChild`, `DefaultChart` and `DataRow` with no imports
+shown — also not copy-pasteable, but they do not present themselves as complete files the way the Vue
+ones do. Docs site builds clean.
 
 ### BIND-10 — `dataTestId` is documented in every guide page and no README
 **Low · Doc gap · all five binding READMEs** — **Open**
