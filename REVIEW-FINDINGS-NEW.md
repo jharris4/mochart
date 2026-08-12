@@ -2634,7 +2634,7 @@ shown — also not copy-pasteable, but they do not present themselves as complet
 ones do. Docs site builds clean.
 
 ### BIND-10 — `dataTestId` is documented in every guide page and no README
-**Low · Doc gap · all five binding READMEs** — **Open**
+**Low · Doc gap · all five binding READMEs** — **Fixed**
 
 All five bindings expose `dataTestId`; it appears in all five
 `guide/frameworks/*.md` pages and the generated framework-props reference, and in **zero** package
@@ -2643,6 +2643,28 @@ The Angular README also drops the guide's "Explicit `width`/`height` inputs win 
 `style` values" line.
 
 **Fix:** add the one-sentence paragraph from each guide to the matching README.
+
+**Fixed in all five binding READMEs.** `dataTestId` is documented at the end of each README's existing
+`Sizing` section, matching where the guide pages put it and reusing their wording, so the README and
+guide agree per binding.
+
+Checked against the source rather than assumed: the prop is `dataTestId?: string` in all five with no
+per-binding renaming — React `src/types.ts:59`, Vue `src/types.ts:57` (runtime prop `src/props.ts:28`),
+Svelte `src/types.ts:49`, Lit `src/types.ts:70`, Angular `src/base-chart.ts:44`. Four land it on the
+container div; **Angular is the outlier**, setting and removing `data-testid` imperatively on the *host*
+element in `ngOnChanges` (`base-chart.ts:174-181`), and Vue's prop deliberately wins over a fallthrough
+attribute of the same name (`Chart.ts:38-41`). Each README says which applies to it.
+
+No examples were added: the guides document this in prose only, so there was nothing new to
+compile-check.
+
+The core README is correctly silent — `dataTestId` is a binding-only prop with no occurrence anywhere in
+`packages/mochart/src`.
+
+One adjacent drift found and deliberately left, since it is not this finding: the
+`Explicit width/height inputs win over conflicting style values` line is missing from the Vue and Svelte
+READMEs too (it was added to Angular here because BIND-10 quotes it), and the React *guide* page lacks it
+while the React README has it — so guide/README drift runs in both directions.
 
 ### BIND-11 — `@mochart/angular` pins its peer to Angular 22 despite building partial-Ivy
 **Low · Inconsistency · [mochart-angular/package.json:43](packages/mochart-angular/package.json#L43)** — **Fixed**

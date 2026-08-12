@@ -82,6 +82,11 @@ however you like and the chart follows it:
 <Chart :mochart-config="mochartConfig" :data-provider="dataProvider" style="width: 100%; height: 400px" />
 ```
 
+Other attributes (`id`, `data-testid`, …) fall through to the container div
+the same way. The optional `dataTestId` prop is the same surface the other
+bindings offer — it also sets `data-testid` and wins over a fallthrough
+attribute when both are given.
+
 ## When the data changes
 
 Config and data changes are detected **by reference identity**: the chart
