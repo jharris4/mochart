@@ -38,6 +38,22 @@ describe('getPieSliceFractions', () => {
     expect(fractions).toEqual([0, 0, 0]);
   });
 
+  it('keeps the fractions correct when the values sum past Number.MAX_VALUE', () => {
+    const scalars: Record<string, number | null | undefined> = { a: Number.MAX_VALUE, b: Number.MAX_VALUE, c: 0 };
+    const { total, values: clamped, fractions } = getPieSliceFractions(configs, id => scalars[id]);
+    expect(total).toBe(Infinity);
+    expect(clamped).toEqual([Number.MAX_VALUE, Number.MAX_VALUE, 0]);
+    expect(fractions).toEqual([0.5, 0.5, 0]);
+  });
+
+  it('divides plainly right up to the overflow boundary', () => {
+    const half = Number.MAX_VALUE / 2;
+    const scalars: Record<string, number | null | undefined> = { a: half, b: half, c: 0 };
+    const { total, fractions } = getPieSliceFractions(configs, id => scalars[id]);
+    expect(total).toBe(Number.MAX_VALUE);
+    expect(fractions).toEqual([0.5, 0.5, 0]);
+  });
+
   it('keys the fraction map by series id', () => {
     const scalars: Record<string, number | null | undefined> = { a: 30, b: 10, c: null };
     expect(getPieSliceFractionMap(configs, id => scalars[id])).toEqual({ a: 0.75, b: 0.25, c: 0 });
@@ -104,6 +120,17 @@ describe('getPieSliceAngles', () => {
   it('returns an empty map when the total is not positive', () => {
     expect(getPieSliceAngles([seriesConfig('a')], { a: values([0]) }, pieConfig())).toEqual({});
     expect(getPieSliceAngles([seriesConfig('a')], { a: values(null) }, pieConfig())).toEqual({});
+  });
+
+  it('still divides the circle when the values sum past Number.MAX_VALUE', () => {
+    const angles = getPieSliceAngles(
+      [seriesConfig('a'), seriesConfig('b')],
+      { a: values([Number.MAX_VALUE]), b: values([Number.MAX_VALUE]) },
+      pieConfig()
+    );
+    expect(angles.a.endAngle).toBeCloseTo(Math.PI, 10);
+    expect(angles.b.startAngle).toBeCloseTo(Math.PI, 10);
+    expect(angles.b.endAngle).toBeCloseTo(TWO_PI, 10);
   });
 
   it('divides a partial span for half/gauge pies', () => {

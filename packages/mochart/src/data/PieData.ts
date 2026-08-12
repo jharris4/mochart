@@ -16,24 +16,36 @@ export function degreesToRadians(degrees: number): number {
 }
 
 /**
+ * Clamps each value (missing, non-finite and non-positive values count as 0),
+ * sums them and returns each one's fraction of the total. A non-positive total
+ * yields all-zero fractions.
+ *
+ * When the sum of several huge values overflows a double, `total` is
+ * `Infinity`: the sum genuinely is not representable, and any finite number
+ * reported there would be wrong. The fractions stay correct regardless — they
+ * are re-derived in units of the largest value, where the sum cannot overflow.
+ */
+export function computeSliceFractions(values: readonly (number | null | undefined)[]): { total: number; values: number[]; fractions: number[] } {
+  const clamped = values.map(value => (typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 0));
+  const total = clamped.reduce((sum, value) => sum + value, 0);
+  if (total === Infinity) {
+    const max = clamped.reduce((largest, value) => Math.max(largest, value), 0);
+    const scaledTotal = clamped.reduce((sum, value) => sum + value / max, 0);
+    return { total, values: clamped, fractions: clamped.map(value => value / max / scaledTotal) };
+  }
+  return { total, values: clamped, fractions: clamped.map(value => (total > 0 ? value / total : 0)) };
+}
+
+/**
  * Each slice's clamped value and fraction of the total, from whichever value
- * the accessor returns (missing, non-finite and non-positive values count as
- * 0; a non-positive total yields all-zero fractions). The slice geometry and
- * the pie tooltip both normalize through here — the tooltip reads scalars off
- * a single category while the slices read per-category arrays — so a percentage can
- * never mean one thing in a label and another in the tooltip.
+ * the accessor returns. The slice geometry and the pie tooltip both normalize
+ * through here — the tooltip reads scalars off a single category while the
+ * slices read per-category arrays — so a percentage can never mean one thing
+ * in a label and another in the tooltip.
  */
 export function getPieSliceFractions(seriesConfigs: SeriesConfig[], valueOf: (seriesId: string) => number | null | undefined):
   { total: number; values: number[]; fractions: number[] } {
-  let total = 0;
-  const values = seriesConfigs.map(seriesConfig => {
-    const value = valueOf(seriesConfig.id);
-    const clamped = typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 0;
-    total += clamped;
-    return clamped;
-  });
-  const fractions = values.map(value => (total > 0 ? value / total : 0));
-  return { total, values, fractions };
+  return computeSliceFractions(seriesConfigs.map(seriesConfig => valueOf(seriesConfig.id)));
 }
 
 /**

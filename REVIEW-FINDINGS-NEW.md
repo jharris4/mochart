@@ -1606,7 +1606,7 @@ now says so and links there, which is what a TS host forwarding one of those pro
 Docs site builds clean, no dead anchors.
 
 ### HELP-12 — two valid large pie values overflow the total and collapse every slice
-**Low · Bug · [Pie.ts:64](packages/mochart/src/data/Pie.ts#L64), [PieData.ts:26](packages/mochart/src/data/PieData.ts#L26)** **[from SOL review]** — **Open**
+**Low · Bug · [Pie.ts:64](packages/mochart/src/data/Pie.ts#L64), [PieData.ts:26](packages/mochart/src/data/PieData.ts#L26)** **[from SOL review]** — **Fixed**
 
 Both pie-normalisation paths — the public `computePieFractions` helper and the duplicate inside
 `PieData` that feeds rendered slices and tooltips — sum finite positive values straight into an
@@ -1622,6 +1622,42 @@ individually valid.
 and define what the returned `total` means once the mathematical sum exceeds `Number.MAX_VALUE`.
 Keep the two paths in step, or better, have `PieData` call the public helper instead of
 re-implementing it.
+
+**Fixed, with the rescale behind an overflow check rather than unconditional.** `PieData.ts` gained a shared
+`computeSliceFractions(values)` — clamp, sum, divide, with an overflow branch that rescales by the maximum
+before summing — and both entry points now delegate to it: `getPieSliceFractions` is a one-line call, and
+`computePieFractions` uses it too, so the two paths the finding names are literally one implementation.
+`createPie` also stopped re-clamping inline and builds its data row from the clamped values it already gets
+back.
+
+**Contract at the boundary: the fractions are always correct; `total` is `Infinity` when the true sum is not
+representable.** Degrading is the bug — a well-defined 50/50 pie rendered blank with no error. Rejecting would
+be wrong, since every input is individually valid and the ratios are exactly computable. And clamping `total`
+to `Number.MAX_VALUE` would be a lie in the one field a caller reads as "the sum", which also feeds the pie
+centre total; `Infinity` is IEEE's own name for that condition, and the existing `total <= 0` guard in
+`getPieSliceAngles` passes it through.
+
+**Nothing that already works changes**, and that is why the rescale is conditional. Measured over 200,000
+random inputs, rescaling unconditionally moves the last bit of the fractions in **173,384** of them —
+including `[62, 20, 18]` → `0.18000000000000002`, which would have broken an existing exact assertion and
+shifted every pie golden's angles. The branch is unreachable for any input whose total is finite.
+
+Reproduction before and after, through `src`: `[MAX, MAX]`, `[MAX, MAX/2]`, `[MAX*0.6, MAX*0.6]` and
+`[1e308, 1e308, 1e308]` all gave `total=Infinity, fractions=[0, 0, …]` on both paths; they now give the
+correct `[0.5, 0.5]`, `[0.667, 0.333]`, `[0.5, 0.5]` and `[1/3, 1/3, 1/3]`. `[MAX/2, MAX/2]`, `[MAX, 1]` and
+subnormals are byte-identical to before.
+
+Six tests across the two files, four of which fail with the branch removed. The two `MAX/2` cases pass either
+way by design — they are the guard proving the plain path is untouched. No golden moved, verified by running
+the whole golden suite. 32 tests in the two files, core's suite, typecheck and lint clean.
+
+One downstream consequence, pre-existing and outside this fix: `PieSeriesContainer` sums tweened slice values
+itself for the centre total, so an overflowing pie with `showCenterTotal: true` prints `Infinity` — `d3-format`
+passes it through for every specifier. Rendering `∞` or suppressing the label there is a `PieCenter` change.
+
+The finding's suggested fix would have needed the same conditioning; and there is no partial-sum ordering
+hazard to guard against, since for all-positive values the partial sums are monotone, so one can only overflow
+when the true total does.
 
 ---
 

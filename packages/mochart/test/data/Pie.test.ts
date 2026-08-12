@@ -30,6 +30,22 @@ describe('computePieFractions', () => {
     expect(total).toBe(0);
     expect(fractions).toEqual([0, 0]);
   });
+
+  it('reports an unrepresentable total as Infinity but keeps the fractions correct', () => {
+    const { total, fractions } = computePieFractions([Number.MAX_VALUE, Number.MAX_VALUE]);
+    expect(total).toBe(Infinity);
+    expect(fractions).toEqual([0.5, 0.5]);
+    const uneven = computePieFractions([Number.MAX_VALUE, Number.MAX_VALUE / 2]);
+    expect(uneven.total).toBe(Infinity);
+    expect(uneven.fractions[0]).toBeCloseTo(2 / 3, 12);
+    expect(uneven.fractions[1]).toBeCloseTo(1 / 3, 12);
+  });
+
+  it('sums plainly right up to the overflow boundary', () => {
+    const { total, fractions } = computePieFractions([Number.MAX_VALUE / 2, Number.MAX_VALUE / 2]);
+    expect(total).toBe(Number.MAX_VALUE);
+    expect(fractions).toEqual([0.5, 0.5]);
+  });
 });
 
 describe('createPie', () => {
@@ -74,6 +90,13 @@ describe('createPie', () => {
     expect(data[0].slice0).toBe(0);
     expect(data[0].slice1).toBe(5);
     expect(total).toBe(5);
+  });
+
+  it('keeps huge slice values in the data row and still shares them out', () => {
+    const { data, total, fractions } = createPie([{ label: 'A', value: Number.MAX_VALUE }, { label: 'B', value: Number.MAX_VALUE }]);
+    expect(data[0].slice0).toBe(Number.MAX_VALUE);
+    expect(total).toBe(Infinity);
+    expect(fractions).toEqual([0.5, 0.5]);
   });
 
   it('assembles into a valid config and data provider', () => {
