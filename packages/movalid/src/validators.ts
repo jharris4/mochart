@@ -207,7 +207,8 @@ export { customTypeValidators };
 const argumentTypeValidatorDefinitions = {
   instanceOf: {
     validator: (type: new (...args: any[]) => any) => v => v instanceof type,
-    message: (type: new (...args: any[]) => any) => "should be an instanceof " + type
+    // the name only, since string-coercing a constructor inlines its whole source
+    message: (type: new (...args: any[]) => any) => "should be an instanceof " + (type.name || "the given class")
   },
   typeOf: {
     validator: (type: string) => v => typeof v === type,
