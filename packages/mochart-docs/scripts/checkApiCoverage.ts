@@ -33,21 +33,12 @@ const corePackageDir = path.join(docsDir, '..', 'mochart');
 const coreSrcDir = path.join(corePackageDir, 'src');
 const apiModelPath = path.join(corePackageDir, 'generated', 'api-reference.json');
 
-// Prop-bearing interfaces whose members are part of the documented surface.
-// `ChartDomAccessors` and `InternalFocus` are intentionally absent: they are
-// internals whose only documentation is the shipped `.d.ts`.
-const propInterfaces = [
-  'ChartEventPayload',
-  'ChartFocus',
-  'ChartSeriesFilter',
-  'ChartSliceClickPayload',
-  'ChartFactoryContext',
-  'ChartCallbacks',
-  'ChartFactories',
-  'BaseChartProps',
-  'ManagedChartProps',
-  'DefaultChartProps'
-];
+// The prop-bearing interfaces whose members are part of the documented surface
+// are read out of the generated model's group interface names, not listed here:
+// the generator already fails when an exported interface in types/chart.ts has
+// neither a page group nor an `internalInterfaces` reason (`ChartDomAccessors`
+// and `InternalFocus`, internals documented only by the shipped `.d.ts`), so a
+// second copy of that list could only drift out of date.
 
 // name → why it needs no documentation.
 const undocumented: Record<string, string> = {
@@ -58,7 +49,7 @@ const undocumented: Record<string, string> = {
 const docsGlobs = ['guide', 'reference', 'recipes'];
 
 interface ApiReferenceModel {
-  pages: { groups: { properties: { key: string }[] }[] }[];
+  pages: { groups: { interfaceName: string; properties: { key: string }[] }[] }[];
 }
 
 function readDocsText(): string {
@@ -76,21 +67,29 @@ function readDocsText(): string {
   return files.map(file => fs.readFileSync(file, 'utf8')).join('\n');
 }
 
-function readDocumentedPropKeys(): Set<string> {
+// The documented interfaces and the members documented for them, both taken
+// from the generated model.
+function readApiReference(): { propInterfaces: string[]; propKeys: Set<string> } {
   if (!fs.existsSync(apiModelPath)) {
     console.error(`✗ ${apiModelPath} not found — run "npm run gen" first`);
     process.exit(1);
   }
   const model = JSON.parse(fs.readFileSync(apiModelPath, 'utf8')) as ApiReferenceModel;
-  const keys = new Set<string>();
+  const interfaceNames = new Set<string>();
+  const propKeys = new Set<string>();
   for (const page of model.pages) {
     for (const group of page.groups) {
+      interfaceNames.add(group.interfaceName);
       for (const property of group.properties) {
-        keys.add(property.key);
+        propKeys.add(property.key);
       }
     }
   }
-  return keys;
+  if (interfaceNames.size === 0) {
+    console.error(`✗ ${apiModelPath} declares no interface groups — the prop check would be vacuous`);
+    process.exit(1);
+  }
+  return { propInterfaces: [...interfaceNames], propKeys };
 }
 
 /**
@@ -154,7 +153,7 @@ function interfaceMemberNames(source: string, interfaceName: string, sourceLabel
 }
 
 const docsText = readDocsText();
-const documentedPropKeys = readDocumentedPropKeys();
+const { propInterfaces, propKeys: documentedPropKeys } = readApiReference();
 const chartTypesSource = fs.readFileSync(path.join(coreSrcDir, 'types', 'chart.ts'), 'utf8');
 const createChartSource = fs.readFileSync(path.join(coreSrcDir, 'createChart.ts'), 'utf8');
 
