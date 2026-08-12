@@ -35,10 +35,10 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**162 findings: 1 critical, 33 high, 72 medium, 56 low.** (145 from the Opus pass,
-5 from the SOL pass, 12 found while implementing.)
+**164 findings: 1 critical, 33 high, 73 medium, 57 low.** (145 from the Opus pass,
+5 from the SOL pass, 14 found while implementing.)
 
-**Status: 107 fixed, 56 open** (33 medium, 21 low, and 2 high that are waiting on an answer).
+**Status: 115 fixed, 50 open** (31 medium, 17 low, and 2 high that are waiting on an answer).
 Three of the open findings are blocked on a decision rather than on work — TOOL-2, VAL-1 and
 COMP-8 — and each has its question written up in `REVIEW-QUESTIONS.md`. TOOL-2 is deferred to
 release time by decision rather than waiting on an answer. Nothing is partially fixed. ANIM-1's
@@ -4896,6 +4896,35 @@ omission.
 
 
 ---
+
+### TOOL-17 — the published `types` entry references `d3-shape` types a consumer cannot resolve
+**Medium · Bug (packaging) · [dist/types/utils/shapeUtils.d.ts:2](packages/mochart/src/utils/shapeUtils.ts), [src/types/d3.d.ts](packages/mochart/src/types/d3.d.ts)** — **Open**
+
+*Found while investigating [TOOL-5](#tool-5--the-d3-dependencies-are-declared-but-never-resolved-from-the-published-bundle), not by either review pass.*
+
+`getSymbolGenerator`'s emitted declaration reads
+`import("d3-shape").SymbolGenerator`, and it is reached through the *default* `types` condition — so it
+is part of the published surface. `d3-shape@3.2.0` ships no `types` field and no `.d.ts`, and
+`@types/d3-shape` is declared nowhere in the repo. Locally the reference is satisfied by the ambient
+`src/types/d3.d.ts`, but `tsc` does not re-emit an ambient declaration source, so
+`dist/types/types/d3.d.ts` does not exist in the built output.
+
+Demonstrated against the built artifact:
+
+```
+$ npx tsc --noEmit --strict --moduleResolution bundler --module esnext \
+    packages/mochart/dist/types/utils/shapeUtils.d.ts
+dist/types/utils/shapeUtils.d.ts(2,86): error TS7016: Could not find a declaration file for
+  module 'd3-shape'
+```
+
+So a TypeScript consumer importing anything that pulls in `shapeUtils` gets an implicit `any` under
+`noImplicitAny`, or an error under `strict`. It predates TOOL-5 and is independent of it, but it must be
+handled alongside it: moving `d3-*` out of `dependencies` would otherwise look like the cause.
+
+**Fix:** give `getSymbolGenerator` a locally-declared return type so nothing in the emitted `.d.ts`
+names `d3-shape` (smaller), or emit the ambient declarations into `dist/types` and point the `types`
+export at a barrel that includes them.
 
 # 13. movalid
 
