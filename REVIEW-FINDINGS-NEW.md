@@ -3669,7 +3669,7 @@ A broken published bundle passes CI.
 (which also resolves [DEMO-21](#demo-21--playwrights-dev-server-takes-the-port-viteconfig-reserves-for-preview)).
 
 ### TEST-10 — pie percentages in the screen-reader announcement are never produced
-**Medium · Test gap · [TooltipFormat.ts:209-214](packages/mochart/src/utils/TooltipFormat.ts#L209)** — **Open**
+**Medium · Test gap · [TooltipFormat.ts:209-214](packages/mochart/src/utils/TooltipFormat.ts#L209)** — **Fixed**
 
 In `getTooltipAnnouncement`, the whole `chart.type === 'pie' && pieLabelTypeUsesPercent(...)` block
 is uncovered. The *visual* pie tooltip is tested and `getPieTooltipPercentFormat` is unit-tested in
@@ -3681,6 +3681,18 @@ renormalization could diverge from what is spoken — a silent accessibility reg
 tooltip, assert the live region's text contains the expected `%`, then filter a slice via a legend
 click and assert the announced percentages renormalize as `PieRender.test.ts` already asserts for
 the visible rows.
+
+**Fixed with four tests, no source change.** `test/components/PieAnnouncement.test.ts` covers the pie
+branch of `getTooltipAnnouncement`, which had never run: the announcement speaks the same slice
+percentages the visible rows show, a percent-only `pie.tooltipValues` does not fall back to raw slice
+values, and the announced percentages renormalize against the unfiltered slices — with the
+`adjustForFiltering: false` case pinned separately, so a sighted and a listening user get the same
+shares either way.
+
+Verified to bite: forcing the `chartConfig.type === CHART_TYPE_PIE && pieLabelTypeUsesPercent(...)`
+gate to false fails all four. `git diff` on `packages/mochart/src` is empty afterwards.
+
+Selectors are built from `mochartCssClasses`. Typecheck and lint clean.
 
 ### TEST-11 — coverage is measured and gated in one of the nine published packages
 **Low · Test gap · [mochart/vitest.config.ts:14](packages/mochart/vitest.config.ts#L14) is the only `coverage` block** — **Open**
