@@ -34,9 +34,9 @@ import * as waterfall from '../examples/waterfall'
   and dark surfaces. Override per direction with `colors`, and rename the
   series with `seriesTitles`.
 - `base` sets the value the running total starts from and total bars span
-  from (default 0). When it's not 0, also set the value axis
-  [`base`](/reference/valueAxes#valueAxes.base) so delta
-  bars near it read correctly.
+  from (default 0). It comes back in `valueAxes` as the axis
+  [`base`](/reference/valueAxes#valueAxes.base) — spread that fragment and the
+  axis agrees with the bars, whatever the base is.
 - Each row also carries `delta`, `cumulative` and `direction`, and the
   computed steps come back under `steps` — or call
   `computeWaterfallSteps(items, base)` alone for the math without the

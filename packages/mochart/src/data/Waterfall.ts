@@ -1,5 +1,5 @@
 import { checkUniqueLabels } from './labels';
-import type { DeepPartial, CategoryAxisConfig, SeriesConfig } from '../types/config';
+import type { DeepPartial, CategoryAxisConfig, SeriesConfig, ValueAxisConfig } from '../types/config';
 
 export type WaterfallDirection = 'increase' | 'decrease' | 'total';
 
@@ -35,9 +35,9 @@ export interface WaterfallStep {
 
 export interface CreateWaterfallOptions {
   /**
-   * The value the running total starts from and total bars span from. Also
-   * worth setting as the value axis `base` so delta bars near it read
-   * correctly.
+   * The value the running total starts from and total bars span from. Returned
+   * in `valueAxes` as the axis `base`, so spreading that fragment keeps the
+   * axis and the bars agreeing.
    *
    * @default 0
    */
@@ -68,6 +68,8 @@ export interface WaterfallData {
    * data keep their series so the config stays stable across data updates.
    */
   series: DeepPartial<SeriesConfig>[];
+  /** Fragment to spread into the chart config's `valueAxes`, carrying the `base`. */
+  valueAxes: DeepPartial<ValueAxisConfig>[];
 }
 
 const CATEGORY_PROPERTY = 'label';
@@ -155,5 +157,5 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
     } as DeepPartial<SeriesConfig>;
   });
 
-  return { steps, data, categoryAxis, series: seriesConfigs };
+  return { steps, data, categoryAxis, series: seriesConfigs, valueAxes: [{ base }] };
 }

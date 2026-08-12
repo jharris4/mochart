@@ -10,6 +10,7 @@
   },
   "valueAxes": [
     {
+      "base": 0,
       "title": "$ thousands"
     }
   ],
