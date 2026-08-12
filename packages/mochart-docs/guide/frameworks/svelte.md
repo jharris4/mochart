@@ -88,7 +88,7 @@ compares the props it receives, not their contents. `$state`'s deep
 reactivity updates your own markup after an in-place `push`, but the chart
 still sees the same array — reassign instead of mutate:
 
-```svelte
+```js
 let data = $state(initialData);
 
 // ✓ a new array — the chart animates to it
@@ -118,6 +118,12 @@ it re-reads the current config/data, re-indexing the built-in providers:
 
 <DefaultChart bind:this={chart} {config} {data} />
 ```
+
+In TypeScript that handle's type is `ChartRef`, exported from the package —
+`let chart: ChartRef | undefined = $state()` in a `lang="ts"` script, and the
+prop type to use where the handle is passed on to another component. Both
+components expose the same handle, so a helper taking a `ChartRef` works with
+either.
 
 ## Callbacks and states
 

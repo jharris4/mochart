@@ -37,6 +37,7 @@ array-of-objects dataset:
 
 ```ts
 import { Component } from '@angular/core';
+import type { MochartInputConfig } from '@mochart/core';
 import { DefaultChart } from '@mochart/angular';
 
 @Component({
@@ -45,7 +46,7 @@ import { DefaultChart } from '@mochart/angular';
   template: '<mochart-default-chart [config]="config" [data]="data" [width]="640" [height]="400" />'
 })
 export class Revenue {
-  config = {
+  config: MochartInputConfig = {
     title: { text: 'Revenue' },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     seriesDefaults: { renderer: 'bar' },

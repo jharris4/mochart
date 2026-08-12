@@ -65,6 +65,12 @@ const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');
 render(html`${chart({ mochartConfig, dataProvider, width: 640, height: 400 })}`, document.body);
 ```
 
+Both directives have to sit in **child position** — an `${…}` slot between
+tags, as in the snippets above — because each one renders a container div and
+mounts the chart into it. In an attribute, property, or event binding
+(`<div class=${chart({ … })}>`) the directive's constructor throws
+`mochart-lit chart directives can only be used in child position`.
+
 ## Sizing
 
 `width` and `height` are optional. The directive renders a container div the
