@@ -21,6 +21,9 @@
     "directory": "packages/mochart-angular"
   },
   "homepage": "https://mochart.org",
+  "bugs": {
+    "url": "https://github.com/jharris4/mochart/issues"
+  },
   "publishConfig": {
     "access": "public"
   },

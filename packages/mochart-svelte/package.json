@@ -21,6 +21,9 @@
     "directory": "packages/mochart-svelte"
   },
   "homepage": "https://mochart.org",
+  "bugs": {
+    "url": "https://github.com/jharris4/mochart/issues"
+  },
   "publishConfig": {
     "access": "public"
   },

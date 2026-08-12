@@ -17,6 +17,9 @@
     "url": "https://github.com/jharris4/mochart.git",
     "directory": "packages/movalid"
   },
+  "bugs": {
+    "url": "https://github.com/jharris4/mochart/issues"
+  },
   "publishConfig": {
     "access": "public"
   },
