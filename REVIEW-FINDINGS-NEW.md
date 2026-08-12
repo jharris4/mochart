@@ -5386,6 +5386,41 @@ probe lines were reverted by targeted edit rather than by overwriting a file oth
 Left as a separate matter: the file header calls this ratchet "the backstop for a member quietly moving to an
 undocumented interface", which is aspirational either way — a member moved into `ChartDomAccessors` or
 `InternalFocus` still drops silently out of the walk, since those are deliberately not walked.
+### TEST-21 — text is measured in two spaces that differ by a constant 4px in Gecko
+**Low · Bug · [TextTruncation.ts:154](packages/mochart/src/utils/TextTruncation.ts#L154) vs [TextMeasurement.ts:164](packages/mochart/src/utils/TextMeasurement.ts#L164), [:182](packages/mochart/src/utils/TextMeasurement.ts#L182)** — **Open**
+
+*Found while implementing [TEST-15](#test-15--the-claimed-three-engine-browser-support-is-only-ever-tested-in-chromium), not by either review pass.*
+
+Core mixes two SVG measurement APIs across the truncation/layout boundary: `TextTruncation` fits text
+to its budget with `getComputedTextLength()`, while `TextMeasurement` measures the resulting element
+with `getBBox()` and then `Math.ceil`s it. The two agree in Blink and WebKit but not in Gecko.
+
+Measured directly in all three engines (Playwright, throwaway probe):
+
+| Engine | `getBBox().width - getComputedTextLength()` |
+|---|---|
+| Chromium | 0.00 exactly |
+| WebKit | 0.00 – 0.02 (float rounding) |
+| Firefox | **exactly 4.00** |
+
+Constant across font sizes 8/12/24/48px and across strings (`M`, `MMMMMMMMMM`, `iiii`, `Hello world`).
+Not stroke-related — a clone with `stroke: none; stroke-width: 0` measures the same, and the tick
+labels carry no stroke. It is Gecko's fixed 2px-per-side inflation of text bounding boxes.
+
+**Benign in direction, which is why nothing fails.** `getBBox` is the larger of the pair, so Firefox
+over-reserves rather than under-reserves: value-axis gutters, category-axis label bands, legend items,
+the title and the tooltip sizer each reserve up to ~4px more than needed. Nothing clips and nothing
+oscillates, and the full e2e suite passes on Gecko unmodified. The cost is layout that is slightly
+looser in Firefox than the same chart in Chrome, with no test able to notice.
+
+**Fix:** measure one way. Either derive the text width in `TextMeasurement` from
+`getComputedTextLength()` (with `getBBox()` used only for the height it is genuinely needed for), or
+subtract the measured delta once per document. The first is preferable — a single source of truth for
+width — but it needs care where `getBBox()` is currently measuring a `<text>` with `<tspan>` children.
+Golden snapshots are produced against the synthetic font harness from
+[TEST-6](#test-6--the-golden-oracle-depends-on-the-machines-fonts), so they will not move; the change
+is only observable in a real Gecko browser.
+
 
 
 # 12. Build, tooling, packaging and CI
