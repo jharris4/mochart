@@ -35,15 +35,21 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**164 findings: 1 critical, 33 high, 73 medium, 57 low.** (145 from the Opus pass,
-5 from the SOL pass, 14 found while implementing.)
+**165 findings: 1 critical, 33 high, 74 medium, 57 low.** (145 from the Opus pass,
+5 from the SOL pass, 15 found while implementing.)
 
-**Status: 115 fixed, 50 open** (31 medium, 17 low, and 2 high that are waiting on an answer).
-Three of the open findings are blocked on a decision rather than on work — TOOL-2, VAL-1 and
-COMP-8 — and each has its question written up in `REVIEW-QUESTIONS.md`. TOOL-2 is deferred to
-release time by decision rather than waiting on an answer. Nothing is partially fixed. ANIM-1's
-and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
-build revised each design.
+**Status: 123 fixed, 42 open** (24 medium, 16 low, and 2 high).
+Four of the open findings are blocked on a decision rather than on work — **COMP-8**, **BIND-3**, **TOOL-2**
+and **VAL-1** — and each has its question, options and a recommendation written up in `REVIEW-QUESTIONS.md`.
+The other 38 are unstarted work, spread across tests (10), demos (8), bindings (5), tooling (5), the public
+API (4), accessibility (4), config (1) and documentation (1).
+
+BIND-3 is the one finding deliberately left open with work committed against it: its safe half — `types`
+before `development` in nine export maps, plus README documentation — has landed, while the consumer exposure
+it names is documented rather than removed, because removing it is the decision in the questions file.
+
+ANIM-1's and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
+build revised each design. TOOL-2 is additionally recorded as deferred to release time by decision.
 
 This line is regenerated from the per-finding markers, not maintained by hand; recount at any
 time with `python3 ~/.claude/scripts/review-findings.py` from the repo root.
