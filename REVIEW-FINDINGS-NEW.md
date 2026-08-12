@@ -1913,7 +1913,7 @@ call form for turning it off.
 Docs site builds clean.
 
 ### CONFIG-10 — axis-bounds validation lives in `mochartConfig.ts`, away from the axis validators
-**Low · Inconsistency · [validation/mochartConfig.ts:547,565,585](packages/mochart/src/config/validation/mochartConfig.ts#L547)**
+**Low · Inconsistency · [validation/mochartConfig.ts:547,565,585](packages/mochart/src/config/validation/mochartConfig.ts#L547)** — **Fixed**
 
 *Found while implementing ANIM-1 part 1, not by either review pass.*
 
@@ -1932,6 +1932,26 @@ likely to drift from the parsing the axis itself does.
 **Fix:** move the three into `axisConfig.ts` and call them from the section validator, or make the
 cross-property hook per-section so an axis validates its own bounds. Either way `boundValue`
 should come from whatever DATA-7 settles on rather than being a seventh variant.
+
+**Fixed by moving the helpers to the fault line they belong on.** `validateAxisBounds` and its private
+`checkAxisBounds` now live in `validation/axisConfig.ts` beside every other axis validator, with
+`getAxisBoundsMessage` moved there too since it is axis-specific and nothing outside imported it.
+`validation/mochartConfig.ts` imports and calls `validateAxisBounds` from the same place it calls the
+other cross-property checks, so the ordering of validation is unchanged.
+
+`boundValue` went to `config/validation/validators.ts`, exactly where
+[DATA-7](#data-7--six-near-copies-of-coerce-a-date-to-a-comparable-number) said the config-side
+date-coercion copy belongs — beside the existing non-validator predicates — rather than staying a
+seventh private variant inside the whole-config validator. It is exported from there and imported by
+`axisConfig`, so the next config-side bound check (`softMin`/`softMax`, threshold values,
+`ticks[].value`) has one to reuse.
+
+One supporting change: `messages.ts`'s `ConfigObject` type and `isConfigObject` predicate are now
+exported, so the moved code shares them instead of `mochartConfig.ts`'s identical private
+`ConfigRecord`/`isConfigRecord`. That also avoids a circular import — `axisConfig` must not import from
+the validator that imports it.
+
+Behaviour is identical: 263 config tests pass unchanged, typecheck, lint and deadcode clean.
 
 ---
 

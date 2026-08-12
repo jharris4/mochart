@@ -1,8 +1,11 @@
-import validators from './validators';
+import validators, { boundValue } from './validators';
+import { filterConfig } from '../core/mochartConfig';
+import { getPropertyMessage, isConfigObject } from './messages';
 
 import { AUTO, NONE, ANCHORS, COLOR_SAME, SIDES, THRESHOLD_TITLE_SIDES } from '../core/constants';
 
 import type { Validator } from '@mochart/movalid';
+import type { ConfigObject, LocatedValidationMessage } from './messages';
 
 export type StyleMember = 'strokeColor' | 'strokeOpacity' | 'strokeWidth' | 'strokeDashArray' | 'fillColor' | 'fillOpacity';
 
@@ -134,4 +137,51 @@ export default function getValidators() {
 
     visible: validators.boolean()
   };
+}
+
+/**
+ * An axis whose min is above its max would run backwards. `axis.reversed` is the supported way to
+ * invert an axis, so an inverted domain is a mistake rather than a spelling of that intent.
+ * `min === max` stays legal: `auto` already produces a collapsed domain from flat data, and it is
+ * where computed bounds land when every value is the same.
+ */
+export function getAxisBoundsMessage(max: unknown): string {
+  return 'should not be above the max property of the same axis: ' + JSON.stringify(max);
+}
+
+export function validateAxisBounds(config: ConfigObject, configWithoutDefaults: ConfigObject, errors: string[], errorDetails: LocatedValidationMessage[]): void {
+  checkAxisBounds(config['categoryAxis'], 'categoryAxis', undefined, errors, errorDetails);
+  const valueAxes = config['valueAxes'];
+  if (Array.isArray(valueAxes)) {
+    // built sections drop ignored/non-object raw entries, so report at the filtered raw index
+    const rawSections = Array.isArray(configWithoutDefaults['valueAxes']) ? configWithoutDefaults['valueAxes'] as unknown[] : [];
+    const rawIndices: number[] = [];
+    for (let i = 0; i < rawSections.length; i++) {
+      if (filterConfig(rawSections[i])) {
+        rawIndices.push(i);
+      }
+    }
+    for (let i = 0; i < valueAxes.length; i++) {
+      checkAxisBounds(valueAxes[i], 'valueAxes', rawIndices[i] ?? i, errors, errorDetails);
+    }
+  }
+}
+
+function checkAxisBounds(section: unknown, sectionKey: string, index: number | undefined, errors: string[], errorDetails: LocatedValidationMessage[]): void {
+  if (!isConfigObject(section)) {
+    return;
+  }
+  const { min, max } = section;
+  // an AUTO end is computed from the data, so there is no authored pair to compare
+  if (min === AUTO || max === AUTO || min === undefined || max === undefined) {
+    return;
+  }
+  const minValue = boundValue(min);
+  const maxValue = boundValue(max);
+  if (minValue === null || maxValue === null || minValue <= maxValue) {
+    return;
+  }
+  const message = getAxisBoundsMessage(max);
+  errors.push(getPropertyMessage(sectionKey, 'min', message, index));
+  errorDetails.push({ path: index === undefined ? [sectionKey, 'min'] : [sectionKey, index, 'min'], message });
 }
