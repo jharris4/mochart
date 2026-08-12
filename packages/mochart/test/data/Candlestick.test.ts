@@ -34,6 +34,28 @@ describe('createCandlestick', () => {
     ]);
   });
 
+  // A doji opens and closes at the same price, so its body has zero height. A filled body draws
+  // nothing at all there; a hollow one still shows its 2px outline, which is why only the filled
+  // bodies get a floor.
+  it('gives filled bodies a minimum height so a doji still draws', () => {
+    const { series } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
+    const bodies = series.filter((seriesConfig) => seriesConfig.id === 'up' || seriesConfig.id === 'down');
+    expect(bodies.map((seriesConfig) => seriesConfig.barMinExtent)).toEqual([2, 2]);
+
+    // the wicks are bars too, but a zero-length wick genuinely means no range there
+    const wicks = series.filter((seriesConfig) => seriesConfig.id!.endsWith('Wick'));
+    expect(wicks.every((seriesConfig) => seriesConfig.barMinExtent === undefined)).toBe(true);
+  });
+
+  it('leaves the hollow up body alone, which already draws its outline', () => {
+    const { series } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }], { hollow: true });
+    const up = series.find((seriesConfig) => seriesConfig.id === 'up')!;
+    const down = series.find((seriesConfig) => seriesConfig.id === 'down')!;
+    expect(up.barMinExtent).toBeUndefined();
+    expect(up.shapeStyle!.normal!.strokeWidth).toBe(2);
+    expect(down.barMinExtent).toBe(2);
+  });
+
   it('emits config fragments for ordinal wick and body bars', () => {
     const { categoryAxis: categoryAxisConfig, series: seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     expect(categoryAxisConfig).toEqual({ property: 'label', type: 'string', scale: 'ordinal' });

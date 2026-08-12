@@ -150,6 +150,7 @@ export const DEFAULT_COLORS: Record<CandlestickDirection, string> = {
   down: '#e34948'
 };
 
+const DEFAULT_BODY_MIN_EXTENT = 2;
 const DEFAULT_WICK_WIDTH_FRACTION = 0.15;
 export const DEFAULT_RANGE_TITLE = 'Range';
 
@@ -378,6 +379,9 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: 'bar',
       barWidthFraction: bodyWidthFraction,
+      // a doji (open === close) has a zero-height body; a filled one would draw nothing at all,
+      // while a hollow one already shows its outline
+      ...(hollowBody ? {} : { barMinExtent: DEFAULT_BODY_MIN_EXTENT }),
       missingValues: 'connect',
       partialRangeIsMissing: true,
       group: null,

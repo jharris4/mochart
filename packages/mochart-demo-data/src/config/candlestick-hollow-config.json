@@ -196,6 +196,7 @@
       "rangeProperty": "open",
       "renderer": "bar",
       "barWidthFraction": 1,
+      "barMinExtent": 2,
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,
