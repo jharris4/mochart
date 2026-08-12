@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getTooltipLayoutInfo } from '../../src/layout/TooltipLayout';
+import { fitRectangleWithinRectangle, getTooltipLayoutInfo } from '../../src/layout/TooltipLayout';
 import type { EnhancedMochartConfig } from '../../src/types/enhanced';
 import type { ChartLayoutInfo } from '../../src/types/layout';
 
@@ -31,5 +31,28 @@ describe('tooltip keepInside clamping', () => {
   it('clamps to the plot bottom-right edges', () => {
     const bounds = getTooltipLayoutInfo(mochartConfig, { width: 40, height: 30 }, layoutInfo, { positions: [] }, -1, 1, 1);
     expect(bounds).toEqual({ x: 170, y: 190, width: 40, height: 30 });
+  });
+});
+
+describe('fitRectangleWithinRectangle', () => {
+  it('keeps a rectangle that fits inside the bounds', () => {
+    expect(fitRectangleWithinRectangle({ x: 0, y: 0, width: 200, height: 80 }, { x: 10, y: 10, width: 100, height: 50 }))
+      .toEqual({ x: 10, y: 10, width: 100, height: 50 });
+  });
+
+  it('pulls a rectangle back inside the max edges', () => {
+    expect(fitRectangleWithinRectangle({ x: 0, y: 0, width: 200, height: 80 }, { x: 150, y: 60, width: 100, height: 50 }))
+      .toEqual({ x: 100, y: 30, width: 100, height: 50 });
+  });
+
+  // Regression: the min clamps ran first, so a rectangle wider or taller than the bounds was
+  // pushed back out past the left/top edge by the max clamp.
+  it('pins an oversized rectangle to the near edge instead of escaping the opposite one', () => {
+    // the finding's case: a 200x80 tooltip inside a 100x50 plot used to land at {-90,-20}
+    expect(fitRectangleWithinRectangle({ x: 10, y: 10, width: 100, height: 50 }, { x: 20, y: 20, width: 200, height: 80 }))
+      .toEqual({ x: 10, y: 10, width: 200, height: 80 });
+    // oversized in one direction only
+    expect(fitRectangleWithinRectangle({ x: 10, y: 10, width: 100, height: 500 }, { x: 20, y: 20, width: 200, height: 80 }))
+      .toEqual({ x: 10, y: 20, width: 200, height: 80 });
   });
 });

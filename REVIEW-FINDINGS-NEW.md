@@ -723,7 +723,7 @@ One entry in that list does not belong there and is worth changing rather than d
 [ANIM-7](#anim-7--showinlegend-rebuilds-the-whole-chart-and-replays-its-opening-animation).
 
 ### LAYOUT-2 — `keepInside` lets an oversized tooltip escape past the left/top edge
-**Low · Bug · [TooltipLayout.ts:50-63](packages/mochart/src/layout/TooltipLayout.ts#L50)** — **Open**
+**Low · Bug · [TooltipLayout.ts:50-63](packages/mochart/src/layout/TooltipLayout.ts#L50)** — **Fixed**
 
 The `x < bx` / `y < by` clamps run *before* the max-edge clamps, so when the tooltip is larger
 than the bounding rect the max-edge clamp wins and pushes it out the opposite side:
@@ -731,6 +731,15 @@ than the bounding rect the max-edge clamp wins and pushes it out the opposite si
 → `{x:-90, y:-20}`. Reachable on a narrow chart with a multi-row tooltip.
 
 **Fix:** clamp both ways with min last — `x = Math.max(bx, Math.min(x, bx + bwidth - width))`.
+
+**Fixed as recommended.** `fitRectangleWithinRectangle` now clamps with min last —
+`x = Math.max(bx, Math.min(x, bx + bwidth - width))` on both axes — so an oversized tooltip pins to
+the near edge instead of being pushed out past the opposite one. The finding's case,
+`fitRectangleWithinRectangle({x:10,y:10,width:100,height:50}, {x:20,y:20,width:200,height:80})`,
+returns `{x:10,y:10}` rather than `{x:-90,y:-20}`.
+
+The helper had no direct test, so `test/layout/TooltipLayout.test.ts` now covers it: fits-inside,
+pulled-back-from-the-max-edges, and oversized in both directions and in one only. 1597 tests pass.
 
 ### ANIM-4 — dead store in `setKeyedSeriesDomainForDelta`
 **Low · Bug · [ChartAnimation.ts:231-235](packages/mochart/src/animation/ChartAnimation.ts#L231)** — **Open**
