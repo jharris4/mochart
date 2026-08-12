@@ -35,10 +35,10 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**161 findings: 1 critical, 33 high, 72 medium, 55 low.** (145 from the Opus pass,
-5 from the SOL pass, 11 found while implementing.)
+**162 findings: 1 critical, 33 high, 72 medium, 56 low.** (145 from the Opus pass,
+5 from the SOL pass, 12 found while implementing.)
 
-**Status: 97 fixed, 65 open** (34 medium, 29 low, and 2 high that are waiting on an answer).
+**Status: 106 fixed, 57 open** (33 medium, 22 low, and 2 high that are waiting on an answer).
 Three of the open findings are blocked on a decision rather than on work — TOOL-2, VAL-1 and
 COMP-8 — and each has its question written up in `REVIEW-QUESTIONS.md`. TOOL-2 is deferred to
 release time by decision rather than waiting on an answer. Nothing is partially fixed. ANIM-1's
@@ -4785,6 +4785,24 @@ The finding's line reference is off by a few: the fallthrough is inside `printAn
 `validators.ts:79-93`; `:94` is `printArray`.
 
 ---
+
+### VAL-7 — `printAny` throws on a `bigint` argument
+**Low · Bug · [validators.ts:79-93](packages/movalid/src/validators.ts#L79)** — **Open**
+
+*Found while implementing [VAL-6](#val-6--equals-error-message-prints-undefined-for-a-function-or-symbol-argument), not by either review pass.*
+
+The same fallthrough VAL-6 fixed for functions and symbols reaches `JSON.stringify` for a `bigint`,
+which **throws** `TypeError: Do not know how to serialize a BigInt` rather than misprinting. So
+`validators.equal(1n).errorMessage` crashes while building the message, and the crash surfaces from
+whichever validator was being described — `equal`, `notEqual`, `orEqual` or any
+`getErrorMessage(value)` suffix, since all four share `printAny`.
+
+Not reachable from mochart: no core config value is a bigint. It matters because movalid is a
+general-purpose validation library, and a host validating bigint ids or amounts hits it on the error
+path, which is the worst place to throw.
+
+**Fix:** add a `typeof value === 'bigint'` branch returning `String(value) + 'n'` (the literal form, so
+the message is unambiguous against a same-digit number) alongside the function and symbol branches.
 
 ## Suggested order of attack
 
