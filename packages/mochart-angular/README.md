@@ -151,9 +151,11 @@ placeholder components (`loadingComponent`, `errorComponent`,
 `noDataComponent`, `noSizeComponent`, `noSeriesComponent`,
 `configErrorComponent`). Each placeholder input takes an **Angular component
 class** whose declared inputs among the chart context names (`width`,
-`height`, `error`, …) are kept up to date while the chart is in that state.
-Both components also accept `loading` and `error` to force the loading or
-error state.
+`height`, `error`, …) are kept up to date while the chart is in that state. It
+is created with the chart's `EnvironmentInjector`, so it can inject what the
+application or route injector provides but not a provider declared in an
+ancestor component's `providers` or `viewProviders` array. Both components also
+accept `loading` and `error` to force the loading or error state.
 
 ### Controlled state
 

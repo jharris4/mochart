@@ -150,6 +150,17 @@ html`${chart({ mochartConfig, dataProvider, loading, loadingTemplate })}`
 Both directives also accept `loading` and `error` to force the loading or
 error state.
 
+A placeholder template is a plain function the binding calls itself and renders
+with lit-html, not a component the framework instantiates, so nothing is
+injected into it: it sees the chart state context it is called with plus
+whatever its own closure captures. Define it where the values it needs are in
+scope — inside the host element's `render()`, or in a method that reads `this`.
+Directives inside the template work as in any other lit-html render, and are
+disconnected when the template prop is removed. The component-based bindings
+inherit framework context to varying degrees; see
+[React](/guide/frameworks/react), [Vue](/guide/frameworks/vue),
+[Svelte](/guide/frameworks/svelte) and [Angular](/guide/frameworks/angular).
+
 Every prop, with its type and its core counterpart, is listed in
 [Framework props](/reference/framework-props#lit).
 

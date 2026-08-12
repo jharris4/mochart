@@ -129,6 +129,13 @@ that receives the [chart state context](/guide/chart-states) (`width`,
 state. Both components also accept `loading` and `error` to force the
 loading or error state.
 
+A placeholder is mounted with a copy of the chart component's contexts, taken
+when the chart initialises, so `getContext` inside a placeholder reaches
+anything an ancestor set with `setContext`. Contexts are the only thing it
+inherits: it is mounted as its own component root rather than as a child of the
+chart. Vue and Angular reach less than this; see
+[Vue](/guide/frameworks/vue) and [Angular](/guide/frameworks/angular).
+
 Every prop, with its type and its core counterpart, is listed in
 [Framework props](/reference/framework-props#svelte).
 

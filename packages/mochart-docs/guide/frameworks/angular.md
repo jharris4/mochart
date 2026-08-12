@@ -155,6 +155,18 @@ component class** whose declared inputs among the
 components also accept `loading` and `error` to force the loading or error
 state.
 
+A placeholder is created with the chart's `EnvironmentInjector`, so it can
+inject anything the application injector provides — `providedIn: 'root'`
+services, application providers, and the environment providers of the route the
+chart sits in. It is not created under the chart's element injector, so a
+provider declared in an ancestor component's `providers` or `viewProviders`
+array is not reachable: injecting it throws `NullInjectorError`, or — for a
+service that also has `providedIn: 'root'` — hands back the root instance
+instead of the component-scoped one. Register such a provider at application or
+route level, or keep the value in a service both the host and the placeholder
+inject. This is narrower than React, where a placeholder reads any ancestor's
+context; see [React](/guide/frameworks/react).
+
 Every input and output, with its type and its core counterpart, is listed in
 [Framework props](/reference/framework-props#angular).
 

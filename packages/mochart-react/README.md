@@ -122,9 +122,10 @@ components (`loadingComponent`, `errorComponent`, `noDataComponent`,
 `noSizeComponent`, `noSeriesComponent`, `configErrorComponent`). Each
 placeholder prop takes a **React component** that receives the chart context
 (`width`, `height`, `error`, …) as props and is rendered while the chart is in
-that state. Placeholders render through portals in the host tree, so they
-inherit the app's context providers. Both components also accept `loading`
-and `error` to force the loading or error state.
+that state. Placeholders render through a portal in the host component tree, so
+they read any React context an ancestor provides and follow provider updates —
+the other bindings reach less, each in its own way. Both components also accept
+`loading` and `error` to force the loading or error state.
 
 ### Controlled state
 

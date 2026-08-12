@@ -123,8 +123,10 @@ components (`loadingComponent`, `errorComponent`, `noDataComponent`,
 `noSizeComponent`, `noSeriesComponent`, `configErrorComponent`). Each
 placeholder prop takes a **Svelte component** that receives the chart context
 (`width`, `height`, `error`, …) as props and is rendered while the chart is in
-that state. Both components also accept `loading` and `error` to force the
-loading or error state.
+that state. It is mounted with a copy of the chart component's contexts, so
+`getContext` inside it reaches anything an ancestor set with `setContext`. Both
+components also accept `loading` and `error` to force the loading or error
+state.
 
 ### Controlled state
 
