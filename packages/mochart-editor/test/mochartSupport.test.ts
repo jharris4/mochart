@@ -2,8 +2,8 @@ import { CompletionContext, type Completion, type CompletionResult } from '@code
 import { json } from '@codemirror/lang-json';
 import { EditorState } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
-import { afterEach, describe, expect, it } from 'vitest';
-import { mochartSupportTesting } from '../src/mochartSupport';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createMochartConfigSupport, mochartSupportTesting } from '../src/mochartSupport';
 
 const views: EditorView[] = [];
 
@@ -211,5 +211,45 @@ describe('completions after a comma-containing string value', () => {
 
     const afterComma = await completionOptions('{"title": {"text": "Sales, weekly", |}}');
     expect(labels(afterComma)).toContain('align');
+  });
+});
+
+// The model is a build-time snapshot of a peer-ranged core, so a consumer can pair
+// an editor release with a core that has config properties the model never saw.
+describe('config model / core version skew', () => {
+  const silenceWarn = () => vi.spyOn(console, 'warn').mockImplementation(() => {});
+  let warn: ReturnType<typeof silenceWarn>;
+
+  beforeEach(() => {
+    mochartSupportTesting.resetModelSkewWarning();
+    warn = silenceWarn();
+  });
+
+  afterEach(() => {
+    warn.mockRestore();
+    mochartSupportTesting.resetModelSkewWarning();
+  });
+
+  it('warns once, naming both versions, when the config surface can differ', () => {
+    mochartSupportTesting.warnOnModelSkew('1.0.0', '1.1.0');
+    mochartSupportTesting.warnOnModelSkew('1.0.0', '2.0.0');
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(String(warn.mock.calls[0]?.[0])).toContain('generated from @mochart/core 1.0.0');
+    expect(String(warn.mock.calls[0]?.[0])).toContain('installed @mochart/core is 1.1.0');
+  });
+
+  it('stays silent for a patch-only difference and for an exact match', () => {
+    mochartSupportTesting.warnOnModelSkew('1.0.0', '1.0.7');
+    mochartSupportTesting.warnOnModelSkew('1.0.0', '1.0.0');
+
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it('checks the shipped model against the installed core when support is created', () => {
+    const support = createMochartConfigSupport();
+
+    expect(support.name).toBe('mochart-config');
+    expect(warn).not.toHaveBeenCalled();
   });
 });

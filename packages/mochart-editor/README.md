@@ -15,6 +15,18 @@ npm install @mochart/editor @mochart/core
 `@mochart/core` is a peer dependency: the config diagnostics run against your
 app's copy of the library, so they always agree with the chart you render.
 
+Completions and hover documentation work differently. They come from a config
+model generated from `@mochart/core` when this package is built, so they
+describe the config surface of the core release the editor was built against.
+Pair the editor with a newer core and a section that core added validates
+cleanly but has no completions and no hover text. The model records the core
+version it was generated from — read it as `mochartConfigEditorModel.coreVersion`
+— and `createMochartConfigSupport()` logs one `console.warn` naming both
+versions when the installed core reports a different major or minor version. A
+patch difference is not reported, because a patch release cannot add or remove
+config properties. Installing the `@mochart/editor` release built against your
+core version clears the warning.
+
 ```ts
 import { createJsonEditor, createMochartConfigSupport } from '@mochart/editor';
 import '@mochart/editor/editor.css';

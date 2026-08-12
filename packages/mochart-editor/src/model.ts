@@ -41,6 +41,8 @@ export interface EditorSectionModel {
 }
 
 export interface MochartConfigModel {
+  /** The @mochart/core version this model was generated from. */
+  coreVersion: string;
   topLevel: {
     key: string;
     description: string;
