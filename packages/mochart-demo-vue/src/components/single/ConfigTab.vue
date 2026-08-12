@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, ref, shallowRef, watch } from 'vue';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -36,8 +36,10 @@ watch(() => props.config, (nextConfig) => {
   configText.value = formatMochartDemoConfig(demoConfig.value, showDefaults.value);
 });
 
+// demoConfig tracks the text, so the Invert/Slow states and reference links follow unapplied edits.
 function onTextChange(nextConfigText: string) {
   configText.value = nextConfigText;
+  demoConfig.value = demoConfigFromText(nextConfigText, demoConfig.value);
   errorMessage.value = null;
 }
 

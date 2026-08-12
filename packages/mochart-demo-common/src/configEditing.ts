@@ -85,6 +85,23 @@ export function toggleConfigFromText(configText: string, showDefaults: boolean, 
   return { demoConfig, text: formatMochartDemoConfig(demoConfig, showDefaults), error: null };
 }
 
+/**
+ * The config view the derived controls read (Invert/Slow pressed states, the reference links),
+ * rebuilt from the CURRENT text so an unapplied edit still moves them. Text that does not parse or
+ * does not build keeps the previous view: this runs on every keystroke, so it stays silent.
+ */
+export function demoConfigFromText(configText: string, previousDemoConfig: DemoConfigView): DemoConfigView {
+  let parsed: DemoConfig;
+  try {
+    parsed = JSON.parse(configText);
+  }
+  catch {
+    return previousDemoConfig;
+  }
+  const build = buildMochartDemoConfig(parsed);
+  return build.configValidation.valid ? copyDemoConfig(build) : previousDemoConfig;
+}
+
 export function toggleConfigProperty(currentDemoConfig: DemoConfigView, section: string, key: string, defaultValue: unknown): DemoConfigView {
   let { configWithDefaults, configWithoutDefaults } = currentDemoConfig;
   configWithDefaults = { ...configWithDefaults };

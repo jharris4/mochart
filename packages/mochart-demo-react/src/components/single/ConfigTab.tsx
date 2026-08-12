@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import Icon from '../misc/Icon';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -49,6 +49,12 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
     const demoConfig = copyDemoConfig(mochartDemoConfig);
     setState(prev => ({ ...prev, mochartDemoConfig, demoConfig, configText: formatMochartDemoConfig(demoConfig, prev.showDefaults) }));
   }
+
+  // demoConfig tracks the text, so the Invert/Slow states and reference links follow unapplied edits.
+  const onTextChange = (text: string) => {
+    setState(prev => ({ ...prev, configText: text, demoConfig: demoConfigFromText(text, prev.demoConfig) }));
+    setErrorMessage(null);
+  };
 
   const resetConfig = () => onConfigReset();
 
@@ -189,7 +195,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
     <div className={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
       <div className="mochart-demo-tab-content">
         <JsonEditorContent value={configText} ariaLabel={demoText.configTab.editorAria} formatOnSet mochartSupport ref={editorRef}
-          onChange={(text: string) => { setState(prev => ({ ...prev, configText: text })); setErrorMessage(null); }} />
+          onChange={onTextChange} />
       </div>
       <div className="mochart-demo-tab-footer" ref={footerRef}>
         <div className="demo-toolbar" role="toolbar">
