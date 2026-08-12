@@ -141,3 +141,27 @@ addConfig("B8", false, true, false, -40, "end");
 addConfig("C8", false, true, false, 40, "end");
 addConfig("D8", false, true, false, -90, "end");
 addConfig("E8", false, true, false, 90, "end");
+
+/**
+ * Narrowest column the rotation grid will lay out. Below it the grid drops to a
+ * single column rather than shrinking the cells further, since the point of the
+ * page is legible axis labels.
+ */
+const rotationMinColumnWidth = 400;
+
+export interface RotationGrid {
+  cols: number;
+  /** Cells are square, so this is their height too. */
+  colWidth: number;
+}
+
+/**
+ * The rotation grid's column count and cell size for a measured container width.
+ * Always at least one column, so a container narrower than a cell still renders
+ * (`colWidth` is 0 for a container that has not been measured yet, which the
+ * ports read as "nothing to lay out").
+ */
+export function getRotationGrid(containerWidth: number): RotationGrid {
+  const cols = Math.max(1, Math.floor(containerWidth / rotationMinColumnWidth));
+  return { cols, colWidth: Math.floor(containerWidth / cols) };
+}

@@ -8,7 +8,7 @@ import { exportPNG, exportSVG } from '@mochart/export';
 
 import { Chart } from '@mochart/angular';
 
-import { applyPieSliceValue, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, controlsMenuPlacement, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, getSeriesValuesText, demoText } from '@mochart/demo-common';
 
 import type { PieSliceInfo } from '@mochart/demo-common';
 
@@ -447,7 +447,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   // menu — mirrors the vanilla port's placeControls.
   // ------------------------------------------------------------------------
   readonly overflowText = demoText.overflowMenu.chart;
-  readonly chartPlacement = { side: 'top', align: 'end', gap: 4 } as const;
+  readonly chartPlacement = controlsMenuPlacement;
 
   private readonly phone = phoneViewport();
 
@@ -649,7 +649,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     const clickedCategoryValue = '' + this.filteredData[clickedCategoryIndex][categoryProperty];
     if (this.selectionMode() === 'series') {
       this.categoryIndex.set(clickedCategoryIndex);
-      this.seriesValuesText.set(this.getSeriesValuesText(this.mochartDemoConfig, this.filteredData, clickedCategoryIndex, this.seriesIndex()));
+      this.seriesValuesText.set(getSeriesValuesText(this.mochartDemoConfig, this.filteredData, clickedCategoryIndex, this.seriesIndex()));
     }
     else if (this.selectionMode() === 'category') {
       const dataCategoryValues: any[] = [];
@@ -985,7 +985,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   prevSeries = (): void => {
     if (this.categoryIndex() !== -1 && this.seriesIndex() > 0) {
       this.seriesIndex.update(seriesIndex => seriesIndex - 1);
-      this.seriesValuesText.set(this.getSeriesValuesText(this.mochartDemoConfig, this.filteredData, this.categoryIndex(), this.seriesIndex()));
+      this.seriesValuesText.set(getSeriesValuesText(this.mochartDemoConfig, this.filteredData, this.categoryIndex(), this.seriesIndex()));
     }
   };
 
@@ -993,36 +993,9 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     const { seriesCount } = this.mochartDemoConfig;
     if (this.categoryIndex() !== -1 && this.seriesIndex() < seriesCount - 1) {
       this.seriesIndex.update(seriesIndex => seriesIndex + 1);
-      this.seriesValuesText.set(this.getSeriesValuesText(this.mochartDemoConfig, this.filteredData, this.categoryIndex(), this.seriesIndex()));
+      this.seriesValuesText.set(getSeriesValuesText(this.mochartDemoConfig, this.filteredData, this.categoryIndex(), this.seriesIndex()));
     }
   };
-
-  private getSeriesValuesText({ mochartConfig }: MochartDemoConfig, currentFilteredData: Row[], currentCategoryIndex: number, currentSeriesIndex: number): string {
-    const dataObject = currentFilteredData[currentCategoryIndex];
-    const { series: seriesConfigs } = mochartConfig;
-    if (seriesConfigs.length > 0) {
-      const seriesConfig = seriesConfigs[currentSeriesIndex];
-      const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
-      const seriesValuesTextObject: Record<string, unknown> = {};
-      seriesValuesTextObject['p'] = dataObject[property!];
-      if (rangeProperty !== NONE) {
-        seriesValuesTextObject['r'] = dataObject[rangeProperty];
-      }
-      if (markerProperty !== NONE) {
-        seriesValuesTextObject['m'] = dataObject[markerProperty];
-      }
-      if (labelProperty !== NONE) {
-        seriesValuesTextObject['l'] = dataObject[labelProperty];
-      }
-      if (colorProperty !== NONE) {
-        seriesValuesTextObject['c'] = dataObject[colorProperty];
-      }
-      return JSON.stringify(seriesValuesTextObject);
-    }
-    else {
-      return '';
-    }
-  }
 
   applySeriesChanges = (): void => {
     const filteredDataObject = this.filteredData[this.categoryIndex()];
@@ -1083,7 +1056,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
       if (colorProperty !== NONE) {
         filteredDataObject[colorProperty] = dataObject![colorProperty];
       }
-      this.updateFilteredDataState({ seriesValuesText: this.getSeriesValuesText(this.mochartDemoConfig, this.filteredData, this.categoryIndex(), this.seriesIndex()) }, this.filteredData, this.removedData, false);
+      this.updateFilteredDataState({ seriesValuesText: getSeriesValuesText(this.mochartDemoConfig, this.filteredData, this.categoryIndex(), this.seriesIndex()) }, this.filteredData, this.removedData, false);
     }
   };
 

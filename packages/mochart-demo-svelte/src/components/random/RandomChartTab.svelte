@@ -5,7 +5,7 @@
   import type { MochartConfig } from '@mochart/core';
   import { exportPNG, exportSVG } from '@mochart/export';
 
-  import { demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
+  import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
   import type { ShareState } from '@mochart/demo-common';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -196,7 +196,7 @@
                    right edge to the anchor's, and the export trigger sits to
                    the ⋯'s right. -->
               <OverflowMenu text={demoText.overflowMenu.random}
-                            placement={{ side: 'top', align: 'end', gap: 4 }}
+                            placement={controlsMenuPlacement}
                             getAnchor={() => controlsElement}
                             active={active !== false}>
                 <div class="demo-btn-group">{@render playButton()}{@render stopButton()}</div>

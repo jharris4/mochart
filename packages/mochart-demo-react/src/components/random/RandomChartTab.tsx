@@ -5,7 +5,7 @@ import { Chart } from '@mochart/react';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
+import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -183,8 +183,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
                   {/* Anchored to the whole strip: `align: 'end'` pins the
                       panel's right edge to the anchor's, and the export
                       trigger sits to the ⋯'s right. */}
-                  <OverflowMenu text={demoText.overflowMenu.random}
-                    placement={{ side: 'top', align: 'end', gap: 4 }}
+                  <OverflowMenu text={demoText.overflowMenu.random} placement={controlsMenuPlacement}
                     anchorRef={controlsRef} active={active !== false}>
                     <div className="demo-btn-group">{playButton}{stopButton}</div>
                     <MenuDivider />

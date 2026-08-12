@@ -52,6 +52,11 @@ describe('shareState codec', () => {
     expect(decodeShareState(encodeShareState({ ...multiState, step: 4.4 } as ShareState))).toMatchObject({ step: 4 });
   });
 
+  it('clamps a hand-edited grid size into the stepper limits', () => {
+    expect(decodeShareState(encodeShareState({ ...multiState, rows: 0, cols: 9 } as ShareState))).toMatchObject({ rows: 1, cols: 4 });
+    expect(decodeShareState(encodeShareState({ ...multiState, rows: 2.6, cols: -5 } as ShareState))).toMatchObject({ rows: 3, cols: 1 });
+  });
+
   it('produces URL-safe output', () => {
     const encoded = encodeShareState(singleState);
     expect(encoded).toMatch(/^[A-Za-z0-9_-]+$/);

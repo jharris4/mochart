@@ -19,10 +19,6 @@ const defaultChartCols = 2;
 
 const defaultRate = 2000;
 
-function clampGrid(value: number): number {
-  return Math.min(4, Math.max(1, Math.round(value)));
-}
-
 @Component({
   selector: 'app-charts-tab',
   imports: [Chart, ChartsControls],
@@ -88,8 +84,8 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     // A share link restores the grid size, playback step and interval.
     const shared = this.consumeMultiShareState();
-    const rows = shared ? clampGrid(shared.rows) : defaultChartRows;
-    const cols = shared ? clampGrid(shared.cols) : defaultChartCols;
+    const rows = shared ? shared.rows : defaultChartRows;
+    const cols = shared ? shared.cols : defaultChartCols;
     const rate = shared ? shared.interval : defaultRate;
     this.chartRows.set(rows);
     this.chartCols.set(cols);

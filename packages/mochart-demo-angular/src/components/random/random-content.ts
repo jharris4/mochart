@@ -1,17 +1,16 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { NONE, getDataErrors } from '@mochart/core';
-import type { MochartConfig } from '@mochart/core';
+import { getDataErrors } from '@mochart/core';
 
 import { RandomChartTab } from './random-chart-tab';
 import { RandomConfigTab } from './random-config-tab';
 import { RandomDataTab } from './random-data-tab';
 import { ErrorTab } from '../misc/error-tab';
 
-import { consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
+import { consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, getRandomDataRows, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
-import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, CategoryValue } from '../../types';
+import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider } from '../../types';
 
 interface EventKeys {
   eventKeyChart: number;
@@ -90,27 +89,6 @@ export class RandomContent implements OnInit, OnChanges {
     this.updateDataProvider();
   };
 
-  private getData(mochartConfig: MochartConfig, categoryValues: CategoryValue[], seriesValues: Record<string, (number | undefined)[]>): Record<string, any>[] {
-    const { categoryAxis: categoryAxisConfig } = mochartConfig;
-    const categoryProperty = categoryAxisConfig.property ?? '';
-    const nextData: Record<string, any>[] = categoryValues.map(g => ({ [categoryProperty]: g }));
-    const categoryCount = categoryValues.length;
-    if (categoryAxisConfig.displayProperty !== NONE) {
-      const displayProperty = categoryAxisConfig.displayProperty;
-      for (let i = 0; i < categoryCount; i++) {
-        nextData[i][displayProperty] = categoryValues[i];
-      }
-    }
-    const seriesProperties = Object.keys(seriesValues);
-    for (const seriesProperty of seriesProperties) {
-      const seriesPropertyValues = seriesValues[seriesProperty];
-      for (let i = 0; i < categoryCount; i++) {
-        nextData[i][seriesProperty] = seriesPropertyValues[i];
-      }
-    }
-    return nextData;
-  }
-
   private updateDataProvider(forcedRandomConfig?: RandomConfigWithValid): void {
     const { mochartConfig } = this.mochartDemoConfig;
     const nextRandomConfig = forcedRandomConfig !== undefined ? forcedRandomConfig : this.randomConfig()!;
@@ -121,7 +99,7 @@ export class RandomContent implements OnInit, OnChanges {
       const generatorConfig = this.applyReuse() ? nextRandomConfig : neutralizeRandomReuse(nextRandomConfig);
       const nextDataProvider = generateDemoDataProvider(this.generator, mochartConfig, generatorConfig, this.randomId);
       const { categoryValues = [], seriesValues = {} } = nextDataProvider;
-      const nextData = this.getData(mochartConfig, categoryValues, seriesValues);
+      const nextData = getRandomDataRows(mochartConfig, categoryValues, seriesValues);
       const dataErrors = getDataErrors(mochartConfig, nextDataProvider);
       if (dataErrors.length > 0) {
         console.error('data errors: ', dataErrors);

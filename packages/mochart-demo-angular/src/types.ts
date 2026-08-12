@@ -1,6 +1,6 @@
 export type {
   DataRow, Demo, DemoConfig, DemoData,
-  CategoryValue, FilteredSeriesIds, FocusData, TransitionConfig,
+  FilteredSeriesIds, FocusData, TransitionConfig,
   ChartDataProviderLike, DemoDataProvider,
   RandomConfigWithValid, MochartDemoConfig,
   SwitchableDemoMode, ShowcaseMode, GalleryItem, GallerySection

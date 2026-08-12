@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, controlsMenuPlacement, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
 import type { ParsedFullData } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -14,7 +14,6 @@ import '../misc/overflow-menu';
 import type { DemoConfig, DataRow } from '../../types';
 
 /** The footer sits at the bottom of the pane, so its menu opens upward. */
-const editorPlacement = { side: 'top', align: 'end', gap: 4 } as const;
 
 const panelAttrs = getDemoTabPanelAttrs('data');
 
@@ -129,7 +128,7 @@ export class DataTab extends LightElement {
         <div class="demo-toolbar">
           ${folded
             ? html`${applyButton}
-              <overflow-menu .text=${demoText.overflowMenu.editor} .placement=${editorPlacement}
+              <overflow-menu .text=${demoText.overflowMenu.editor} .placement=${controlsMenuPlacement}
                 .getAnchor=${this.getFooterAnchor} .active=${this.active}
                 .items=${() => html`<div class="demo-btn-group">${resetButton}${unusedButton}</div>`}></overflow-menu>`
             : html`${resetButton}${unusedButton}${applyButton}`}

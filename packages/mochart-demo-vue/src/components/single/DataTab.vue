@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, ref, watch } from 'vue';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, controlsMenuPlacement, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
 
 import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -138,7 +138,7 @@ const panelAttrs = getDemoTabPanelAttrs('data');
         <template v-if="isPhone">
           <ApplyButton />
           <OverflowMenu :text="demoText.overflowMenu.editor"
-                        :placement="{ side: 'top', align: 'end', gap: 4 }"
+                        :placement="controlsMenuPlacement"
                         :get-anchor="getFooterAnchor"
                         :active="props.active">
             <div class="demo-btn-group"><ResetButton /><UnusedButton /></div>

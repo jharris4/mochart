@@ -20,10 +20,6 @@ const scrollWidthOffset = 20;
 const defaultChartRows = 2;
 const defaultChartCols = 2;
 
-function clampGrid(value: number): number {
-  return Math.min(4, Math.max(1, Math.round(value)));
-}
-
 @customElement('charts-tab')
 export class ChartsTab extends LightElement {
   @property({ attribute: false }) demoObject!: Demo;
@@ -92,8 +88,8 @@ export class ChartsTab extends LightElement {
       const sharedMulti = shared && shared.mode === 'multi' ? shared : null;
       let step: number | undefined;
       if (sharedMulti) {
-        this.chartRows = clampGrid(sharedMulti.rows);
-        this.chartCols = clampGrid(sharedMulti.cols);
+        this.chartRows = sharedMulti.rows;
+        this.chartCols = sharedMulti.cols;
         this.rate = sharedMulti.interval;
         step = sharedMulti.step;
       }

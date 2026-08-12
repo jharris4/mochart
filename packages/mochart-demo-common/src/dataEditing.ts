@@ -1,4 +1,4 @@
-import { ArrayOfObjectsDataProvider, getDataErrors } from '@mochart/core';
+import { ArrayOfObjectsDataProvider, NONE, getDataErrors } from '@mochart/core';
 import type { DataProvider } from '@mochart/core';
 
 import buildMochartDemoConfig from './mochartDemoConfig';
@@ -162,6 +162,36 @@ export function getCategoryIndexTitle({ mochartConfig }: MochartDemoConfig, rows
   const property = categoryAxisConfig.displayProperty ?? categoryAxisConfig.property;
   const value = property === null || property === undefined ? undefined : row[property];
   return value === undefined || value === null ? '' : String(value);
+}
+
+/**
+ * The series-values editor's JSON text for one category/series cell: the
+ * position value under `p`, plus a key per optional property the series config
+ * actually declares (`r`ange, `m`arker, `l`abel, `c`olor). Empty when the config
+ * has no series. Each port's `applySeriesChanges` reads the same keys back.
+ */
+export function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, rows: DataRow[], categoryIndex: number, seriesIndex: number): string {
+  const { series: seriesConfigs } = mochartConfig;
+  if (seriesConfigs.length === 0) {
+    return '';
+  }
+  const row = rows[categoryIndex];
+  const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfigs[seriesIndex];
+  const values: Record<string, unknown> = {};
+  values['p'] = row[property!];
+  if (rangeProperty !== NONE) {
+    values['r'] = row[rangeProperty];
+  }
+  if (markerProperty !== NONE) {
+    values['m'] = row[markerProperty];
+  }
+  if (labelProperty !== NONE) {
+    values['l'] = row[labelProperty];
+  }
+  if (colorProperty !== NONE) {
+    values['c'] = row[colorProperty];
+  }
+  return JSON.stringify(values);
 }
 
 /** The native tooltip for the series index stepper label: the series title. */

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { demoText, getAvailableDemoModes } from '@mochart/demo-common';
+import { demoModeIcons, demoText, getAvailableDemoModes } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import Icon from './Icon.vue';
@@ -18,12 +18,6 @@ const props = defineProps<Props>();
 
 const isPhone = usePhoneViewport();
 const availableModes = computed(() => getAvailableDemoModes(isPhone.value));
-
-const modeIcons: Record<SwitchableDemoMode, string> = {
-  single: 'pen-to-square',
-  multi: 'window-restore',
-  random: 'shuffle'
-};
 </script>
 
 <!-- How the current mode is marked VISUALLY depends on the width. In the strip it
@@ -45,7 +39,7 @@ const modeIcons: Record<SwitchableDemoMode, string> = {
               :disabled="mode === props.demoMode && !isPhone" :title="demoText.modeSwitcher.modes[mode].title"
               :aria-current="mode === props.demoMode ? 'page' : undefined"
               @click="mode !== props.demoMode && props.onModeChanged(mode)">
-        <Icon size="lg" :fixed-width="true" :name="modeIcons[mode]" /><span class="btn-label">{{ demoText.modeSwitcher.modes[mode].label }}</span>
+        <Icon size="lg" :fixed-width="true" :name="demoModeIcons[mode]" /><span class="btn-label">{{ demoText.modeSwitcher.modes[mode].label }}</span>
       </button>
     </div>
   </div>

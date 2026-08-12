@@ -1,4 +1,4 @@
-import { buildMochartDemoConfig, copyDemoConfig, createJsonEditorContent, demoConfigFromText, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
+import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, createJsonEditorContent, demoConfigFromText, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -214,12 +214,12 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
   // a screen reader would be a promise this panel does not keep.
   const overflowMenuHandle = overflowMenu({
     text: demoText.overflowMenu.editor,
-    // Opens upward — the footer is at the bottom of the pane — and right-aligned
-    // against the footer rather than the trigger. The trigger sits mid-row, left
-    // of an error span that comes and goes; anchoring to it would both move the
-    // panel as the error appears and, on a phone, push a 320px panel off the
-    // left edge. The footer is full width, so its right edge is the row's end.
-    placement: { side: 'top', align: 'end', gap: 4 },
+    // Right-aligned against the footer rather than the trigger. The trigger sits
+    // mid-row, left of an error span that comes and goes; anchoring to it would
+    // both move the panel as the error appears and, on a phone, push a 320px
+    // panel off the left edge. The footer is full width, so its right edge is
+    // the row's end.
+    placement: controlsMenuPlacement,
     getAnchor: () => footer
   });
 

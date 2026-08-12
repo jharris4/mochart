@@ -5,7 +5,7 @@ import { Chart } from '@mochart/vue';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
+import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -178,7 +178,7 @@ const panelAttrs = getDemoTabPanelAttrs('chart');
                  the ⋯'s right. -->
             <div v-if="isPhone" class="demo-btn-group">
               <OverflowMenu :text="demoText.overflowMenu.random"
-                            :placement="{ side: 'top', align: 'end', gap: 4 }"
+                            :placement="controlsMenuPlacement"
                             :get-anchor="getControlsAnchor"
                             :active="props.active">
                 <div class="demo-btn-group"><PlayButton /><StopButton /></div>

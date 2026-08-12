@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { demoText } from '@mochart/demo-common';
+import { demoText, navMenuPlacement } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton } from './ModeSwitcher';
@@ -56,8 +56,7 @@ export default function TopBar({ siteRootUrl, onBackToDemos, tabs, notes, modes 
         <div className="mochart-demo-nav-group">
           {tabs}
         </div>
-        <OverflowMenu text={demoText.overflowMenu.nav}
-          placement={{ side: 'bottom', align: 'end', gap: 6 }}>
+        <OverflowMenu text={demoText.overflowMenu.nav} placement={navMenuPlacement}>
           {/* The menu's contents, in the order a thumb should meet them: what
               this demo is, then where else to see it, then how it looks, then
               the two ways out. The about row has no trailing divider when the

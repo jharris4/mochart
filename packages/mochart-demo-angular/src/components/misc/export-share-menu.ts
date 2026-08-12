@@ -1,12 +1,10 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, ViewChild, inject, signal } from '@angular/core';
 import type { OnChanges, OnDestroy, OnInit } from '@angular/core';
 
-import { buildShareUrl, createMenuController, demoText } from '@mochart/demo-common';
-import type { MenuController, ShareState } from '@mochart/demo-common';
+import { controlsMenuPlacement, createMenuController, createShareLinkCopier, demoText } from '@mochart/demo-common';
+import type { MenuController, ShareLinkCopier, ShareState } from '@mochart/demo-common';
 
 import { Icon } from './icon';
-
-const copiedFeedbackMs = 1500;
 
 /**
  * A collapsed export/share menu placed at the end of each mode's controls row.
@@ -19,7 +17,7 @@ const copiedFeedbackMs = 1500;
  * it is hand-rolled (the controls strips clip an absolutely-positioned dropdown,
  * and the chart's interaction rect eats clicks through anything stacked below
  * it). What stays here is what the controller does not know about: the items,
- * the copied-link feedback, and `disabled`.
+ * their copied label, and `disabled`.
  *
  * The trigger and panel carry STATIC classes and no `aria-expanded`, because
  * the controller writes those itself; a binding on the same element would be
@@ -84,16 +82,20 @@ export class ExportShareMenu implements OnInit, OnChanges, OnDestroy {
   controller?: MenuController;
 
   private readonly changeDetector = inject(ChangeDetectorRef);
-  private revertTimer: ReturnType<typeof setTimeout> | null = null;
+  // The clipboard promise and the revert timer both resolve outside Angular, and
+  // this is a zoneless app, so a signal write there only *schedules* change
+  // detection — flush it so the label swap lands on the spot.
+  private readonly shareLinkCopier: ShareLinkCopier = createShareLinkCopier(copied => {
+    this.copied.set(copied);
+    this.changeDetector.detectChanges();
+  });
 
   ngOnInit(): void {
-    // Opens upward (the controls row sits at the bottom of the pane) and
-    // right-aligned (the trigger is the last control in the row).
     // The trigger has no id, so the controller mints a unique one.
     this.controller = createMenuController({
       trigger: this.triggerElement.nativeElement,
       panel: this.panelElement.nativeElement,
-      placement: { side: 'top', align: 'end', gap: 4 },
+      placement: controlsMenuPlacement,
       bindTrigger: false
     });
   }
@@ -107,10 +109,7 @@ export class ExportShareMenu implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.revertTimer !== null) {
-      clearTimeout(this.revertTimer);
-      this.revertTimer = null;
-    }
+    this.shareLinkCopier.dispose();
     this.controller?.destroy();
   }
 
@@ -123,26 +122,7 @@ export class ExportShareMenu implements OnInit, OnChanges, OnDestroy {
     if (!this.getShareState) {
       return;
     }
-    const url = buildShareUrl(this.getShareState());
-    navigator.clipboard.writeText(url).then(() => {
-      this.copied.set(true);
-      // The clipboard promise resolves outside Angular, and this is a zoneless
-      // app, so the signal write there only *schedules* change detection —
-      // flush it so the "Link copied" label appears on the spot.
-      this.changeDetector.detectChanges();
-      if (this.revertTimer !== null) {
-        clearTimeout(this.revertTimer);
-      }
-      this.revertTimer = setTimeout(() => {
-        this.copied.set(false);
-        this.revertTimer = null;
-        this.changeDetector.detectChanges();
-      }, copiedFeedbackMs);
-    }, () => {
-      // Clipboard access can be unavailable (e.g. insecure context); let the
-      // user copy the link manually instead of failing silently.
-      window.prompt(this.shareText.tooltip, url);
-    });
+    this.shareLinkCopier.copy(this.getShareState());
     this.controller?.close();
   }
 }

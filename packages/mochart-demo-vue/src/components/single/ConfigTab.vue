@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, ref, shallowRef, watch } from 'vue';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -195,7 +195,7 @@ const panelAttrs = getDemoTabPanelAttrs('config');
                thing. Anchored to the full-width footer — the trigger sits
                mid-row, left of an error span that comes and goes. -->
           <OverflowMenu :text="demoText.overflowMenu.editor"
-                        :placement="{ side: 'top', align: 'end', gap: 4 }"
+                        :placement="controlsMenuPlacement"
                         :get-anchor="getFooterAnchor"
                         :active="props.active">
             <div class="demo-btn-group"><ResetButton /><DefaultsButton /><InvertedButton /><SlowButton /><FormatButton /></div>

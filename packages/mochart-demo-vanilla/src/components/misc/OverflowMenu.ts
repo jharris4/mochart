@@ -1,4 +1,4 @@
-import { createMenuController } from '@mochart/demo-common';
+import { createMenuController, isMenuDismissingClick } from '@mochart/demo-common';
 import type { MenuPlacement } from '@mochart/demo-common';
 
 import { el, icon, withPreservedFocus } from './dom';
@@ -79,13 +79,6 @@ export interface OverflowMenuHandle {
 
 /** No caret: `.demo-menu-trigger` draws one, and the ellipsis already says "more". */
 const triggerClassName = 'demo-btn demo-btn-secondary';
-
-/**
- * Escape hatch for panel contents that must NOT close the menu when clicked —
- * a stepper beside a number input, say, where closing after every press would
- * make the control unusable.
- */
-const keepOpenSelector = '.demo-menu-keep-open';
 
 export function overflowMenu(props: OverflowMenuProps): OverflowMenuHandle {
   const { text, placement, getAnchor, className, iconName = 'ellipsis' } = props;
@@ -174,18 +167,9 @@ export function overflowMenu(props: OverflowMenuProps): OverflowMenuHandle {
   // target's handler, i.e. the button has already done its work by the time the
   // panel disappears out from under it.
   function onPanelClick(event: MouseEvent): void {
-    const target = event.target instanceof Element ? event.target : null;
-    if (target === null) {
-      return;
+    if (isMenuDismissingClick(event.target, panel)) {
+      controller.close();
     }
-    const actionable = target.closest('button, a');
-    if (actionable === null || !panel.contains(actionable)) {
-      return;
-    }
-    if (actionable.closest(keepOpenSelector) !== null) {
-      return;
-    }
-    controller.close();
   }
 
   panel.addEventListener('click', onPanelClick);

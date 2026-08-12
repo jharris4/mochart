@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import Icon from '../misc/Icon';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, controlsMenuPlacement, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
 
 import JsonEditorContent from '../misc/JsonEditorContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -132,8 +132,7 @@ export default function MochartDataTab({ active, config = null, data = null, onD
           {isPhone ? (
             <>
               {applyButton}
-              <OverflowMenu text={demoText.overflowMenu.editor}
-                placement={{ side: 'top', align: 'end', gap: 4 }}
+              <OverflowMenu text={demoText.overflowMenu.editor} placement={controlsMenuPlacement}
                 anchorRef={footerRef} active={active !== false}>
                 <div className="demo-btn-group">{resetButton}{unusedButton}</div>
               </OverflowMenu>

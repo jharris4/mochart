@@ -4,7 +4,7 @@
 import { Component, Input, computed, signal } from '@angular/core';
 import type { OnDestroy } from '@angular/core';
 
-import { demoText, getAvailableDemoModes, initTheme } from '@mochart/demo-common';
+import { demoModeIcons, demoText, getAvailableDemoModes, initTheme } from '@mochart/demo-common';
 
 import { Icon } from './icon';
 import { phoneViewport } from './phone-viewport';
@@ -13,12 +13,6 @@ import type { SwitchableDemoMode } from '../../types';
 
 // One controller for the whole app; every view's toggle button shares it.
 const theme = initTheme();
-
-const modeIcons: Record<SwitchableDemoMode, string> = {
-  single: 'pen-to-square',
-  multi: 'window-restore',
-  random: 'shuffle'
-};
 
 @Component({
   selector: 'app-mode-switcher',
@@ -56,7 +50,7 @@ export class ModeSwitcher {
   @Input({ required: true }) onModeChanged!: (nextDemoMode: SwitchableDemoMode) => void;
 
   readonly text = demoText.modeSwitcher;
-  readonly modeIcons = modeIcons;
+  readonly modeIcons = demoModeIcons;
 
   readonly phone = phoneViewport();
 

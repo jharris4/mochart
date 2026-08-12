@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -128,7 +128,7 @@ export class ConfigTab implements OnInit, OnChanges {
   @ViewChild('editor', { static: true }) editorComponent!: JsonEditorContent;
   readonly phone = phoneViewport();
   readonly overflowText = demoText.overflowMenu.editor;
-  readonly editorPlacement = { side: 'top', align: 'end', gap: 4 } as const;
+  readonly editorPlacement = controlsMenuPlacement;
   readonly getFooterAnchor = (): HTMLElement => this.footerElement.nativeElement;
 
   get hasDocsLinks(): boolean {

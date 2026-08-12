@@ -44,10 +44,6 @@ interface ChartsTabState {
   sliceIds: string[];
 }
 
-function clampGrid(value: number): number {
-  return Math.min(4, Math.max(1, Math.round(value)));
-}
-
 // Pie mode steps a filtering pattern instead of data prefixes: chart i at
 // step s filters the last (s + i) mod cycle slices, so the grid shows
 // different-sized views of the same pie and stepping animates all charts.
@@ -101,8 +97,8 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     const shared = sharedState && sharedState.mode === 'multi' ? sharedState : null;
     return buildInitial(
       demoObject,
-      shared ? clampGrid(shared.rows) : defaultChartRows,
-      shared ? clampGrid(shared.cols) : defaultChartCols,
+      shared ? shared.rows : defaultChartRows,
+      shared ? shared.cols : defaultChartCols,
       shared ? shared.interval : defaultRate,
       shared ? shared.step : undefined
     );

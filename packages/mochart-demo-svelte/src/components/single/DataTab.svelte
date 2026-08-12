@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
+  import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, controlsMenuPlacement, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
 
   import JsonEditorContent from '../misc/JsonEditorContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -156,7 +156,7 @@
       {#if phone.isPhone}
         {@render applyButton()}
         <OverflowMenu text={demoText.overflowMenu.editor}
-                      placement={{ side: 'top', align: 'end', gap: 4 }}
+                      placement={controlsMenuPlacement}
                       getAnchor={() => footerElement}
                       active={active !== false}>
           <div class="demo-btn-group">{@render resetButton()}{@render unusedButton()}</div>

@@ -2,7 +2,7 @@
   // The Single/Multi/Random mode switcher shown in the demo view navigation
   // strip. Transition/rotation are standalone gallery pages, not modes, so
   // they don't appear here.
-  import { demoText, getAvailableDemoModes } from '@mochart/demo-common';
+  import { demoModeIcons, demoText, getAvailableDemoModes } from '@mochart/demo-common';
   import type { SwitchableDemoMode } from '@mochart/demo-common';
 
   import Icon from './Icon.svelte';
@@ -18,12 +18,6 @@
   const phone = createPhoneViewport();
 
   const modes = $derived(getAvailableDemoModes(phone.isPhone));
-
-  const modeIcons: Record<SwitchableDemoMode, string> = {
-    single: 'pen-to-square',
-    multi: 'window-restore',
-    random: 'shuffle'
-  };
 </script>
 
 <!-- How the current mode is marked VISUALLY depends on the width. In the strip it
@@ -45,7 +39,7 @@
               disabled={mode === demoMode && !phone.isPhone} title={demoText.modeSwitcher.modes[mode].title}
               aria-current={mode === demoMode ? 'page' : undefined}
               onclick={() => { if (mode !== demoMode) { onModeChanged(mode); } }}>
-        <Icon size="lg" fixedWidth={true} name={modeIcons[mode]} /><span class="btn-label">{demoText.modeSwitcher.modes[mode].label}</span>
+        <Icon size="lg" fixedWidth={true} name={demoModeIcons[mode]} /><span class="btn-label">{demoText.modeSwitcher.modes[mode].label}</span>
       </button>
     {/each}
   </div>

@@ -2,13 +2,11 @@ import { html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 
-import { buildShareUrl, createMenuController, demoText } from '@mochart/demo-common';
-import type { MenuController, ShareState } from '@mochart/demo-common';
+import { controlsMenuPlacement, createMenuController, createShareLinkCopier, demoText } from '@mochart/demo-common';
+import type { MenuController, ShareLinkCopier, ShareState } from '@mochart/demo-common';
 
 import { LightElement } from './LightElement';
 import { icon } from './templates';
-
-const copiedFeedbackMs = 1500;
 
 /**
  * A collapsed export/share menu placed at the end of each mode's controls row.
@@ -21,7 +19,7 @@ const copiedFeedbackMs = 1500;
  * it is hand-rolled (the controls strips clip an absolutely-positioned
  * dropdown, and the chart's interaction rect eats clicks through anything
  * stacked below it). What stays here is what the controller does not know
- * about: the items, the copied-link feedback, and `disabled`.
+ * about: the items, their copied label, and `disabled`.
  *
  * The trigger and panel carry STATIC classes and no `aria-expanded` or `style`
  * binding, because the controller writes those itself; an interpolated
@@ -48,7 +46,7 @@ export class ExportShareMenu extends LightElement {
   @query('.demo-menu') private panelElement?: HTMLElement;
 
   private controller: MenuController | null = null;
-  private revertTimer: ReturnType<typeof setTimeout> | null = null;
+  private shareLinkCopier: ShareLinkCopier = createShareLinkCopier(copied => { this.copied = copied; });
 
   override firstUpdated(): void {
     const trigger = this.triggerElement;
@@ -56,12 +54,10 @@ export class ExportShareMenu extends LightElement {
     if (trigger === undefined || panel === undefined) {
       return;
     }
-    // Opens upward (the controls row sits at the bottom of the pane) and
-    // right-aligned (the trigger is the last control in the row).
     this.controller = createMenuController({
       trigger,
       panel,
-      placement: { side: 'top', align: 'end', gap: 4 },
+      placement: controlsMenuPlacement,
       bindTrigger: false
     });
   }
@@ -76,10 +72,7 @@ export class ExportShareMenu extends LightElement {
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
-    if (this.revertTimer !== null) {
-      clearTimeout(this.revertTimer);
-      this.revertTimer = null;
-    }
+    this.shareLinkCopier.dispose();
     this.controller?.destroy();
     this.controller = null;
   }
@@ -93,21 +86,7 @@ export class ExportShareMenu extends LightElement {
     if (!this.getShareState) {
       return;
     }
-    const url = buildShareUrl(this.getShareState());
-    navigator.clipboard.writeText(url).then(() => {
-      this.copied = true;
-      if (this.revertTimer !== null) {
-        clearTimeout(this.revertTimer);
-      }
-      this.revertTimer = setTimeout(() => {
-        this.copied = false;
-        this.revertTimer = null;
-      }, copiedFeedbackMs);
-    }, () => {
-      // Clipboard access can be unavailable (e.g. insecure context); let the
-      // user copy the link manually instead of failing silently.
-      window.prompt(demoText.shareButton.tooltip, url);
-    });
+    this.shareLinkCopier.copy(this.getShareState());
     this.controller?.close();
   };
 

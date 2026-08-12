@@ -7,7 +7,7 @@ import type { DataProvider } from '@mochart/core';
 import { chart } from '@mochart/lit';
 import type { ChartProps } from '@mochart/lit';
 import { exportPNG, exportSVG } from '@mochart/export';
-import { applyPieSliceValue, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, controlsMenuPlacement, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, getSeriesValuesText, demoText } from '@mochart/demo-common';
 import type { PieSliceInfo } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -31,36 +31,6 @@ interface FocusPayload {
 }
 
 const emptyCategoryText = demoText.editableChart.emptyCategoryText;
-
-/** The strip sits at the bottom of the pane, so its menu opens upward. */
-const chartPlacement = { side: 'top', align: 'end', gap: 4 } as const;
-
-function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, currentFilteredData: Row[], currentCategoryIndex: number, currentSeriesIndex: number): string {
-  const dataObject = currentFilteredData[currentCategoryIndex];
-  const { series: seriesConfigs } = mochartConfig;
-  if (seriesConfigs.length > 0) {
-    const seriesConfig = seriesConfigs[currentSeriesIndex];
-    const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
-    const seriesValuesTextObject: Record<string, unknown> = {};
-    seriesValuesTextObject['p'] = dataObject[property!];
-    if (rangeProperty !== NONE) {
-      seriesValuesTextObject['r'] = dataObject[rangeProperty];
-    }
-    if (markerProperty !== NONE) {
-      seriesValuesTextObject['m'] = dataObject[markerProperty];
-    }
-    if (labelProperty !== NONE) {
-      seriesValuesTextObject['l'] = dataObject[labelProperty];
-    }
-    if (colorProperty !== NONE) {
-      seriesValuesTextObject['c'] = dataObject[colorProperty];
-    }
-    return JSON.stringify(seriesValuesTextObject);
-  }
-  else {
-    return "";
-  }
-}
 
 @customElement('editable-chart')
 export class EditableChart extends LightElement {
@@ -690,7 +660,7 @@ export class EditableChart extends LightElement {
   private renderControlsMenu(error: boolean, menuItems: (() => unknown) | null): unknown {
     return html`<span class="chart-controls-menu">
       ${menuItems === null ? nothing : html`<overflow-menu .text=${demoText.overflowMenu.chart}
-        .placement=${chartPlacement} .getAnchor=${this.getMenuAnchor}
+        .placement=${controlsMenuPlacement} .getAnchor=${this.getMenuAnchor}
         .disabled=${error} .active=${this.isActive} .items=${menuItems}></overflow-menu>`}
       <export-share-menu .disabled=${error} .active=${this.isActive}
         .exportPng=${() => { const container = this.querySelector('.editable-chart-content'); if (container) { void exportPNG(container, getChartExportOptions()); } }}

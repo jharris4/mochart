@@ -3,7 +3,7 @@
 
   import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
   import type { DataProvider } from '@mochart/core';
-  import { applyPieSliceValue, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
+  import { applyPieSliceValue, controlsMenuPlacement, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, getSeriesValuesText, demoText } from '@mochart/demo-common';
   import type { PieSliceInfo } from '@mochart/demo-common';
   import { exportPNG, exportSVG } from '@mochart/export';
   import { Chart } from '@mochart/svelte';
@@ -568,33 +568,6 @@
     }
   }
 
-  function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, currentFilteredData: Row[], currentCategoryIndex: number, currentSeriesIndex: number): string {
-    const dataObject = currentFilteredData[currentCategoryIndex];
-    const { series: seriesConfigs } = mochartConfig;
-    if (seriesConfigs.length > 0) {
-      const seriesConfig = seriesConfigs[currentSeriesIndex];
-      const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
-      const seriesValuesTextObject: Record<string, unknown> = {};
-      seriesValuesTextObject['p'] = dataObject[property!];
-      if (rangeProperty !== NONE) {
-        seriesValuesTextObject['r'] = dataObject[rangeProperty];
-      }
-      if (markerProperty !== NONE) {
-        seriesValuesTextObject['m'] = dataObject[markerProperty];
-      }
-      if (labelProperty !== NONE) {
-        seriesValuesTextObject['l'] = dataObject[labelProperty];
-      }
-      if (colorProperty !== NONE) {
-        seriesValuesTextObject['c'] = dataObject[colorProperty];
-      }
-      return JSON.stringify(seriesValuesTextObject);
-    }
-    else {
-      return "";
-    }
-  }
-
   function applySeriesChanges() {
     const filteredDataObject = filteredData[categoryIndex];
     const { mochartConfig } = mochartDemoConfig;
@@ -743,7 +716,7 @@
   <span class="chart-controls-menu" bind:this={menuSpanElement}>
     {#if overflowItems !== null}
       <OverflowMenu text={demoText.overflowMenu.chart}
-                    placement={{ side: 'top', align: 'end', gap: 4 }}
+                    placement={controlsMenuPlacement}
                     getAnchor={() => menuSpanElement}
                     disabled={!!error} active={isActive}>
         {@render overflowItems()}

@@ -2,19 +2,13 @@
 // Single/Multi/Random mode switcher. Transition/rotation are standalone
 // gallery pages, not modes, so they don't appear here.
 
-import { demoText, getAvailableDemoModes, initTheme, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
+import { demoModeIcons, demoText, getAvailableDemoModes, initTheme, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { el, icon } from './dom';
 
 // One controller for the whole app; every view's toggle button shares it.
 const theme = initTheme();
-
-const modeIcons: Record<SwitchableDemoMode, string> = {
-  single: 'pen-to-square',
-  multi: 'window-restore',
-  random: 'shuffle'
-};
 
 export interface ModeSwitcherProps {
   demoMode: SwitchableDemoMode;
@@ -59,7 +53,7 @@ export function modeSwitcher(props: ModeSwitcherProps): ModeSwitcherHandle {
           + (current && isPhone ? ' active' : ''),
         attrs: { type: 'button', title, 'aria-current': current ? 'page' : undefined }
       }, [
-        icon(modeIcons[mode], { size: 'lg', fixedWidth: true }),
+        icon(demoModeIcons[mode], { size: 'lg', fixedWidth: true }),
         el('span', { className: 'btn-label', text: label })
       ]);
       button.disabled = current && !isPhone;

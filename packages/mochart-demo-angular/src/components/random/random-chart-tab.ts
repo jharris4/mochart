@@ -6,7 +6,7 @@ import { Chart } from '@mochart/angular';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
+import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
@@ -140,7 +140,7 @@ export class RandomChartTab implements OnInit, OnChanges, OnDestroy {
   // The phone fold (see the comment above the strip in the template).
   readonly phone = phoneViewport();
   readonly overflowText = demoText.overflowMenu.random;
-  readonly randomPlacement = { side: 'top', align: 'end', gap: 4 } as const;
+  readonly randomPlacement = controlsMenuPlacement;
   readonly getControlsAnchor = (): HTMLElement => this.controlsElement.nativeElement;
 
   private intervalId: ReturnType<typeof setInterval> | null = null;

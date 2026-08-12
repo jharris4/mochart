@@ -1,4 +1,4 @@
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, createJsonEditorContent, demoText, formatDataView, getJsonError, isPhoneViewport, getCategoryProperty, parseFullData, watchPhoneViewport } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, controlsMenuPlacement, createJsonEditorContent, demoText, formatDataView, getJsonError, isPhoneViewport, getCategoryProperty, parseFullData, watchPhoneViewport } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer } from '../misc/dom';
 import { overflowMenu } from '../misc/OverflowMenu';
@@ -127,7 +127,7 @@ export function dataTab(props: DataTabProps): DataTabHandle {
   // footer anchor. The reasons live on ConfigTab's overflowMenu call.
   const overflowMenuHandle = overflowMenu({
     text: demoText.overflowMenu.editor,
-    placement: { side: 'top', align: 'end', gap: 4 },
+    placement: controlsMenuPlacement,
     getAnchor: () => footer
   });
 

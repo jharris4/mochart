@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, useSlots } from 'vue';
 
-import { demoText } from '@mochart/demo-common';
+import { demoText, navMenuPlacement } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import BackToDemosButton from './BackToDemosButton.vue';
@@ -62,7 +62,7 @@ const hasNotes = computed(() => props.notes !== undefined && props.notes.notes !
     <div class="mochart-demo-nav-group">
       <slot name="tabs"></slot>
     </div>
-    <OverflowMenu :text="demoText.overflowMenu.nav" :placement="{ side: 'bottom', align: 'end', gap: 6 }">
+    <OverflowMenu :text="demoText.overflowMenu.nav" :placement="navMenuPlacement">
       <!-- The menu's contents, in the order a thumb should meet them: what
            this demo is, then where else to see it, then how it looks, then the
            two ways out. The about row has no trailing divider when the Mode

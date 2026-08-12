@@ -1,7 +1,7 @@
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { getChartExportOptions, demoText, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
+import { controlsMenuPlacement, getChartExportOptions, demoText, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer } from '../misc/dom';
@@ -156,9 +156,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   const menuTransportGroup = el('div', { className: 'demo-btn-group' });
   const overflowMenuHandle = overflowMenu({
     text: demoText.overflowMenu.random,
-    // Opens upward over the chart (the strip is at the bottom of the pane) and
-    // right-aligned.
-    placement: { side: 'top', align: 'end', gap: 4 },
+    placement: controlsMenuPlacement,
     // Measured against the whole strip, not the trigger and not the trailing
     // group either.
     //
