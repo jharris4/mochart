@@ -35,10 +35,10 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**160 findings: 1 critical, 33 high, 71 medium, 55 low.** (145 from the Opus pass,
-5 from the SOL pass, 10 found while implementing.)
+**161 findings: 1 critical, 33 high, 71 medium, 56 low.** (145 from the Opus pass,
+5 from the SOL pass, 11 found while implementing.)
 
-**Status: 61 fixed, 2 needing an answer, 99 open.** TOOL-2 is deferred to release time by
+**Status: 61 fixed, 2 needing an answer, 100 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -57,7 +57,7 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [3](#3-core--components-renderer-and-interaction) | Core — components, renderer & interaction | – | 3 | 4 | 4 | 11 |
 | [4](#4-core--chart-type-helpers) | Core — chart-type helpers | – | 3 | 6 | 3 | 12 |
 | [5](#5-core--config-system-and-validation) | Core — config system & validation | – | 3 | 4 | 3 | 10 |
-| [6](#6-core--public-api-types-and-utils) | Core — public API, types & utils | – | 1 | 5 | 7 | 13 |
+| [6](#6-core--public-api-types-and-utils) | Core — public API, types & utils | – | 1 | 5 | 8 | 14 |
 | [7](#7-accessibility) | Accessibility | – | 2 | 5 | 5 | 12 |
 | [8](#8-framework-bindings-export-and-editor) | Bindings, export & editor | – | 2 | 6 | 4 | 12 |
 | [9](#9-documentation) | Documentation | – | 3 | 7 | 3 | 13 |
@@ -65,7 +65,7 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [11](#11-tests-and-coverage) | Tests & coverage | – | 4 | 8 | 6 | 18 |
 | [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 7 | 6 | 16 |
 | [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **33** | **71** | **55** | **160** |
+| | **Total** | **1** | **33** | **71** | **56** | **161** |
 
 `§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
 counted twice. Several other findings are cross-linked between sections for the same reason.
@@ -1990,6 +1990,27 @@ contract the library itself does not honour.
 **Fix:** widen the types at the actual control-flow boundary — nullable until the first successful
 load, non-null after — and delete the casts; or stop presenting `ChartDataSourceInput` as a
 supported public extension contract. Either way, correct the `REVIEW-FINDINGS.md` summary.
+
+### API-14 — `getSeriesValue` also serves the category display property, and its doc comment hides that
+**Low · Doc gap · [types/data.ts:183](packages/mochart/src/types/data.ts#L183)** — **Open**
+
+The `DataProvider` method is documented as "The value of `seriesProperty` for the given category
+(numeric or undefined for series values)". Core also calls it to read `categoryAxis.displayProperty`
+at [CategoryData.ts:75](packages/mochart/src/data/CategoryData.ts#L75), casting the result to
+`CategoryValue`, and [DataValidator.ts:72](packages/mochart/src/data/DataValidator.ts#L72) validates
+that call with `string`/`number` — or `dateAny` on a date axis — rather than the numeric validator
+it uses for series properties. Anyone implementing a provider from the comment alone would return a
+number for a display property and get a data error they cannot explain.
+
+This is also why `TSeriesValue` defaults to `unknown` rather than `NumericValue`: with the narrower
+default, core's own cast at `CategoryData.ts:75` would be unsound against the type the package
+publishes.
+
+**Fix:** the method should probably not be responsible for display values at all. A separate
+`getCategoryDisplayValues()` would give each concern its own signature, let `getSeriesValue` mean
+only what its name says, and allow `TSeriesValue` to default to `NumericValue`. Failing that, at
+minimum document both callers and the value each expects. Note the split is a breaking change to
+the provider contract, including both built-in providers.
 
 ---
 
