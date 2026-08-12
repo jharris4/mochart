@@ -920,6 +920,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   /** the visually-hidden aria-live node; keyboard navigation speaks the tooltip through it */
   liveRegionNode: Node | null = null;
 
+  /** the live region lives inside ChartBody, so the reference has to go when the body does */
+  private clearBody(): void {
+    this.body.set(null);
+    this.liveRegionNode = null;
+  }
+
   /** announce a category's tooltip values to screen readers; null silences the region */
   announceTooltipCategory(categoryIndex: number | null): void {
     if (this.liveRegionNode !== null) {
@@ -1044,7 +1050,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       this.chartRef = null;
       this.root.set({ className: mochartCssClasses['chartError'], style, 'data-mochart-version': getVersionString(),
         'aria-hidden': mochartConfig?.accessibility.hidden ? 'true' : null });
-      this.body.set(null);
+      this.clearBody();
       this.setSimpleContent(errorComponent);
       return;
     }
@@ -1057,14 +1063,14 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         this.setPresent(true);
         this.chartRef = null;
         this.root.set({ className: mochartCssClasses['chartError'], style, 'data-mochart-version': getVersionString() });
-        this.body.set(null);
+        this.clearBody();
         this.setSimpleContent(errorFactory({ dataProvider, width, height, error }));
       }
       else if (loading) {
         this.setPresent(true);
         this.chartRef = null;
         this.root.set({ className: mochartCssClasses['loading'], style, 'data-mochart-version': getVersionString() });
-        this.body.set(null);
+        this.clearBody();
         this.setSimpleContent(loadingFactory({ width, height }));
       }
       else {

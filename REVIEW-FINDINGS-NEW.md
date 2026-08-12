@@ -1208,7 +1208,7 @@ instead: without the fix `SeriesColorIcon.prototype.destroy` is called 0 times a
 107 files / 1607 tests pass, typecheck and lint clean.
 
 ### COMP-10 — `liveRegionNode` retains a detached node after the body is torn down
-**Low · Bug · [Chart.ts:1181](packages/mochart/src/components/Chart.ts#L1181)** **[verified]** — **Open**
+**Low · Bug · [Chart.ts:1181](packages/mochart/src/components/Chart.ts#L1181)** **[verified]** — **Fixed**
 
 `this.liveRegionNode` is assigned only inside `syncBody`. The error and no-size branches of
 `sync()` call `this.body.set(null)`, destroying `ChartBody` without clearing the field — so
@@ -1217,6 +1217,22 @@ calls write into nothing.
 
 **Fix:** set `this.liveRegionNode = null` alongside `this.body.set(null)` in the three
 early-return branches of `sync()`.
+
+**Fixed as recommended.** The three `this.body.set(null)` calls in `sync()` — the config-error, the
+no-config error and the loading branch — now go through a `clearBody()` helper that nulls
+`liveRegionNode` alongside destroying `ChartBody`. `syncBody` still owns the only assignment, so the
+field now tracks the body's lifetime exactly.
+
+No test added, and the reason is worth recording rather than glossing: the defect has no
+DOM-observable behaviour. The live region's `<div>` leaves the document either way — it goes with the
+destroyed body — and the only difference is whether the chart keeps a reference to the detached node
+and writes announcements into it. There is no seam to assert that through from outside the component,
+and inventing one would be a worse trade than stating the gap. Note also that coverage shows those
+three branches (`Chart.ts` 1047 and 1063-1067) are not exercised by any test today; that is
+[TEST-3](#test-3--the-no-data-and-no-series-chart-states-are-never-rendered)'s territory rather than
+this finding's.
+
+1614 tests, typecheck and lint pass.
 
 ### COMP-11 — pointer payloads use the wrong coordinate frame and break when CSS-scaled
 **High · Bug · [Chart.ts:363](packages/mochart/src/components/Chart.ts#L363), [:775](packages/mochart/src/components/Chart.ts#L775)** **[from SOL review]** — **Fixed**
