@@ -4072,7 +4072,7 @@ One correction: `getSeriesValuesText` is byte-identical in five ports, not six �
 its call sites needed rewriting too.
 
 ### DEMO-13 — "Link copied" is never announced
-**Medium · Bug (a11y) · [react ExportShareMenu.tsx:109](packages/mochart-demo-react/src/components/misc/ExportShareMenu.tsx#L109) and the five ports** — **Open**
+**Medium · Bug (a11y) · [react ExportShareMenu.tsx:109](packages/mochart-demo-react/src/components/misc/ExportShareMenu.tsx#L109) and the five ports** — **Fixed**
 
 The Share item swaps its visible label to `demoText.shareButton.tooltipCopied`, but the button's
 `aria-label` is pinned to `demoText.shareButton.aria` ("Copy Share Link"). An `aria-label` overrides
@@ -4081,6 +4081,33 @@ that the link reached the clipboard is invisible to screen-reader users, in all 
 
 **Fix:** drop the static `aria-label` (the visible text is a sufficient name) or swap it with the
 label, and wrap the swap in `role="status"`.
+
+**Fixed in one place, and the finding's prescribed fix could not have worked.** A document-level, visually-hidden
+`role="status"` region with `aria-live="polite"` and `aria-atomic="true"` is created lazily on `<body>` by
+`shareState.ts`, and `createShareLinkCopier`'s success path writes to it. Because
+[DEMO-12](#demo-12--framework-agnostic-helpers-are-duplicated-verbatim-in-all-six-demos) had just moved the copier
+into demo-common, this is a one-place change and no port needed editing.
+
+**Why the finding's fix is inert:** every port's Share handler calls `copy(...)` and then `close()` on the same
+click, and `.demo-menu` is `display: none` unless open. So the `tooltipCopied` label swap happens inside a hidden
+subtree, which is not exposed to the accessibility tree at all — an `aria-live` there would be silent, and dropping
+the static `aria-label` changes nothing. Measured in the browser: the menu is already closed at the moment the
+announcement lands. The confirmation needs a node that outlives the menu.
+
+Repeat announcements are handled explicitly, since identical text over identical text is dropped by many screen
+readers — the same trap [A11Y-9](#a11y-9--the-live-region-has-no-explicit-aria-live-and-no-de-duplication-or-throttle)
+hit in core. `announce()` clears the region immediately and writes from a short timeout, so a second copy is a real
+change; the delay also covers a region created and filled in one task, which is often missed entirely.
+
+Verified in the accessibility tree rather than the DOM, in **all six ports** against their own dev servers: the
+status node is non-ignored with `aria-live=polite`/`aria-atomic=true` and exactly one `StaticText` naming the
+message, the clipboard genuinely contains the `#share=` URL (read back, not stubbed), and a second copy after the
+revert records writes of `["…copied", "", "…copied"]` — so the region empties and refills. Angular is the
+interesting case and passes without a change-detection flush because the announcement is a direct DOM write.
+Whole-repo typecheck and lint clean; demo-common 277 tests (was 274).
+
+One thing found and filed rather than fixed: the visible "Link copied" swap is dead UI for *sighted* users too, for
+the same hidden-subtree reason — see [DEMO-23](#demo-23--the-link-copied-confirmation-is-invisible-to-sighted-users-too).
 
 ### DEMO-14 — core has no inverse of `applyDefaults`, so the demos re-implement it
 **Medium · Missing feature · [demo-common/mochartDemoConfig.ts:94](packages/mochart-demo-common/src/mochartDemoConfig.ts#L94)** — **Open**
@@ -4283,6 +4310,27 @@ then serving the vanilla build in headless Chromium: the icon decodes at 16x16 a
 `favicon` is made any more. The docs build emits it into every page's `<head>`.
 
 ---
+
+### DEMO-23 — the "Link copied" confirmation is invisible to sighted users too
+**Low · Bug · [shareState.ts](packages/mochart-demo-common/src/shareState.ts), all six ports' `ExportShareMenu`** — **Open**
+
+*Found while implementing [DEMO-13](#demo-13--link-copied-is-never-announced), not by either review pass.*
+
+`createShareLinkCopier` swaps the trigger's label to "Link copied" and reverts after 1500ms, but every port's
+Share handler calls `copy(...)` and then `close()` on the same click, and `.demo-menu` is `display: none` unless
+open. So the swapped label is inside a hidden panel: the only way to observe it is to re-open the menu within
+1500ms.
+
+DEMO-13 fixed the screen-reader half by announcing from a document-level live region that outlives the menu. The
+visible half is still dead — a sighted user clicks Copy Share Link and gets no confirmation at all.
+
+**Fix:** either show the confirmation somewhere that survives the close (a brief toast, or a line in the top bar
+next to the share trigger), or stop closing the menu on copy so the existing label swap is actually seen. The
+first keeps the current interaction, the second is a smaller change; both are UX decisions rather than mechanical
+ones, which is why this is filed rather than folded into DEMO-13.
+
+Note the revert timer and its 1500ms are already shared in `createShareLinkCopier`, so whichever way this goes it
+stays a one-place change.
 
 # 11. Tests and coverage
 

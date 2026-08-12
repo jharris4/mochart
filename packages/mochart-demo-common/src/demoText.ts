@@ -143,6 +143,10 @@ export const demoText = {
     label: 'Share',
     tooltip: 'Copy a link to this chart with the current config and data',
     tooltipCopied: 'Link copied',
+    // Spoken through the copier's live region. Pressing Share closes the menu,
+    // so this is the whole confirmation an assistive-tech user gets, and it says
+    // where the link went rather than only that something was copied.
+    announcementCopied: 'Share link copied to clipboard',
     aria: 'Copy Share Link'
   },
   editableChart: {
