@@ -5241,7 +5241,7 @@ change if testing it is preferred to pinning away from it. And `CONTRIBUTING.md`
 line pointing at `.nvmrc`.
 
 ### TOOL-9 — no SECURITY.md, issue/PR templates, `.editorconfig`, CODEOWNERS, or `bugs` field
-**Medium · Missing feature · [.github/](.github/) contains only `workflows/`** — **Open**
+**Medium · Missing feature · [.github/](.github/) contains only `workflows/`** — **Fixed**
 
 Verified absent: `SECURITY.md`, `CODE_OF_CONDUCT.md`, `.editorconfig`, `.nvmrc`,
 `.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/CODEOWNERS`,
@@ -5253,6 +5253,37 @@ on that) — without a vulnerability-reporting channel, a security report arrive
 reporting), a PR template mirroring the CONTRIBUTING checklist,
 `"bugs": {"url": "https://github.com/jharris4/mochart/issues"}` to all 9 published manifests, and
 `.editorconfig` matching the repo's 2-space style.
+
+**Fixed: `SECURITY.md`, `.editorconfig`, a PR template, and the `bugs` URL on all nine published manifests.**
+
+`SECURITY.md` points at the GitHub draft-advisory URL as the private channel, notes explicitly that the form
+only exists once *Private vulnerability reporting* is enabled in repo settings and that it must be enabled
+before the repo goes public, and states the support surface (latest of each of the nine packages, no maintenance
+branches). No personal email address, deliberately, in a file destined for a public repo — add one there if you
+want a non-GitHub fallback. The PR template mirrors CONTRIBUTING's gate list plus the conditional items
+(regenerate the config and prop artifacts, read golden diffs like code, all six galleries, `stamp-version` after
+a bump), linked by absolute URL since template text lands in a PR body where relative links do not resolve.
+
+`.editorconfig` carries one exemption worth recording, because it would otherwise have broken the suite:
+`insert_final_newline` is a hazard for the 451 golden snapshots. 471 tracked files end without a final newline,
+451 of them snapshots, and `@vitest/snapshot` compares file snapshots untrimmed — so an editor saving one would
+fail the run. Proved outside the repo rather than by touching the snapshots: a scratch `toMatchFileSnapshot`
+test passed, then appending a newline to its snapshot made it fail. `src/version.ts` and `mochart-docs.html`
+also lack final newlines but need no exemption; `stampVersion --check` compares a regex substitution, so a
+trailing newline survives it.
+
+No `editorconfig-checker` gate was added, deliberately: CONTRIBUTING states ESLint carries no formatting rules,
+so a formatting gate would contradict the repo's own stance.
+
+The `bugs` field the agent was fenced away from is now on all nine manifests. The companion idea — a
+`check-manifests` gate asserting every published manifest declares it — is worth having and would have landed red
+before the field existed; it is a small follow-up now that it does.
+
+Nothing executable was added, so no new CI gate; lint, typecheck and deadcode are unaffected.
+
+Two staleness notes: the finding lists `.nvmrc` as absent, but it exists now and `audit.yml` reads it via
+`node-version-file`; and its title names `CODE_OF_CONDUCT.md`, `CODEOWNERS` and `dependabot.yml`, which its
+**Fix:** paragraph does not ask for and which remain absent.
 
 ### TOOL-10 — `prebuild` writes into a tracked source file on every install
 **Low · Inconsistency · [mochart/package.json:54](packages/mochart/package.json#L54) → [stampVersion.ts:18](packages/mochart/scripts/stampVersion.ts#L18); target [src/version.ts](packages/mochart/src/version.ts) is git-tracked** — **Fixed**
