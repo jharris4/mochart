@@ -156,6 +156,32 @@ describe('built-in pattern config', () => {
     expect(pattern.validation.valid).toBe(true);
   });
 
+  it('validates spacing, angle, opacity, and radius bounds', () => {
+    const config = enhance({ ...base, patterns: [
+      { type: 'lines', spacing: 0, angle: 400, foregroundOpacity: 2 },
+      { type: 'dots', radius: -1 }
+    ] });
+
+    expect(config.validation.valid).toBe(false);
+    expect(config.validation.errors).toEqual(expect.arrayContaining([
+      expect.stringContaining('patterns[0] - spacing -'),
+      expect.stringContaining('patterns[0] - angle -'),
+      expect.stringContaining('patterns[0] - foregroundOpacity -'),
+      expect.stringContaining('patterns[1] - radius -')
+    ]));
+  });
+
+  it('reports patternDefaults entry-only errors once regardless of entry count', () => {
+    const config = enhance({ ...base,
+      patternDefaults: { type: 'dots' },
+      patterns: [{ type: 'dots' }, { type: 'dots' }, { type: 'lines' }]
+    });
+
+    const entryOnlyErrors = config.validation.errors
+      .filter(error => error.includes('entry-only properties cannot be set on an all config'));
+    expect(entryOnlyErrors).toHaveLength(1);
+  });
+
   it('rejects dangling pattern references and series that specify both pattern and gradient', () => {
     const dangling = enhance({ ...base, series: [{ property: 'v', renderer: 'bar', pattern: 'missing' }] });
     expect(dangling.validation.errors).toContain(

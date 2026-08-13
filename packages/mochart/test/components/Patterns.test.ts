@@ -1,7 +1,7 @@
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { createDefaultChart } from '../../src/createChart';
 import { createPie } from '../../src/data/Pie';
-import { getCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
+import { getCssSelector, getCssClassMatchSelector, getDescendantCssSelector, getIdCssClass } from '../../src/utils/ChartDom';
 import { installSvgMeasurementShims } from './svgShims';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
@@ -150,6 +150,69 @@ describe('built-in SVG patterns', () => {
     const radialGradientSlices = [...radialGradientContainer.querySelectorAll(getCssSelector('seriesSlice'))];
     expect(radialGradientSlices).toHaveLength(2);
     expect(radialGradientSlices.every(slice => /^url\(#radial__gradient__/.test(slice.getAttribute('fill') ?? ''))).toBe(true);
+  });
+
+  it('updates pattern definitions and series references in place', () => {
+    const container = mount(base({
+      patterns: [{ id: 'p', type: 'dots', radius: 1.5 }],
+      series: [{ id: 'A', property: 'a', renderer: 'bar', pattern: 'p' }]
+    }));
+    const handle = handles[handles.length - 1];
+
+    let pattern = container.querySelector('svg > defs > pattern')!;
+    expect(pattern.querySelector('circle')).not.toBeNull();
+    expect(pattern.querySelector('line')).toBeNull();
+    expect(pattern.querySelector('rect')).toBeNull();
+
+    handle.update({ config: base({
+      patterns: [{ id: 'p', type: 'lines', angle: 30, lineWidth: 4, backgroundColor: '#123456' }],
+      series: [{ id: 'A', property: 'a', renderer: 'bar', pattern: 'p' }]
+    }) } as Partial<DefaultChartProps>);
+
+    pattern = container.querySelector('svg > defs > pattern')!;
+    expect(pattern.getAttribute('patternTransform')).toBe('rotate(30)');
+    expect(pattern.querySelector('circle')).toBeNull();
+    expect(pattern.querySelector('line')!.getAttribute('stroke-width')).toBe('4');
+    // the background added after mount must paint under the marks group
+    expect([...pattern.children].map(child => child.tagName)).toEqual(['rect', 'g']);
+    expect(pattern.children[0].getAttribute('fill')).toBe('#123456');
+
+    handle.update({ config: base({
+      patterns: [{ id: 'p', type: 'lines', angle: 30, lineWidth: 4 }],
+      series: [{ id: 'A', property: 'a', renderer: 'bar', pattern: null }]
+    }) } as Partial<DefaultChartProps>);
+
+    expect(container.querySelector('svg > defs > pattern')).toBeNull();
+    expect(container.querySelector(getCssSelector('seriesBar'))!.getAttribute('fill')).not.toMatch(/^url\(/);
+  });
+
+  it('keeps the pattern fill on focused and defocused bars and dims via opacity', () => {
+    const container = mount(base({
+      patterns: [{ id: 'p', type: 'lines' }],
+      series: [
+        { id: 'A', property: 'a', renderer: 'bar', pattern: 'p' },
+        { id: 'B', property: 'b', renderer: 'bar' }
+      ]
+    }));
+    const handle = handles[handles.length - 1];
+    const bar = (seriesId: string) =>
+      container.querySelector(getCssClassMatchSelector(getIdCssClass('series', seriesId)) + ' ' + getCssSelector('seriesBar'))!;
+
+    const normalFill = bar('A').getAttribute('fill');
+    const normalOpacity = Number(bar('A').getAttribute('fill-opacity') ?? '1');
+    expect(normalFill).toMatch(/^url\(#series__pattern__/);
+
+    handle.update({ focusedSeriesId: 'B' } as Partial<DefaultChartProps>);
+    expect(bar('A').getAttribute('fill')).toBe(normalFill);
+    expect(Number(bar('A').getAttribute('fill-opacity') ?? '1')).toBeLessThan(normalOpacity);
+
+    handle.update({ focusedSeriesId: 'A' } as Partial<DefaultChartProps>);
+    expect(bar('A').getAttribute('fill')).toBe(normalFill);
+    expect(Number(bar('A').getAttribute('fill-opacity') ?? '1')).toBeGreaterThanOrEqual(normalOpacity);
+
+    handle.update({ focusedSeriesId: null } as Partial<DefaultChartProps>);
+    expect(bar('A').getAttribute('fill')).toBe(normalFill);
+    expect(Number(bar('A').getAttribute('fill-opacity') ?? '1')).toBe(normalOpacity);
   });
 
   it('recreates the pattern in tooltip icons and uses rectangular pattern swatches', () => {

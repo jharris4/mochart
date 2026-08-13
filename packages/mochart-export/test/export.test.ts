@@ -480,6 +480,72 @@ describe('stitching several charts', () => {
   });
 });
 
+describe('pattern fills', () => {
+  function patternConfig(): any {
+    return {
+      ...rawConfig(),
+      patterns: [{ id: 'hatch', type: 'lines', foregroundColor: 'currentColor', backgroundColor: '#fff' }],
+      series: [{ property: 'value', title: 'Value', pattern: 'hatch' }]
+    };
+  }
+
+  let patternContainer: HTMLDivElement;
+  let patternChart: ChartHandle<DefaultChartProps> | null = null;
+
+  beforeEach(() => {
+    patternContainer = document.createElement('div');
+    document.body.appendChild(patternContainer);
+    patternChart = createDefaultChart(patternContainer, { config: patternConfig(), data: rows, width: 400, height: 300 });
+  });
+
+  afterEach(() => {
+    patternChart?.destroy();
+    patternChart = null;
+    patternContainer.remove();
+  });
+
+  it('serializes the pattern def and keeps every fill reference resolvable', () => {
+    const svgText = getChartSvgText(patternContainer)!;
+    const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+    expect(doc.querySelector('parsererror')).toBeNull();
+
+    const pattern = doc.querySelector('defs pattern[id^="series__pattern__"]');
+    expect(pattern).not.toBeNull();
+    expect(pattern!.querySelector('line')!.getAttribute('stroke')).toBe('currentColor');
+    expect(pattern!.querySelector('rect')!.getAttribute('fill')).toBe('#fff');
+
+    const fills = [...doc.querySelectorAll('[fill]')].map(element => element.getAttribute('fill')!);
+    expect(fills).toContain(`url(#${pattern!.id})`);
+    for (const fill of fills.filter(value => value.startsWith('url(#'))) {
+      const id = fill.slice('url(#'.length, -1);
+      expect(doc.querySelector(`[id="${id}"]`)).not.toBeNull();
+    }
+  });
+
+  it('keeps pattern ids distinct and resolvable across stitched charts', () => {
+    const second = document.createElement('div');
+    document.body.appendChild(second);
+    const secondChart = createDefaultChart(second, { config: patternConfig(), data: rows, width: 400, height: 300 });
+    try {
+      const svgText = getStitchedChartsSvgText([patternContainer, second], { cols: 2 })!;
+      const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+      expect(doc.querySelector('parsererror')).toBeNull();
+
+      const ids = [...doc.querySelectorAll('pattern')].map(pattern => pattern.id)
+        .filter(id => id.startsWith('series__pattern__'));
+      expect(ids).toHaveLength(2);
+      expect(new Set(ids).size).toBe(2);
+      for (const id of ids) {
+        expect(doc.querySelector(`[fill="url(#${id})"]`)).not.toBeNull();
+      }
+    }
+    finally {
+      secondChart.destroy();
+      second.remove();
+    }
+  });
+});
+
 // the PNG success paths and getStitchedSize once went untested; a broken width/height regex would rasterize every stitched export at 1x1
 describe('png export success paths', () => {
   const OriginalImage = globalThis.Image;
