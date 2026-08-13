@@ -88,7 +88,7 @@ describe('tooltip background style', () => {
           fillColor: '#ffffff', fillOpacity: 1
         }
       }
-    } as unknown as MochartInputConfig;
+    };
     expect(config.tooltip).toBeDefined();
   });
 
