@@ -1,5 +1,6 @@
 import { nullDomain, getDomainForValues, mergeDomain } from './DomainData';
 import { getAxisDomain, getRenderAxisDomain } from './AxisDomainData';
+import { readNumericColumn } from './ColumnData';
 import { NONE } from '../config/core/constants';
 
 import { keyPlain, valueKeys, positionKeys, extraKeys, extraCopyKeys, positionOrComputedOrExtraKeys } from './constants';
@@ -118,14 +119,9 @@ function createEmptySeriesValueObjects(seriesConfigs: EnhancedSeriesConfig[]): S
   }));
 }
 
-/** The numeric half of the provider contract: the cast trusts the values getDataErrors checks with its numeric validator. */
+/** One series column, aligned to the category values. */
 function getSeriesValuesForProperty(seriesProperty: string, rawCategoryValues: readonly CategoryValue[], dataProvider: DataProvider): NumericValues {
-  const seriesValues: NumericValues = [];
-  const categoryCount = rawCategoryValues.length;
-  for (let categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
-    seriesValues.push(dataProvider.getSeriesValue(rawCategoryValues[categoryIndex], categoryIndex, seriesProperty) as number | undefined);
-  }
-  return seriesValues;
+  return readNumericColumn(dataProvider, seriesProperty, rawCategoryValues.length);
 }
 
 function setPlainSeriesValues(seriesConfigs: EnhancedSeriesConfig[], rawCategoryValues: readonly CategoryValue[], dataProvider: DataProvider, valueObjects: SeriesValueObjects): void {

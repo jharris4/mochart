@@ -62,7 +62,7 @@ function mount(valueAxis: Record<string, unknown>, rows: Row[]) {
   document.body.appendChild(container);
   const chart = mochart.createChart(container, {
     mochartConfig,
-    dataProvider: new mochart.ArrayOfObjectsDataProvider(rows, 'c') as never,
+    dataProvider: new mochart.ArrayOfObjectsDataProvider(rows) as never,
     width: WIDTH,
     height: HEIGHT
   });
@@ -72,7 +72,7 @@ function mount(valueAxis: Record<string, unknown>, rows: Row[]) {
 function updateRows(chart: ReturnType<typeof mount>['chart'], mochartConfig: unknown, rows: Row[]) {
   chart.update({
     mochartConfig,
-    dataProvider: new mochart.ArrayOfObjectsDataProvider(rows, 'c') as never,
+    dataProvider: new mochart.ArrayOfObjectsDataProvider(rows) as never,
     width: WIDTH,
     height: HEIGHT
   } as never);

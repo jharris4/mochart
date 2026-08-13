@@ -9,90 +9,89 @@ import { ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider } from '@mochart
 
 // one object per category
 new ArrayOfObjectsDataProvider(
-  [{ month: 'Jan', revenue: 10 }, { month: 'Feb', revenue: 20 }],
-  'month' // the category property
+  [{ month: 'Jan', revenue: 10 }, { month: 'Feb', revenue: 20 }]
 );
 
 // one array per property
 new ObjectOfArraysDataProvider(
-  { month: ['Jan', 'Feb'], revenue: [10, 20] },
-  'month'
+  { month: ['Jan', 'Feb'], revenue: [10, 20] }
 );
 ```
 
-`createDefaultChart` wraps its `data` array in an
-`ArrayOfObjectsDataProvider` automatically, using
-[`categoryAxis.property`](/reference/categoryAxis#categoryAxis.property)
-as the category property. The lower-level `createChart` accepts any object
-implementing the `DataProvider` interface, so a custom provider can read
-straight from an existing store without copying — see
+Neither takes anything but the dataset: which property holds the category
+values is the config's knowledge
+([`categoryAxis.property`](/reference/categoryAxis#categoryAxis.property)),
+and the provider is never told. `createDefaultChart` wraps its `data` array in
+an `ArrayOfObjectsDataProvider` automatically. The lower-level `createChart`
+accepts any object implementing the `DataProvider` interface, so a custom
+provider can read straight from an existing store without copying — see
 [when the data changes](#when-the-data-changes) for how to tell the chart
 the store moved.
 
-Both built-ins guard the most common wiring mistake: a category property
-that matches nothing — absent from every row, or a missing or
-all-`undefined` category column — is reported through the provider's
-`getError()`, and the chart renders that message as its error state
-instead of silently indexing every row under the same key.
-
 ## The provider interface
 
-A provider is a read-only lookup over one dataset. Two members are required,
-four are optional:
+A provider is a read-only **column lookup** over one dataset. One member is
+required, three are optional:
 
 ```ts
-interface DataProvider<TCategoryValue> {
+/** number | string | Date | null | undefined */
+type DataValue = number | string | Date | null | undefined;
+
+interface DataProvider {
   // required
-  getCategoryValues(): readonly TCategoryValue[];
-  getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, property: string): unknown;
+  getPropertyValues(property: string): readonly DataValue[] | undefined;
   // optional
-  getCategoryProperty?(): string;
   getError?(): unknown;
   getLoading?(): boolean;
   refresh?(): void;
 }
 ```
 
-- `getCategoryValues()` returns every category value at once, in display
-  order. The chart's category count comes from this array's length, and every
-  other read is indexed against it.
-- `getSeriesValue(categoryValue, categoryIndex, property)` returns one
-  property's value for one category. Both coordinates are passed because the
-  two dataset shapes key differently: `ArrayOfObjectsDataProvider` looks the
-  row up by category value and ignores the index,
-  `ObjectOfArraysDataProvider` indexes the column and ignores the value. Use
-  whichever your store is keyed on.
+`getPropertyValues(property)` returns **all values of one named data
+property**, index-aligned with every other property's values, or `undefined`
+when the property isn't in the data at all. That one accessor serves every
+column the config names — the category property, `displayProperty`, and all
+the series properties alike — so a provider does not need to know which
+config property asked. Return the stored column either way; `getDataErrors`
+checks each column against its own rule.
 
-`getSeriesValue` is the interface's *only* property accessor, so it serves two
-kinds of value and returns `unknown`:
+The rules the chart holds the columns to:
 
-| Called for | Must return |
-| --- | --- |
-| any series value property — see [which properties are read](#which-properties-are-read) | a number, or `undefined` for a missing value |
-| `categoryAxis.displayProperty` | a string, number, or `Date` matching `categoryAxis.type`, like a raw category value |
+- **The config's category column defines the category count.** Every other
+  requested column must have the same length; a mismatch is a hard data
+  error naming both counts.
+- **Cells hold `DataValue`s.** Series columns must be numeric, with `null`
+  and `undefined` both reading as a missing value (`null` is how JSON writes
+  a hole in a column, and the chart normalizes it to `undefined` internally).
+  Category and display columns hold strings, numbers, or `Date`s matching
+  `categoryAxis.type`.
+- **A whole-column `undefined` means "not in the data".** That is distinct
+  from a column of missing values, and `getDataErrors` reports which problem
+  you have.
 
-Returning the stored cell satisfies both: a provider does not need to know
-which config property asked. `getDataErrors` checks each group against its own
-rule, so a number returned for a display property is reported as
-`display category values must all match the specified type for property: …`,
-not as a series-value problem.
+The chart treats returned arrays as read-only snapshots: it copies what it
+needs during each recompute and never mutates or holds onto the array.
 
-The optional four are independent — implement only the ones you want:
+The optional three are independent — implement only the ones you want:
 
-- `getCategoryProperty()` reports which property the category values come
-  from, and `getDataErrors` then flags a mismatch with
-  [`categoryAxis.property`](/reference/categoryAxis#categoryAxis.property).
-  Both built-ins implement it.
 - `getError()` returning anything but `null`/`undefined` puts the chart in its
   error state — `''` and `0` count as errors.
 - `getLoading()` returning `true` puts the chart in its loading state.
 - `refresh()` is called by the chart handle's
   [`refresh()`](#when-the-data-changes) before it re-reads.
 
-A provider missing one of the two required members is treated as invalid:
+A provider missing `getPropertyValues` is treated as invalid:
 `isDataProviderValid` returns false, `getDataErrors` reports
-`data provider must implement: …`, and the chart renders no data rather than
-failing mid-read.
+`data provider must implement: getPropertyValues`, and the chart renders no
+data rather than failing mid-read.
+
+A complete custom provider over a column store is one method:
+
+```ts
+const provider = {
+  getPropertyValues: (property) => store.columns[property]
+};
+```
 
 ## When the data changes
 
@@ -112,11 +111,11 @@ Two ways to tell it:
   reference: a default chart rebuilds its provider over the `data` array,
   and a `createChart` chart first calls the provider's optional `refresh()`
   hook and then re-reads it — the escape hatch made for live, store-backed
-  providers. The built-in providers implement the hook by re-indexing
-  their dataset, so `refresh` picks up any in-place change, including
-  added, removed, and replaced rows. A custom provider that caches
-  anything off its store should implement `refresh()` to invalidate that
-  cache; a provider that reads straight through needs nothing.
+  providers. The built-in providers are stateless, so for them the re-read
+  alone picks up any in-place change, including added, removed, and
+  replaced rows. A custom provider that caches anything off its store
+  should implement `refresh()` to invalidate that cache; a provider that
+  reads straight through needs nothing.
 
 Both paths animate to the new values. See
 [Updating and destroying](/guide/getting-started#updating-and-destroying)
@@ -137,11 +136,11 @@ The config decides which properties the chart pulls from the provider:
   [`errorLowProperty`](/reference/series#series.errorLowProperty), and
   [`errorHighProperty`](/reference/series#series.errorHighProperty).
 
-All of them, display property included, arrive through the single
-[`getSeriesValue`](#the-provider-interface) accessor.
+All of them, category and display properties included, arrive through the
+single [`getPropertyValues`](#the-provider-interface) accessor.
 
-Series values must be numeric or `undefined` — how missing values render is
-controlled per series with
+Series values must be numeric or missing (`null`/`undefined`) — how missing
+values render is controlled per series with
 [`missingValues`](/reference/series#series.missingValues). Pair it with
 [`missingValueMarkers`](/reference/series#series.missingValueMarkers) to
 keep a marker at the missing values — most useful with
@@ -149,28 +148,32 @@ keep a marker at the missing values — most useful with
 
 ## Validating data against a config
 
-`getDataErrors` checks a dataset against an enhanced config — non-numeric
-series values, category values that don't match the configured type,
-duplicate category values — and returns readable messages. A provider that
-exposes its category property (`getCategoryProperty` — both built-ins do)
-also gets its keying checked against `categoryAxis.property`. On a linear
-category scale, out-of-order category values are flagged too when a `line`
-or `area` series would zigzag through them; monotonic data in either
-direction passes, order-independent charts (bars, scatter) are not checked,
-and [`displayProperty`](/reference/categoryAxis#categoryAxis.displayProperty)
+`getDataErrors` checks a dataset against an enhanced config and returns
+readable messages:
+
+- a missing category column — data with nothing under
+  `categoryAxis.property` — is one loud error naming the property, since
+  nothing else is checkable without it
+- a *series* property absent from the data is reported as
+  `no values found for property: …` — distinct from a column of legitimate
+  missing values, which is valid
+- a column whose length doesn't match the category column's is reported
+  with both counts
+- non-numeric series values, category values that don't match the
+  configured type, and duplicate category values each get their own message
+
+On a linear category scale, out-of-order category values are flagged too
+when a `line` or `area` series would zigzag through them; monotonic data in
+either direction passes, order-independent charts (bars, scatter) are not
+checked, and [`displayProperty`](/reference/categoryAxis#categoryAxis.displayProperty)
 configs are exempt since their display values may legitimately fold back
-across a DST-style repeated hour. Note that a *series*
-property absent from every row is not an error: it reads as all-`undefined`,
-which is valid missing-value data. A *category* property that matches
-nothing is caught earlier — the built-in providers report it through
-`getError()`, and `getDataErrors` defers to a provider-reported error
-rather than repeating it.
+across a DST-style repeated hour.
 
 ```js
 import { enhanceConfig, getDataErrors, ArrayOfObjectsDataProvider } from '@mochart/core';
 
-const errors = getDataErrors(enhanceConfig(config), new ArrayOfObjectsDataProvider(data, 'month'));
-// e.g. ["series values must be numeric or undefined for property: revenue"]
+const errors = getDataErrors(enhanceConfig(config), new ArrayOfObjectsDataProvider(data));
+// e.g. ["series values must be numeric or missing for property: revenue"]
 ```
 
 Who runs this check depends on the entry point. Default charts

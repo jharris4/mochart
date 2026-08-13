@@ -25,11 +25,11 @@ export interface ChartHandle<TProps extends object = ManagedChartProps> {
   /**
    * Re-read the current data without a new reference: a default chart
    * rebuilds its provider over the `data` array; a managed chart first calls
-   * the provider's optional `refresh()` hook (the built-in providers
-   * re-index their dataset in it) and then re-reads it. The chart animates
-   * to whatever they now return — the escape hatch for hosts that mutate
-   * data in place. A custom provider that caches anything should implement
-   * `refresh()` to invalidate its cache.
+   * the provider's optional `refresh()` hook and then re-reads it. The chart
+   * animates to whatever they now return — the escape hatch for hosts that
+   * mutate data in place. The built-in providers are stateless, so for them
+   * the re-read alone picks up every in-place change; a custom provider that
+   * caches anything should implement `refresh()` to invalidate its cache.
    */
   refresh(): void;
   /** Cancel running tweens and remove the chart's DOM from the container. */
@@ -39,13 +39,8 @@ export interface ChartHandle<TProps extends object = ManagedChartProps> {
 /** A delegating copy with a new identity, so the pipeline re-reads a provider it has already seen. */
 function withFreshIdentity(dataProvider: DataProvider): DataProvider {
   const fresh: DataProvider = {
-    getCategoryValues: () => dataProvider.getCategoryValues(),
-    getSeriesValue: (categoryValue, categoryIndex, seriesProperty) =>
-      dataProvider.getSeriesValue(categoryValue, categoryIndex, seriesProperty)
+    getPropertyValues: property => dataProvider.getPropertyValues(property)
   };
-  if (dataProvider.getCategoryProperty) {
-    fresh.getCategoryProperty = () => dataProvider.getCategoryProperty!();
-  }
   if (dataProvider.getError) {
     fresh.getError = () => dataProvider.getError!();
   }

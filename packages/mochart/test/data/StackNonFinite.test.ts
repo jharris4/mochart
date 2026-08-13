@@ -15,7 +15,7 @@ function stackedSetup(rows: Row[]) {
     ],
     seriesStacks: [{ id: 'SS0' }]
   });
-  return getChartData(config, new ArrayOfObjectsDataProvider(rows, 'c'), {});
+  return getChartData(config, new ArrayOfObjectsDataProvider(rows), {});
 }
 
 const CLEAN: Row[] = [

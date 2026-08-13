@@ -67,7 +67,7 @@ describe('hidden value axis rendering', () => {
     document.body.appendChild(container);
     const chart = createChart(container, {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(data, 'i'),
+      dataProvider: new ArrayOfObjectsDataProvider(data),
       width: 150,
       height: 32
     });

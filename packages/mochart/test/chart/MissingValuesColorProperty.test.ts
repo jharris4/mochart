@@ -74,7 +74,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
     document.body.appendChild(container);
     const chart = createChart(container, {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(data, 'label'),
+      dataProvider: new ArrayOfObjectsDataProvider(data),
       width: 300,
       height: 200
     });
@@ -111,7 +111,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
     document.body.appendChild(container);
     const chart = createChart(container, {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(data, 'label'),
+      dataProvider: new ArrayOfObjectsDataProvider(data),
       width: 300,
       height: 200
     });
@@ -150,7 +150,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
     document.body.appendChild(container);
     const chart = createChart(container, {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(data, 'label'),
+      dataProvider: new ArrayOfObjectsDataProvider(data),
       width: 300,
       height: 200
     });
@@ -185,7 +185,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
     document.body.appendChild(container);
     const chart = createChart(container, {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(data, 'label'),
+      dataProvider: new ArrayOfObjectsDataProvider(data),
       width: 300,
       height: 200
     });
@@ -219,7 +219,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
     document.body.appendChild(container);
     const chart = createChart(container, {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(data, 'label'),
+      dataProvider: new ArrayOfObjectsDataProvider(data),
       width: 300,
       height: 200
     });

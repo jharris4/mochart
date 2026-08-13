@@ -62,8 +62,7 @@
     ? ((Math.round(shared.step) % stepCycle()) + stepCycle()) % stepCycle()
     : (mochartDemoConfig.pieMode ? 0 : demoObject.data.length));
   // svelte-ignore state_referenced_locally
-  let dataProviders = $state.raw(getDataProvidersForDataCount(
-    mochartDemoConfig.mochartConfig, demoObject.data, initialChartRows * initialChartCols, currentDataCount));
+  let dataProviders = $state.raw(getDataProvidersForDataCount(demoObject.data, initialChartRows * initialChartCols, currentDataCount));
   // svelte-ignore state_referenced_locally
   let focusedCategoryIndices = $state.raw<number[]>(dataProviders.map(() => -1));
   let focusedCategoryIndex = $state(-1);
@@ -95,7 +94,7 @@
         dataCount = data.length;
         sliceIds = mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig).map(slice => slice.id) : [];
         currentDataCount = resetStep();
-        dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
+        dataProviders = getDataProvidersForDataCount(data, chartRows * chartCols, currentDataCount);
         focusedCategoryIndices = dataProviders.map(() => -1);
       }
       if (nextActive !== previousActive) {
@@ -116,14 +115,14 @@
   function onRowsChange(nextChartRows: number) {
     chartRows = nextChartRows;
     currentDataCount = resetStep();
-    dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
+    dataProviders = getDataProvidersForDataCount(data, chartRows * chartCols, currentDataCount);
     focusedCategoryIndices = getFocusedCategoryIndices(dataProviders);
   }
 
   function onColsChange(nextChartCols: number) {
     chartCols = nextChartCols;
     currentDataCount = resetStep();
-    dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
+    dataProviders = getDataProvidersForDataCount(data, chartRows * chartCols, currentDataCount);
     focusedCategoryIndices = getFocusedCategoryIndices(dataProviders);
   }
 
@@ -132,13 +131,13 @@
     currentDataCount = mochartDemoConfig.pieMode
       ? (currentDataCount - 1 + cycle) % cycle
       : cycle + (currentDataCount - 1) % cycle;
-    dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
+    dataProviders = getDataProvidersForDataCount(data, chartRows * chartCols, currentDataCount);
     focusedCategoryIndices = getFocusedCategoryIndices(dataProviders);
   }
 
   function onStepForwardClick() {
     currentDataCount = (currentDataCount + 1) % stepCycle();
-    dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
+    dataProviders = getDataProvidersForDataCount(data, chartRows * chartCols, currentDataCount);
     focusedCategoryIndices = getFocusedCategoryIndices(dataProviders);
   }
 
@@ -146,18 +145,18 @@
     const { mochartConfig } = mochartDemoConfig;
     if (focusedCategoryIndex >= 0) {
       const categoryValue = data[focusedCategoryIndex][mochartConfig.categoryAxis.property ?? ''];
-      return getFocusedCategoryIndicesForValue(nextDataProviders, categoryValue);
+      return getFocusedCategoryIndicesForValue(nextDataProviders, mochartConfig.categoryAxis.property ?? '', categoryValue);
     }
     else {
       return nextDataProviders.map(() => -1);
     }
   }
 
-  function getFocusedCategoryIndicesForValue(nextDataProviders: ChartDataProviderLike[], categoryValue: unknown): number[] {
+  function getFocusedCategoryIndicesForValue(nextDataProviders: ChartDataProviderLike[], categoryProperty: string, categoryValue: unknown): number[] {
     let count, i;
     return nextDataProviders.map(dataProvider => {
       let chartCategoryIndex = -1;
-      const categoryValues = dataProvider.getCategoryValues();
+      const categoryValues = dataProvider.getPropertyValues(categoryProperty) ?? [];
       count = categoryValues.length;
       for (i = 0; i < count; i++) {
         if (categoryValues[i] === categoryValue) {
@@ -200,7 +199,7 @@
     const { mochartConfig } = mochartDemoConfig;
     let nextFocusedCategoryIndices = focusedCategoryIndices;
     if (categoryIndex !== undefined && categoryIndex >= 0) {
-      const categoryValue = dataProviders[chartIndex].getCategoryValues()[categoryIndex];
+      const categoryValue = (dataProviders[chartIndex].getPropertyValues(mochartConfig.categoryAxis.property ?? '') ?? [])[categoryIndex];
       const count = data.length;
       for (let i = 0; i < count; i++) {
         if (data[i][mochartConfig.categoryAxis.property ?? ''] === categoryValue) {
@@ -209,7 +208,7 @@
         }
       }
       if (categoryIndex !== focusedCategoryIndex) {
-        nextFocusedCategoryIndices = getFocusedCategoryIndicesForValue(dataProviders, categoryValue);
+        nextFocusedCategoryIndices = getFocusedCategoryIndicesForValue(dataProviders, mochartConfig.categoryAxis.property ?? '', categoryValue);
       }
     }
     else if (focusedCategoryIndex >= 0) {

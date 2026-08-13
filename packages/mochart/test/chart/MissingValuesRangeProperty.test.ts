@@ -79,7 +79,7 @@ function renderWaterfall(partialRangeIsMissing: boolean | undefined) {
     mochartConfig,
     // The direction properties are undefined off their own rows, so the row
     // type needs narrowing to satisfy the provider's category-value constraint.
-    dataProvider: new ArrayOfObjectsDataProvider(waterfall.data as Record<string, string | number>[], 'label'),
+    dataProvider: new ArrayOfObjectsDataProvider(waterfall.data as Record<string, string | number>[]),
     width: 400,
     height: 200
   });

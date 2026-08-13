@@ -18,9 +18,7 @@ function makeChart() {
     series: [{ property: 'a' }, { property: 'b' }]
   });
   const provider = new ArrayOfObjectsDataProvider(
-    [{ g: 0, a: 10, b: 5 }, { g: 1, a: 20, b: 15 }, { g: 2, a: 30, b: 25 }],
-    'g'
-  );
+    [{ g: 0, a: 10, b: 5 }, { g: 1, a: 20, b: 15 }, { g: 2, a: 30, b: 25 }]);
   const chartData = getChartData(config, provider, {});
   return {
     config,
@@ -118,9 +116,7 @@ function makeFollowerChart() {
     [
       { g: 0, high: 30, low: 5, open: 10, close: 20, x: 50 },
       { g: 1, high: 40, low: 12, open: 22, close: 25, x: 60 }
-    ],
-    'g'
-  );
+    ]);
   const chartData = getChartData(config, provider, {});
   const axisId = config.valueAxes[0].id;
   const domain = chartData.seriesData.raw.axisDomains[axisId] as [number, number];
@@ -191,9 +187,7 @@ function makeStackedGroupedChart(divisions: 'stacks' | 'groups' | 'both') {
     ...(withGroups ? { seriesGroups: [{ id: 'GA' }, { id: 'GB' }] } : {})
   });
   const provider = new ArrayOfObjectsDataProvider(
-    [{ c: 0, p: 1, q: 2, r: 3, s: 4 }, { c: 1, p: 5, q: 6, r: 7, s: 8 }],
-    'c'
-  );
+    [{ c: 0, p: 1, q: 2, r: 3, s: 4 }, { c: 1, p: 5, q: 6, r: 7, s: 8 }]);
   return { config, chartData: getChartData(config, provider, {}) };
 }
 

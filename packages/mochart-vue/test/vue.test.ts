@@ -52,7 +52,7 @@ describe('Chart', () => {
     expect(mochartConfig.validation.valid).toBe(true);
     const { el, app, state } = mountWith(Chart, {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       width: 400,
       height: 300
     });
@@ -158,7 +158,7 @@ describe('placeholder components', () => {
     );
     const { el, app } = mountWith(Chart, {
       mochartConfig: markRaw(mochartConfig),
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       configErrorComponent: ConfigError,
       width: 400,
       height: 300
@@ -301,7 +301,7 @@ describe('size props vs container style', () => {
   it('keeps the explicit size when a fallthrough style sets a conflicting one', () => {
     const { el, app } = mountWith(Chart, {
       mochartConfig: enhanceConfig(rawConfig()),
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       width: 400,
       height: 300,
       style: 'width: 100%; margin: 4px'
@@ -318,7 +318,7 @@ describe('dataTestId', () => {
   it('applies data-testid to the container div and wins over the fallthrough attr', async () => {
     const { el, app, state } = mountWith(Chart, {
       mochartConfig: enhanceConfig(rawConfig()),
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       width: 400,
       height: 300,
       dataTestId: 'revenue-chart',

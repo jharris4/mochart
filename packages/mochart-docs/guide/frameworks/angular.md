@@ -70,7 +70,7 @@ import { Chart } from '@mochart/angular';
 })
 export class Revenue {
   mochartConfig = enhanceConfig(config);
-  dataProvider = new ArrayOfObjectsDataProvider(data, 'month');
+  dataProvider = new ArrayOfObjectsDataProvider(data);
 }
 ```
 
@@ -115,9 +115,9 @@ provider) to change them.
 
 For hosts that do mutate data in place, the components expose the core
 [`refresh()`](/guide/data-providers#when-the-data-changes) escape hatch as
-a public method — it re-reads the current config/data, re-indexing the
-built-in providers. Reach it through a template reference variable or
-`@ViewChild`:
+a public method — it re-reads the current config/data (the built-in
+providers read live, so any in-place change is seen). Reach it through a
+template reference variable or `@ViewChild`:
 
 ```ts
 @ViewChild('chart') chart!: DefaultChart;

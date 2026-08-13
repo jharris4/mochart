@@ -8,7 +8,7 @@ import { enhanceConfig } from '../../src/config/helper';
 import { ArrayOfObjectsDataProvider } from '../../src/data/DataProvider';
 import type { FocusControllerInput } from '../../src/chart/FocusController';
 import type { ChartFocus, ChartSeriesFilter } from '../../src/types/chart';
-import type { DataProvider } from '../../src/types/data';
+import type { CategoryValue, DataProvider } from '../../src/types/data';
 import type { MochartInputConfig } from '../../src/types/config';
 
 const VERSION = '1.0.0';
@@ -30,7 +30,7 @@ const rows = [
 ];
 
 function makeProvider(data: typeof rows): DataProvider {
-  return new ArrayOfObjectsDataProvider(data, 'month') as unknown as DataProvider;
+  return new ArrayOfObjectsDataProvider(data) as unknown as DataProvider;
 }
 
 interface Harness {
@@ -53,9 +53,11 @@ function makeHarness(): Harness {
     reconcileWith(next: Partial<FocusControllerInput>) {
       const nextInput = { ...harness.input, ...next };
       // what ChartController snapshots at commit: the ordering last read from the provider
-      const renderedCategoryValues = harness.input.dataProvider
-        ? [...harness.input.dataProvider.getCategoryValues()]
-        : null;
+      const categoryProperty = harness.input.mochartConfig?.categoryAxis.property;
+      const renderedColumn = harness.input.dataProvider && categoryProperty !== undefined
+        ? harness.input.dataProvider.getPropertyValues(categoryProperty)
+        : undefined;
+      const renderedCategoryValues = renderedColumn ? [...renderedColumn] as CategoryValue[] : null;
       const changes = controller.reconcile(harness.input, nextInput, renderedCategoryValues);
       if (changes.focus) {
         focuses.push(changes.focus);

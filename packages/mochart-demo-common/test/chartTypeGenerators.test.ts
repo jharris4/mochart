@@ -26,10 +26,8 @@ describe('chart-type demo snapshots', () => {
       const mochartConfig = enhanceConfig(snapshot.config);
       expect(mochartConfig.validation.valid).toBe(true);
       expect(mochartConfig.validation.warnings).toEqual([]);
-      const categoryProperty = mochartConfig.categoryAxis.property!;
       const provider = {
-        getCategoryValues: () => snapshot.data.map(row => row[categoryProperty]),
-        getSeriesValue: (_g: unknown, index: number, property: string) => snapshot.data[index][property]
+        getPropertyValues: (property: string) => snapshot.data.map(row => row[property])
       } as unknown as DemoDataProvider;
       expect(getDataErrors(mochartConfig, toDataProvider(provider))).toEqual([]);
     });
@@ -43,7 +41,7 @@ describe('generateChartTypeDataProvider', () => {
     it(`${snapshot.id}: generated data satisfies the demo config across steps`, () => {
       for (const randomId of [0, 1, 2, 7, 23]) {
         const provider = generateChartTypeDataProvider(snapshot.id, mochartConfig, demoRandom(snapshot.id), randomId);
-        expect(provider.getCategoryValues().length).toBeGreaterThan(0);
+        expect(provider.categoryValues!.length).toBeGreaterThan(0);
         expect(getDataErrors(mochartConfig, toDataProvider(provider))).toEqual([]);
       }
     });
@@ -56,8 +54,8 @@ describe('generateChartTypeDataProvider', () => {
     });
 
     it(`${snapshot.id}: consecutive steps share most category values`, () => {
-      const a = generateChartTypeDataProvider(snapshot.id, mochartConfig, demoRandom(snapshot.id), 3).getCategoryValues();
-      const b = new Set(generateChartTypeDataProvider(snapshot.id, mochartConfig, demoRandom(snapshot.id), 4).getCategoryValues());
+      const a = generateChartTypeDataProvider(snapshot.id, mochartConfig, demoRandom(snapshot.id), 3).categoryValues!;
+      const b = new Set(generateChartTypeDataProvider(snapshot.id, mochartConfig, demoRandom(snapshot.id), 4).categoryValues!);
       const shared = a.filter(value => b.has(value)).length;
       expect(shared / a.length).toBeGreaterThan(0.5);
     });
@@ -162,7 +160,7 @@ describe('generateChartTypeDataProvider', () => {
     const bakedProperties = (pie.config.series as { property: string }[]).map(seriesConfig => seriesConfig.property);
     for (const randomId of [0, 1, 5, 11]) {
       const provider = generateChartTypeDataProvider('pie', mochartConfig, demoRandom('pie'), randomId);
-      expect(provider.getCategoryValues()).toHaveLength(1);
+      expect(provider.categoryValues!).toHaveLength(1);
       for (const property of bakedProperties) {
         const value = provider.seriesValues![property][0];
         expect(typeof value).toBe('number');
@@ -247,7 +245,7 @@ describe('random config wiring', () => {
     const random = { candles: { min: 5, max: 5 }, price: { min: 900, max: 1100, volatility: 0.04 }, reuse: { step: true } };
     for (const randomId of [0, 4]) {
       const provider = generateChartTypeDataProvider('candlestick', mochartConfig, random, randomId);
-      expect(provider.getCategoryValues()).toHaveLength(5);
+      expect(provider.categoryValues!).toHaveLength(5);
       expect(provider.seriesValues!['open'][0]!).toBeGreaterThan(500);
     }
   });
@@ -266,11 +264,11 @@ describe('random config wiring', () => {
     const none = generateChartTypeDataProvider('heatmap', mochartConfig, {
       columns: { dropProbability: 1, maxDropped: 0 }, missing: { probability: 0 }, reuse: { global: false, step: false }
     }, 3);
-    expect(none.getCategoryValues()).toHaveLength(12);
+    expect(none.categoryValues!).toHaveLength(12);
     const three = generateChartTypeDataProvider('heatmap', mochartConfig, {
       columns: { dropProbability: 1, maxDropped: 3 }, missing: { probability: 0 }, reuse: { global: false, step: false }
     }, 3);
-    expect(three.getCategoryValues()).toHaveLength(9);
+    expect(three.categoryValues!).toHaveLength(9);
   });
 
   it('error-bars: months.min/max bound the category count and missing drops points with their bounds', () => {
@@ -278,7 +276,7 @@ describe('random config wiring', () => {
     const provider = generateChartTypeDataProvider('error-bars', mochartConfig, {
       months: { min: 3, max: 3 }, margin: { min: 3, max: 7 }, missing: { probability: 1 }, reuse: { global: false, step: false }
     }, 1);
-    expect(provider.getCategoryValues()).toHaveLength(3);
+    expect(provider.categoryValues!).toHaveLength(3);
     for (const property of ['a', 'aLow', 'aHigh', 'b', 'bLow', 'bHigh']) {
       // no row carries the property, so its series array is never created
       expect((provider.seriesValues![property] ?? []).every(value => value === undefined)).toBe(true);

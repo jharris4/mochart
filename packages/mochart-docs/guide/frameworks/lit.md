@@ -60,7 +60,7 @@ import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { chart } from '@mochart/lit';
 
 const mochartConfig = enhanceConfig(config);
-const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');
+const dataProvider = new ArrayOfObjectsDataProvider(data);
 
 render(html`${chart({ mochartConfig, dataProvider, width: 640, height: 400 })}`, document.body);
 ```
@@ -114,8 +114,8 @@ pass a new object (or provider) to change them.
 For hosts that do mutate data in place, the `chartRef` prop — a callback
 ref, like Lit's own `ref()` directive — receives a `ChartRef` handle with
 the core [`refresh()`](/guide/data-providers#when-the-data-changes) escape
-hatch. It re-reads the current config/data, re-indexing the built-in
-providers:
+hatch. It re-reads the current config/data (the built-in providers read
+live, so any in-place change is seen):
 
 ```ts
 import type { DataRow } from '@mochart/core';

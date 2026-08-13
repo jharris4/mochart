@@ -77,7 +77,7 @@ export class ChartsTab extends LightElement {
     this.currentDataCount = step !== undefined && cycle > 0
       ? ((Math.round(step) % cycle) + cycle) % cycle
       : this.resetStep();
-    this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
+    this.dataProviders = getDataProvidersForDataCount(this.data, this.chartRows * this.chartCols, this.currentDataCount);
     this.focusedCategoryIndices = this.dataProviders.map(() => -1);
   }
 
@@ -143,14 +143,14 @@ export class ChartsTab extends LightElement {
   private onRowsChange = (nextChartRows: number): void => {
     this.chartRows = nextChartRows;
     this.currentDataCount = this.resetStep();
-    this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
+    this.dataProviders = getDataProvidersForDataCount(this.data, this.chartRows * this.chartCols, this.currentDataCount);
     this.focusedCategoryIndices = this.getFocusedCategoryIndices(this.dataProviders);
   };
 
   private onColsChange = (nextChartCols: number): void => {
     this.chartCols = nextChartCols;
     this.currentDataCount = this.resetStep();
-    this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
+    this.dataProviders = getDataProvidersForDataCount(this.data, this.chartRows * this.chartCols, this.currentDataCount);
     this.focusedCategoryIndices = this.getFocusedCategoryIndices(this.dataProviders);
   };
 
@@ -159,13 +159,13 @@ export class ChartsTab extends LightElement {
     this.currentDataCount = this.mochartDemoConfig.pieMode
       ? (this.currentDataCount - 1 + cycle) % cycle
       : cycle + (this.currentDataCount - 1) % cycle;
-    this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
+    this.dataProviders = getDataProvidersForDataCount(this.data, this.chartRows * this.chartCols, this.currentDataCount);
     this.focusedCategoryIndices = this.getFocusedCategoryIndices(this.dataProviders);
   };
 
   private onStepForwardClick = (): void => {
     this.currentDataCount = (this.currentDataCount + 1) % this.stepCycle();
-    this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
+    this.dataProviders = getDataProvidersForDataCount(this.data, this.chartRows * this.chartCols, this.currentDataCount);
     this.focusedCategoryIndices = this.getFocusedCategoryIndices(this.dataProviders);
   };
 
@@ -173,18 +173,18 @@ export class ChartsTab extends LightElement {
     const { mochartConfig } = this.mochartDemoConfig;
     if (this.focusedCategoryIndex >= 0) {
       const categoryValue = this.data[this.focusedCategoryIndex][mochartConfig.categoryAxis.property ?? ''];
-      return this.getFocusedCategoryIndicesForValue(nextDataProviders, categoryValue);
+      return this.getFocusedCategoryIndicesForValue(nextDataProviders, mochartConfig.categoryAxis.property ?? '', categoryValue);
     }
     else {
       return nextDataProviders.map(() => -1);
     }
   }
 
-  private getFocusedCategoryIndicesForValue(nextDataProviders: ChartDataProviderLike[], categoryValue: unknown): number[] {
+  private getFocusedCategoryIndicesForValue(nextDataProviders: ChartDataProviderLike[], categoryProperty: string, categoryValue: unknown): number[] {
     let count: number, i: number;
     return nextDataProviders.map(dataProvider => {
       let chartCategoryIndex = -1;
-      const categoryValues = dataProvider.getCategoryValues();
+      const categoryValues = dataProvider.getPropertyValues(categoryProperty) ?? [];
       count = categoryValues.length;
       for (i = 0; i < count; i++) {
         if (categoryValues[i] === categoryValue) {
@@ -220,7 +220,7 @@ export class ChartsTab extends LightElement {
     const { mochartConfig } = this.mochartDemoConfig;
     let nextFocusedCategoryIndices = this.focusedCategoryIndices;
     if (categoryIndex !== undefined && categoryIndex >= 0) {
-      const categoryValue = this.dataProviders[chartIndex].getCategoryValues()[categoryIndex];
+      const categoryValue = (this.dataProviders[chartIndex].getPropertyValues(mochartConfig.categoryAxis.property ?? '') ?? [])[categoryIndex];
       const count = this.data.length;
       for (let i = 0; i < count; i++) {
         if (this.data[i][mochartConfig.categoryAxis.property ?? ''] === categoryValue) {
@@ -229,7 +229,7 @@ export class ChartsTab extends LightElement {
         }
       }
       if (categoryIndex !== this.focusedCategoryIndex) {
-        nextFocusedCategoryIndices = this.getFocusedCategoryIndicesForValue(this.dataProviders, categoryValue);
+        nextFocusedCategoryIndices = this.getFocusedCategoryIndicesForValue(this.dataProviders, mochartConfig.categoryAxis.property ?? '', categoryValue);
       }
     }
     else if (this.focusedCategoryIndex >= 0) {

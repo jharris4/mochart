@@ -6,7 +6,7 @@ export interface PlaceholderProps {
   width?: number;
   height?: number;
   mochartConfig?: MochartConfig | null;
-  dataProvider?: DataProvider<unknown> | null;
+  dataProvider?: DataProvider | null;
   error?: unknown;
   hasData?: boolean;
 }

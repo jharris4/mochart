@@ -473,8 +473,7 @@ function expectValid(endpointValue: Endpoint): void {
     return;
   }
   expect(enhanced.validation.errors).toEqual([]);
-  const property = enhanced.categoryAxis.property!;
-  const provider = new mochart.ArrayOfObjectsDataProvider(endpointValue.data, property);
+  const provider = new mochart.ArrayOfObjectsDataProvider(endpointValue.data);
   const dataErrors = mochart.getDataErrors(enhanced, provider);
   if (state === 'dataError') {
     expect(dataErrors.length).toBeGreaterThan(0);
@@ -550,7 +549,7 @@ describe('public update variants', () => {
     const fromConfig = mochart.enhanceConfig(from.config);
     const handle = mochart.createChart(container, {
       mochartConfig: fromConfig,
-      dataProvider: new mochart.ArrayOfObjectsDataProvider(from.data, fromConfig.categoryAxis.property!),
+      dataProvider: new mochart.ArrayOfObjectsDataProvider(from.data),
       width: WIDTH,
       height: HEIGHT
     });
@@ -559,14 +558,14 @@ describe('public update variants', () => {
     const toConfig = mochart.enhanceConfig(to.config);
     handle.update({
       mochartConfig: toConfig,
-      dataProvider: new mochart.ArrayOfObjectsDataProvider(to.data, toConfig.categoryAxis.property!)
+      dataProvider: new mochart.ArrayOfObjectsDataProvider(to.data)
     });
     settle();
 
     const freshContainer = createContainer();
     const freshHandle = mochart.createChart(freshContainer, {
       mochartConfig: toConfig,
-      dataProvider: new mochart.ArrayOfObjectsDataProvider(to.data, toConfig.categoryAxis.property!),
+      dataProvider: new mochart.ArrayOfObjectsDataProvider(to.data),
       width: WIDTH,
       height: HEIGHT
     });

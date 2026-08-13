@@ -75,7 +75,7 @@ function mountChart(costsShowInLegend: boolean) {
   document.body.appendChild(container);
   const chart = mochart.createChart(container, {
     mochartConfig: makeConfig(costsShowInLegend),
-    dataProvider: new mochart.ArrayOfObjectsDataProvider(ITEMS, 'label') as never,
+    dataProvider: new mochart.ArrayOfObjectsDataProvider(ITEMS) as never,
     width: WIDTH,
     height: HEIGHT
   });

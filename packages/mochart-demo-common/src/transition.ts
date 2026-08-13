@@ -86,10 +86,8 @@ export function getTransitionMochartConfig(transitionConfig: TransitionConfig): 
 }
 
 export function getTransitionDataProviders(transitionConfig: TransitionConfig): ChartDataProviderLike[] {
-  // the providers wrap the rows wholesale: displayProperty and extra series
-  // properties are read through getSeriesValue like any other row property
-  const categoryProperty = transitionConfig.config.categoryAxis.property;
-  return transitionConfig.data.map(data => new ArrayOfObjectsDataProvider(data, categoryProperty));
+  // the providers wrap the rows wholesale: every configured property is a column read
+  return transitionConfig.data.map(data => new ArrayOfObjectsDataProvider(data));
 }
 
 export function formatTransitionConfig(transitionConfig: TransitionConfig): string {

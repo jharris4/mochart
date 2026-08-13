@@ -89,7 +89,7 @@ async function mountScenario(spec: ScenarioSpec, options: ScenarioOptions): Prom
   for (let i = 0; i < cells.length; i++) {
     const handle = createChart(cells[i], {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(datasets[i], 'group'),
+      dataProvider: new ArrayOfObjectsDataProvider(datasets[i]),
       width: Math.floor(sizes[i].width),
       height: Math.floor(sizes[i].height)
     });
@@ -115,7 +115,7 @@ async function mountScenario(spec: ScenarioSpec, options: ScenarioOptions): Prom
 function randomizeAll(): void {
   for (const chart of mounted) {
     chart.data = randomizeData(chart.data, chart.seriesCount);
-    chart.handle.update({ dataProvider: new ArrayOfObjectsDataProvider(chart.data, 'group') });
+    chart.handle.update({ dataProvider: new ArrayOfObjectsDataProvider(chart.data) });
   }
 }
 

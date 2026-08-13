@@ -66,7 +66,7 @@ export interface EditableChartHandle {
   destroy(): void;
 }
 
-type EditableDataProvider = DataProvider<unknown>;
+type EditableDataProvider = DataProvider;
 
 interface FocusPayload {
   valueAxisId?: string | null;
@@ -151,7 +151,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     }
     filteredFocusedCategoryIndex = dataError ? -1 : getFilteredFocusedCategoryIndex(nextFilteredData);
     if (!dataError && mochartDemoConfig.mochartConfig.validation.valid) {
-      dataProvider = new ArrayOfObjectsDataProvider(nextFilteredData, mochartDemoConfig.mochartConfig.categoryAxis.property ?? '');
+      dataProvider = new ArrayOfObjectsDataProvider(nextFilteredData);
     }
     else if (dataError) {
       dataProvider = createErrorDataProvider(dataError);
@@ -1111,7 +1111,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     const chartDataError = !!(dataProvider && dataProvider.getError && dataProvider.getError());
     const configError = !mochartDemoConfig.valid;
     const error = chartDataError || configError;
-    const filteredCategoryValues: readonly any[] = error || !dataProvider ? [] : dataProvider.getCategoryValues();
+    const filteredCategoryValues: readonly any[] = error || !dataProvider ? [] : dataProvider.getPropertyValues(mochartDemoConfig.mochartConfig.categoryAxis.property ?? '') ?? [];
     const selectedCategoryValues = (error || categoryValuesText === emptyCategoryText) ? [] : categoryValuesText.split(',');
     const filteredCategoryMap = filteredCategoryValues.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {});
     const disableRemove = orderChanged || !selectedCategoryValues.some(category => filteredCategoryMap[category]);

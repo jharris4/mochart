@@ -2,21 +2,11 @@ import { enhanceConfig } from '../config/helper';
 import { ArrayOfObjectsDataProvider } from '../data/DataProvider';
 import { getDataErrors } from '../data/DataValidator';
 import type { DefaultChartProps } from '../types/chart';
-import type { MochartInputConfig } from '../types/config';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { DataProvider, DataRow } from '../types/data';
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return v !== null && v !== undefined && typeof v === "object";
-}
-
-function getCategoryProperty(config: MochartInputConfig | EnhancedMochartConfig): string | undefined {
-  let categoryProperty: string | undefined = undefined;
-  if (isObject(config) && isObject(config.categoryAxis)) {
-    const property = config.categoryAxis.property;
-    categoryProperty = typeof property === 'string' ? property : undefined;
-  }
-  return categoryProperty;
 }
 
 function isArrayOfObjects(data: readonly unknown[]): data is readonly DataRow[] {
@@ -26,17 +16,12 @@ function isArrayOfObjects(data: readonly unknown[]): data is readonly DataRow[] 
 function buildErrorDataProvider(error: unknown = 'Invalid Data'): DataProvider {
   return {
     getError: () => error,
-    getCategoryValues: () => [],
-    getSeriesValue: () => undefined
+    getPropertyValues: () => undefined
   };
 }
 
-function createRawDataProvider(mochartConfig: EnhancedMochartConfig, data: readonly unknown[]): DataProvider | null {
-  const categoryProperty = getCategoryProperty(mochartConfig);
-  if (categoryProperty !== undefined && isArrayOfObjects(data)) {
-    return new ArrayOfObjectsDataProvider(data, categoryProperty) as unknown as DataProvider;
-  }
-  return null;
+function createRawDataProvider(data: readonly unknown[]): DataProvider | null {
+  return isArrayOfObjects(data) ? new ArrayOfObjectsDataProvider(data) : null;
 }
 
 /**
@@ -67,7 +52,7 @@ export class DefaultChartInput {
   start(props: DefaultChartProps): void {
     const { config, data } = props;
     const mochartConfig = enhanceConfig(config) as EnhancedMochartConfig;
-    this.rawDataProvider = createRawDataProvider(mochartConfig, data);
+    this.rawDataProvider = createRawDataProvider(data);
     this.mochartConfig = mochartConfig;
     this.dataProvider = this.validateDataProvider(mochartConfig);
   }
@@ -79,12 +64,11 @@ export class DefaultChartInput {
 
     if (configChanged || dataChanged) {
       let { mochartConfig } = this;
-      const categoryPropertyChanged = getCategoryProperty(config) !== getCategoryProperty(prev.config);
       if (configChanged) {
         mochartConfig = enhanceConfig(config) as EnhancedMochartConfig;
       }
-      if (dataChanged || categoryPropertyChanged) {
-        this.rawDataProvider = createRawDataProvider(mochartConfig!, data);
+      if (dataChanged) {
+        this.rawDataProvider = createRawDataProvider(data);
       }
       // validity depends on the config too (series properties, category axis),
       // so it is rechecked even when only the config changed
@@ -97,7 +81,7 @@ export class DefaultChartInput {
   refresh(props: DefaultChartProps): void {
     const { mochartConfig } = this;
     if (mochartConfig !== null) {
-      this.rawDataProvider = createRawDataProvider(mochartConfig, props.data);
+      this.rawDataProvider = createRawDataProvider(props.data);
       this.dataProvider = this.validateDataProvider(mochartConfig);
     }
   }

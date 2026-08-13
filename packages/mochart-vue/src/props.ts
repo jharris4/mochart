@@ -65,7 +65,7 @@ export const baseChartProps = {
 export const chartProps = {
   ...baseChartProps,
   mochartConfig: requiredProp<MochartConfig | null>(),
-  dataProvider: requiredProp<DataProvider<unknown> | null>()
+  dataProvider: requiredProp<DataProvider | null>()
 };
 
 export const defaultChartProps = {

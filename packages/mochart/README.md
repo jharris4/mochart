@@ -113,7 +113,7 @@ enhancement and data providers themselves:
 import { createChart, enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 
 const mochartConfig = enhanceConfig(config);
-const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');
+const dataProvider = new ArrayOfObjectsDataProvider(data);
 
 const chart = createChart(container, { mochartConfig, dataProvider, width: 640, height: 400 });
 ```
@@ -199,13 +199,14 @@ Two dataset shapes are supported out of the box:
 
 `createDefaultChart` wraps its `data` array in an `ArrayOfObjectsDataProvider`
 automatically; `createChart` accepts any object implementing the
-`DataProvider` interface. Two members are required — `getCategoryValues()` for
-every category value at once, and `getSeriesValue(categoryValue, categoryIndex,
-property)` for one property's value for one category. The chart reads
-`categoryAxis.displayProperty` through the same accessor, so it returns
-`unknown`: series properties must yield a number or `undefined`, a display
-property a string, number, or `Date`. `getCategoryProperty`, `getError`,
-`getLoading`, and `refresh` are optional. See the
+`DataProvider` interface. One member is required —
+`getPropertyValues(property)` returns all values of one named data property,
+index-aligned with every other property's values, or `undefined` when the
+property isn't in the data. Every column the config names arrives through it,
+the category property and `categoryAxis.displayProperty` included: series
+columns hold numbers with `null`/`undefined` as missing values, category and
+display columns hold strings, numbers, or `Date`s. `getError`, `getLoading`,
+and `refresh` are optional. See the
 [data providers guide](../mochart-docs/guide/data-providers.md) for the full
 contract.
 

@@ -18,16 +18,14 @@ describe('getDataErrors', () => {
       [
         { month: 'Jan', sales: 10 },
         { month: 'Feb', sales: 20 }
-      ],
-      'month'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
   it('returns no errors when the config itself is invalid', () => {
     const invalid = makeConfig({});
     expect(invalid.validation.valid).toBe(false);
-    const provider = new ArrayOfObjectsDataProvider([{ month: 'Jan', sales: 10 }], 'month');
+    const provider = new ArrayOfObjectsDataProvider([{ month: 'Jan', sales: 10 }]);
     expect(getDataErrors(invalid, provider)).toEqual([]);
   });
 
@@ -35,28 +33,21 @@ describe('getDataErrors', () => {
     expect(getDataErrors(stringConfig(), null)).toEqual([]);
   });
 
-  // Regression: a provider missing an accessor used to pass validation and throw inside getChartData
-  it('names the required members a provider does not implement', () => {
+  // Regression: a provider missing its accessor used to pass validation and throw inside getChartData
+  it('names the required member a provider does not implement', () => {
     const config = stringConfig();
-    const noSeriesValue = { getCategoryValues: () => ['Jan'] } as unknown as DataProvider;
-    expect(getDataErrors(config, noSeriesValue)).toEqual(['data provider must implement: getSeriesValue']);
     const stateOnly = { getLoading: () => false } as unknown as DataProvider;
-    expect(getDataErrors(config, stateOnly)).toEqual(['data provider must implement: getCategoryValues, getSeriesValue']);
+    expect(getDataErrors(config, stateOnly)).toEqual(['data provider must implement: getPropertyValues']);
   });
 
-  // the one accessor serves both jobs, with a different type expected of each
+  // the one accessor serves every column, with a different type expected per config role
   it('accepts string display values from the same accessor that must return numbers for series properties', () => {
     const config = makeConfig({
       categoryAxis: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
       series: [{ property: 'y' }]
     });
-    const labels: Record<number, string> = { 1: 'Jan', 2: 'Feb' };
-    const values: Record<number, number> = { 1: 5, 2: 6 };
-    const provider = {
-      getCategoryValues: () => [1, 2],
-      getSeriesValue: (categoryValue: number, _categoryIndex: number, property: string) =>
-        property === 'label' ? labels[categoryValue] : values[categoryValue]
-    } as unknown as DataProvider;
+    const columns: Record<string, readonly unknown[]> = { id: [1, 2], label: ['Jan', 'Feb'], y: [5, 6] };
+    const provider = { getPropertyValues: (property: string) => columns[property] } as unknown as DataProvider;
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
@@ -66,11 +57,9 @@ describe('getDataErrors', () => {
       [
         { month: 'Jan', sales: 10 },
         { month: 'Feb', sales: 'oops' }
-      ],
-      'month'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([
-      'series values must be numeric or undefined for property: sales'
+      'series values must be numeric or missing for property: sales'
     ]);
   });
 
@@ -80,10 +69,47 @@ describe('getDataErrors', () => {
       [
         { month: 'Jan', sales: 10 },
         { month: 'Feb' } // sales is undefined
-      ],
-      'month'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
+  it('allows null series values', () => {
+    const config = stringConfig();
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { month: 'Jan', sales: 10 },
+        { month: 'Feb', sales: null }
+      ]);
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
+  it('flags a series column absent from the data', () => {
+    const config = stringConfig();
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { month: 'Jan' },
+        { month: 'Feb' }
+      ]);
+    expect(getDataErrors(config, provider)).toEqual(['no values found for property: sales']);
+  });
+
+  it('flags a series column whose length does not match the category column', () => {
+    const config = stringConfig();
+    const provider = new ObjectOfArraysDataProvider({ month: ['Jan', 'Feb', 'Mar'], sales: [10, 20] });
+    expect(getDataErrors(config, provider)).toEqual([
+      'property sales has 2 values but there are 3 categories'
+    ]);
+  });
+
+  it('flags a display column whose length does not match the category column', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'y' }]
+    });
+    const provider = new ObjectOfArraysDataProvider({ id: [1, 2], label: ['Jan'], y: [5, 6] });
+    expect(getDataErrors(config, provider)).toEqual([
+      'property label has 1 values but there are 2 categories'
+    ]);
   });
 
   it('flags duplicate category values', () => {
@@ -92,9 +118,7 @@ describe('getDataErrors', () => {
       [
         { month: 'Jan', sales: 10 },
         { month: 'Jan', sales: 20 }
-      ],
-      'month'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual(['category values must be unique, duplicates: Jan']);
   });
 
@@ -107,9 +131,7 @@ describe('getDataErrors', () => {
       [
         { x: 1, y: 5 },
         { x: 'not-a-number', y: 6 }
-      ],
-      'x'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type']);
   });
 
@@ -123,11 +145,9 @@ describe('getDataErrors', () => {
     const provider = new ArrayOfObjectsDataProvider(
       [
         { month: 'Jan', sales: 10, high: 12, mk: 1, c: 2, lbl: 'bad' }
-      ],
-      'month'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([
-      'series values must be numeric or undefined for property: lbl'
+      'series values must be numeric or missing for property: lbl'
     ]);
   });
 
@@ -141,11 +161,9 @@ describe('getDataErrors', () => {
     const provider = new ArrayOfObjectsDataProvider(
       [
         { month: 'Jan', sales: 10, lo: 'bad', hi: 12 }
-      ],
-      'month'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([
-      'series values must be numeric or undefined for property: lo'
+      'series values must be numeric or missing for property: lo'
     ]);
   });
 
@@ -158,9 +176,7 @@ describe('getDataErrors', () => {
       [
         { d: '2020-01-01', y: 5 },
         { d: '2020-02-01', y: 6 }
-      ],
-      'd'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
@@ -173,9 +189,7 @@ describe('getDataErrors', () => {
       [
         { d: '2020-01-01', y: 5 },
         { d: 'not-a-date', y: 6 }
-      ],
-      'd'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type']);
   });
 
@@ -188,9 +202,7 @@ describe('getDataErrors', () => {
       [
         { d: new Date('2020-01-01T00:00:00Z'), y: 5 },
         { d: new Date('2020-02-01T00:00:00Z'), y: 6 }
-      ],
-      'd'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
@@ -203,9 +215,7 @@ describe('getDataErrors', () => {
       [
         { d: new Date('2020-01-01T00:00:00Z'), y: 5 },
         { d: new Date(NaN), y: 6 }
-      ],
-      'd'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type']);
   });
 
@@ -218,9 +228,7 @@ describe('getDataErrors', () => {
       [
         { d: new Date('2020-01-01T00:00:00Z'), y: 5 },
         { d: new Date('2020-01-01T00:00:00Z'), y: 6 }
-      ],
-      'd'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([
       'category values must be unique, duplicates: ' + String(new Date('2020-01-01T00:00:00Z'))
     ]);
@@ -235,9 +243,7 @@ describe('getDataErrors', () => {
       [
         { d: new Date('2020-01-01T00:00:00.000Z'), y: 5 },
         { d: new Date('2020-01-01T00:00:00.500Z'), y: 6 }
-      ],
-      'd'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
@@ -250,9 +256,7 @@ describe('getDataErrors', () => {
       [
         { d: -86400000, y: 5 }, // 1969-12-31
         { d: 0, y: 6 }
-      ],
-      'd'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
@@ -266,9 +270,7 @@ describe('getDataErrors', () => {
       [
         { id: 1, label: 'Jan', y: 5 },
         { id: 2, label: 99, y: 6 }
-      ],
-      'id'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([
       'display category values must all match the specified type for property: label'
     ]);
@@ -283,52 +285,37 @@ describe('getDataErrors', () => {
       [
         { id: 1, label: 'Jan', y: 5 },
         { id: 2, label: 'Feb', y: 6 }
-      ],
-      'id'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
   it('returns no errors for an invalid (errored) data provider', () => {
     const config = stringConfig();
     const errored = {
-      getCategoryValues: () => ['Jan'],
-      getSeriesValue: () => 'x',
+      getPropertyValues: () => undefined,
       getError: () => 'broken'
     } as unknown as DataProvider;
     expect(getDataErrors(config, errored)).toEqual([]);
   });
 
-  // the built-in provider's own getError guard reports this case, and the
-  // chart renders that message directly — getDataErrors stays out of its way
-  it('leaves a wrong-category-property provider to its getError guard', () => {
-    const config = stringConfig();
-    const rows: Array<Record<string, unknown>> = [{ day: 'Jan', sales: 10 }];
-    const provider = new ArrayOfObjectsDataProvider(rows, 'month');
-    expect(provider.getError()).toBe('no category values found for property: month');
-    expect(getDataErrors(config, provider as unknown as DataProvider)).toEqual([]);
-  });
-
-  it('flags a category property mismatch between config and provider', () => {
+  // the config is the only naming authority: data lacking its category property
+  // is one loud error, and nothing else is checkable without the column
+  it('flags a category column absent from the data and stops there', () => {
     const config = stringConfig();
     const provider = new ArrayOfObjectsDataProvider(
       [
         { day: 'Jan', sales: 10 },
         { day: 'Feb', sales: 20 }
-      ],
-      'day'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([
-      'categoryAxis.property (month) does not match the data provider category property (day)'
+      'no category values found for property: month'
     ]);
   });
 
-  it('skips the category property check on a provider that does not expose it', () => {
+  it('accepts a minimal single-method custom provider', () => {
     const config = stringConfig();
-    const bare = {
-      getCategoryValues: () => ['Jan', 'Feb'],
-      getSeriesValue: (categoryValue: unknown) => (categoryValue === 'Jan' ? 10 : 20)
-    } as unknown as DataProvider;
+    const columns: Record<string, readonly unknown[]> = { month: ['Jan', 'Feb'], sales: [10, 20] };
+    const bare = { getPropertyValues: (property: string) => columns[property] } as unknown as DataProvider;
     expect(getDataErrors(config, bare)).toEqual([]);
   });
 
@@ -338,9 +325,7 @@ describe('getDataErrors', () => {
       series: [{ property: 'y', renderer: 'line' }]
     });
     const provider = new ArrayOfObjectsDataProvider(
-      [{ x: 1, y: 10 }, { x: 3, y: 20 }, { x: 2, y: 30 }],
-      'x'
-    );
+      [{ x: 1, y: 10 }, { x: 3, y: 20 }, { x: 2, y: 30 }]);
     expect(getDataErrors(config, provider)).toEqual([
       'category values must be in order on a linear category scale, out-of-order values: 2'
     ]);
@@ -352,17 +337,13 @@ describe('getDataErrors', () => {
       series: [{ property: 'y', renderer: 'line' }]
     });
     const provider = new ArrayOfObjectsDataProvider(
-      [{ x: 3, y: 10 }, { x: 2, y: 20 }, { x: 1, y: 30 }],
-      'x'
-    );
+      [{ x: 3, y: 10 }, { x: 2, y: 20 }, { x: 1, y: 30 }]);
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
   it('allows out-of-order category values for bar and marker-only series', () => {
     const provider = new ArrayOfObjectsDataProvider(
-      [{ x: 1, y: 10 }, { x: 3, y: 20 }, { x: 2, y: 30 }],
-      'x'
-    );
+      [{ x: 1, y: 10 }, { x: 3, y: 20 }, { x: 2, y: 30 }]);
     for (const renderer of ['bar', 'none']) {
       const config = makeConfig({
         categoryAxis: { property: 'x', type: 'number', scale: 'linear' },
@@ -378,9 +359,7 @@ describe('getDataErrors', () => {
       series: [{ property: 'y', renderer: 'line' }]
     });
     const provider = new ArrayOfObjectsDataProvider(
-      [{ x: 1, y: 10 }, { x: 3, y: 20 }, { x: 2, y: 30 }],
-      'x'
-    );
+      [{ x: 1, y: 10 }, { x: 3, y: 20 }, { x: 2, y: 30 }]);
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
@@ -395,9 +374,7 @@ describe('getDataErrors', () => {
         { stamp: '2017-11-05T01:30:00-04:00', clock: '2017-11-05T01:30:00Z', y: 20 },
         { stamp: '2017-11-05T01:00:00-05:00', clock: '2017-11-05T01:00:00Z', y: 30 },
         { stamp: '2017-11-05T01:30:00-05:00', clock: '2017-11-05T01:30:00Z', y: 40 }
-      ],
-      'stamp'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
@@ -411,28 +388,25 @@ describe('getDataErrors', () => {
         { day: '2026-01-01', y: 10 },
         { day: '2026-01-03', y: 20 },
         { day: '2026-01-02', y: 30 }
-      ],
-      'day'
-    );
+      ]);
     expect(getDataErrors(config, provider)).toEqual([
       'category values must be in order on a linear category scale, out-of-order values: 2026-01-02'
     ]);
   });
 });
 
-// Regression: getDataErrors crashed inside checkProperty for a mistyped
-// property on an ObjectOfArraysDataProvider instead of treating it as missing
-// data, diverging from the row provider.
+// A mistyped series property is an absent column, reported the same way by
+// both providers instead of silently rendering as all-missing values.
 describe('getDataErrors with a mistyped property', () => {
-  it('reports identically for both providers instead of throwing', () => {
+  it('reports identically for both providers', () => {
     const config = makeConfig({
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
       series: [{ property: 'vlaue' }]
     });
-    const columns = new ObjectOfArraysDataProvider({ month: ['Jan', 'Feb'], value: [1, 2] }, 'month');
-    const rows = new ArrayOfObjectsDataProvider([{ month: 'Jan', value: 1 }, { month: 'Feb', value: 2 }], 'month');
-    let columnErrors: string[] = [];
-    expect(() => { columnErrors = getDataErrors(config, columns as never); }).not.toThrow();
+    const columns = new ObjectOfArraysDataProvider({ month: ['Jan', 'Feb'], value: [1, 2] });
+    const rows = new ArrayOfObjectsDataProvider([{ month: 'Jan', value: 1 }, { month: 'Feb', value: 2 }]);
+    const columnErrors = getDataErrors(config, columns as never);
+    expect(columnErrors).toEqual(['no values found for property: vlaue']);
     expect(columnErrors).toEqual(getDataErrors(config, rows as never));
   });
 });

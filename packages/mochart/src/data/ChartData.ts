@@ -3,8 +3,8 @@ import { getSeriesData, getSeriesDataWithRenderAxisDomains, getSeriesDataWithDom
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { AxisDomains, ChartData, DataProvider, CategoryAxisDomain, CategoryData, SeriesData, SeriesDomainObjects, SeriesValueObjects } from '../types/data';
 
-/** The members every provider must implement; getCategoryProperty/getError/getLoading/refresh are optional. */
-const requiredDataProviderMembers = ['getCategoryValues', 'getSeriesValue'] as const;
+/** The members every provider must implement; getError/getLoading/refresh are optional. */
+const requiredDataProviderMembers = ['getPropertyValues'] as const;
 
 /** Names the required members a provider is missing, so getDataErrors can report them. */
 export function getMissingDataProviderMembers(dataProvider: DataProvider): string[] {
@@ -19,7 +19,7 @@ export function getMissingDataProviderMembers(dataProvider: DataProvider): strin
 
 export function isDataProviderValid(dataProvider: DataProvider | null | undefined): boolean {
   // checked inline rather than through getMissingDataProviderMembers: this runs on every sync, including animation frames
-  if (!dataProvider || typeof dataProvider.getCategoryValues !== 'function' || typeof dataProvider.getSeriesValue !== 'function') {
+  if (!dataProvider || typeof dataProvider.getPropertyValues !== 'function') {
     return false;
   }
   // '' and 0 count as errors, matching the error prop; only null/undefined don't

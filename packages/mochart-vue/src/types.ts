@@ -19,7 +19,7 @@ export interface PlaceholderProps {
   width?: number;
   height?: number;
   mochartConfig?: MochartConfig | null;
-  dataProvider?: DataProvider<unknown> | null;
+  dataProvider?: DataProvider | null;
   error?: unknown;
   hasData?: boolean;
 }
@@ -78,7 +78,7 @@ export interface BaseChartProps extends ChartCallbackProps {
 /** Props for `Chart`: a pre-enhanced config plus a data provider (null while loading). */
 export interface ChartProps extends BaseChartProps {
   mochartConfig: MochartConfig | null;
-  dataProvider: DataProvider<unknown> | null;
+  dataProvider: DataProvider | null;
 }
 
 /** Props for `DefaultChart`: a raw config plus a plain array-of-objects dataset. */

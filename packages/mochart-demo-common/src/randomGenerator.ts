@@ -346,10 +346,10 @@ export function generateChartDataProvider(
     seriesValues[displayProperty] = categoryValues as (number | undefined)[];
   }
 
+  const categoryProperty = categoryAxisConfig.property;
   return {
     categoryValues,
     seriesValues,
-    getCategoryValues: () => categoryValues,
-    getSeriesValue: (_g, i, s) => seriesValues[s][i]
+    getPropertyValues: property => property === categoryProperty ? categoryValues : seriesValues[property]
   };
 }

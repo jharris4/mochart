@@ -1,5 +1,4 @@
 import { ArrayOfObjectsDataProvider, NONE, getDataErrors } from '@mochart/core';
-import type { DataProvider } from '@mochart/core';
 
 import buildMochartDemoConfig from './mochartDemoConfig';
 import { demoText } from './demoText';
@@ -90,10 +89,8 @@ export function parseFullData(text: string, fullData: DataRow[], viewUsedPropert
 
 /** Validate rows against an already-built valid config: the shared short error message, or false when clean (details go to the console). */
 function getMochartConfigDataError(mochartConfig: MochartDemoConfig['mochartConfig'], rows: DataRow[]): string | false {
-  const provider = new ArrayOfObjectsDataProvider(rows, mochartConfig.categoryAxis.property ?? '');
-  // a provider-reported error (the wrong-category-property guard) counts too; getDataErrors defers to it
-  const providerError = provider.getError();
-  const dataErrors = providerError != null ? [providerError] : getDataErrors(mochartConfig, provider as unknown as DataProvider);
+  // getDataErrors reports every data problem now, wrong category property included
+  const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(rows));
   if (dataErrors.length > 0) {
     console.warn('Invalid Data - Content Errors: ', dataErrors.join('\n'));
     return demoText.errors.invalidDataContent;

@@ -22,7 +22,7 @@ import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../type
 // value type is intentionally loose.
 type Row = Record<string, any>;
 
-type EditableDataProvider = DataProvider<unknown>;
+type EditableDataProvider = DataProvider;
 
 interface FocusPayload {
   valueAxisId?: string | null;
@@ -105,7 +105,7 @@ export class EditableChart extends LightElement {
     }
     this.filteredFocusedCategoryIndex = this.dataError ? -1 : this.getFilteredFocusedCategoryIndex(nextFilteredData);
     if (!this.dataError && this.mochartDemoConfig.mochartConfig.validation.valid) {
-      this.dataProvider = new ArrayOfObjectsDataProvider(nextFilteredData, this.mochartDemoConfig.mochartConfig.categoryAxis.property ?? '');
+      this.dataProvider = new ArrayOfObjectsDataProvider(nextFilteredData);
     }
     else if (this.dataError) {
       this.dataProvider = createErrorDataProvider(this.dataError);
@@ -791,7 +791,7 @@ export class EditableChart extends LightElement {
   }
 
   private renderSeriesControls(error: boolean): unknown {
-    const filteredCategoryValuesCount = this.dataProvider ? this.dataProvider.getCategoryValues().length : 0;
+    const filteredCategoryValuesCount = this.dataProvider ? (this.dataProvider.getPropertyValues(this.mochartDemoConfig.mochartConfig.categoryAxis.property ?? '') ?? []).length : 0;
     const seriesControlsDisabled = this.sequencePlaying || this.categoryIndex === -1;
     const categoryOrderControlsDisabled = this.sequencePlaying || this.categoryIndex === -1;
     const isFirstCategory = this.categoryIndex === 0;
@@ -948,7 +948,7 @@ export class EditableChart extends LightElement {
     const chartDataError = !!(this.dataProvider && this.dataProvider.getError && this.dataProvider.getError());
     const configError = !this.mochartDemoConfig.valid;
     const error = chartDataError || configError;
-    const filteredCategoryValues: readonly any[] = error || !this.dataProvider ? [] : this.dataProvider.getCategoryValues();
+    const filteredCategoryValues: readonly any[] = error || !this.dataProvider ? [] : this.dataProvider.getPropertyValues(this.mochartDemoConfig.mochartConfig.categoryAxis.property ?? '') ?? [];
     const selectedCategoryValues = (error || this.categoryValuesText === emptyCategoryText) ? [] : this.categoryValuesText.split(',');
     const filteredCategoryMap = filteredCategoryValues.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {});
     const disableRemove = this.orderChanged || !selectedCategoryValues.some(category => filteredCategoryMap[category]);

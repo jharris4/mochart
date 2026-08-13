@@ -24,7 +24,7 @@ import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../type
 // value type is intentionally loose.
 type Row = Record<string, any>;
 
-type EditableDataProvider = DataProvider<unknown>;
+type EditableDataProvider = DataProvider;
 
 interface FocusPayload {
   valueAxisId?: string | null;
@@ -550,7 +550,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     }
     this.filteredFocusedCategoryIndex.set(this.dataError ? -1 : this.getFilteredFocusedCategoryIndex(nextFilteredData));
     if (!this.dataError && this.mochartDemoConfig.mochartConfig.validation.valid) {
-      this.dataProvider.set(new ArrayOfObjectsDataProvider(nextFilteredData, this.mochartDemoConfig.mochartConfig.categoryAxis.property ?? ''));
+      this.dataProvider.set(new ArrayOfObjectsDataProvider(nextFilteredData));
     }
     else if (this.dataError) {
       this.dataProvider.set(createErrorDataProvider(this.dataError));
@@ -1079,7 +1079,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
 
   get filteredCategoryValues(): readonly any[] {
     const dataProvider = this.dataProvider();
-    return this.error || !dataProvider ? [] : dataProvider.getCategoryValues();
+    return this.error || !dataProvider ? [] : dataProvider.getPropertyValues(this.mochartDemoConfig.mochartConfig.categoryAxis.property ?? '') ?? [];
   }
 
   get selectedCategoryValues(): string[] {

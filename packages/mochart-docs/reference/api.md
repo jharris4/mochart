@@ -83,36 +83,39 @@ interface ChartHandle<TProps> {
 ## Data providers
 
 ```ts
-new ArrayOfObjectsDataProvider(data, categoryProperty)  // [{ month: 'Jan', revenue: 10 }, …]
-new ObjectOfArraysDataProvider(data, categoryProperty)  // { month: ['Jan', …], revenue: [10, …] }
+new ArrayOfObjectsDataProvider(data)  // [{ month: 'Jan', revenue: 10 }, …]
+new ObjectOfArraysDataProvider(data)  // { month: ['Jan', …], revenue: [10, …] }
 ```
 
-Both report a category property that matches nothing — absent from every
-row, or a missing / all-`undefined` column — through `getError()`, which
-the chart renders as its error state.
+Both take only the dataset — which property holds the category values is
+the config's knowledge (`categoryAxis.property`), and both are stateless:
+the chart's next re-read sees any in-place change.
 
 Both implement the `DataProvider` interface, which custom providers can
 implement to read straight from an existing store:
 
 ```ts
-interface DataProvider<TCategoryValue> {
-  // required
-  getCategoryValues(): readonly TCategoryValue[];
-  getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, property: string): unknown;
+type DataValue = number | string | Date | null | undefined;
+
+interface DataProvider {
+  // required — one named column, index-aligned with every other column;
+  // undefined when the property isn't in the data
+  getPropertyValues(property: string): readonly DataValue[] | undefined;
   // optional
-  getCategoryProperty?(): string;  // when present, getDataErrors flags a mismatch with categoryAxis.property
   getError?(): unknown;    // non-null → the chart shows its error state ('' and 0 count)
   getLoading?(): boolean;  // true → the chart shows its loading state
   refresh?(): void;        // the handle's refresh() calls it before re-reading — invalidate caches here
 }
 ```
 
-`getSeriesValue` is the interface's one property accessor: the chart calls it
-for every property the config names, which is why it returns `unknown`. A
-series property must yield a number or `undefined`; `categoryAxis.displayProperty`
-must yield a string, number, or `Date` matching `categoryAxis.type`. A provider
-missing either required member is invalid, and `getDataErrors` says which one
-is missing.
+`getPropertyValues` is the interface's one accessor: the chart requests every
+property the config names as a whole column — the category property,
+`categoryAxis.displayProperty`, and the series properties alike. Series
+columns hold numbers, with `null`/`undefined` as missing values; category and
+display columns hold strings, numbers, or `Date`s matching
+`categoryAxis.type`. The config's category column defines the category count,
+and `getDataErrors` flags any other column whose length doesn't match. A
+provider missing the accessor is invalid, and `getDataErrors` says so.
 
 See [Data providers](/guide/data-providers) for the full contract and which
 properties are read.

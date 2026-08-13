@@ -102,8 +102,7 @@ function toDemoDataProvider(rows: DataRow[], categoryProperty: string): DemoData
   return {
     categoryValues,
     seriesValues,
-    getCategoryValues: () => categoryValues,
-    getSeriesValue: (_categoryValue, categoryIndex, seriesProperty) => seriesValues[seriesProperty]?.[categoryIndex]
+    getPropertyValues: property => property === categoryProperty ? categoryValues : seriesValues[property]
   };
 }
 

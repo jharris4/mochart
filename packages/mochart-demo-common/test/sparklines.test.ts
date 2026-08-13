@@ -22,10 +22,8 @@ describe('sparkline metrics', () => {
       for (const step of [0, 1, 5]) {
         const rows = metric.generate(step);
         expect(rows.length).toBeGreaterThan(0);
-        const categoryProperty = mochartConfig.categoryAxis.property!;
         const provider = {
-          getCategoryValues: () => rows.map(row => row[categoryProperty]),
-          getSeriesValue: (_g: unknown, index: number, property: string) => rows[index][property]
+          getPropertyValues: (property: string) => rows.map(row => row[property])
         };
         expect(getDataErrors(mochartConfig, provider as unknown as DataProvider)).toEqual([]);
         expect(metric.latestText(rows)).toBeTruthy();

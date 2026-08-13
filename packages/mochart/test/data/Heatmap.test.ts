@@ -177,7 +177,7 @@ describe('createHeatmap', () => {
     });
     expect(mochartConfig.validation.valid).toBe(true);
     // The category property is always set; only cell properties can be undefined.
-    const dataProvider = new ArrayOfObjectsDataProvider(heatmap.data as Record<string, string | number>[], 'column');
+    const dataProvider = new ArrayOfObjectsDataProvider(heatmap.data as Record<string, string | number>[]);
     expect(getDataErrors(mochartConfig, dataProvider)).toEqual([]);
   });
 

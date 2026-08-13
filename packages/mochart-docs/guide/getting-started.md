@@ -116,7 +116,7 @@ an explicit data provider, for hosts that manage those themselves:
 import { createChart, enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 
 const mochartConfig = enhanceConfig(config);
-const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');
+const dataProvider = new ArrayOfObjectsDataProvider(data);
 
 const chart = createChart(container, { mochartConfig, dataProvider, width: 640, height: 400 });
 ```

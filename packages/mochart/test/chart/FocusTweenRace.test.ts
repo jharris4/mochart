@@ -71,7 +71,7 @@ function mountChart() {
   document.body.appendChild(container);
   const chart = createChart(container, {
     mochartConfig,
-    dataProvider: new ArrayOfObjectsDataProvider(data, 'month'),
+    dataProvider: new ArrayOfObjectsDataProvider(data),
     width: 300,
     height: 200
   });

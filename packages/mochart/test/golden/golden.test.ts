@@ -159,9 +159,8 @@ function getSeriesProperties(mochartConfig: EnhancedMochartConfig): string[] {
     .filter((property): property is string => Boolean(property));
 }
 
-function makeProvider(mochartConfig: EnhancedMochartConfig, rows: Row[]): DataProvider {
-  // every demo config defines a category property; the optionality is only for malformed input
-  return new mochart.ArrayOfObjectsDataProvider(rows, getCategoryProperty(mochartConfig)!) as unknown as DataProvider;
+function makeProvider(rows: Row[]): DataProvider {
+  return new mochart.ArrayOfObjectsDataProvider(rows);
 }
 
 /** Deterministic stand-in for the demo app's "randomize values" button. */
@@ -252,7 +251,7 @@ describe.each(allDemos)('demo: $id', (demo) => {
 
     const chart = mochart.createChart(container, {
       mochartConfig,
-      dataProvider: makeProvider(mochartConfig, originalRows),
+      dataProvider: makeProvider(originalRows),
       width: WIDTH,
       height: HEIGHT
     });
@@ -262,7 +261,7 @@ describe.each(allDemos)('demo: $id', (demo) => {
 
     // deterministic value change: snapshot mid-tween and settled
     const changedRows = transformValues(mochartConfig, originalRows);
-    chart.update({ dataProvider: makeProvider(mochartConfig, changedRows) });
+    chart.update({ dataProvider: makeProvider(changedRows) });
     advanceFrames(3);
     await expectSnapshot(container, demo.id, 'values-mid-tween');
     runFrames();
@@ -270,13 +269,13 @@ describe.each(allDemos)('demo: $id', (demo) => {
 
     // category addition, run to completion
     const addedRows = addCategoryRow(mochartConfig, changedRows);
-    chart.update({ dataProvider: makeProvider(mochartConfig, addedRows) });
+    chart.update({ dataProvider: makeProvider(addedRows) });
     runFrames();
     await expectSnapshot(container, demo.id, 'category-added');
 
     // category removal, run to completion
     const removedRows = removeCategoryRow(addedRows);
-    chart.update({ dataProvider: makeProvider(mochartConfig, removedRows) });
+    chart.update({ dataProvider: makeProvider(removedRows) });
     runFrames();
     await expectSnapshot(container, demo.id, 'category-removed');
 
@@ -291,14 +290,14 @@ describe.each(allDemos)('demo: $id', (demo) => {
 
     const chart = mochart.createChart(container, {
       mochartConfig,
-      dataProvider: makeProvider(mochartConfig, originalRows),
+      dataProvider: makeProvider(originalRows),
       width: WIDTH,
       height: HEIGHT
     });
     runFrames();
     await expectSnapshot(container, demo.id, 'static');
 
-    chart.update({ dataProvider: makeProvider(mochartConfig, transformValues(mochartConfig, originalRows)) });
+    chart.update({ dataProvider: makeProvider(transformValues(mochartConfig, originalRows)) });
     runFrames();
     await expectSnapshot(container, demo.id, 'static-updated');
 
@@ -316,14 +315,14 @@ describe.each(allDemos)('demo: $id', (demo) => {
 
       const chart = mochart.createChart(container, {
         mochartConfig,
-        dataProvider: makeProvider(mochartConfig, originalRows),
+        dataProvider: makeProvider(originalRows),
         width: WIDTH,
         height: HEIGHT
       });
       runFrames();
 
       const shiftedRows = shiftCategories(mochartConfig, originalRows, demo.goldenCategoryShift!);
-      chart.update({ dataProvider: makeProvider(mochartConfig, shiftedRows) });
+      chart.update({ dataProvider: makeProvider(shiftedRows) });
       advanceFrames(3);
       await expectSnapshot(container, demo.id, 'slide-mid-tween');
       runFrames();
@@ -365,7 +364,7 @@ describe.each(filteringDemos)('filtering: $id', (demo) => {
 
     const chart = mochart.createChart(container, {
       mochartConfig,
-      dataProvider: makeProvider(mochartConfig, rows),
+      dataProvider: makeProvider(rows),
       width: WIDTH,
       height: HEIGHT
     });
@@ -415,7 +414,7 @@ describe('config updates on a mounted chart', () => {
     const container = createContainer();
     const chart = mochart.createChart(container, {
       mochartConfig,
-      dataProvider: makeProvider(mochartConfig, rows),
+      dataProvider: makeProvider(rows),
       width: WIDTH,
       height: HEIGHT
     });
@@ -485,7 +484,7 @@ describe('config updates on a mounted chart', () => {
 
     // animate off + new data: the static source applies synchronously, no tween
     const changedRows = transformValues(staticConfig, rows);
-    chart.update({ mochartConfig: staticConfig, dataProvider: makeProvider(staticConfig, changedRows) });
+    chart.update({ mochartConfig: staticConfig, dataProvider: makeProvider(changedRows) });
     const appliedHtml = normalizeHtml(container.innerHTML);
     runFrames();
     expect(normalizeHtml(container.innerHTML)).toBe(appliedHtml);
@@ -498,7 +497,7 @@ describe('config updates on a mounted chart', () => {
 
     // and the next data change tweens again
     const tweenedRows = transformValues(animatedConfig, changedRows);
-    chart.update({ dataProvider: makeProvider(animatedConfig, tweenedRows) });
+    chart.update({ dataProvider: makeProvider(tweenedRows) });
     advanceFrames(3);
     await expectSnapshot(container, demo.id, 'config-animate-on-mid-tween');
     runFrames();

@@ -69,7 +69,7 @@ describe('chart', () => {
   it('mounts an svg chart, applies prop updates, and cleans up on unmount', async () => {
     const mochartConfig = enhanceConfig(rawConfig());
     expect(mochartConfig.validation.valid).toBe(true);
-    const dataProvider = new ArrayOfObjectsDataProvider(rows, 'name');
+    const dataProvider = new ArrayOfObjectsDataProvider(rows);
     const el = mountPoint();
     const template = (width: number) => html`${chart({ mochartConfig, dataProvider, width, height: 300 })}`;
 
@@ -94,7 +94,7 @@ describe('chart', () => {
 describe('chart container props', () => {
   it('applies className and style to the container div, with size props winning', async () => {
     const mochartConfig = enhanceConfig(rawConfig());
-    const dataProvider = new ArrayOfObjectsDataProvider(rows, 'name');
+    const dataProvider = new ArrayOfObjectsDataProvider(rows);
     const el = mountPoint();
     render(
       html`${chart({ mochartConfig, dataProvider, className: 'my-chart', style: 'flex: 1 1 auto; width: 50px;', width: 400, height: 300 })}`,
@@ -114,7 +114,7 @@ describe('chart container props', () => {
 
   it('applies and removes data-testid on the container div', async () => {
     const mochartConfig = enhanceConfig(rawConfig());
-    const dataProvider = new ArrayOfObjectsDataProvider(rows, 'name');
+    const dataProvider = new ArrayOfObjectsDataProvider(rows);
     const el = mountPoint();
     const template = (dataTestId?: string) =>
       html`${chart({ mochartConfig, dataProvider, dataTestId, width: 400, height: 300 })}`;
@@ -205,7 +205,7 @@ describe('placeholder templates', () => {
     render(
       html`${chart({
         mochartConfig,
-        dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+        dataProvider: new ArrayOfObjectsDataProvider(rows),
         configErrorTemplate,
         width: 400,
         height: 300
@@ -297,7 +297,7 @@ describe('removed placeholder templates', () => {
 describe('removed props', () => {
   it('clears the loading state when the prop is removed', async () => {
     const mochartConfig = enhanceConfig(rawConfig());
-    const dataProvider = new ArrayOfObjectsDataProvider(rows, 'name');
+    const dataProvider = new ArrayOfObjectsDataProvider(rows);
     const el = mountPoint();
     const template = (extra: Record<string, unknown>) =>
       html`${chart({ mochartConfig, dataProvider, width: 400, height: 300, ...extra })}`;

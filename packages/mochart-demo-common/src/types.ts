@@ -27,13 +27,13 @@ export interface TransitionConfig {
 }
 
 /** The data provider shape the demo charts hand to the chart bindings. */
-export type ChartDataProviderLike = DataProvider<unknown>;
+export type ChartDataProviderLike = DataProvider;
 
 /**
  * The data provider produced by the random generator and consumed by the
  * chart / getDataErrors. `getError` marks the error/invalid variants.
  */
-export interface DemoDataProvider extends DataProvider<CategoryValue> {
+export interface DemoDataProvider extends DataProvider {
   getError?: () => string | boolean;
   categoryValues?: CategoryValue[];
   seriesValues?: Record<string, (number | undefined)[]>;

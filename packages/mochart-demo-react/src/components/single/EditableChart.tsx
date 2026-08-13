@@ -23,7 +23,7 @@ const emptyCategoryText = demoText.editableChart.emptyCategoryText;
 // value type is intentionally loose.
 type Row = Record<string, any>;
 
-type EditableDataProvider = DataProvider<unknown>;
+type EditableDataProvider = DataProvider;
 
 interface FocusPayload {
   valueAxisId?: string | null;
@@ -118,7 +118,7 @@ export default function EditableChart(props: Props) {
     next.filteredFocusedCategoryIndex = dataError ? -1 : getFilteredFocusedCategoryIndex(filteredData);
     next.filteredData = filteredData;
     if (!dataError && mochartDemoConfig.mochartConfig.validation.valid) {
-      next.dataProvider = new ArrayOfObjectsDataProvider(filteredData, mochartDemoConfig.mochartConfig.categoryAxis.property ?? '');
+      next.dataProvider = new ArrayOfObjectsDataProvider(filteredData);
     }
     else if (dataError) {
       next.dataProvider = createErrorDataProvider(dataError);
@@ -717,7 +717,7 @@ export default function EditableChart(props: Props) {
   const dataError = !!(dataProvider && dataProvider.getError && dataProvider.getError());
   const configError = !mochartDemoConfig.valid;
   const error = dataError || configError;
-  const filteredCategoryValues: readonly any[] = error || !dataProvider ? [] : dataProvider.getCategoryValues();
+  const filteredCategoryValues: readonly any[] = error || !dataProvider ? [] : dataProvider.getPropertyValues(mochartDemoConfig.mochartConfig.categoryAxis.property ?? '') ?? [];
   const selectedCategoryValues = (error || categoryValuesText === emptyCategoryText) ? [] : categoryValuesText.split(',');
   const filteredCategoryMap = filteredCategoryValues.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {});
   const disableRemove = orderChanged || !selectedCategoryValues.some(category => filteredCategoryMap[category]);

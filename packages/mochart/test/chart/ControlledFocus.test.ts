@@ -71,7 +71,7 @@ function mountChart() {
   document.body.appendChild(container);
   const chart = createChart(container, {
     mochartConfig,
-    dataProvider: new ArrayOfObjectsDataProvider(data, 'month'),
+    dataProvider: new ArrayOfObjectsDataProvider(data),
     width: 300,
     height: 200
   });
@@ -148,7 +148,7 @@ describe('synchronous host re-entrancy', () => {
     };
     host.chart = createChart(container, {
       mochartConfig: makeConfig('month'),
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'month'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       width: 300, height: 200,
       filteredSeriesIds: {},
       onSeriesFilter: host.onSeriesFilter
@@ -163,7 +163,7 @@ describe('synchronous host re-entrancy', () => {
     // the reset must be reported exactly once, to a host that re-enters
     host.chart.update({
       mochartConfig: makeConfig('week'),
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'week'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       filteredSeriesIds: {}
     });
     runFrames();
@@ -219,7 +219,7 @@ describe('controlled focus props', () => {
     document.body.appendChild(container);
     createChart(container, {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(data, 'month'),
+      dataProvider: new ArrayOfObjectsDataProvider(data),
       width: 300,
       height: 200,
       focusedSeriesId: 'fromAnotherChart',
@@ -267,7 +267,7 @@ describe('controlled focus props', () => {
     const freshFocus = vi.fn();
     const props = {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(data, 'month'),
+      dataProvider: new ArrayOfObjectsDataProvider(data),
       width: 300,
       height: 200,
       onFocus: staleFocus
@@ -279,7 +279,7 @@ describe('controlled focus props', () => {
     // one update swaps the data AND the callback, as a framework re-render does
     const [jan, feb, mar] = data;
     chart.update({
-      dataProvider: new ArrayOfObjectsDataProvider([feb, jan, mar], 'month'),
+      dataProvider: new ArrayOfObjectsDataProvider([feb, jan, mar]),
       onFocus: freshFocus
     });
     runFrames();

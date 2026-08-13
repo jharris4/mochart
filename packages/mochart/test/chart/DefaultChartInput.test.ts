@@ -54,8 +54,8 @@ describe('DefaultChartInput in-place data mutation', () => {
     data.push({ month: 'Apr', sales: 40, label: 'forty' });
     input.update(initial, initial);
 
+    // the stateless provider reads live; the identity staying put is what keeps the chart from re-reading
     expect(input.dataProvider).toBe(provider);
-    expect(input.dataProvider!.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar']);
   });
 
   it('refresh rebuilds the provider over the mutated array', () => {
@@ -67,7 +67,7 @@ describe('DefaultChartInput in-place data mutation', () => {
     input.refresh(initial);
 
     expect(input.dataProvider).not.toBe(provider);
-    expect(input.dataProvider!.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar', 'Apr']);
+    expect(input.dataProvider!.getPropertyValues('month')).toEqual(['Jan', 'Feb', 'Mar', 'Apr']);
   });
 });
 
@@ -75,7 +75,7 @@ describe('DefaultChartInput data validation', () => {
   it('exposes a valid provider for matching config and data', () => {
     const { input } = startInput(salesConfig(), rows);
     expect(isDataProviderValid(input.dataProvider)).toBe(true);
-    expect(input.dataProvider!.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar']);
+    expect(input.dataProvider!.getPropertyValues('month')).toEqual(['Jan', 'Feb', 'Mar']);
   });
 
   it('exposes an error provider when the data does not satisfy the config', () => {
@@ -118,7 +118,7 @@ describe('DefaultChartInput data validation', () => {
     const nextRows = [...rows, { month: 'Apr', sales: 40, label: 'forty' }];
     input.update(prev, props(salesConfig(), nextRows));
     expect(input.dataProvider).not.toBe(firstProvider);
-    expect(input.dataProvider!.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar', 'Apr']);
+    expect(input.dataProvider!.getPropertyValues('month')).toEqual(['Jan', 'Feb', 'Mar', 'Apr']);
   });
 
   it('exposes an error provider for data that is not an array of objects', () => {

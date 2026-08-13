@@ -112,7 +112,7 @@ describe('the provider handed to the state factories', () => {
   class CountingProvider extends ArrayOfObjectsDataProvider {
     readonly label = 'mine';
     rowCount(): number {
-      return this.getCategoryValues().length;
+      return this.getPropertyValues('month')!.length;
     }
   }
 
@@ -122,7 +122,7 @@ describe('the provider handed to the state factories', () => {
     document.body.appendChild(container);
     handles.push(createChart(container, {
       mochartConfig: enhanceConfig(config),
-      dataProvider: new CountingProvider(rows, 'month'),
+      dataProvider: new CountingProvider(rows),
       width: WIDTH,
       height: HEIGHT,
       error: 'boom',
@@ -139,7 +139,6 @@ describe('the provider handed to the state factories', () => {
     expect(seen).toBeInstanceOf(CountingProvider);
     expect((seen as CountingProvider).label).toBe('mine');
     expect((seen as CountingProvider).rowCount()).toBe(rows.length);
-    expect(typeof (seen as CountingProvider).refresh).toBe('function');
   });
 });
 
@@ -203,7 +202,7 @@ describe('a mochartConfig arriving after mount', () => {
   }
 
   const enhanced = () => enhanceConfig(config);
-  const provider = () => new ArrayOfObjectsDataProvider(rows, 'month');
+  const provider = () => new ArrayOfObjectsDataProvider(rows);
   const seriesCount = (container: Element) => container.querySelectorAll(getCssSelector('series')).length;
 
   it('renders the series once the config and provider arrive', () => {

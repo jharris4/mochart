@@ -20,7 +20,7 @@ const config: EnhancedMochartConfig = makeConfig({
 const seriesId = config.series[0].id;
 
 function chartDataFor(rows: Record<string, number>[]): AnimationChartData {
-  return getChartData(config, new ArrayOfObjectsDataProvider(rows, 'c'), {});
+  return getChartData(config, new ArrayOfObjectsDataProvider(rows), {});
 }
 
 function plain(chartData: AnimationChartData): (number | undefined)[] | null {
@@ -203,7 +203,7 @@ describe('translating linear category axis (sliding date window)', () => {
   });
   const windowRows = (firstDay: number) => [0, 1, 2, 3, 4].map(offset => ({ c: day(firstDay + offset), a: 5 }));
   const dataFor = (rows: { c: Date; a: number }[]) =>
-    getChartData(dateLinearConfig, new ArrayOfObjectsDataProvider(rows, 'c'), {});
+    getChartData(dateLinearConfig, new ArrayOfObjectsDataProvider(rows), {});
 
   // window d0..d4 -> d3..d7: union spans 7 days against 4-day endpoints, over the 1.5x threshold
   const cad = getChartAnimationData(dateLinearConfig, dataFor(windowRows(0)), dataFor(windowRows(3)));
@@ -278,8 +278,8 @@ describe('translating linear category axis (sliding date window)', () => {
       series: [{ property: 'a', renderer: 'bar' }]
     });
     const rows = windowRows(0);
-    const oldData = getChartData(boundsConfig(0, 2), new ArrayOfObjectsDataProvider(rows, 'c'), {});
-    const newData = getChartData(boundsConfig(5, 7), new ArrayOfObjectsDataProvider(rows, 'c'), {});
+    const oldData = getChartData(boundsConfig(0, 2), new ArrayOfObjectsDataProvider(rows), {});
+    const newData = getChartData(boundsConfig(5, 7), new ArrayOfObjectsDataProvider(rows), {});
     const panned = getChartAnimationData(boundsConfig(5, 7), oldData, newData);
     expect(panned.axisExpansionData.deltaPercentage).toBe(0);
     expect(panned.valueChangeData.deltas.domain.category.deltaPercentage).toBeGreaterThan(0);
@@ -300,7 +300,7 @@ describe('animation.valueDomainChange modes', () => {
     series: [{ property: 'a', renderer: 'bar' }]
   });
   const dataFor = (cfg: EnhancedMochartConfig, rows: Record<string, number>[]) =>
-    getChartData(cfg, new ArrayOfObjectsDataProvider(rows, 'c'), {});
+    getChartData(cfg, new ArrayOfObjectsDataProvider(rows), {});
 
   // the containment guarantee: no value ever leaves the interpolated domain mid-frame
   function expectValuesInsideDomain(cfg: EnhancedMochartConfig, cad: ReturnType<typeof getChartAnimationData>): void {
@@ -358,7 +358,7 @@ describe('animation.categoryDomainChange', () => {
     series: [{ property: 'a', renderer: 'bar' }]
   });
   const dataFor = (cfg: EnhancedMochartConfig, rows: { c: Date; a: number }[]) =>
-    getChartData(cfg, new ArrayOfObjectsDataProvider(rows, 'c'), {});
+    getChartData(cfg, new ArrayOfObjectsDataProvider(rows), {});
 
   it('stages a window slide by default', () => {
     const cfg = configWith({});
@@ -397,7 +397,7 @@ describe('getChartDataForValueDelta (range channel with an undefined hole)', () 
   const rangeSeriesId = rangeConfig.series[0].id;
 
   function rangeChartData(rows: Record<string, number>[]): AnimationChartData {
-    return getChartData(rangeConfig, new ArrayOfObjectsDataProvider(rows, 'c'), {});
+    return getChartData(rangeConfig, new ArrayOfObjectsDataProvider(rows), {});
   }
 
   // category 1's range value (hi) disappears at the end while its plain value stays
@@ -465,8 +465,8 @@ describe('category index maps with Date category values', () => {
   it('maps indices by value across fresh Date instances', () => {
     const cad = getChartAnimationData(
       dateConfig,
-      getChartData(dateConfig, new ArrayOfObjectsDataProvider(dateRows(0), 'c'), {}),
-      getChartData(dateConfig, new ArrayOfObjectsDataProvider(dateRows(5), 'c'), {})
+      getChartData(dateConfig, new ArrayOfObjectsDataProvider(dateRows(0)), {}),
+      getChartData(dateConfig, new ArrayOfObjectsDataProvider(dateRows(5)), {})
     );
     expect(oldIndexForNewIndex(cad.categoryDeltaData, 1)).toBe(1);
     expect(newIndexForOldIndex(cad.categoryDeltaData, 0)).toBe(0);
@@ -485,7 +485,7 @@ describe('filtered series-domain deltas drive the phase pacing', () => {
       series: [{ property: 'a', renderer: 'bar' }, { property: 'b', renderer: 'bar' }]
     });
     const dataFor = (rows: Record<string, number>[]) =>
-      getChartData(filteredConfig, new ArrayOfObjectsDataProvider(rows, 'c'), { S0: true });
+      getChartData(filteredConfig, new ArrayOfObjectsDataProvider(rows), { S0: true });
     const cad = getChartAnimationData(
       filteredConfig,
       dataFor([{ c: 0, a: 100, b: 5 }, { c: 1, a: 80, b: 10 }]),
@@ -512,7 +512,7 @@ describe('tooltip value deltas drive the phase pacing', () => {
       series: [{ property: 'a', tooltipProperty: 'info', renderer: 'bar' }]
     });
     const dataFor = (rows: Record<string, number>[]) =>
-      getChartData(tooltipConfig, new ArrayOfObjectsDataProvider(rows, 'c'), {});
+      getChartData(tooltipConfig, new ArrayOfObjectsDataProvider(rows), {});
     const cad = getChartAnimationData(
       tooltipConfig,
       dataFor([{ c: 0, a: 10, info: 100 }, { c: 1, a: 20, info: 200 }]),
@@ -541,7 +541,7 @@ describe('hidden series are excluded from axis phase pacing', () => {
   // b stays inside a's extent so toggling it never changes any axis domain
   const rows = [{ c: 0, a: 0, b: 10 }, { c: 1, a: 100, b: 90 }];
   const dataFor = (filtered: Record<string, boolean>) =>
-    getChartData(pacingConfig, new ArrayOfObjectsDataProvider(rows, 'c'), filtered);
+    getChartData(pacingConfig, new ArrayOfObjectsDataProvider(rows), filtered);
 
   it('unfiltering starts the value phase immediately (no dead expansion phase)', () => {
     const cad = getChartAnimationData(pacingConfig, dataFor({ [bId]: true }), dataFor({})) as any;

@@ -108,7 +108,7 @@ describe('Chart', () => {
     expect(mochartConfig.validation.valid).toBe(true);
     const fixture = createWith(Chart, {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       width: 400,
       height: 300
     });
@@ -133,7 +133,7 @@ describe('dataTestId', () => {
   it('applies and removes data-testid on the host element', () => {
     const fixture = createWith(Chart, {
       mochartConfig: enhanceConfig(rawConfig()),
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       width: 400,
       height: 300,
       dataTestId: 'revenue-chart'
@@ -220,7 +220,7 @@ describe('placeholder components', () => {
     expect(mochartConfig.validation.valid).toBe(false);
     const fixture = createWith(Chart, {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       configErrorComponent: ConfigError,
       width: 400,
       height: 300
@@ -293,7 +293,7 @@ describe('server-side rendering', () => {
     const mochartConfig = enhanceConfig(rawConfig());
     const fixture = createWith(Chart, {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       width: 400,
       height: 300
     });
@@ -380,7 +380,7 @@ describe('programmatic output subscription after mount', () => {
     try {
       const fixture = createWith(Chart, {
         mochartConfig: enhanceConfig(rawConfig()),
-        dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+        dataProvider: new ArrayOfObjectsDataProvider(rows),
         width: 400,
         height: 300
       });

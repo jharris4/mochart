@@ -56,7 +56,7 @@ describe('Chart', () => {
     const { container, root } = host();
     const mochartConfig = enhanceConfig(rawConfig());
     expect(mochartConfig.validation.valid).toBe(true);
-    const dataProvider = new ArrayOfObjectsDataProvider(rows, 'name');
+    const dataProvider = new ArrayOfObjectsDataProvider(rows);
 
     act(() => {
       root.render(<Chart mochartConfig={mochartConfig} dataProvider={dataProvider} width={400} height={300} />);
@@ -207,7 +207,7 @@ describe('placeholder components', () => {
       root.render(
         <Chart
           mochartConfig={mochartConfig}
-          dataProvider={new ArrayOfObjectsDataProvider(rows, 'name')}
+          dataProvider={new ArrayOfObjectsDataProvider(rows)}
           configErrorComponent={ConfigError}
           width={400}
           height={300}
@@ -328,7 +328,7 @@ describe('removed props', () => {
   it('clears the loading state when the prop is removed', () => {
     const { container, root } = host();
     const mochartConfig = enhanceConfig(rawConfig());
-    const dataProvider = new ArrayOfObjectsDataProvider(rows, 'name');
+    const dataProvider = new ArrayOfObjectsDataProvider(rows);
 
     act(() => {
       root.render(<Chart mochartConfig={mochartConfig} dataProvider={dataProvider} loading width={400} height={300} />);
@@ -377,7 +377,7 @@ describe('dataTestId', () => {
   it('applies and removes data-testid on the container div', () => {
     const { container, root } = host();
     const mochartConfig = enhanceConfig(rawConfig());
-    const dataProvider = new ArrayOfObjectsDataProvider(rows, 'name');
+    const dataProvider = new ArrayOfObjectsDataProvider(rows);
     act(() => {
       root.render(<Chart mochartConfig={mochartConfig} dataProvider={dataProvider} width={400} height={300} dataTestId="revenue-chart" />);
     });
@@ -398,7 +398,7 @@ describe('size props vs container style', () => {
   it('keeps the explicit size when the style sets a conflicting one', () => {
     const { container, root } = host();
     act(() => {
-      root.render(<Chart mochartConfig={enhanceConfig(rawConfig())} dataProvider={new ArrayOfObjectsDataProvider(rows, 'name')}
+      root.render(<Chart mochartConfig={enhanceConfig(rawConfig())} dataProvider={new ArrayOfObjectsDataProvider(rows)}
         width={400} height={300} style={{ width: '100%', margin: '4px' }} />);
     });
     const containerDiv = container.firstElementChild as HTMLDivElement;

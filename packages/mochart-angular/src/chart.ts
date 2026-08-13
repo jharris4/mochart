@@ -17,7 +17,7 @@ import type { CreateChartFn } from './host.js';
 })
 export class Chart extends BaseChart {
   @Input({ required: true }) mochartConfig!: MochartConfig | null;
-  @Input({ required: true }) dataProvider!: DataProvider<unknown> | null;
+  @Input({ required: true }) dataProvider!: DataProvider | null;
 
   protected override readonly create: CreateChartFn = createChart;
 

@@ -64,7 +64,7 @@ function renderChart(valueAxisConfig: Record<string, unknown>) {
   document.body.appendChild(container);
   const chart = createChart(container, {
     mochartConfig,
-    dataProvider: new ArrayOfObjectsDataProvider(data, 'label'),
+    dataProvider: new ArrayOfObjectsDataProvider(data),
     width: 300,
     height: 200
   });

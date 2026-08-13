@@ -15,7 +15,7 @@ function edges(configInput: Record<string, unknown>, rows: Row[] = overflowing, 
     series: [{ property: 'v', renderer: 'bar' }],
     ...configInput
   });
-  const chartData = getChartData(config, new ArrayOfObjectsDataProvider(rows, 'c'), filteredSeriesIds);
+  const chartData = getChartData(config, new ArrayOfObjectsDataProvider(rows), filteredSeriesIds);
   return getClippedEdges(config, chartData);
 }
 

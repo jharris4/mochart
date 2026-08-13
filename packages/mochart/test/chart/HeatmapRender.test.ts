@@ -66,7 +66,7 @@ describe('heatmap helper rendering', () => {
     document.body.appendChild(container);
     const chart = createChart(container, {
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(heatmap.data as Record<string, string | number>[], 'column'),
+      dataProvider: new ArrayOfObjectsDataProvider(heatmap.data as Record<string, string | number>[]),
       width: 300,
       height: 200
     });

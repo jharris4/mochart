@@ -31,7 +31,7 @@ describe('random mode generation for every demo', () => {
       for (const random of [demo.random!, neutralizeRandomReuse(demo.random!)]) {
         for (const randomId of [0, 3]) {
           const provider = generateDemoDataProvider(demo.generator, mochartConfig, random, randomId);
-          expect(provider.getCategoryValues().length).toBeGreaterThan(0);
+          expect(provider.categoryValues!.length).toBeGreaterThan(0);
           expect(getDataErrors(mochartConfig, provider as unknown as DataProvider)).toEqual([]);
         }
       }
@@ -59,7 +59,7 @@ describe('transition showcase config', () => {
     const providers = getTransitionDataProviders(defaultTransitionConfig);
     expect(providers.length).toBeGreaterThan(0);
     for (const provider of providers) {
-      expect(provider.getCategoryValues().length).toBeGreaterThan(0);
+      expect(provider.getPropertyValues(mochartConfig.categoryAxis.property!)!.length).toBeGreaterThan(0);
       expect(getDataErrors(mochartConfig, provider as unknown as DataProvider)).toEqual([]);
     }
   });

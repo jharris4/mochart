@@ -53,8 +53,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   let currentDataCount = sharedMulti && stepCycle() > 0
     ? ((Math.round(sharedMulti.step) % stepCycle()) + stepCycle()) % stepCycle()
     : (mochartDemoConfig.pieMode ? 0 : dataCount);
-  let dataProviders = getDataProvidersForDataCount(
-    mochartDemoConfig.mochartConfig, demoObject.data, chartRows * chartCols, currentDataCount);
+  let dataProviders = getDataProvidersForDataCount(demoObject.data, chartRows * chartCols, currentDataCount);
   let focusedCategoryIndices: number[] = dataProviders.map(() => -1);
   let focusedCategoryIndex = -1;
   let focusedValueAxisId: string | null = null;
@@ -78,18 +77,18 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
     const { mochartConfig } = mochartDemoConfig;
     if (focusedCategoryIndex >= 0) {
       const categoryValue = data[focusedCategoryIndex][mochartConfig.categoryAxis.property ?? ''];
-      return getFocusedCategoryIndicesForValue(nextDataProviders, categoryValue);
+      return getFocusedCategoryIndicesForValue(nextDataProviders, mochartConfig.categoryAxis.property ?? '', categoryValue);
     }
     else {
       return nextDataProviders.map(() => -1);
     }
   }
 
-  function getFocusedCategoryIndicesForValue(nextDataProviders: ChartDataProviderLike[], categoryValue: unknown): number[] {
+  function getFocusedCategoryIndicesForValue(nextDataProviders: ChartDataProviderLike[], categoryProperty: string, categoryValue: unknown): number[] {
     let count, i;
     return nextDataProviders.map(dataProvider => {
       let chartCategoryIndex = -1;
-      const categoryValues = dataProvider.getCategoryValues();
+      const categoryValues = dataProvider.getPropertyValues(categoryProperty) ?? [];
       count = categoryValues.length;
       for (i = 0; i < count; i++) {
         if (categoryValues[i] === categoryValue) {
@@ -102,7 +101,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   }
 
   function refreshDataProviders(): void {
-    dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
+    dataProviders = getDataProvidersForDataCount(data, chartRows * chartCols, currentDataCount);
     focusedCategoryIndices = getFocusedCategoryIndices(dataProviders);
     syncCharts();
   }
@@ -164,7 +163,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
     const { mochartConfig } = mochartDemoConfig;
     let nextFocusedCategoryIndices = focusedCategoryIndices;
     if (categoryIndex !== undefined && categoryIndex >= 0) {
-      const categoryValue = dataProviders[chartIndex].getCategoryValues()[categoryIndex];
+      const categoryValue = (dataProviders[chartIndex].getPropertyValues(mochartConfig.categoryAxis.property ?? '') ?? [])[categoryIndex];
       const count = data.length;
       for (let i = 0; i < count; i++) {
         if (data[i][mochartConfig.categoryAxis.property ?? ''] === categoryValue) {
@@ -173,7 +172,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
         }
       }
       if (categoryIndex !== focusedCategoryIndex) {
-        nextFocusedCategoryIndices = getFocusedCategoryIndicesForValue(dataProviders, categoryValue);
+        nextFocusedCategoryIndices = getFocusedCategoryIndicesForValue(dataProviders, mochartConfig.categoryAxis.property ?? '', categoryValue);
       }
     }
     else if (focusedCategoryIndex >= 0) {
@@ -327,7 +326,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
         dataCount = data.length;
         sliceIds = mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig).map(slice => slice.id) : [];
         currentDataCount = resetStep();
-        dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
+        dataProviders = getDataProvidersForDataCount(data, chartRows * chartCols, currentDataCount);
         focusedCategoryIndices = dataProviders.map(() => -1);
         syncCharts();
       }

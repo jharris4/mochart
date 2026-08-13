@@ -54,7 +54,7 @@ describe('Chart', () => {
     expect(mochartConfig.validation.valid).toBe(true);
     const props = $state({
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       width: 400,
       height: 300
     });
@@ -160,7 +160,7 @@ describe('placeholder components', () => {
       target: el,
       props: {
         mochartConfig,
-        dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+        dataProvider: new ArrayOfObjectsDataProvider(rows),
         configErrorComponent: ConfigError,
         width: 400,
         height: 300
@@ -242,7 +242,7 @@ describe('pre-effect prop changes', () => {
     const mochartConfig = enhanceConfig(rawConfig());
     const instance = mount(MountMutation, {
       target: el,
-      props: { mochartConfig, dataProvider: new ArrayOfObjectsDataProvider(rows, 'name') }
+      props: { mochartConfig, dataProvider: new ArrayOfObjectsDataProvider(rows) }
     });
     flushSync();
     expect(el.querySelector('svg')!.getAttribute('width')).toBe('500');
@@ -260,7 +260,7 @@ describe('removed props', () => {
     const mochartConfig = enhanceConfig(rawConfig());
     const props: { mochartConfig: any; dataProvider: any; loading?: boolean; width: number; height: number } = $state({
       mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       loading: true,
       width: 400,
       height: 300
@@ -318,7 +318,7 @@ describe('dataTestId', () => {
     const el = target();
     const props = $state({
       mochartConfig: enhanceConfig(rawConfig()),
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
       width: 400,
       height: 300,
       dataTestId: 'revenue-chart' as string | undefined

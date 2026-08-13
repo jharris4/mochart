@@ -12,7 +12,7 @@ function stackedSetup(rows: Record<string, number>[]) {
     ],
     seriesStacks: [{ id: 'SS0' }]
   });
-  const chartData = getChartData(config, new ArrayOfObjectsDataProvider(rows, 'c'), {});
+  const chartData = getChartData(config, new ArrayOfObjectsDataProvider(rows), {});
   return { config, chartData };
 }
 

@@ -104,7 +104,7 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
       ? ((Math.round(shared.step) % cycle) + cycle) % cycle
       : this.resetStep();
     this.currentDataCount.set(currentDataCount);
-    this.dataProviders.set(getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, rows * cols, currentDataCount));
+    this.dataProviders.set(getDataProvidersForDataCount(data, rows * cols, currentDataCount));
     this.focusedCategoryIndices.set(this.dataProviders().map(() => -1));
   }
 
@@ -171,7 +171,7 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
       this.dataCount.set(this.data().length);
       this.sliceIds.set(this.computeSliceIds(this.mochartDemoConfig()!));
       this.currentDataCount.set(this.resetStep());
-      this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
+      this.dataProviders.set(getDataProvidersForDataCount(this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
       this.focusedCategoryIndices.set(this.dataProviders().map(() => -1));
     }
     if (changes['active']) {
@@ -186,14 +186,14 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   onRowsChange = (nextChartRows: number): void => {
     this.chartRows.set(nextChartRows);
     this.currentDataCount.set(this.resetStep());
-    this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
+    this.dataProviders.set(getDataProvidersForDataCount(this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
     this.focusedCategoryIndices.set(this.getFocusedCategoryIndices(this.dataProviders()));
   };
 
   onColsChange = (nextChartCols: number): void => {
     this.chartCols.set(nextChartCols);
     this.currentDataCount.set(this.resetStep());
-    this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
+    this.dataProviders.set(getDataProvidersForDataCount(this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
     this.focusedCategoryIndices.set(this.getFocusedCategoryIndices(this.dataProviders()));
   };
 
@@ -202,13 +202,13 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     this.currentDataCount.set(this.mochartDemoConfig()!.pieMode
       ? (this.currentDataCount() - 1 + cycle) % cycle
       : cycle + (this.currentDataCount() - 1) % cycle);
-    this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
+    this.dataProviders.set(getDataProvidersForDataCount(this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
     this.focusedCategoryIndices.set(this.getFocusedCategoryIndices(this.dataProviders()));
   };
 
   onStepForwardClick = (): void => {
     this.currentDataCount.set((this.currentDataCount() + 1) % this.stepCycle());
-    this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
+    this.dataProviders.set(getDataProvidersForDataCount(this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
     this.focusedCategoryIndices.set(this.getFocusedCategoryIndices(this.dataProviders()));
   };
 
@@ -216,18 +216,18 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     const { mochartConfig } = this.mochartDemoConfig()!;
     if (this.focusedCategoryIndex() >= 0) {
       const categoryValue = this.data()[this.focusedCategoryIndex()][mochartConfig.categoryAxis.property ?? ''];
-      return this.getFocusedCategoryIndicesForValue(nextDataProviders, categoryValue);
+      return this.getFocusedCategoryIndicesForValue(nextDataProviders, mochartConfig.categoryAxis.property ?? '', categoryValue);
     }
     else {
       return nextDataProviders.map(() => -1);
     }
   }
 
-  private getFocusedCategoryIndicesForValue(nextDataProviders: ChartDataProviderLike[], categoryValue: unknown): number[] {
+  private getFocusedCategoryIndicesForValue(nextDataProviders: ChartDataProviderLike[], categoryProperty: string, categoryValue: unknown): number[] {
     let count, i;
     return nextDataProviders.map(dataProvider => {
       let chartCategoryIndex = -1;
-      const categoryValues = dataProvider.getCategoryValues();
+      const categoryValues = dataProvider.getPropertyValues(categoryProperty) ?? [];
       count = categoryValues.length;
       for (i = 0; i < count; i++) {
         if (categoryValues[i] === categoryValue) {
@@ -271,7 +271,7 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     const { mochartConfig } = this.mochartDemoConfig()!;
     let nextFocusedCategoryIndices = this.focusedCategoryIndices();
     if (categoryIndex !== undefined && categoryIndex >= 0) {
-      const categoryValue = this.dataProviders()[chartIndex].getCategoryValues()[categoryIndex];
+      const categoryValue = (this.dataProviders()[chartIndex].getPropertyValues(mochartConfig.categoryAxis.property ?? '') ?? [])[categoryIndex];
       const count = this.data().length;
       for (let i = 0; i < count; i++) {
         if (this.data()[i][mochartConfig.categoryAxis.property ?? ''] === categoryValue) {
@@ -280,7 +280,7 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
         }
       }
       if (categoryIndex !== this.focusedCategoryIndex()) {
-        nextFocusedCategoryIndices = this.getFocusedCategoryIndicesForValue(this.dataProviders(), categoryValue);
+        nextFocusedCategoryIndices = this.getFocusedCategoryIndicesForValue(this.dataProviders(), mochartConfig.categoryAxis.property ?? '', categoryValue);
       }
     }
     else if (this.focusedCategoryIndex() >= 0) {

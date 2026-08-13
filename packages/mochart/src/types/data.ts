@@ -166,39 +166,34 @@ export interface CategoryValueObject {
 }
 
 /**
+ * Any value a data cell may legally hold: numbers for series properties,
+ * string | number | Date for category and display properties, and
+ * null/undefined for a missing value (the chart reads both as missing).
+ * Anything else is a data error.
+ */
+export type DataValue = number | string | Date | null | undefined;
+
+/**
  * The interface charts read data through. `ArrayOfObjectsDataProvider` and
  * `ObjectOfArraysDataProvider` cover the common dataset shapes; implement
  * this to read straight from an existing store without copying.
  *
- * A provider is a read-only lookup over one dataset: the category values as a
- * whole array, then any other property the config names, one category at a
- * time. Both accessors are required — a provider missing either is invalid
- * (`isDataProviderValid` is false and `getDataErrors` names what is missing).
- * The other four members are optional and independent; each one buys a single
- * behaviour, and a provider that wants none of them can omit all four.
+ * A provider is a read-only column lookup over one dataset: any property the
+ * config names — `categoryAxis.property` and `displayProperty` included — is
+ * answered the same way, as the whole column. `getPropertyValues` is the one
+ * required member (`isDataProviderValid` is false without it); the optional
+ * members each buy a single behaviour.
  */
-export interface DataProvider<TCategoryValue = CategoryValue> {
-  /** The category values, one per category, in display order. */
-  getCategoryValues(): readonly TCategoryValue[];
+export interface DataProvider {
   /**
-   * The value of one data property for one category. The chart calls it for
-   * every property its config names, which means two kinds of value:
-   *
-   * - a series `property`, `rangeProperty`, `errorLowProperty`,
-   *   `errorHighProperty`, `markerProperty`, `colorProperty`,
-   *   `labelProperty` or `tooltipProperty` must return a number, or
-   *   `undefined` for a missing value;
-   * - `categoryAxis.displayProperty` must return a string, number or `Date`
-   *   matching `categoryAxis.type`, exactly like a raw category value.
-   *
-   * The return type is `unknown` because of that second case; `getDataErrors`
-   * checks both against the config. Return the stored cell either way — this
-   * runs once per category per configured property whenever the chart
-   * recomputes its data, so it should stay a plain lookup.
+   * All values of one named data property, index-aligned with every other
+   * property's values; `undefined` when the property isn't in the data.
+   * The config's category property defines the category count — every other
+   * column must match its length, and `getDataErrors` flags one that doesn't.
+   * Called whenever the chart recomputes its data, so it should stay a plain
+   * lookup; the chart snapshots what it needs and never mutates the array.
    */
-  getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, property: string): unknown;
-  /** The data property the category values come from; when present, `getDataErrors` flags a mismatch with `categoryAxis.property`. */
-  getCategoryProperty?(): string;
+  getPropertyValues(property: string): readonly DataValue[] | undefined;
   /** When it returns anything but null/undefined, the chart shows its error state — `''` and `0` count. */
   getError?(): unknown;
   /** When set and true, the chart shows its loading state. */

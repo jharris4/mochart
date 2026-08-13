@@ -78,10 +78,7 @@ function randomValue({ min, max, round }: SeriesBounds): number {
 }
 
 function makeDataProvider(): any {
-  if (categoryProperty === undefined) {
-    throw new Error('Cannot create a data provider without a category property');
-  }
-  return new ArrayOfObjectsDataProvider(currentData, categoryProperty);
+  return new ArrayOfObjectsDataProvider(currentData);
 }
 
 function mountDemo(demo: Demo): void {

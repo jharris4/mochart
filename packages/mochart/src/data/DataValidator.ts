@@ -3,7 +3,7 @@ import { isDataProviderValid, getMissingDataProviderMembers } from './ChartData'
 import { getCategoryValueKey } from './CategoryValue';
 import { NONE, TYPE_DATE, TYPE_NUMBER, SCALE_LINEAR, RENDERER_LINE, RENDERER_AREA } from '../config/core/constants';
 import type { MochartConfig } from '../types/config';
-import type { DataProvider, CategoryValue } from '../types/data';
+import type { DataProvider, CategoryValue, DataValue } from '../types/data';
 
 function getDuplicates(values: readonly CategoryValue[]): CategoryValue[] {
   const valueMap: Record<string, number> = Object.create(null); // null proto: keyed by user data category values
@@ -41,11 +41,27 @@ function getOutOfOrderValues(isDate: boolean, categoryValues: readonly CategoryV
   return outOfOrder;
 }
 
-/** Series properties are the numeric half of getSeriesValue's contract; categoryAxis.displayProperty is checked against the axis type instead. */
-function checkProperty(dataErrors: string[], dataProvider: DataProvider, categoryValues: readonly CategoryValue[], property: string): void {
-  const numberValidator = validators.number().orEqual(undefined);
-  if (categoryValues.some((g, i) => !numberValidator(dataProvider.getSeriesValue(g, i, property)))) {
-    dataErrors.push('series values must be numeric or undefined for property: ' + property);
+/** A missing column, a misaligned column, and a wrong-length category column each get their own error. */
+function checkColumn(dataErrors: string[], column: readonly DataValue[] | undefined, categoryCount: number, property: string): column is readonly DataValue[] {
+  if (column === undefined) {
+    dataErrors.push('no values found for property: ' + property);
+    return false;
+  }
+  if (column.length !== categoryCount) {
+    dataErrors.push('property ' + property + ' has ' + column.length + ' values but there are ' + categoryCount + ' categories');
+    return false;
+  }
+  return true;
+}
+
+/** Series columns must be numeric; null and undefined both read as missing. categoryAxis.displayProperty is checked against the axis type instead. */
+function checkSeriesProperty(dataErrors: string[], dataProvider: DataProvider, categoryCount: number, property: string): void {
+  const column = dataProvider.getPropertyValues(property);
+  if (checkColumn(dataErrors, column, categoryCount, property)) {
+    const numberValidator = validators.number().orEqual(undefined).orEqual(null);
+    if (column.some(value => !numberValidator(value))) {
+      dataErrors.push('series values must be numeric or missing for property: ' + property);
+    }
   }
 }
 
@@ -63,26 +79,25 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
   if (isDataProviderValid(dataProvider)) {
     const { categoryAxis: categoryAxisConfig, series: seriesConfigs } = mochartConfig;
 
-    if (dataProvider.getCategoryProperty !== undefined) {
-      const providerCategoryProperty = dataProvider.getCategoryProperty();
-      if (providerCategoryProperty !== categoryAxisConfig.property) {
-        dataErrors.push('categoryAxis.property (' + categoryAxisConfig.property + ') does not match the data provider category property (' + providerCategoryProperty + ')');
-      }
+    const categoryColumn = dataProvider.getPropertyValues(categoryAxisConfig.property!);
+    if (categoryColumn === undefined) {
+      // the category column defines the category count, so nothing else is checkable without it
+      dataErrors.push('no category values found for property: ' + categoryAxisConfig.property);
+      return dataErrors;
     }
+    const categoryCount = categoryColumn.length;
+    const categoryValues = categoryColumn as readonly CategoryValue[];
 
-    const categoryValues = dataProvider.getCategoryValues();
     const numberValidator = validators.number();
     const stringValidator = validators.string();
-    let getCategoryValue: (index: number) => unknown;
+    // the values the axis type check applies to: the display column when one is configured
+    let typedCategoryValues: readonly DataValue[] | null = categoryColumn;
     if (categoryAxisConfig.displayProperty !== NONE) {
-      if (categoryValues.some(g => !(stringValidator(g) || numberValidator(g)))) {
+      if (categoryColumn.some(g => !(stringValidator(g) || numberValidator(g)))) {
         dataErrors.push('raw category values must be number or string when display property is set');
       }
-      const displayProperty = categoryAxisConfig.displayProperty;
-      getCategoryValue = i => dataProvider.getSeriesValue(categoryValues[i], i, displayProperty);
-    }
-    else {
-      getCategoryValue = i => categoryValues[i];
+      const displayColumn = dataProvider.getPropertyValues(categoryAxisConfig.displayProperty);
+      typedCategoryValues = checkColumn(dataErrors, displayColumn, categoryCount, categoryAxisConfig.displayProperty) ? displayColumn : null;
     }
     let validator;
     if (categoryAxisConfig.type === TYPE_DATE) {
@@ -94,8 +109,7 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
     else {
       validator = validators.string();
     }
-    if(categoryValues.some((_g, i) => !validator(getCategoryValue(i)))) {
-      // the display case names its property: getSeriesValue serves it too, and its values are typed like category values, not like series values
+    if (typedCategoryValues !== null && typedCategoryValues.some(value => !validator(value))) {
       dataErrors.push(categoryAxisConfig.displayProperty !== NONE
         ? 'display category values must all match the specified type for property: ' + categoryAxisConfig.displayProperty
         : 'category values must all match the specified type');
@@ -119,27 +133,27 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
       }
     }
     for (const seriesConfig of seriesConfigs) {
-      checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.property!);
+      checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.property!);
       if (seriesConfig.rangeProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.rangeProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.rangeProperty);
       }
       if (seriesConfig.errorLowProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.errorLowProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.errorLowProperty);
       }
       if (seriesConfig.errorHighProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.errorHighProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.errorHighProperty);
       }
       if (seriesConfig.markerProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.markerProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.markerProperty);
       }
       if (seriesConfig.colorProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.colorProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.colorProperty);
       }
       if (seriesConfig.labelProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.labelProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.labelProperty);
       }
       if (seriesConfig.tooltipProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.tooltipProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.tooltipProperty);
       }
     }
   }

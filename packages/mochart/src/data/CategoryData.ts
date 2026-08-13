@@ -1,5 +1,6 @@
 import { getCategoryDomainForValues } from './DomainData';
 import { getAxisDomain, getRenderAxisDomain } from './AxisDomainData';
+import { readAlignedColumn, readCategoryColumn } from './ColumnData';
 import { NONE, TYPE_DATE, SCALE_ORDINAL } from '../config/core/constants';
 import type { CategoryAxisConfig } from '../types/config';
 import type {
@@ -12,10 +13,12 @@ import type {
 } from '../types/data';
 
 export function getCategoryData(categoryAxisConfig: CategoryAxisConfig, dataProvider: DataProvider): CategoryData {
-  const rawCategoryValues = getRawCategoryValues(categoryAxisConfig, dataProvider);
+  // config/provider mismatches and duplicate/missing categories are getDataErrors' job; this hot path trusts its input
+  const rawCategoryValues = readCategoryColumn(dataProvider, categoryAxisConfig.property!);
   let displayCategoryValues: readonly CategoryValue[] = rawCategoryValues;
   if (categoryAxisConfig.displayProperty !== NONE) {
-    displayCategoryValues = getDisplayCategoryValues(rawCategoryValues, dataProvider, categoryAxisConfig.displayProperty);
+    // displayProperty is an ordinary column; getDataErrors checks it against the axis type, not the numeric series validator
+    displayCategoryValues = readAlignedColumn(dataProvider, categoryAxisConfig.displayProperty, rawCategoryValues.length) as CategoryValue[];
   }
   return getCategoryDataFromValues(categoryAxisConfig, rawCategoryValues, displayCategoryValues);
 }
@@ -61,21 +64,6 @@ function getCategoryValues(
     parsed: parsedCategoryValues,
     numeric: numericCategoryValues
   };
-}
-
-function getRawCategoryValues(_categoryAxisConfig: CategoryAxisConfig, dataProvider: DataProvider): readonly CategoryValue[] {
-  // config/provider mismatches and duplicate/undefined categories are getDataErrors' job; this hot path trusts its input
-  return dataProvider.getCategoryValues();
-}
-
-/** The provider's one property accessor also serves categoryAxis.displayProperty; getDataErrors checks these against the axis type, not the numeric series validator. */
-function getDisplayCategoryValues(rawCategoryValues: readonly CategoryValue[], dataProvider: DataProvider, categoryDisplayProperty: string): CategoryValue[] {
-  const displayCategoryValues: CategoryValue[] = [];
-  const categoryCount = rawCategoryValues.length;
-  for (let categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
-    displayCategoryValues.push(dataProvider.getSeriesValue(rawCategoryValues[categoryIndex], categoryIndex, categoryDisplayProperty) as CategoryValue);
-  }
-  return displayCategoryValues;
 }
 
 function getParsedCategoryValues(categoryAxisConfig: CategoryAxisConfig, categoryValues: readonly CategoryValue[]): readonly CategoryValue[] {

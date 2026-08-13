@@ -41,7 +41,7 @@
     onChartCountToggle: () => void;
   }
 
-  type EditableDataProvider = DataProvider<unknown>;
+  type EditableDataProvider = DataProvider;
 
   interface FocusPayload {
     valueAxisId?: string | null;
@@ -125,7 +125,7 @@
     }
     filteredFocusedCategoryIndex = dataError ? -1 : getFilteredFocusedCategoryIndex(nextFilteredData);
     if (!dataError && mochartDemoConfig.mochartConfig.validation.valid) {
-      dataProvider = new ArrayOfObjectsDataProvider(nextFilteredData, mochartDemoConfig.mochartConfig.categoryAxis.property ?? '');
+      dataProvider = new ArrayOfObjectsDataProvider(nextFilteredData);
     }
     else if (dataError) {
       dataProvider = createErrorDataProvider(dataError);
@@ -638,7 +638,7 @@
   const chartDataError = $derived(!!(dataProvider && dataProvider.getError && dataProvider.getError()));
   const configError = $derived(!mochartDemoConfig.valid);
   const error = $derived(chartDataError || configError);
-  const filteredCategoryValues = $derived<readonly any[]>(error || !dataProvider ? [] : dataProvider.getCategoryValues());
+  const filteredCategoryValues = $derived<readonly any[]>(error || !dataProvider ? [] : dataProvider.getPropertyValues(mochartDemoConfig.mochartConfig.categoryAxis.property ?? '') ?? []);
   const selectedCategoryValues = $derived((error || categoryValuesText === emptyCategoryText) ? [] : categoryValuesText.split(','));
   const filteredCategoryMap = $derived(filteredCategoryValues.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {}));
   const disableRemove = $derived(orderChanged || !selectedCategoryValues.some(category => filteredCategoryMap[category]));

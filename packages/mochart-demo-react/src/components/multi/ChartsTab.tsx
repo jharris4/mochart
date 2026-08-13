@@ -67,7 +67,7 @@ function buildInitial(demoObject: Demo, chartRows: number, chartCols: number, ra
   const currentDataCount = step !== undefined && stepCycle > 0
     ? ((Math.round(step) % stepCycle) + stepCycle) % stepCycle
     : (mochartDemoConfig.pieMode ? 0 : dataCount);
-  const dataProviders = getDataProvidersForDataCount(mochartConfig, data, chartRows * chartCols, currentDataCount);
+  const dataProviders = getDataProvidersForDataCount(data, chartRows * chartCols, currentDataCount);
   const focusedCategoryIndices = dataProviders.map(() => -1);
   return {
     focusedCategoryIndex: -1,
@@ -111,10 +111,10 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     setState(prev => buildInitial(demoObject, prev.chartRows, prev.chartCols, prev.rate));
   }
 
-  const getFocusedCategoryIndicesForValue = (dataProviders: ChartDataProviderLike[], categoryValue: unknown): number[] => {
+  const getFocusedCategoryIndicesForValue = (dataProviders: ChartDataProviderLike[], categoryProperty: string, categoryValue: unknown): number[] => {
     return dataProviders.map(dataProvider => {
       let chartCategoryIndex = -1;
-      const categoryValues = dataProvider.getCategoryValues();
+      const categoryValues = dataProvider.getPropertyValues(categoryProperty) ?? [];
       const count = categoryValues.length;
       for (let i = 0; i < count; i++) {
         if (categoryValues[i] === categoryValue) {
@@ -131,7 +131,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     const { mochartConfig } = mochartDemoConfig;
     if (focusedCategoryIndex >= 0) {
       const categoryValue = data[focusedCategoryIndex][mochartConfig.categoryAxis.property ?? ''];
-      return getFocusedCategoryIndicesForValue(dataProviders, categoryValue);
+      return getFocusedCategoryIndicesForValue(dataProviders, mochartConfig.categoryAxis.property ?? '', categoryValue);
     }
     else {
       return dataProviders.map(() => -1);
@@ -142,9 +142,8 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
 
   const onRowsChange = (chartRows: number) => {
     setState(prev => {
-      const { mochartConfig } = prev.mochartDemoConfig;
       const currentDataCount = resetStepOf(prev);
-      const dataProviders = getDataProvidersForDataCount(mochartConfig, prev.data, chartRows * prev.chartCols, currentDataCount);
+      const dataProviders = getDataProvidersForDataCount(prev.data, chartRows * prev.chartCols, currentDataCount);
       const focusedCategoryIndices = getFocusedCategoryIndices(prev, dataProviders);
       return { ...prev, chartRows, currentDataCount, dataProviders, focusedCategoryIndices };
     });
@@ -152,9 +151,8 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
 
   const onColsChange = (chartCols: number) => {
     setState(prev => {
-      const { mochartConfig } = prev.mochartDemoConfig;
       const currentDataCount = resetStepOf(prev);
-      const dataProviders = getDataProvidersForDataCount(mochartConfig, prev.data, prev.chartRows * chartCols, currentDataCount);
+      const dataProviders = getDataProvidersForDataCount(prev.data, prev.chartRows * chartCols, currentDataCount);
       const focusedCategoryIndices = getFocusedCategoryIndices(prev, dataProviders);
       return { ...prev, chartCols, currentDataCount, dataProviders, focusedCategoryIndices };
     });
@@ -162,12 +160,11 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
 
   const onStepBackwardClick = () => {
     setState(prev => {
-      const { mochartConfig } = prev.mochartDemoConfig;
       const cycle = stepCycleOf(prev);
       const currentDataCount = prev.mochartDemoConfig.pieMode
         ? (prev.currentDataCount - 1 + cycle) % cycle
         : cycle + (prev.currentDataCount - 1) % cycle;
-      const dataProviders = getDataProvidersForDataCount(mochartConfig, prev.data, prev.chartRows * prev.chartCols, currentDataCount);
+      const dataProviders = getDataProvidersForDataCount(prev.data, prev.chartRows * prev.chartCols, currentDataCount);
       const focusedCategoryIndices = getFocusedCategoryIndices(prev, dataProviders);
       return { ...prev, currentDataCount, dataProviders, focusedCategoryIndices };
     });
@@ -175,9 +172,8 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
 
   const onStepForwardClick = () => {
     setState(prev => {
-      const { mochartConfig } = prev.mochartDemoConfig;
       const currentDataCount = (prev.currentDataCount + 1) % stepCycleOf(prev);
-      const dataProviders = getDataProvidersForDataCount(mochartConfig, prev.data, prev.chartRows * prev.chartCols, currentDataCount);
+      const dataProviders = getDataProvidersForDataCount(prev.data, prev.chartRows * prev.chartCols, currentDataCount);
       const focusedCategoryIndices = getFocusedCategoryIndices(prev, dataProviders);
       return { ...prev, currentDataCount, dataProviders, focusedCategoryIndices };
     });
@@ -222,7 +218,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     const { mochartConfig } = mochartDemoConfig;
     let focusedCategoryIndices = state.focusedCategoryIndices;
     if (categoryIndex !== undefined && categoryIndex >= 0) {
-      const categoryValue = dataProviders[chartIndex].getCategoryValues()[categoryIndex];
+      const categoryValue = (dataProviders[chartIndex].getPropertyValues(mochartConfig.categoryAxis.property ?? '') ?? [])[categoryIndex];
       const count = data.length;
       for (let i = 0; i < count; i++) {
         if (data[i][mochartConfig.categoryAxis.property ?? ''] === categoryValue) {
@@ -231,7 +227,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
         }
       }
       if (categoryIndex !== currentFocusedCategoryIndex) {
-        focusedCategoryIndices = getFocusedCategoryIndicesForValue(dataProviders, categoryValue);
+        focusedCategoryIndices = getFocusedCategoryIndicesForValue(dataProviders, mochartConfig.categoryAxis.property ?? '', categoryValue);
       }
     }
     else if (currentFocusedCategoryIndex >= 0) {

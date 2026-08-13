@@ -22,7 +22,7 @@ function makeChartData() {
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales' }]
   });
-  const provider = new ArrayOfObjectsDataProvider(rows, 'month');
+  const provider = new ArrayOfObjectsDataProvider(rows);
   return { config, chartData: getChartData(config, provider, {}) };
 }
 
@@ -33,35 +33,31 @@ describe('isDataProviderValid', () => {
   });
 
   it('is true for a provider with no getError', () => {
-    const provider = new ArrayOfObjectsDataProvider(rows, 'month');
+    const provider = new ArrayOfObjectsDataProvider(rows);
     expect(isDataProviderValid(provider)).toBe(true);
   });
 
   it('is true for a provider whose getError returns null or undefined', () => {
-    const nullProvider = { getCategoryValues: () => [], getSeriesValue: () => 0, getError: () => null } as unknown as DataProvider;
+    const nullProvider = { getPropertyValues: () => [], getError: () => null } as unknown as DataProvider;
     expect(isDataProviderValid(nullProvider)).toBe(true);
-    const undefinedProvider = { getCategoryValues: () => [], getSeriesValue: () => 0, getError: () => undefined } as unknown as DataProvider;
+    const undefinedProvider = { getPropertyValues: () => [], getError: () => undefined } as unknown as DataProvider;
     expect(isDataProviderValid(undefinedProvider)).toBe(true);
   });
 
   it('is false for a provider whose getError returns a message', () => {
-    const provider = { getCategoryValues: () => [], getSeriesValue: () => 0, getError: () => 'boom' } as unknown as DataProvider;
+    const provider = { getPropertyValues: () => [], getError: () => 'boom' } as unknown as DataProvider;
     expect(isDataProviderValid(provider)).toBe(false);
   });
 
-  // Regression: a provider missing a required accessor used to pass here and throw inside getChartData
-  it('is false for a provider missing a required accessor', () => {
-    const noCategoryValues = { getSeriesValue: () => 0 } as unknown as DataProvider;
-    expect(isDataProviderValid(noCategoryValues)).toBe(false);
-    const noSeriesValue = { getCategoryValues: () => [] } as unknown as DataProvider;
-    expect(isDataProviderValid(noSeriesValue)).toBe(false);
+  // Regression: a provider missing the required accessor used to pass here and throw inside getChartData
+  it('is false for a provider missing the required accessor', () => {
     // an error-free provider that only reports state is not a provider
     const stateOnly = { getError: () => null, getLoading: () => false } as unknown as DataProvider;
     expect(isDataProviderValid(stateOnly)).toBe(false);
   });
 
-  it('is true for a provider with both accessors and none of the optional members', () => {
-    const bare = { getCategoryValues: () => [], getSeriesValue: () => 0 } as unknown as DataProvider;
+  it('is true for a provider with the one accessor and none of the optional members', () => {
+    const bare = { getPropertyValues: () => [] } as unknown as DataProvider;
     expect(isDataProviderValid(bare)).toBe(true);
   });
 
@@ -137,7 +133,7 @@ describe('undefined series values', () => {
       series: [{ property: 'a' }]
     });
     // category 1 has no value for property "a"
-    const provider = new ArrayOfObjectsDataProvider([{ g: 0, a: 10 }, { g: 1 }, { g: 2, a: 30 }], 'g');
+    const provider = new ArrayOfObjectsDataProvider([{ g: 0, a: 10 }, { g: 1 }, { g: 2, a: 30 }]);
     const seriesId = config.series[0].id;
     return { chartData: getChartData(config, provider, {}), seriesId };
   }
@@ -162,7 +158,7 @@ describe('undefined series values', () => {
       series: [{ property: 'a', rangeProperty: 'hi' }]
     });
     // category 1 has no "hi" (range) value, but keeps its "a" (plain) value
-    const provider = new ArrayOfObjectsDataProvider([{ g: 0, a: 10, hi: 15 }, { g: 1, a: 20 }, { g: 2, a: 30, hi: 35 }], 'g');
+    const provider = new ArrayOfObjectsDataProvider([{ g: 0, a: 10, hi: 15 }, { g: 1, a: 20 }, { g: 2, a: 30, hi: 35 }]);
     const seriesId = config.series[0].id;
     const chartData = getChartData(config, provider, {});
     expect(chartData.seriesData.raw.values[seriesId].plain).toEqual([10, 20, 30]);
@@ -181,7 +177,7 @@ describe('prototype-member series ids', () => {
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
       series: [{ id, property: 'sales' }]
     });
-    return getChartData(config, new ArrayOfObjectsDataProvider(protoRows, 'month'), filteredSeriesMap);
+    return getChartData(config, new ArrayOfObjectsDataProvider(protoRows), filteredSeriesMap);
   }
 
   it('does not treat a series with a prototype-member id as filtered', () => {

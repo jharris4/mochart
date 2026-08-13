@@ -98,7 +98,7 @@ describe('createChart refresh', () => {
       { label: 'b', value: 3 },
       { label: 'c', value: 2 }
     ];
-    const dataProvider = new mochart.ArrayOfObjectsDataProvider(data, 'label');
+    const dataProvider = new mochart.ArrayOfObjectsDataProvider(data);
     const mochartConfig = mochart.enhanceConfig({
       ...config,
       animation: { animate: false }
@@ -131,8 +131,8 @@ describe('createChart refresh', () => {
     const liveCategories = ['a', 'b', 'c'];
     const liveValues: Record<string, number> = { a: 1, b: 3, c: 2 };
     const dataProvider = {
-      getCategoryValues: () => [...liveCategories],
-      getSeriesValue: (categoryValue: unknown) => liveValues[String(categoryValue)]
+      getPropertyValues: (property: string) =>
+        property === 'label' ? [...liveCategories] : liveCategories.map(label => liveValues[label])
     };
     const mochartConfig = mochart.enhanceConfig({
       ...config,
@@ -174,18 +174,18 @@ describe('createChart refresh', () => {
     expect(getCategoryLabels(container)).toEqual([]);
 
     const data = [{ label: 'a', value: 1 }, { label: 'b', value: 3 }];
-    chart.update({ dataProvider: new mochart.ArrayOfObjectsDataProvider(data, 'label'), loading: false });
+    chart.update({ dataProvider: new mochart.ArrayOfObjectsDataProvider(data), loading: false });
     runFrames();
     expect(getCategoryLabels(container).sort()).toEqual(['a', 'b']);
     chart.destroy();
   });
 
-  it('un-snapshots a built-in row provider via its refresh hook', () => {
+  it('re-reads a stateless built-in row provider on refresh', () => {
     const data = [
       { label: 'a', value: 1 },
       { label: 'b', value: 3 }
     ];
-    const dataProvider = new mochart.ArrayOfObjectsDataProvider(data, 'label');
+    const dataProvider = new mochart.ArrayOfObjectsDataProvider(data);
     const mochartConfig = mochart.enhanceConfig(config as never);
     expect(mochartConfig.validation.valid).toBe(true);
 
@@ -207,8 +207,8 @@ describe('createChart refresh', () => {
     const liveCategories = ['a', 'b'];
     const liveValues: Record<string, number> = { a: 1, b: 3, c: 2 };
     const dataProvider = {
-      getCategoryValues: () => [...liveCategories],
-      getSeriesValue: (categoryValue: unknown) => liveValues[String(categoryValue)]
+      getPropertyValues: (property: string) =>
+        property === 'label' ? [...liveCategories] : liveCategories.map(label => liveValues[label])
     };
     const mochartConfig = mochart.enhanceConfig(config as never);
     expect(mochartConfig.validation.valid).toBe(true);

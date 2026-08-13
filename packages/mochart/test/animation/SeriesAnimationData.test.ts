@@ -27,13 +27,13 @@ describe('getInitialValueChangeData with filtered series', () => {
 
   it('handles a filtered stacked series alongside a filtered unstacked series', () => {
     const config = stackedPlusUnstackedConfig();
-    const chartData = getChartData(config, new ArrayOfObjectsDataProvider(rows, 'g'), { S1: true, S2: true });
+    const chartData = getChartData(config, new ArrayOfObjectsDataProvider(rows), { S1: true, S2: true });
     expect(() => getChartAnimationData(config, null, chartData)).not.toThrow();
   });
 
   it('does not leak stack priors into later charts', () => {
     const stackedConfig = stackedPlusUnstackedConfig();
-    const stackedData = getChartData(stackedConfig, new ArrayOfObjectsDataProvider(rows, 'g'), { S1: true });
+    const stackedData = getChartData(stackedConfig, new ArrayOfObjectsDataProvider(rows), { S1: true });
     getChartAnimationData(stackedConfig, null, stackedData);
 
     const plainConfig = makeConfig({
@@ -43,7 +43,7 @@ describe('getInitialValueChangeData with filtered series', () => {
         { property: 'b', renderer: 'bar' }
       ]
     });
-    const plainData = getChartData(plainConfig, new ArrayOfObjectsDataProvider(rows, 'g'), { S1: true });
+    const plainData = getChartData(plainConfig, new ArrayOfObjectsDataProvider(rows), { S1: true });
     expect(() => getChartAnimationData(plainConfig, null, plainData)).not.toThrow();
   });
 
@@ -59,7 +59,7 @@ describe('getInitialValueChangeData with filtered series', () => {
       ],
       seriesStacks: [{ id: 'SS0' }]
     });
-    const chartData = getChartData(config, new ArrayOfObjectsDataProvider(rows, 'g'), { S0: true });
+    const chartData = getChartData(config, new ArrayOfObjectsDataProvider(rows), { S0: true });
     const changeData = getInitialValueChangeData(config, chartData);
     const raw = changeData.start.seriesData.raw.values;
     const filtered = changeData.start.seriesData.filtered.values;

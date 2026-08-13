@@ -59,7 +59,7 @@ array-of-objects dataset:
   import { Chart } from '@mochart/svelte';
 
   const mochartConfig = enhanceConfig(config);
-  const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');
+  const dataProvider = new ArrayOfObjectsDataProvider(data);
 </script>
 
 <Chart {mochartConfig} {dataProvider} width={640} height={400} />
@@ -105,7 +105,7 @@ to change them.
 For hosts that do mutate data in place, `bind:this` exposes a `ChartRef`
 handle with the core
 [`refresh()`](/guide/data-providers#when-the-data-changes) escape hatch —
-it re-reads the current config/data, re-indexing the built-in providers:
+it re-reads the current config/data (the built-in providers read live, so any in-place change is seen):
 
 ```svelte
 <script lang="ts">

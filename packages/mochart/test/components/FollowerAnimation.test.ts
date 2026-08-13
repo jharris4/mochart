@@ -81,7 +81,7 @@ function mountHollowCandlestick(items: typeof ITEMS) {
   document.body.appendChild(container);
   const chart = mochart.createChart(container, {
     mochartConfig,
-    dataProvider: new mochart.ArrayOfObjectsDataProvider(data, 'label') as never,
+    dataProvider: new mochart.ArrayOfObjectsDataProvider(data) as never,
     width: WIDTH,
     height: HEIGHT
   });
@@ -132,7 +132,7 @@ describe('followSeries animation sync (hollow candlestick)', () => {
     document.body.appendChild(container);
     const chart = mochart.createChart(container, {
       mochartConfig: makeConfig(false),
-      dataProvider: new mochart.ArrayOfObjectsDataProvider(ITEMS, 'label') as never,
+      dataProvider: new mochart.ArrayOfObjectsDataProvider(ITEMS) as never,
       focusedSeriesId: 'leader',
       width: WIDTH,
       height: HEIGHT
@@ -206,7 +206,7 @@ describe('followSeries animation sync (hollow candlestick)', () => {
       { label: 'Mon', open: 1.5, high: 6, low: 1, close: 4 },
       { label: 'Tue', open: 3, high: 5, low: 0.5, close: 2 }
     ], { hollow: true });
-    chart.update({ dataProvider: new mochart.ArrayOfObjectsDataProvider(changed.data, 'label') as never });
+    chart.update({ dataProvider: new mochart.ArrayOfObjectsDataProvider(changed.data) as never });
 
     for (const step of [2, 3, 3, 3]) {
       advanceFrames(step);

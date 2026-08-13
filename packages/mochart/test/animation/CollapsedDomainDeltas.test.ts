@@ -12,8 +12,8 @@ function deltaPercentageFor(valueAxis: Record<string, unknown>, from: Row[], to:
     valueAxes: [valueAxis],
     series: [{ property: 'v', renderer: 'bar' }]
   });
-  const prev = getChartData(config, new ArrayOfObjectsDataProvider(from, 'c'), {});
-  const next = getChartData(config, new ArrayOfObjectsDataProvider(to, 'c'), {});
+  const prev = getChartData(config, new ArrayOfObjectsDataProvider(from), {});
+  const next = getChartData(config, new ArrayOfObjectsDataProvider(to), {});
   return getChartAnimationData(config, prev, next).valueChangeData.deltaPercentage;
 }
 

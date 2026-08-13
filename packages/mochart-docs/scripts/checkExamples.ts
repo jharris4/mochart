@@ -36,10 +36,6 @@ function fail(name: string, messages: string[]) {
   }
 }
 
-function categoryProperty(config: MochartInputConfig): string | undefined {
-  return config.categoryAxis?.property;
-}
-
 for (const file of exampleFiles) {
   const name = file.replace(/\.ts$/, '');
   const module = (await import(path.join(examplesDir, file))) as ExampleModule;
@@ -64,12 +60,7 @@ for (const file of exampleFiles) {
   }
   const dataMessages: string[] = [];
   for (const [label, dataset] of datasets) {
-    const provider = new ArrayOfObjectsDataProvider(dataset, categoryProperty(module.config) ?? '');
-    // getDataErrors defers to a provider-reported error, so check it explicitly
-    const providerError = provider.getError();
-    if (providerError != null) {
-      dataMessages.push(`${label}: ${providerError}`);
-    }
+    const provider = new ArrayOfObjectsDataProvider(dataset);
     const dataErrors = getDataErrors(mochartConfig, provider as unknown as DataErrorsProvider);
     dataMessages.push(...dataErrors.map(error => `${label}: ${error}`));
   }

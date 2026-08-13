@@ -111,7 +111,7 @@ describe('createPie', () => {
     const mochartConfig = enhanceConfig(config);
     expect(mochartConfig.validation.errors).toEqual([]);
     expect(mochartConfig.validation.valid).toBe(true);
-    const provider = new ArrayOfObjectsDataProvider(pie.data, 'category');
+    const provider = new ArrayOfObjectsDataProvider(pie.data);
     expect(getDataErrors(mochartConfig, provider)).toEqual([]);
   });
 });

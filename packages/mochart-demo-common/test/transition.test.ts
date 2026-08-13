@@ -4,8 +4,8 @@ import { getTransitionDataProviders } from '../src/transition';
 import type { TransitionConfig } from '../src/types';
 
 // The providers wrap the raw rows wholesale: the category display property and
-// extra series properties (colorProperty, markerProperty, ...) are served by
-// getSeriesValue like any other row property — nothing is dropped in transit.
+// extra series properties (colorProperty, markerProperty, ...) are served as
+// columns like any other row property — nothing is dropped in transit.
 // (Verified end-to-end: a chart animating between two such providers renders
 // display values, not raw ids, mid-transition.)
 describe('getTransitionDataProviders', () => {
@@ -28,9 +28,9 @@ describe('getTransitionDataProviders', () => {
     };
     const providers = getTransitionDataProviders(transitionConfig);
     expect(providers).toHaveLength(2);
-    expect(providers[0].getCategoryValues()).toEqual(['a', 'b']);
-    expect(providers[0].getSeriesValue?.('a', 0, 'label')).toBe('Alpha');
-    expect(providers[0].getSeriesValue?.('b', 1, 'heat')).toBe(0.9);
-    expect(providers[1].getSeriesValue?.('b', 0, 'count')).toBe(4);
+    expect(providers[0].getPropertyValues('ts')).toEqual(['a', 'b']);
+    expect(providers[0].getPropertyValues('label')).toEqual(['Alpha', 'Beta']);
+    expect(providers[0].getPropertyValues('heat')).toEqual([0.1, 0.9]);
+    expect(providers[1].getPropertyValues('count')).toEqual([4]);
   });
 });

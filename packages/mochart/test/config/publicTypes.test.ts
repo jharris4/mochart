@@ -222,11 +222,9 @@ export type LayoutInternals = [
 // the kept surface, named the way a host implementing the two extension points has to name it
 const rows: readonly core.DataRow[] = [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }];
 
-const provider: core.DataProvider<core.CategoryValue> = {
-  getCategoryValues: (): readonly core.CategoryValue[] => rows.map(row => row.month as string),
-  getSeriesValue: (_categoryValue: core.CategoryValue, categoryIndex: number, property: string): unknown =>
-    rows[categoryIndex]?.[property],
-  getCategoryProperty: (): string => 'month',
+const provider: core.DataProvider = {
+  getPropertyValues: (property: string): readonly core.DataValue[] | undefined =>
+    rows.some(row => property in row) ? rows.map(row => row[property] as core.DataValue) : undefined,
   getError: (): unknown => null,
   getLoading: (): boolean => false,
   refresh: (): void => {}
@@ -272,7 +270,7 @@ class RecordingDataSource implements core.ChartDataSource {
   start(input: core.ChartDataSourceInput): void {
     const first: core.NumericValue = 10;
     this.chartData = {
-      categoryData: makeCategoryData(input.dataProvider.getCategoryValues()),
+      categoryData: makeCategoryData((input.dataProvider.getPropertyValues(input.mochartConfig?.categoryAxis.property ?? 'month') ?? []) as readonly core.CategoryValue[]),
       seriesData: makeSeriesData('S0', [first, 20])
     };
     const categoryFocusPercentages: core.FocusPercentage[] = [null, null];
@@ -300,8 +298,9 @@ class RecordingDataSource implements core.ChartDataSource {
 
 describe('public extension-point type surface', () => {
   it('exposes every type a DataProvider implementation names', () => {
-    expect(provider.getCategoryValues()).toEqual(['Jan', 'Feb']);
-    expect(provider.getSeriesValue('Feb', 1, 'sales')).toBe(20);
+    expect(provider.getPropertyValues('month')).toEqual(['Jan', 'Feb']);
+    expect(provider.getPropertyValues('sales')).toEqual([10, 20]);
+    expect(provider.getPropertyValues('vlaue')).toBeUndefined();
   });
 
   it('exposes every type a ChartDataSource implementation names', () => {
