@@ -128,8 +128,8 @@ An edit counts as structural when it changes any of:
   [`type`](/reference/categoryAxis#categoryAxis.type),
   [`scale`](/reference/categoryAxis#categoryAxis.scale) or
   [`dateUTC`](/reference/categoryAxis#categoryAxis.dateUTC)
-- the number or ids of value axes, series stacks or series groups, or which
-  axis a stack belongs to
+- the number or ids of value axes or series stacks, or which axis a stack
+  belongs to
 - the number of series, or for any series its `id`,
   [`property`](/reference/series#series.property),
   [`rangeProperty`](/reference/series#series.rangeProperty),
@@ -139,9 +139,8 @@ An edit counts as structural when it changes any of:
   [`colorProperty`](/reference/series#series.colorProperty),
   [`labelProperty`](/reference/series#series.labelProperty),
   [`axis`](/reference/series#series.axis),
-  [`stack`](/reference/series#series.stack),
-  [`group`](/reference/series#series.group) or
-  [`showInLegend`](/reference/series#series.showInLegend)
+  [`stack`](/reference/series#series.stack) or
+  [`group`](/reference/series#series.group)
 
 Everything else — titles, colours, renderers, axis bounds, tooltip and legend
 settings — is applied to the existing chart instantly, without a rebuild.
