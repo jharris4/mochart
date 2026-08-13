@@ -377,11 +377,7 @@ export function getLegendSeriesConfigs(mochartConfig: EnhancedMochartConfig) {
   return mochartConfig.series.filter(seriesConfig => seriesConfig.showInLegend);
 }
 
-// Keyed by series id, not position: measuring runs a frame behind drawing, so when a series
-// joins or leaves the legend the stored set describes the old items. An id-keyed map simply has
-// no entry for a series that just joined, which reads as unmeasured for one frame and corrects
-// on the next — the same path first render already takes. Positional entries instead silently
-// described the wrong series, or ran short and indexed past the end.
+// keyed by series id, not position: measuring runs a frame behind drawing, so a just-joined series reads as unmeasured for one frame instead of a positional entry describing the wrong series
 export function getLegendItemBoundsList(mochartConfig: EnhancedMochartConfig, legendItemBounds: Record<string, TextBounds>): TextBounds[] {
   return getLegendSeriesConfigs(mochartConfig).map(seriesConfig => legendItemBounds[seriesConfig.id] ?? unmeasuredBounds);
 }

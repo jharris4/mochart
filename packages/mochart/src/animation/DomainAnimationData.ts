@@ -54,12 +54,7 @@ export const emptyAxisDeltaData = {
  *
  **/
 
-/**
- * A domain change is a translation when the old and new domains barely overlap: the union is far
- * taller than either endpoint, so the expand-to-union/contract animation would be mostly invented
- * motion ("the pump"). A translating axis skips the union and instead interpolates its render
- * domain directly during the value phase.
- */
+// a barely-overlapping domain change (union far taller than either endpoint) is a translation: it skips the expand/contract "pump" and interpolates its render domain during the value phase
 export const TRANSLATION_UNION_RATIO = 1.5;
 
 export function isDomainTranslation(fromDomain: NullableDomain<DomainValue>, toDomain: NullableDomain<DomainValue>): boolean {
@@ -145,13 +140,7 @@ export function withSeriesDomainsForAxes(baseDomains: SeriesDomainObjects, overr
   return domains;
 }
 
-/**
- * The pacing magnitude for a directly interpolated domain, over the same extent basis as the
- * value deltas. A translation (both ends moving the same way) uses the center shift, which pins
- * values to their relative position — a single flat value stays on the midline through every
- * frame. Growth/shrink uses the larger end movement, matching the fastest value delta headed for
- * that edge so the moving edge never trails the values inside it.
- */
+// a translation (both ends moving the same way) paces on the center shift, growth/shrink on the larger end movement, so the moving edge never trails the values inside it
 function getDomainDeltaMagnitude(minDelta: number, maxDelta: number): number {
   if (minDelta * maxDelta > 0) {
     return Math.abs(minDelta + maxDelta) / 2;
@@ -276,8 +265,7 @@ function copySeriesDomain(seriesDomainObject: SeriesDomainObject): SeriesDomainO
  *
  **/
 
-// the animation interpolates render domains only — the drawn geometry; the semantic domains ride
-// along unchanged from whichever chart data a frame was built on (clip detection reads those)
+// the animation interpolates render domains only; the semantic domains (which clip detection reads) ride along unchanged
 export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartConfig, prevChartData: ChartData, newChartData: ChartData, categoryDeltaData: CategoryDeltaData): AxisDeltaData {
   let finalChartData = prevChartData;
   let endChartData = prevChartData;

@@ -50,8 +50,7 @@ const nullValueObject: SeriesValueObject = {
   markerCopyKey: null, labelCopyKey: null, colorCopyKey: null, tooltipCopyKey: null, min: null, max: null
 };
 
-// factories, not shared singletons: callers stamp deltaCopied and deltaFactor onto whatever
-// these hand back, so a shared object would be written through by every chart on the page
+// factories, not shared singletons: callers stamp deltaCopied and deltaFactor onto whatever these hand back
 function emptyValueDelta(): NumericValuesDelta {
   return { deltaPercentage: 0, deltas: null };
 }
@@ -543,9 +542,7 @@ function setBaseValuesForOuterChange(targetValues: NumericValues | null, sourceV
 }
 
 function createValueDeltaData(mochartConfig: EnhancedMochartConfig, startChartData: ChartData, endChartData: ChartData, finalChartData: ChartData, rawValueAxisDomains: AxisDomains, filteredValueAxisDomains: AxisDomains, rawSeriesDomains: SeriesDomainObjects, ordinalCategoryOrderOffets: number[] | null): ValueChangeData {
-  // extents over the union of the phase endpoints, so a value and its combined domain share the
-  // same pacing basis (for union axes start covers end, so this matches the start extent exactly);
-  // a collapsed or inverted domain would weight every value delta at 0, hence the safe extents
+  // safe extents over the union of the phase endpoints, so a value and its combined domain share the same pacing basis and a collapsed/inverted domain cannot zero every value delta
   const rawValueAxisExtents = getSafeDomainExtents(getMaxAxisDomains(rawValueAxisDomains, endChartData.seriesData.raw.renderAxisDomains));
   const filteredValueAxisExtents = getSafeDomainExtents(getMaxAxisDomains(filteredValueAxisDomains, endChartData.seriesData.filtered.renderAxisDomains));
   const valueDeltaData = createRawValueDeltaData(mochartConfig, startChartData.seriesData.raw.values,

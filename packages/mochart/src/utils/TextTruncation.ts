@@ -108,10 +108,6 @@ export function updateTruncation(truncationValue: string, oldTruncationData: Tru
   };
 }
 
-// Truncation counts and cuts text in user-perceived characters, never UTF-16 code units: slicing
-// by code unit halves an astral character and emits a lone surrogate. Intl.Segmenter also keeps a
-// flag, a skin-tone modifier or a combining mark with the character it belongs to; Array.from is
-// the fallback where it is missing, which still never splits a surrogate pair.
 // typed locally rather than from lib.esnext.intl, so the package's TS lib target is unaffected
 interface GraphemeSegmenter {
   segment(text: string): Iterable<{ segment: string }>;
@@ -125,6 +121,7 @@ const graphemeSegmenter: GraphemeSegmenter | null = typeof segmenterIntl.Segment
   ? new segmenterIntl.Segmenter(undefined, { granularity: 'grapheme' })
   : null;
 
+// user-perceived characters, never UTF-16 code units: the Array.from fallback still never splits a surrogate pair, and Intl.Segmenter also keeps modifiers and combining marks attached
 function textUnits(text: string): string[] {
   return graphemeSegmenter === null
     ? Array.from(text)
