@@ -109,6 +109,7 @@ export default function getDescriptions() {
     labelAboveBasePosition: 'whether to position the series labels inside or outside of the series shape for series shapes that are above the base value',
     labelBelowBasePosition: 'whether to position the series labels inside or outside of the series shape for series shapes that are below the base value',
     gradient: 'the unique id of the gradient config to be used when coloring the series shape (use null for none)',
+    pattern: 'the unique id of the pattern config to be used when filling the series shape (use null for none; cannot be combined with gradient)',
     markerStyle: styleStates('the style of the series marker', styleMembers, 'marker', true),
     markerShape: 'the shape to use when drawing the series marker (circle, cross, diamond, square, star, triangle, wye) (use null for none)',
     markerMinSize: 'the minimum marker size (in pixels) to use when interpolating the marker size based on a marker property value',

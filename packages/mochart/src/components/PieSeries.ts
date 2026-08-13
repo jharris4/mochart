@@ -7,7 +7,7 @@ import { getSeriesFillColor, getSeriesStrokeColor, getSeriesLabelFillColor, getS
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { getSeriesTitle } from '../utils/SeriesTitle';
 import { getFocusValue, getFocusStrokeWidth } from '../utils/FocusValue';
-import { getGradientReference } from '../utils/svgUtils';
+import { getGradientReference, getPatternReference } from '../utils/svgUtils';
 import { mochartCssClasses } from '../utils/ChartDom';
 import { translate, textDY } from '../utils/utils';
 import { NONE } from '../config/core/constants';
@@ -42,6 +42,7 @@ interface PieSeriesProps {
   labelFraction: number;
   focusData: FocusData | null;
   gradientIdMap: Record<string, string>;
+  patternIdMap: Record<string, string>;
   /** Filter labels while the initial sweep-in is running. */
   hideLabels: boolean;
   onFocus: (focus: PieSeriesFocusUpdate) => void;
@@ -131,7 +132,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
 
   sync() {
     const { colorPaletteConfig, pieConfig, seriesConfig, seriesIndex, seriesLayoutInfo, radialLayoutInfo,
-      sliceAngles, labelFraction, focusData, gradientIdMap, hideLabels, onSliceClick, accessibility, tabStop } = this.props;
+      sliceAngles, labelFraction, focusData, gradientIdMap, patternIdMap, hideLabels, onSliceClick, accessibility, tabStop } = this.props;
     const { onSeriesEnter, onSeriesLeave, onSeriesClick } = this.state;
 
     if (sliceAngles === undefined || sliceAngles.fraction <= 0 || focusData === null) {
@@ -144,7 +145,10 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
 
     const strokeColor = getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
     let fillColor = getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
-    if (seriesConfig.gradient !== NONE) {
+    if (seriesConfig.pattern !== NONE) {
+      fillColor = getPatternReference(patternIdMap[seriesConfig.id]);
+    }
+    else if (seriesConfig.gradient !== NONE) {
       fillColor = getGradientReference(gradientIdMap[seriesConfig.gradient]);
     }
     const { normal: shapeNormal, focused: shapeFocused, defocused: shapeDefocused } = seriesConfig.shapeStyle;

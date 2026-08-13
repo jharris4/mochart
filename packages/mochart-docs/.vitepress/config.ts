@@ -128,6 +128,7 @@ function guideSidebar() {
         { text: 'Positive and negative', link: '/recipes/positive-negative' },
         { text: 'Thresholds and ranges', link: '/recipes/thresholds-ranges' },
         { text: 'Gradients', link: '/recipes/gradients' },
+        { text: 'Patterns', link: '/recipes/patterns' },
         { text: 'Color by value', link: '/recipes/color-by-value' },
         { text: 'Bar caps', link: '/recipes/bar-caps' },
         { text: 'Curves', link: '/recipes/curves' },

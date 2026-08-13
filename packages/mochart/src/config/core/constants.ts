@@ -117,6 +117,14 @@ export const RENDERERS = [
   RENDERER_BAR, RENDERER_LINE, RENDERER_AREA, RENDERER_NONE
 ];
 
+export const PATTERN_TYPE_LINES = 'lines';
+export const PATTERN_TYPE_CROSSHATCH = 'crosshatch';
+export const PATTERN_TYPE_DOTS = 'dots';
+
+export const PATTERN_TYPES = [
+  PATTERN_TYPE_LINES, PATTERN_TYPE_CROSSHATCH, PATTERN_TYPE_DOTS
+];
+
 export const CURVE_TYPE_LINEAR = 'linear';
 export const CURVE_TYPE_MONOTONE_X = 'monotoneX';
 export const CURVE_TYPE_MONOTONE_Y = 'monotoneY';
@@ -207,6 +215,7 @@ export type PieLabelType = PieTooltipLabelType |
 export type Scale = typeof SCALE_ORDINAL | typeof SCALE_LINEAR;
 export type DataType = typeof TYPE_STRING | typeof TYPE_NUMBER | typeof TYPE_DATE;
 export type RendererType = typeof RENDERER_BAR | typeof RENDERER_LINE | typeof RENDERER_AREA | typeof RENDERER_NONE;
+export type PatternType = typeof PATTERN_TYPE_LINES | typeof PATTERN_TYPE_CROSSHATCH | typeof PATTERN_TYPE_DOTS;
 export type CurveType =
   typeof CURVE_TYPE_LINEAR | typeof CURVE_TYPE_MONOTONE_X | typeof CURVE_TYPE_MONOTONE_Y | typeof CURVE_TYPE_BASIS |
   typeof CURVE_TYPE_CARDINAL | typeof CURVE_TYPE_CATMULL_ROM | typeof CURVE_TYPE_NATURAL | typeof CURVE_TYPE_STEP |

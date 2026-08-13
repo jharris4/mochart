@@ -164,7 +164,7 @@ function objectWithKeys<T>(object: Record<string, T>, keys: string[]): Record<st
 }
 
 
-export function getMessages(sectionKey: string, allKey: string | undefined, uniqueKeys: string[] | undefined, section: unknown, sectionDefaults: unknown, all: unknown, validatorMap: ValidatorMap, onlyAll: boolean, i: number | undefined = undefined, first: boolean = i === undefined || i === 0) {
+export function getMessages(sectionKey: string, allKey: string | undefined, uniqueKeys: string[] | undefined, section: unknown, sectionDefaults: unknown, all: unknown, validatorMap: ValidatorMap, onlyAll: boolean, i: number | undefined = undefined, first: boolean = i === undefined || i === 0, allExcludedKeys: string[] | undefined = undefined) {
   const errorMessages: string[] = [];
   const warningMessages: string[] = [];
   const errorDetails: LocatedValidationMessage[] = [];
@@ -195,7 +195,15 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
         errorDetails.push({ path: messagePath(allKey ?? sectionKey, undefined, uniqueAllKey), message });
       }
 
-      const allKeys = Object.keys(all).filter(allKey => uniqueAllKeys.indexOf(allKey) === -1);
+      const excludedAllKeys = (Array.isArray(allExcludedKeys) ? allExcludedKeys : [])
+        .filter(excludedKey => all[excludedKey] !== undefined);
+      for (const excludedAllKey of excludedAllKeys) {
+        const message = 'entry-only properties cannot be set on an all config';
+        errorMessages.push(prefixPropertyErrorMessage(allKey ?? sectionKey, excludedAllKey, message));
+        errorDetails.push({ path: messagePath(allKey ?? sectionKey, undefined, excludedAllKey), message });
+      }
+
+      const allKeys = Object.keys(all).filter(allKey => uniqueAllKeys.indexOf(allKey) === -1 && excludedAllKeys.indexOf(allKey) === -1);
       const allValidators = objectWithKeys(validatorMap, allKeys);
 
       addErrorMessagesInternal(allKey ?? sectionKey, all, allValidators, errorMessages, errorDetails);

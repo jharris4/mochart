@@ -19,6 +19,7 @@ import * as groupedSeries from '../../examples/groupedSeries';
 import * as horizontal from '../../examples/horizontal';
 import * as thresholdRange from '../../examples/thresholdRange';
 import * as gradients from '../../examples/gradients';
+import * as patterns from '../../examples/patterns';
 import * as markersLabels from '../../examples/markersLabels';
 import * as tooltipFormat from '../../examples/tooltipFormat';
 import * as histogram from '../../examples/histogram';
@@ -55,6 +56,7 @@ const docsExamples: { config: object; page: UsageLink }[] = [
   { config: horizontal.config, page: { text: 'Horizontal charts', link: '/recipes/horizontal-bars' } },
   { config: thresholdRange.config, page: { text: 'Thresholds and ranges', link: '/recipes/thresholds-ranges' } },
   { config: gradients.config, page: { text: 'Gradients', link: '/recipes/gradients' } },
+  { config: patterns.config, page: { text: 'Patterns', link: '/recipes/patterns' } },
   { config: markersLabels.config, page: { text: 'Markers and labels', link: '/recipes/markers-labels' } },
   { config: tooltipFormat.config, page: { text: 'Tooltip formatting', link: '/recipes/tooltip-formatting' } },
   { config: histogram.config, page: { text: 'Histogram', link: '/recipes/histogram' } },
@@ -72,12 +74,13 @@ export const objectSectionIds = new Set([
 ]);
 
 export const listSectionIds = new Set([
-  'linearGradients', 'radialGradients', 'valueAxes',
+  'linearGradients', 'patterns', 'radialGradients', 'valueAxes',
   'series', 'seriesGroups', 'seriesStacks'
 ]);
 
 export const allKeySectionMap: Record<string, string> = {
   linearGradientDefaults: 'linearGradients',
+  patternDefaults: 'patterns',
   radialGradientDefaults: 'radialGradients',
   valueAxisDefaults: 'valueAxes',
   seriesDefaults: 'series',

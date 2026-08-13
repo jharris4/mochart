@@ -148,6 +148,7 @@ const sectionInterfaceMap: Record<string, string> = {
   categoryAxis: 'CategoryAxisConfig',
   legend: 'LegendConfig',
   linearGradients: 'LinearGradientConfig',
+  patterns: 'PatternConfig',
   pie: 'PieConfig',
   plot: 'PlotConfig',
   radialGradients: 'RadialGradientConfig',
@@ -174,6 +175,10 @@ const stringProbes = ['2020-01-01', 'zzzz'];
 
 // section.key -> why its optionality does not follow from having a default.
 const optionalityExceptions: Record<string, string> = {
+  'patterns.type': 'the pattern type is the required discriminator for each entry',
+  'patterns.angle': 'the default only applies to line and crosshatch patterns; dots do not have an angle',
+  'patterns.lineWidth': 'the default only applies to line and crosshatch patterns; dots do not have a line width',
+  'patterns.radius': 'the default only applies to dot patterns; line and crosshatch patterns do not have a radius',
   'series.axis': 'the default only applies when there is exactly one value axis; with several, nothing is filled in',
   'seriesStacks.axis': 'the default only applies when there is exactly one value axis; with several, nothing is filled in'
 };

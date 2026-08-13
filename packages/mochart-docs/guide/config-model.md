@@ -34,7 +34,7 @@ Sections come in two shapes:
   `clipIndicator`.
 - **List sections** configure a collection and take an array of config
   objects: `series`, `valueAxes`, `seriesGroups`,
-  `seriesStacks`, `linearGradients`, `radialGradients`.
+  `seriesStacks`, `linearGradients`, `radialGradients`, `patterns`.
   Passing a single object instead of an array is allowed and treated as a
   one-entry list.
 

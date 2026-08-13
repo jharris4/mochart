@@ -52,6 +52,10 @@ import { getRegularDefaults as getLinearGradientRegularDefaults, getConditionalD
 import getLinearGradientValidators from '../src/config/validation/linearGradientConfig';
 import * as linearGradientDocs from '../src/config/docs/linearGradientConfig';
 
+import { getRegularDefaults as getPatternRegularDefaults, getConditionalDefaults as getPatternConditionalDefaults } from '../src/config/defaults/patternConfig';
+import getPatternValidators from '../src/config/validation/patternConfig';
+import * as patternDocs from '../src/config/docs/patternConfig';
+
 import { getRegularDefaults as getPieRegularDefaults, getConditionalDefaults as getPieConditionalDefaults } from '../src/config/defaults/pieConfig';
 import getPieValidators from '../src/config/validation/pieConfig';
 import * as pieDocs from '../src/config/docs/pieConfig';
@@ -98,6 +102,7 @@ import type {
   ClipIndicatorConfig,
   LegendConfig,
   LinearGradientConfig,
+  PatternConfig,
   PieConfig,
   RadialGradientConfig,
   ValueAxisConfig,
@@ -144,6 +149,7 @@ type SectionReference = { section: string | string[]; key: string; commonKey?: s
 interface SectionValidatorInfo {
   validator: Validator;
   uniqueKeys?: string[];
+  allExcludedKeys?: string[];
   references?: Record<string, SectionReference>;
   commonReferences?: Record<string, SectionReference>;
 }
@@ -217,6 +223,8 @@ export interface SectionDoc {
   allDescription?: string;
   /** Per-entry unique properties (e.g. id/order) — not settable on the all config. */
   uniqueKeys?: string[];
+  /** Additional per-entry properties that cannot be supplied by the companion defaults section. */
+  allExcludedKeys?: string[];
   /** 'object' for single sections, 'array' for config lists. */
   shape: 'object' | 'array';
   /** Top-level properties a value must be supplied for, in the order they are documented. */
@@ -273,11 +281,12 @@ function getSectionSources(): SectionSource[] {
     { id: 'categoryAxis', title: 'Category Axis Config', regularDefaults: getCategoryAxisRegularDefaults(), conditionalDefaults: getCategoryAxisConditionalDefaults({} as CategoryAxisConfig, false, false), validators: getCategoryAxisValidators({}), docs: categoryAxisDocs, itemDefaults: { thresholds: getThresholdEntryDefaults() } },
     { id: 'legend', title: 'Legend Config', regularDefaults: getLegendRegularDefaults(), conditionalDefaults: getLegendConditionalDefaults({} as LegendConfig, 0), validators: getLegendValidators(), docs: legendDocs },
     { id: 'linearGradients', title: 'Linear Gradient Config', regularDefaults: getLinearGradientRegularDefaults(), conditionalDefaults: getLinearGradientConditionalDefaults({} as LinearGradientConfig, 0), validators: getLinearGradientValidators(), docs: linearGradientDocs },
+    { id: 'patterns', title: 'Pattern Config', regularDefaults: getPatternRegularDefaults(), conditionalDefaults: getPatternConditionalDefaults({} as PatternConfig, 0), validators: getPatternValidators({}), docs: patternDocs },
     { id: 'pie', title: 'Pie Config', regularDefaults: getPieRegularDefaults(), conditionalDefaults: getPieConditionalDefaults({} as PieConfig), validators: getPieValidators(), docs: pieDocs },
     { id: 'plot', title: 'Plot Config', regularDefaults: getPlotDefaults(), validators: getPlotValidators(), docs: plotDocs },
     { id: 'radialGradients', title: 'Radial Gradient Config', regularDefaults: getRadialGradientRegularDefaults(), conditionalDefaults: getRadialGradientConditionalDefaults({} as RadialGradientConfig, 0), validators: getRadialGradientValidators(), docs: radialGradientDocs },
     { id: 'valueAxes', title: 'Value Axis Config', regularDefaults: getValueAxisRegularDefaults(), conditionalDefaults: getValueAxisConditionalDefaults({} as ValueAxisConfig, 0, false, false), validators: getValueAxisValidators(), docs: valueAxisDocs, itemDefaults: { thresholds: getThresholdEntryDefaults() } },
-    { id: 'series', title: 'Series Config', regularDefaults: getSeriesRegularDefaults(), conditionalDefaults: getSeriesConditionalDefaults({} as SeriesConfig, 0, null, null, null, null), validators: getSeriesValidators({}), docs: seriesDocs },
+    { id: 'series', title: 'Series Config', regularDefaults: getSeriesRegularDefaults(), conditionalDefaults: getSeriesConditionalDefaults({} as SeriesConfig, 0, null, null, null, null, null), validators: getSeriesValidators({}), docs: seriesDocs },
     { id: 'seriesGroups', title: 'Series Group Config', regularDefaults: getSeriesGroupRegularDefaults(), conditionalDefaults: getSeriesGroupConditionalDefaults({} as SeriesGroupConfig, 0), validators: getSeriesGroupValidators(), docs: seriesGroupDocs },
     { id: 'seriesStacks', title: 'Series Stack Config', regularDefaults: getSeriesStackRegularDefaults(), conditionalDefaults: getSeriesStackConditionalDefaults({} as SeriesStackConfig, 0, null), validators: getSeriesStackValidators(), docs: seriesStackDocs },
     { id: 'title', title: 'Title Config', regularDefaults: getTitleDefaults(), validators: getTitleValidators(), docs: titleDocs },
@@ -302,6 +311,9 @@ const missingDefaultWhitelist: Record<string, Record<string, MissingDefault>> = 
     'stops[].offset': 'required',
     'stops[].color': 'required',
     'stops[].opacity': 'required'
+  },
+  patterns: {
+    type: 'required'
   },
   radialGradients: {
     stops: 'required',
@@ -801,6 +813,9 @@ function buildSectionDoc(source: SectionSource, sectionValidators: SectionValida
   }
   if (sectionValidator.uniqueKeys) {
     section.uniqueKeys = sectionValidator.uniqueKeys;
+  }
+  if (sectionValidator.allExcludedKeys) {
+    section.allExcludedKeys = sectionValidator.allExcludedKeys;
   }
   return section;
 }

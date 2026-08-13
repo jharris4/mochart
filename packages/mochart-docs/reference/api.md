@@ -243,6 +243,7 @@ alone; the rest come in families:
 | threshold `titleSide` | `TITLE_SIDE_LOW`, `TITLE_SIDE_HIGH` |
 | [`series.missingValues`](/reference/series#series.missingValues) | `MISSING_VALUES_BREAK`, `MISSING_VALUES_CONNECT`, `MISSING_VALUES_BASE` |
 | [`series.renderer`](/reference/series#series.renderer) | `RENDERER_BAR`, `RENDERER_LINE`, `RENDERER_AREA`, `RENDERER_NONE` |
+| [`patterns.type`](/reference/patterns#patterns.type) | `PATTERN_TYPE_LINES`, `PATTERN_TYPE_CROSSHATCH`, `PATTERN_TYPE_DOTS` |
 | [`series.curveType`](/reference/series#series.curveType) | `CURVE_TYPE_LINEAR`, `CURVE_TYPE_MONOTONE_X`, `CURVE_TYPE_MONOTONE_Y`, `CURVE_TYPE_BASIS`, `CURVE_TYPE_CARDINAL`, `CURVE_TYPE_CATMULL_ROM`, `CURVE_TYPE_NATURAL`, `CURVE_TYPE_STEP`, `CURVE_TYPE_STEP_BEFORE`, `CURVE_TYPE_STEP_AFTER` |
 | bar cap type | `CAP_TYPE_POINT`, `CAP_TYPE_CURVE`, `CAP_TYPE_ROUND` |
 | label `position` | `LABEL_POSITION_INSIDE`, `LABEL_POSITION_CENTER`, `LABEL_POSITION_OUTSIDE` |
@@ -255,7 +256,7 @@ alone; the rest come in families:
 The union types those constants form are exported too — `Align`,
 `VerticalAlign`, `Anchor`, `Position`, `AxisSide`, `ThresholdTitleSide`,
 `MissingValues`, `Scale`, `DataType`, `ChartType`, `RendererType`,
-`CurveType`, `CapType`, `LabelPosition`, `ColorMode`, `ColorInterpolation`,
+`PatternType`, `CurveType`, `CapType`, `LabelPosition`, `ColorMode`, `ColorInterpolation`,
 `MarkerShape`, `MarkerSizeScale`, `PieLabelType`, `PieTooltipLabelType`,
 `Auto` — so a wrapper can name one in its own signature rather than reaching
 for `SeriesConfig['renderer']`.

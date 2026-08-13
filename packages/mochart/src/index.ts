@@ -35,6 +35,7 @@ export {
   TITLE_SIDE_LOW, TITLE_SIDE_HIGH,
   MISSING_VALUES_BREAK, MISSING_VALUES_CONNECT, MISSING_VALUES_BASE,
   RENDERER_BAR, RENDERER_LINE, RENDERER_AREA, RENDERER_NONE,
+  PATTERN_TYPE_LINES, PATTERN_TYPE_CROSSHATCH, PATTERN_TYPE_DOTS,
   CURVE_TYPE_LINEAR, CURVE_TYPE_MONOTONE_X, CURVE_TYPE_MONOTONE_Y, CURVE_TYPE_BASIS,
   CURVE_TYPE_CARDINAL, CURVE_TYPE_CATMULL_ROM, CURVE_TYPE_NATURAL,
   CURVE_TYPE_STEP, CURVE_TYPE_STEP_BEFORE, CURVE_TYPE_STEP_AFTER,
@@ -52,7 +53,7 @@ export {
 // the union types every config member is declared with, so a host can name one in its own signatures
 export type {
   Auto, Align, VerticalAlign, Anchor, Position, MissingValues, AxisSide, ThresholdTitleSide,
-  ChartType, PieLabelType, PieTooltipLabelType, Scale, DataType, RendererType, CurveType,
+  ChartType, PieLabelType, PieTooltipLabelType, Scale, DataType, RendererType, PatternType, CurveType,
   CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale
 } from './config/core/constants';
 export { getDataErrors } from './data/DataValidator';

@@ -14,10 +14,10 @@ const colorPropertyNoneSuffix = 'when colorProperty is ' + NONE;
 const colorBaseSuffix = 'when colorProperty is not ' + NONE + ' and colorScale.base.value is not ' + NONE;
 const colorBaseNoneSuffix = 'when colorProperty is not ' + NONE + ' and colorScale.base.value is ' + NONE;
 
-export default function getDefaults(config: DeepPartial<SeriesConfig> = {}, index: number, soleValueAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null): Partial<SeriesConfig> {
+export default function getDefaults(config: DeepPartial<SeriesConfig> = {}, index: number, soleValueAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null, solePatternConfigId: string | null): Partial<SeriesConfig> {
   const regularDefaults = getRegularDefaults();
   const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesConfig, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId));
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesConfig, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId, solePatternConfigId));
 
   return deepMerge(regularDefaults, conditionalDefaults) as Partial<SeriesConfig>;
 }
@@ -34,6 +34,7 @@ export function getRegularDefaults() {
     stack: NONE,
     group: NONE,
     gradient: NONE,
+    pattern: NONE,
     ignore: false,
     renderer: RENDERER_LINE,
     missingValues: MISSING_VALUES_BREAK,
@@ -130,7 +131,7 @@ function isCategoryIndexColored({ shapeStyle }: SeriesConfig): boolean {
 const categoryIndexColorSuffix = 'when shapeStyle.normal.strokeColor or shapeStyle.normal.fillColor is ' + COLOR_CATEGORY_INDEX;
 const notCategoryIndexColorSuffix = 'when neither shapeStyle.normal.strokeColor nor shapeStyle.normal.fillColor is ' + COLOR_CATEGORY_INDEX;
 
-export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, index: number, soleValueAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null) {
+export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, index: number, soleValueAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null, solePatternConfigId: string | null) {
   return {
     id: conditionalDefault([
       { condition: (_config, _index) => true, suffix: 'series index', default: 'S' + index, defaultText: 'S${index}' },
@@ -155,6 +156,10 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, 
     gradient: conditionalDefault([
       { condition: (_config, _index) => true, suffix: 'series gradient', default: soleGradientConfigId, defaultText: 'sole gradient id' },
       { ...defaultRule, default: soleGradientConfigId }
+    ], configWithRegularDefaults, index),
+    pattern: conditionalDefault([
+      { condition: (_config, _index) => true, suffix: 'series pattern', default: solePatternConfigId, defaultText: 'sole pattern id' },
+      { ...defaultRule, default: solePatternConfigId }
     ], configWithRegularDefaults, index),
     animateBaseFromAdjacent: conditionalDefault([
       { condition: ({ renderer }) => renderer === RENDERER_BAR, suffix: 'when renderer is ' + RENDERER_BAR, default: false },

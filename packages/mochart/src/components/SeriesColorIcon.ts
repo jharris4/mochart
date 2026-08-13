@@ -4,12 +4,13 @@ import type { El, ElSlot, Slot } from '../render';
 import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
 import SeriesColorGradient from './SeriesColorGradient';
+import Pattern from './Pattern';
 
 import { AUTO, NONE } from '../config/core/constants';
-import { getSeriesColor, getSeriesOpacities, getSeriesGradientColors } from '../utils/SeriesColors';
+import { getSeriesColor, getSeriesFillColor, getSeriesOpacities, getSeriesGradientColors } from '../utils/SeriesColors';
 import { getSymbolGenerator } from '../utils/shapeUtils';
 import { translate } from '../utils/utils';
-import { getGradientReference } from '../utils/svgUtils';
+import { getGradientReference, getPatternReference } from '../utils/svgUtils';
 import { getFocusValue } from '../utils/FocusValue';
 import type { ColorPaletteConfig, LegendConfig, TooltipConfig } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
@@ -17,6 +18,7 @@ import type { EnhancedSeriesConfig } from '../types/enhanced';
 interface SeriesColorUniqueIds {
   seriesColorGradientUniqueIds: Record<string, string>;
   gradientIdMap: Record<string, string>;
+  patternIdMap: Record<string, string>;
 }
 
 interface SeriesColorIconProps {
@@ -52,7 +54,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
   defs: El | null = null;
   defsSlot!: ElSlot;
   shapeSlot!: ElSlot;
-  defsGradientSlot!: Slot;
+  defsPaintSlot!: Slot;
 
   // renderHTML is decided per call site and never changes for a mounted
   // instance, so the structure is chosen once at create() time.
@@ -100,7 +102,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
         height: displaySize
       };
 
-      const gradientId = svgUniqueId! + '-' + seriesConfig.id;
+      const paintId = svgUniqueId! + '-' + seriesConfig.id;
 
       this.setPresent(true);
       this.span.set({ className: iconClassName, style: colorStyle });
@@ -111,8 +113,8 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
         viewBox: `0 0 ${geometrySize} ${geometrySize}`
       });
       this.spacer.set({ style: spacerStyle });
-      this.syncColorDefs(gradientId);
-      this.syncColorContent(showSeriesColor, gradientId, null);
+      this.syncColorDefs(paintId);
+      this.syncColorContent(showSeriesColor, paintId, null);
     }
     else {
       this.setPresent(false);
@@ -125,25 +127,27 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     const showSeriesColor = showIconColors && seriesConfig[seriesShowColorProperty];
 
     if (showSeriesColor || showIconPlaceholders) {
-      const { seriesColorGradientUniqueIds, gradientIdMap } = uniqueIds!;
-      const gradientId = seriesConfig.gradient !== NONE ? gradientIdMap[seriesConfig.gradient] : seriesColorGradientUniqueIds[seriesConfig.id];
-      this.syncColorContent(showSeriesColor, gradientId, iconClassName);
+      const { seriesColorGradientUniqueIds, gradientIdMap, patternIdMap } = uniqueIds!;
+      const paintId = seriesConfig.pattern !== NONE
+        ? patternIdMap[seriesConfig.id]
+        : (seriesConfig.gradient !== NONE ? gradientIdMap[seriesConfig.gradient] : seriesColorGradientUniqueIds[seriesConfig.id]);
+      this.syncColorContent(showSeriesColor, paintId, iconClassName);
     }
     else {
       this.shapeSlot.set(null);
     }
   }
 
-  ensureDefsGradientSlot() {
+  ensureDefsPaintSlot() {
     if (this.defs === null) {
       this.defs = svgEl('defs');
-      this.defsGradientSlot = this.slot(this.defs);
+      this.defsPaintSlot = this.slot(this.defs);
     }
     this.defsSlot.set('defs', () => this.defs!);
-    return this.defsGradientSlot;
+    return this.defsPaintSlot;
   }
 
-  syncColorDefs(gradientId: string): void {
+  syncColorDefs(paintId: string): void {
     const { seriesConfig, visible = true } = this.props;
 
     if (!visible) {
@@ -151,28 +155,37 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
       return;
     }
 
-    const { gradient } = seriesConfig;
+    const { gradient, pattern } = seriesConfig;
 
     const seriesGradientColors = getSeriesGradientColors(seriesConfig);
-    if (gradient !== NONE) {
+    if (pattern !== NONE) {
+      const fillPalette = this.props.colorPaletteConfig.series.normal.fillColors;
+      const fallbackColor = fillPalette[this.props.seriesIndex % fillPalette.length] ?? null;
+      this.ensureDefsPaintSlot().set(Pattern, {
+        uniqueId: paintId,
+        patternConfig: seriesConfig.patternConfig!,
+        seriesColor: getSeriesFillColor(this.props.colorPaletteConfig, seriesConfig, this.props.seriesIndex, null, fallbackColor)
+      });
+    }
+    else if (gradient !== NONE) {
       const { linearGradientConfig, radialGradientConfig } = seriesConfig;
-      const gradientSlot = this.ensureDefsGradientSlot();
+      const gradientSlot = this.ensureDefsPaintSlot();
       if (linearGradientConfig !== undefined) {
-        gradientSlot.set(LinearGradient, { uniqueId: gradientId, linearGradientConfig });
+        gradientSlot.set(LinearGradient, { uniqueId: paintId, linearGradientConfig });
       }
       else {
-        gradientSlot.set(RadialGradient, { uniqueId: gradientId, radialGradientConfig });
+        gradientSlot.set(RadialGradient, { uniqueId: paintId, radialGradientConfig });
       }
     }
     else if (seriesGradientColors) {
-      this.ensureDefsGradientSlot().set(SeriesColorGradient, { uniqueId: gradientId, seriesConfig });
+      this.ensureDefsPaintSlot().set(SeriesColorGradient, { uniqueId: paintId, seriesConfig });
     }
     else {
       this.defsSlot.set(null);
     }
   }
 
-  syncColorContent(showSeriesColor: boolean, gradientId: string, className: string | null | undefined): void {
+  syncColorContent(showSeriesColor: boolean, paintId: string, className: string | null | undefined): void {
     const {
       seriesContextConfig, seriesConfig, seriesIndex, colorPaletteConfig,
       seriesIsFiltered, focusPercentage, visible = true
@@ -185,22 +198,22 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
 
     const { iconBorderSize, iconBorderColor, iconBorderOpacity, iconFilteredColor, iconUnfilteredColor, showIconShapes } = seriesContextConfig;
     const iconSize = getIconGeometrySize(seriesContextConfig, this.props.resolvedIconSize);
-    const { gradient, markerShape } = seriesConfig;
+    const { gradient, pattern, markerShape } = seriesConfig;
 
     const { opacity, focusedOpacity, defocusedOpacity } = getSeriesOpacities(seriesConfig);
-    const seriesGradientColors = gradient !== NONE || getSeriesGradientColors(seriesConfig);
+    const seriesPaint = pattern !== NONE || gradient !== NONE || getSeriesGradientColors(seriesConfig);
     const halfBorderSize = iconBorderSize / 2.0;
     // iconSize and iconBorderSize validate independently, so a border wider than the icon would
     // otherwise put a negative width on the rect and the browser would drop the element
     const shapeSize = Math.max(iconSize - iconBorderSize, 0);
-    const gradientFillColor = getGradientReference(gradientId);
+    const paintFillColor = pattern !== NONE ? getPatternReference(paintId) : getGradientReference(paintId);
     const seriesColor = getSeriesColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, iconUnfilteredColor);
 
     // a filtered icon takes iconFilteredColor as given: it stands in for the series color rather
     // than dimming it, so it carries its own alpha and ignores the focus opacity
     const stroke = iconBorderColor;
     const strokeWidth = (seriesIsFiltered ? 1.5 : 1) * iconBorderSize;
-    const unfilteredFill = showSeriesColor ? (seriesGradientColors ? gradientFillColor : seriesColor) : iconUnfilteredColor;
+    const unfilteredFill = showSeriesColor ? (seriesPaint ? paintFillColor : seriesColor) : iconUnfilteredColor;
     const fill = seriesIsFiltered ? iconFilteredColor : unfilteredFill;
     const fillOpacity = seriesIsFiltered ? 1 : getFocusValue(focusPercentage, opacity, focusedOpacity, defocusedOpacity);
 
@@ -213,7 +226,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
       className
     };
 
-    if (showIconShapes && markerShape !== NONE) {
+    if (showIconShapes && markerShape !== NONE && pattern === NONE) {
       const symbolSize = Math.max(shapeSize - 3, 0);
       const halfSize = Math.floor(iconSize / 2.0);
       const symbolGenerator = getSymbolGenerator(symbolSize, markerShape);

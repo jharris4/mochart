@@ -5,7 +5,7 @@ import type {
   CssStyle, MochartInputConfig,
   Auto, Align, VerticalAlign, Anchor, Position, MissingValues, AxisSide, ThresholdTitleSide,
   ChartType, PieLabelType, PieTooltipLabelType, Scale, DataType, RendererType, CurveType,
-  CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale
+  PatternType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale
 } from '../../src';
 
 // exactly the use the finding calls out: naming a config union in a host's own signature
@@ -18,6 +18,7 @@ interface EveryUnion {
   missingValues: MissingValues; axisSide: AxisSide; thresholdTitleSide: ThresholdTitleSide;
   chartType: ChartType; pieLabelType: PieLabelType; pieTooltipLabelType: PieTooltipLabelType;
   scale: Scale; dataType: DataType; rendererType: RendererType; curveType: CurveType;
+  patternType: PatternType;
   capType: CapType; labelPosition: LabelPosition; colorMode: ColorMode;
   colorInterpolation: ColorInterpolation; markerShape: MarkerShape; markerSizeScale: MarkerSizeScale;
 }
@@ -29,11 +30,30 @@ describe('public config type surface', () => {
       missingValues: 'break', axisSide: 'start', thresholdTitleSide: 'low',
       chartType: 'xy', pieLabelType: 'titlePercent', pieTooltipLabelType: 'value',
       scale: 'linear', dataType: 'number', rendererType: 'bar', curveType: 'stepAfter',
+      patternType: 'crosshatch',
       capType: 'round', labelPosition: 'inside', colorMode: 'seriesIndex',
       colorInterpolation: 'hcl', markerShape: 'star', markerSizeScale: 'sqrt'
     };
-    expect(Object.keys(values)).toHaveLength(21);
+    expect(Object.keys(values)).toHaveLength(22);
     expect(describeSeries(values.rendererType, values.curveType, values.markerShape)).toBe('bar/stepAfter/star');
+  });
+
+  it('discriminates built-in pattern properties by type', () => {
+    const config: MochartInputConfig = {
+      patterns: [
+        { type: 'lines', angle: 30, lineWidth: 2 },
+        { type: 'dots', radius: 2 }
+      ]
+    };
+    const invalidConfig: MochartInputConfig = {
+      // @ts-expect-error dots use radius rather than lineWidth
+      patterns: [{
+        type: 'dots',
+        lineWidth: 2
+      }]
+    };
+    expect(config.patterns).toHaveLength(2);
+    expect(invalidConfig.patterns).toHaveLength(1);
   });
 
   it('exposes the value constants for every enumerated config member', () => {
@@ -47,6 +67,7 @@ describe('public config type surface', () => {
       TITLE_SIDE_LOW: 'low', TITLE_SIDE_HIGH: 'high',
       MISSING_VALUES_BREAK: 'break', MISSING_VALUES_CONNECT: 'connect', MISSING_VALUES_BASE: 'base',
       RENDERER_BAR: 'bar', RENDERER_LINE: 'line', RENDERER_AREA: 'area', RENDERER_NONE: 'none',
+      PATTERN_TYPE_LINES: 'lines', PATTERN_TYPE_CROSSHATCH: 'crosshatch', PATTERN_TYPE_DOTS: 'dots',
       CURVE_TYPE_LINEAR: 'linear', CURVE_TYPE_STEP_AFTER: 'stepAfter',
       CAP_TYPE_POINT: 'point', CAP_TYPE_ROUND: 'round',
       LABEL_POSITION_INSIDE: 'inside', LABEL_POSITION_OUTSIDE: 'outside',

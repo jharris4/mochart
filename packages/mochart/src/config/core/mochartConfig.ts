@@ -6,6 +6,7 @@ type ConfigRecord = Record<string, unknown>;
 
 export const sectionKeyAllMap: Record<string, string> = {
   linearGradients: 'linearGradientDefaults',
+  patterns: 'patternDefaults',
   radialGradients: 'radialGradientDefaults',
   valueAxes: 'valueAxisDefaults',
   series: 'seriesDefaults',
@@ -237,14 +238,16 @@ export default function buildMochartConfig(configWithoutDefaults: unknown, confi
   let seriesGroupConfigs = config.seriesGroups as ConfigRecord[];
   let seriesConfigs = config.series as ConfigRecord[];
   let linearGradientConfigs = config.linearGradients as ConfigRecord[];
+  let patternConfigs = config.patterns as ConfigRecord[];
   let radialGradientConfigs = config.radialGradients as ConfigRecord[];
-  const { valueAxisDefaults, seriesStackDefaults, seriesGroupDefaults, seriesDefaults, linearGradientDefaults, radialGradientDefaults } = configWithoutDefaults;
+  const { valueAxisDefaults, seriesStackDefaults, seriesGroupDefaults, seriesDefaults, linearGradientDefaults, patternDefaults, radialGradientDefaults } = configWithoutDefaults;
 
   valueAxisConfigs = applyAllConfig(valueAxisConfigs, valueAxisDefaults);
   seriesStackConfigs = applyAllConfig(seriesStackConfigs, seriesStackDefaults);
   seriesGroupConfigs = applyAllConfig(seriesGroupConfigs, seriesGroupDefaults);
   seriesConfigs = applyAllConfig(seriesConfigs, seriesDefaults);
   linearGradientConfigs = applyAllConfig(linearGradientConfigs, linearGradientDefaults);
+  patternConfigs = applyAllConfig(patternConfigs, patternDefaults);
   radialGradientConfigs = applyAllConfig(radialGradientConfigs, radialGradientDefaults);
 
   const valueAxisConfigsById = configsToIdMap(valueAxisConfigs, value => value);
@@ -258,6 +261,7 @@ export default function buildMochartConfig(configWithoutDefaults: unknown, confi
   const seriesGroupSeriesConfigsById = configsToIdMap(seriesGroupConfigs, () => []);
 
   const linearGradientConfigsById = configsToIdMap(linearGradientConfigs, value => value);
+  const patternConfigsById = configsToIdMap(patternConfigs, value => value);
   const radialGradientConfigsById = configsToIdMap(radialGradientConfigs, value => value);
 
   const seriesConfigsById = configsToIdMap(seriesConfigs, value => value);
@@ -273,6 +277,7 @@ export default function buildMochartConfig(configWithoutDefaults: unknown, confi
   assignConfigReferences(seriesConfigs, 'group', 'seriesGroupConfig', seriesGroupConfigsById, 'series');
   assignConfigReferences(seriesConfigs, 'gradient', 'linearGradientConfig', linearGradientConfigsById, 'series');
   assignConfigReferences(seriesConfigs, 'gradient', 'radialGradientConfig', radialGradientConfigsById, 'series');
+  assignConfigReferences(seriesConfigs, 'pattern', 'patternConfig', patternConfigsById, 'series');
 
   assignConfigListReferences(valueAxisConfigs, 'seriesConfigs', valueAxisSeriesConfigsById, 'valueAxisConfigs');
   assignConfigListReferences(seriesStackConfigs, 'seriesConfigs', seriesStackSeriesConfigsById, 'seriesStacks');

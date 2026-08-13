@@ -22,6 +22,7 @@ interface LegendItemUniqueIds {
   legendClipPathUniqueId: string;
   seriesColorGradientUniqueIds: Record<string, string>;
   gradientIdMap: Record<string, string>;
+  patternIdMap: Record<string, string>;
 }
 
 interface LegendProps {

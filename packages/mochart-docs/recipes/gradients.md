@@ -6,8 +6,9 @@ Series fills and strokes can use SVG gradients: declare them in
 series at one with
 [`gradient`](/reference/series#series.gradient). As with
 [stacks](/recipes/stacked-bars) and [groups](/recipes/grouped-series), a
-sole configured gradient is applied to every series automatically —
-`gradient` ids only come into play once several are declared.
+sole configured gradient is applied to every series automatically when no
+[patterns](/recipes/patterns) are configured — `gradient` ids only come into
+play once several paint definitions are declared.
 
 <script setup>
 import * as gradients from '../examples/gradients'

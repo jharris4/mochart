@@ -18,6 +18,7 @@ interface RadialPlotProps {
   chartData: ChartData;
   focusData: FocusData;
   gradientIdMap: Record<string, string>;
+  patternIdMap: Record<string, string>;
   /** 0..1 while the initial value tween runs (drives the sweep-in), else null. */
   initialAnimationPercentage: number | null;
   onFocus: (focus: InternalFocus) => void;
@@ -37,7 +38,7 @@ export default class RadialPlot extends Renderer<RadialPlotProps> {
   }
 
   sync() {
-    const { mochartConfig, seriesLayoutInfo, plotLayoutInfo, chartData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef, a11yProps } = this.props;
+    const { mochartConfig, seriesLayoutInfo, plotLayoutInfo, chartData, focusData, gradientIdMap, patternIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef, a11yProps } = this.props;
     const { plot: plotConfig } = mochartConfig;
 
     this.root.set({ className: mochartCssClasses['radialPlot'] });
@@ -45,6 +46,6 @@ export default class RadialPlot extends Renderer<RadialPlotProps> {
     this.background.set(Background, { config: plotConfig, classKey: 'plotBackground', spacingRelative: false, spacingLayoutInfo: plotLayoutInfo });
 
     this.pieContainer.set(PieSeriesContainer, { mochartConfig, seriesLayoutInfo,
-      seriesData: chartData.seriesData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef, a11yProps });
+      seriesData: chartData.seriesData, focusData, gradientIdMap, patternIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef, a11yProps });
   }
 }

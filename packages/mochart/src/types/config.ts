@@ -1,6 +1,6 @@
 import type {
   Auto, Align, AxisSide, MissingValues, VerticalAlign, Anchor, Position, Scale, DataType, RendererType, ThresholdTitleSide,
-  CurveType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale,
+  CurveType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale, PatternType,
   ChartType, PieLabelType, PieTooltipLabelType, DomainChange
 } from '../config/core/constants';
 import type { MarginPadding, InnerOuter } from './geometry';
@@ -12,6 +12,9 @@ import type { MarginPadding, InnerOuter } from './geometry';
  * accepting arbitrary color strings.
  */
 export type SeriesColor = ColorMode | (string & {});
+
+/** A browser-rendered SVG color, or `"series"` to use the owning series' normal base fill color. */
+export type PatternColor = 'series' | (string & {});
 
 /**
  * The stroke half of a style: everything needed to draw an outline (or a bare
@@ -2658,6 +2661,14 @@ export interface SeriesConfig {
    */
   gradient: string | null;
   /**
+   * The unique id of the pattern config to be used when filling the series
+   * shape (use null for none; cannot be combined with gradient).
+   *
+   * Default:
+   * - `sole pattern id` — series pattern
+   */
+  pattern: string | null;
+  /**
    * Whether to ignore this series and treat it as though it were not specified.
    *
    * @default false
@@ -3334,6 +3345,92 @@ export interface RadialGradientConfig {
   stops?: GradientStop[];
 }
 
+/** A fully defaulted built-in SVG pattern definition. */
+export interface PatternConfig {
+  /**
+   * Whether to ignore this pattern and treat it as though it were not
+   * specified.
+   *
+   * @default false
+   */
+  ignore: boolean;
+  /**
+   * The unique identifier for the pattern so that it can be referenced for use.
+   *
+   * Default:
+   * - `P${index}` — pattern index
+   */
+  id: string;
+  /** The built-in pattern type (lines, crosshatch, or dots). */
+  type: PatternType;
+  /**
+   * The screen-space distance (in pixels) between repeated pattern marks.
+   *
+   * @default 8
+   */
+  spacing: number;
+  /**
+   * The color of the pattern marks: use "series" for the owning series color or
+   * "currentColor" to follow the host page CSS color.
+   *
+   * @default "series"
+   */
+  foregroundColor: PatternColor;
+  /**
+   * The opacity (0 - 1) of the pattern marks.
+   *
+   * @default 1
+   */
+  foregroundOpacity: number;
+  /**
+   * The color behind the pattern marks: use "series" for the owning series
+   * color, "currentColor" to follow the host page CSS color, or null for a
+   * transparent background.
+   *
+   * @default null
+   */
+  backgroundColor: PatternColor | null;
+  /**
+   * The opacity (0 - 1) of the pattern background when backgroundColor is not
+   * null.
+   *
+   * @default 1
+   */
+  backgroundOpacity: number;
+  /**
+   * The clockwise rotation (in degrees) of a lines or crosshatch pattern.
+   *
+   * Default:
+   * - `45` — when type is lines or crosshatch
+   */
+  angle?: number;
+  /**
+   * The width (in pixels) of the strokes in a lines or crosshatch pattern.
+   *
+   * Default:
+   * - `2` — when type is lines or crosshatch
+   */
+  lineWidth?: number;
+  /**
+   * The radius (in pixels) of each dot in a dots pattern.
+   *
+   * Default:
+   * - `2` — when type is dots
+   */
+  radius?: number;
+}
+
+type PatternInputConfigBase = Omit<PatternConfig, 'type' | 'angle' | 'lineWidth' | 'radius'>;
+
+export type PatternInputConfig =
+  | (PatternInputConfigBase & { type: 'lines'; angle: number; lineWidth: number; radius?: never })
+  | (PatternInputConfigBase & { type: 'crosshatch'; angle: number; lineWidth: number; radius?: never })
+  | (PatternInputConfigBase & { type: 'dots'; radius: number; angle?: never; lineWidth?: never });
+
+/** Properties that can be shared by every built-in pattern type. */
+export type PatternDefaultsConfig = Pick<PatternConfig,
+  'spacing' | 'foregroundColor' | 'foregroundOpacity' | 'backgroundColor' | 'backgroundOpacity'>;
+
 export interface ConfigValidation {
   valid: boolean;
   errors: string[];
@@ -3369,6 +3466,7 @@ export interface MochartConfig {
   categoryAxis: CategoryAxisConfig;
   legend: LegendConfig;
   linearGradients: LinearGradientConfig[];
+  patterns: PatternConfig[];
   pie: PieConfig;
   plot: PlotConfig;
   radialGradients: RadialGradientConfig[];
@@ -3428,6 +3526,8 @@ export interface MochartInputConfig {
   linearGradientDefaults?: DeepPartial<LinearGradientConfig>;
   radialGradients?: OneOrMany<DeepPartial<RadialGradientConfig>>;
   radialGradientDefaults?: DeepPartial<RadialGradientConfig>;
+  patterns?: OneOrMany<DeepPartial<PatternInputConfig>>;
+  patternDefaults?: DeepPartial<PatternDefaultsConfig>;
   valueAxes?: OneOrMany<DeepPartial<ValueAxisConfig>>;
   valueAxisDefaults?: DeepPartial<ValueAxisConfig>;
   series?: OneOrMany<DeepPartial<SeriesConfig>>;

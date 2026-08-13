@@ -24,6 +24,7 @@ interface SeriesContainerProps {
   focusData: FocusData;
   categoryValueData: CategoryAxisData['valueData'];
   gradientIdMap: Record<string, string>;
+  patternIdMap: Record<string, string>;
   onFocus: (focus: { seriesId?: string | null; categoryIndex?: number | null }) => void;
   onSeriesShapeClick: ((seriesId: string, categoryIndex: number, event: Event) => void) | null;
   shapeRef: (element: Element | null) => void;
@@ -114,7 +115,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
   }
 
   sync() {
-    const { mochartConfig, seriesLayoutInfo, seriesData, valueAxisData, stackData, focusData, categoryValueData, gradientIdMap, onFocus, onSeriesShapeClick, shapeRef, a11yProps, seriesClipPathUniqueId } = this.props;
+    const { mochartConfig, seriesLayoutInfo, seriesData, valueAxisData, stackData, focusData, categoryValueData, gradientIdMap, patternIdMap, onFocus, onSeriesShapeClick, shapeRef, a11yProps, seriesClipPathUniqueId } = this.props;
 
     const { categoryAxis: categoryAxisConfig, seriesIndicesById: seriesConfigIndicesById, colorPalette: colorPaletteConfig } = mochartConfig;
 
@@ -178,7 +179,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
           valueAxisScale: valueAxisData.axisScales[axis!],
           rawValueAxisDomain: rawValueAxisDomains[axis!], rawDomains: rawDomains[id],
           filteredValues: filteredValues[id],
-          gradientIdMap, onFocus, onSeriesShapeClick, accessibility,
+          gradientIdMap, patternIdMap, onFocus, onSeriesShapeClick, accessibility,
           tabStop: id === effectiveRovingId }
       };
     }));

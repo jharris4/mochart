@@ -199,6 +199,19 @@ describe('all-config completions', () => {
     expect(labels(entryOptions)).toContain('id');
     expect(labels(entryOptions)).toContain('order');
   });
+
+  it('omits pattern entry-only and type-specific keys from patternDefaults', async () => {
+    const allOptions = await completionOptions('{"patternDefaults": {"|": null}}');
+    expect(labels(allOptions)).toEqual(expect.arrayContaining([
+      'spacing', 'foregroundColor', 'foregroundOpacity', 'backgroundColor', 'backgroundOpacity'
+    ]));
+    expect(labels(allOptions)).not.toEqual(expect.arrayContaining([
+      'id', 'ignore', 'type', 'angle', 'lineWidth', 'radius'
+    ]));
+
+    const entryOptions = await completionOptions('{"patterns": [{"|": null}]}');
+    expect(labels(entryOptions)).toEqual(expect.arrayContaining(['id', 'type', 'angle', 'lineWidth', 'radius']));
+  });
 });
 
 // Regression: the property-position fallback scanned raw text, so a comma

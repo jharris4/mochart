@@ -50,6 +50,9 @@ table thead td { border-bottom-width: 2px; }
 <td>linearGradients<br/>linearGradientDefaults</td><td>Configure linear gradients to be applied to series<br/>Configure common properties for all linear gradients</td><td>should be an array with elements that should be an object<br/>should be an object</td><td>[]<br/>{}</td><td><a href="#linearGradients">Details</a></td>
 </tr>
 <tr>
+<td>patterns<br/>patternDefaults</td><td>Configure built-in patterns to be applied to series fills<br/>Configure common properties for all patterns</td><td>should be an array with elements that should be an object<br/>should be an object</td><td>[]<br/>{}</td><td><a href="#patterns">Details</a></td>
+</tr>
+<tr>
 <td>pie</td><td>Configure the pie/donut slice geometry and slice labels (applies when chart.type is pie)</td><td>should be an object</td><td>{}</td><td><a href="#pie">Details</a></td>
 </tr>
 <tr>
@@ -1994,6 +1997,68 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="linearGradients.y2">
 <td><a href="#linearGradients.y2">y2</a></td><td>the y2 property of the svg linear gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="patterns">
+<h2>Pattern Config</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
+</tr>
+</thead>
+<tr id="patterns.angle">
+<td><a href="#patterns.angle">angle</a></td><td>the clockwise rotation (in degrees) of a lines or crosshatch pattern</td><td><p>should be a number >= to -360 and <= 360 when type is lines or crosshatch</p>
+<p>should be equal to undefined when type is dots</p>
+</td><td><div>45 (when type is lines or crosshatch)</div>
+</td>
+</tr>
+<tr id="patterns.backgroundColor">
+<td><a href="#patterns.backgroundColor">backgroundColor</a></td><td>the color behind the pattern marks: use "series" for the owning series color, "currentColor" to follow the host page CSS color, or null for a transparent background</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "series" or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="patterns.backgroundOpacity">
+<td><a href="#patterns.backgroundOpacity">backgroundOpacity</a></td><td>the opacity (0 - 1) of the pattern background when backgroundColor is not null</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="patterns.foregroundColor">
+<td><a href="#patterns.foregroundColor">foregroundColor</a></td><td>the color of the pattern marks: use "series" for the owning series color or "currentColor" to follow the host page CSS color</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "series"</td><td><div>"series"</div>
+</td>
+</tr>
+<tr id="patterns.foregroundOpacity">
+<td><a href="#patterns.foregroundOpacity">foregroundOpacity</a></td><td>the opacity (0 - 1) of the pattern marks</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="patterns.id">
+<td><a href="#patterns.id">id</a></td><td>the unique identifier for the pattern so that it can be referenced for use</td><td><p>should be a string</p>
+<p>should be unique</p>
+</td><td><div>P${index} (pattern index)</div>
+</td>
+</tr>
+<tr id="patterns.ignore">
+<td><a href="#patterns.ignore">ignore</a></td><td>whether to ignore this pattern and treat it as though it were not specified</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
+<tr id="patterns.lineWidth">
+<td><a href="#patterns.lineWidth">lineWidth</a></td><td>the width (in pixels) of the strokes in a lines or crosshatch pattern</td><td><p>should be a number >= to 0 when type is lines or crosshatch</p>
+<p>should be equal to undefined when type is dots</p>
+</td><td><div>2 (when type is lines or crosshatch)</div>
+</td>
+</tr>
+<tr id="patterns.radius">
+<td><a href="#patterns.radius">radius</a></td><td>the radius (in pixels) of each dot in a dots pattern</td><td><p>should be a number >= to 0 when type is dots</p>
+<p>should be equal to undefined when type is lines or crosshatch</p>
+</td><td><div>2 (when type is dots)</div>
+</td>
+</tr>
+<tr id="patterns.spacing">
+<td><a href="#patterns.spacing">spacing</a></td><td>the screen-space distance (in pixels) between repeated pattern marks</td><td>should be a number >= to 1</td><td><div>8</div>
+</td>
+</tr>
+<tr id="patterns.type">
+<td><a href="#patterns.type">type</a></td><td>the built-in pattern type (lines, crosshatch, or dots)</td><td>should be one of [ "lines", "crosshatch", "dots" ]</td><td><div>required</div>
 </td>
 </tr>
 </table>
@@ -3991,6 +4056,13 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="series.partialRangeIsMissing">
 <td><a href="#series.partialRangeIsMissing">partialRangeIsMissing</a></td><td>whether to treat a value as missing when either of property or rangeProperty is undefined, instead of collapsing to the defined one<br/><br/>Only affects series with a `rangeProperty` (stacked series are unaffected). By default a category with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such categories count as missing instead, following the configured `missingValues` treatment.</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
+<tr id="series.pattern">
+<td><a href="#series.pattern">pattern</a></td><td>the unique id of the pattern config to be used when filling the series shape (use null for none; cannot be combined with gradient)</td><td><p>should be equal to null when gradient is not null</p>
+<p>should be a string or be equal to null when gradient is null</p>
+<p>should equal the id property of one of the patterns</p>
+</td><td><div>sole pattern id (series pattern)</div>
 </td>
 </tr>
 <tr id="series.property">

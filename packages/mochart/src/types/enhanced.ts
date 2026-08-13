@@ -1,5 +1,5 @@
 import type {
-  LinearGradientConfig, MochartConfig, RadialGradientConfig,
+  LinearGradientConfig, MochartConfig, PatternConfig, RadialGradientConfig,
   SeriesConfig, SeriesGroupConfig, SeriesStackConfig, ValueAxisConfig
 } from './config';
 
@@ -22,6 +22,7 @@ export interface EnhancedSeriesConfig extends SeriesConfig {
   seriesGroupConfig?: EnhancedSeriesGroupConfig;
   linearGradientConfig?: LinearGradientConfig;
   radialGradientConfig?: RadialGradientConfig;
+  patternConfig?: PatternConfig;
 }
 
 export interface EnhancedSeriesStackConfig extends SeriesStackConfig {

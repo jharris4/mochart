@@ -31,11 +31,12 @@ import { getClippedEdges } from '../data/ClipData';
 import SeriesColorGradient from './SeriesColorGradient';
 import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
+import Pattern from './Pattern';
 import { accessibilityActive, focusRestored, translateObject } from '../utils/utils';
-import { getSeriesGradientColors } from '../utils/SeriesColors';
+import { getSeriesFillColor, getSeriesGradientColors } from '../utils/SeriesColors';
 import { getTooltipAnnouncement } from '../utils/TooltipFormat';
 import type { ChartFactoryContent, ChartFactoryContext, ChartContentFactory, ChartEventPayload, ChartSeriesClickPayload, ChartSliceClickPayload, InternalFocus } from '../types/chart';
-import type { LinearGradientConfig, RadialGradientConfig } from '../types/config';
+import type { LinearGradientConfig, PatternConfig, RadialGradientConfig } from '../types/config';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig, EnhancedValueAxisConfig } from '../types/enhanced';
 import type { AxisData, ChartData, DataProvider, StackData } from '../types/data';
 import type { FocusData } from '../types/animation';
@@ -87,6 +88,7 @@ interface ChartUniqueIds {
   gradientIdMap: Record<string, string>;
   linearGradientIdMap: Record<string, string>;
   radialGradientIdMap: Record<string, string>;
+  patternIdMap: Record<string, string>;
 }
 
 interface ChartState {
@@ -123,6 +125,7 @@ const seriesClipPathIdPrefix = 'series__clippath__';
 const clipIndicatorPatternIdPrefix = 'clipindicator__pattern__';
 const linearGradientIdPrefix = 'linear__gradient__';
 const radialGradientIdPrefix = 'radial__gradient__';
+const seriesPatternIdPrefix = 'series__pattern__';
 const seriesColorGradientIdPrefix = 'seriescolor__gradient__';
 let chartInstanceCounter = 1;
 
@@ -251,6 +254,7 @@ class ChartBody extends Renderer<ChartBodyProps> {
   seriesColorGradients!: RendererList;
   linearGradients!: RendererList;
   radialGradients!: RendererList;
+  patterns!: RendererList;
   background!: Slot;
   title!: Slot;
   contentGroup!: El;
@@ -271,6 +275,7 @@ class ChartBody extends Renderer<ChartBodyProps> {
     this.seriesColorGradients = this.rendererList(this.defs);
     this.linearGradients = this.rendererList(this.defs);
     this.radialGradients = this.rendererList(this.defs);
+    this.patterns = this.rendererList(this.defs);
     this.background = this.slot(this.svg);
     this.title = this.slot(this.svg);
     this.contentGroup = svgEl('g');
@@ -470,15 +475,17 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       radialGradientIdMap[id] = radialGradientIdPrefix + uniqueId + '__' + id;
     }
     const seriesColorGradientUniqueIds: Record<string, string> = Object.create(null);
+    const patternIdMap: Record<string, string> = Object.create(null);
     for (const { id } of seriesConfigs) {
       seriesColorGradientUniqueIds[id] = seriesColorGradientIdPrefix + uniqueId + '__' + id;
+      patternIdMap[id] = seriesPatternIdPrefix + uniqueId + '__' + id;
     }
     const gradientIdMap = { ...linearGradientIdMap, ...radialGradientIdMap };
     const uniqueIds = {
       svgUniqueId, tooltipClipPathUniqueId, titleClipPathUniqueId, legendClipPathUniqueId,
       categoryAxisTitleClipPathUniqueId, categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds,
       seriesClipPathUniqueId, clipIndicatorPatternUniqueId,
-      seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap
+      seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap, patternIdMap
     };
     return { uniqueIds };
   }
@@ -1223,7 +1230,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const {
       svgUniqueId, tooltipClipPathUniqueId, titleClipPathUniqueId, legendClipPathUniqueId, categoryAxisTitleClipPathUniqueId,
       categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, seriesClipPathUniqueId,
-      clipIndicatorPatternUniqueId, seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap
+      clipIndicatorPatternUniqueId, seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap, patternIdMap
     } = uniqueIds!;
     const {
       chartContentLayoutInfo, titleLayoutInfo, titlePrefixLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo, titleSuffixLayoutInfo,
@@ -1301,6 +1308,23 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       props: { uniqueId: radialGradientIdMap[radialGradientConfig.id], radialGradientConfig }
     }));
 
+    const patterns: RendererItem[] = [];
+    const fillPalette = mochartConfig.colorPalette.series.normal.fillColors;
+    mochartConfig.series.forEach((seriesConfig: EnhancedSeriesConfig, seriesIndex: number) => {
+      if (seriesConfig.patternConfig !== undefined) {
+        const fallbackColor = fillPalette[seriesIndex % fillPalette.length] ?? null;
+        patterns.push({
+          key: seriesConfig.id,
+          ctor: Pattern,
+          props: {
+            uniqueId: patternIdMap[seriesConfig.id],
+            patternConfig: seriesConfig.patternConfig as PatternConfig,
+            seriesColor: getSeriesFillColor(mochartConfig.colorPalette, seriesConfig, seriesIndex, null, fallbackColor)
+          }
+        });
+      }
+    });
+
     body.svgSlot.set('svg', () => body.svg);
     const { accessibility: accessibilityConfig } = mochartConfig;
     const accessibility = accessibilityActive(accessibilityConfig);
@@ -1317,6 +1341,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     body.seriesColorGradients.sync(seriesColorGradients);
     body.linearGradients.sync(linearGradients);
     body.radialGradients.sync(radialGradients);
+    body.patterns.sync(patterns);
     body.background.set(Background, { config: mochartConfig.chart, classKey: 'background', spacingRelative: false, spacingLayoutInfo: chartContentLayoutInfo });
     body.title.set(Title, { mochartConfig, titleLayoutInfo, titlePrefixLayoutInfo,
       titleTextLayoutInfo, titleTextRawLayoutInfo, titleSuffixLayoutInfo,
@@ -1337,14 +1362,14 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       } : null;
 
       if (mochartConfig.chart.type === CHART_TYPE_PIE) {
-        body.plot.set(RadialPlot, { mochartConfig, gradientIdMap, seriesLayoutInfo,
+        body.plot.set(RadialPlot, { mochartConfig, gradientIdMap, patternIdMap, seriesLayoutInfo,
           plotLayoutInfo, chartData: chartData!, focusData: focusData!,
           initialAnimationPercentage: this.props.initialAnimationPercentage ?? null,
           onFocus: onFocus ?? (() => {}), onSliceClick: this.props.onSliceClick,
           shapeRef: this.setChartRectRef, a11yProps: plotA11yProps });
       }
       else {
-        body.plot.set(Plot, { mochartConfig, gradientIdMap, categoryAxisLayoutInfo,
+        body.plot.set(Plot, { mochartConfig, gradientIdMap, patternIdMap, categoryAxisLayoutInfo,
           valueAxisLayoutInfos, seriesLayoutInfo,
           plotLayoutInfo, chartData: chartData!, focusData, axisData: axisData!,
           stackData: stackData!, categoryValueData, onFocus: onFocus ?? (() => {}),

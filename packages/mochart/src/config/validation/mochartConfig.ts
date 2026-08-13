@@ -14,6 +14,7 @@ import categoryAxisValidators from './categoryAxisConfig';
 import { validateAxisBounds } from './axisConfig';
 import legendValidators from './legendConfig';
 import linearGradientValidators from './linearGradientConfig';
+import patternValidators from './patternConfig';
 import pieValidators from './pieConfig';
 import plotValidators from './plotConfig';
 import radialGradientValidators from './radialGradientConfig';
@@ -34,6 +35,7 @@ interface ConfigSectionValidator {
   validators?: (configSection: ConfigRecord) => ValidatorMap;
   list?: boolean;
   uniqueKeys?: string[];
+  allExcludedKeys?: string[];
   references?: Record<string, SectionReference>;
   commonReferences?: Record<string, SectionReference>;
   allKey?: string;
@@ -126,6 +128,13 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
     validators: () => linearGradientValidators(),
     uniqueKeys: ['id']
   },
+  patterns: {
+    list: true,
+    validator: arrayOfObjectsOrEmpty,
+    validators: (configSection: ConfigRecord) => patternValidators(configSection),
+    uniqueKeys: ['id'],
+    allExcludedKeys: ['ignore', 'type', 'angle', 'lineWidth', 'radius']
+  },
   pie: {
     validator: objectValidator,
     validators: () => pieValidators()
@@ -156,6 +165,7 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
       group: { section: 'seriesGroups', key: 'id' },
       stack: { section: 'seriesStacks', key: 'id' },
       gradient: { section: ['linearGradients', 'radialGradients'], key: 'id' },
+      pattern: { section: 'patterns', key: 'id' },
       followSeries: { section: 'series', key: 'id' }
     },
     commonReferences: {
@@ -222,7 +232,7 @@ function validateConfigInternal(configWithoutDefaults: unknown, configDefaults: 
           errorDetails.push({ path: [allKey], message });
         }
       }
-      const { list, validators, uniqueKeys, references, commonReferences } = configWithoutAllValidators[sectionKey]!;
+      const { list, validators, uniqueKeys, allExcludedKeys, references, commonReferences } = configWithoutAllValidators[sectionKey]!;
       const priorErrorCount = errors.length;
       if (list === true) {
         const sectionValue = configWithoutDefaults[sectionKey];
@@ -259,11 +269,11 @@ function validateConfigInternal(configWithoutDefaults: unknown, configDefaults: 
       }
       if (priorErrorCount === errors.length && validators) {
         if (list === true) {
-          validateConfigSections(config, configWithoutDefaults, configDefaults, sectionKey, allKey, validators, uniqueKeys,
+          validateConfigSections(config, configWithoutDefaults, configDefaults, sectionKey, allKey, validators, uniqueKeys, allExcludedKeys,
             errors, warnings, errorDetails, warningDetails);
         }
         else {
-          validateConfigSection(config, configWithoutDefaults, configDefaults, sectionKey, allKey, validators, uniqueKeys,
+          validateConfigSection(config, configWithoutDefaults, configDefaults, sectionKey, allKey, validators, uniqueKeys, allExcludedKeys,
             errors, warnings, errorDetails, warningDetails);
         }
         if (Array.isArray(uniqueKeys)) {
@@ -333,16 +343,16 @@ export function validateConfigDetailed(configWithoutDefaults: unknown, configDef
   };
 }
 
-function validateConfigSection(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, sectionKey: string, allKey: string | undefined, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[]): void {
+function validateConfigSection(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, sectionKey: string, allKey: string | undefined, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, allExcludedKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[]): void {
   validateSection(sectionKey, allKey, config[sectionKey], configWithoutDefaults[sectionKey], configDefaults[sectionKey],
-    allKey ? config[allKey] : null, sectionValidators, uniqueKeys, errors, warnings, errorDetails, warningDetails, false);
+    allKey ? config[allKey] : null, sectionValidators, uniqueKeys, allExcludedKeys, errors, warnings, errorDetails, warningDetails, false);
 }
 
 function safeIndex(array: unknown, i: number): unknown {
   return Array.isArray(array) ? array[i] : undefined;
 }
 
-function validateConfigSections(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, sectionKey: string, allKey: string | undefined, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[]): void {
+function validateConfigSections(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, sectionKey: string, allKey: string | undefined, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, allExcludedKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[]): void {
   const sections = config[sectionKey] as unknown[];
   const rawSections = Array.isArray(configWithoutDefaults[sectionKey]) ? configWithoutDefaults[sectionKey] : [configWithoutDefaults[sectionKey]];
   const sectionDefaults = configDefaults[sectionKey];
@@ -358,11 +368,11 @@ function validateConfigSections(config: ConfigRecord, configWithoutDefaults: Con
   for (let i = 0; i < sections.length; i++) {
     rawIndex = rawIndices[i];
     validateSection(sectionKey, allKey, safeIndex(sections, i), rawIndex === undefined ? undefined : rawSections[rawIndex], safeIndex(sectionDefaults, i),
-      all, sectionValidators, uniqueKeys, errors, warnings, errorDetails, warningDetails, false, rawIndex ?? i, i === 0);
+      all, sectionValidators, uniqueKeys, allExcludedKeys, errors, warnings, errorDetails, warningDetails, false, rawIndex ?? i, i === 0);
   }
   if (sections.length === 0 && all) {
-    validateSection(sectionKey, allKey, all, undefined, undefined, all, sectionValidators, uniqueKeys, errors, warnings,
-      errorDetails, warningDetails, true);
+    validateSection(sectionKey, allKey, all, undefined, undefined, all, sectionValidators, uniqueKeys, allExcludedKeys,
+      errors, warnings, errorDetails, warningDetails, true);
   }
 }
 
@@ -374,10 +384,10 @@ function pushAll(target: string[], source: string[]): void {
   }
 }
 
-function validateSection(sectionKey: string, allKey: string | undefined, section: unknown, sectionWithoutDefaults: unknown, sectionDefaults: unknown, all: unknown, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[], onlyAll: boolean, i: number | undefined = undefined, first: boolean = i === undefined || i === 0): void {
+function validateSection(sectionKey: string, allKey: string | undefined, section: unknown, sectionWithoutDefaults: unknown, sectionDefaults: unknown, all: unknown, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, allExcludedKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[], onlyAll: boolean, i: number | undefined = undefined, first: boolean = i === undefined || i === 0): void {
   const sectionAll = configWithAll(section, all);
   const messages = getMessages(sectionKey, allKey, uniqueKeys, sectionWithoutDefaults, sectionDefaults, all,
-    sectionValidators(isConfigRecord(sectionAll) ? sectionAll : {}), onlyAll, i, first);
+    sectionValidators(isConfigRecord(sectionAll) ? sectionAll : {}), onlyAll, i, first, allExcludedKeys);
   const { errorMessages, warningMessages } = messages;
   pushAll(errors, errorMessages);
   pushAll(warnings, warningMessages);

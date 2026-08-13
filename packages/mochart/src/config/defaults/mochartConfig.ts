@@ -12,6 +12,7 @@ import getCrosshairDefaults from './crosshairConfig';
 import getCategoryAxisDefaults from './categoryAxisConfig';
 import getLegendDefaults from './legendConfig';
 import getLinearGradientDefaults from './linearGradientConfig';
+import getPatternDefaults from './patternConfig';
 import getPieDefaults from './pieConfig';
 import getPlotDefaults from './plotConfig';
 import getRadialGradientDefaults from './radialGradientConfig';
@@ -22,7 +23,7 @@ import getSeriesStackDefaults from './seriesStackConfig';
 import getTitleDefaults from './titleConfig';
 import getTooltipDefaults from './tooltipConfig';
 import type {
-  DeepPartial, LinearGradientConfig, MochartInputConfig, RadialGradientConfig,
+  DeepPartial, LinearGradientConfig, MochartInputConfig, PatternConfig, PatternInputConfig, RadialGradientConfig,
   ValueAxisConfig, SeriesConfig, SeriesGroupConfig, SeriesStackConfig
 } from '../../types/config';
 
@@ -71,7 +72,16 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
     const radialGradientConfigs = getListOrSingleDefaults<RadialGradientConfig>(inputConfig.radialGradients, inputConfig.radialGradientDefaults, (aConfig, index) => getRadialGradientDefaults(aConfig, index));
     const soleRadialGradientConfigId = getOnlyIdWithDefaults(inputConfig.radialGradients, inputConfig.radialGradientDefaults, radialGradientConfigs);
 
-    const soleGradientConfigId = soleLinearGradientConfigId ? soleLinearGradientConfigId : soleRadialGradientConfigId;
+    const patternConfigs = getListOrSingleDefaults<PatternConfig>(inputConfig.patterns, inputConfig.patternDefaults,
+      (aConfig, index) => getPatternDefaults(aConfig as DeepPartial<PatternInputConfig>, index));
+    const solePatternId = getOnlyIdWithDefaults(inputConfig.patterns, inputConfig.patternDefaults, patternConfigs);
+
+    const gradientCount = getConfigCount(inputConfig.linearGradients) + getConfigCount(inputConfig.radialGradients);
+    const patternCount = getConfigCount(inputConfig.patterns);
+    const soleGradientConfigId = gradientCount === 1 && patternCount === 0
+      ? (soleLinearGradientConfigId ?? soleRadialGradientConfigId)
+      : NONE;
+    const solePatternConfigId = patternCount === 1 && gradientCount === 0 ? solePatternId : NONE;
 
     const seriesCount = getConfigCount(inputConfig.series);
 
@@ -80,7 +90,7 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
     const { inverted } = plotConfigDefault;
 
     const seriesDefaults = (aConfig: DeepPartial<SeriesConfig>, index: number) =>
-      getSeriesDefaults(aConfig, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId);
+      getSeriesDefaults(aConfig, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId, solePatternConfigId);
 
     return {
       accessibility: getAccessibilityDefaults(),
@@ -92,6 +102,7 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
       categoryAxis: getCategoryAxisDefaults(inputConfig.categoryAxis, inverted, pieMode),
       legend: getLegendDefaults(inputConfig.legend, seriesCount),
       linearGradients: linearGradientConfigs,
+      patterns: patternConfigs,
       pie: getPieDefaults(inputConfig.pie),
       plot: plotConfig,
       radialGradients: radialGradientConfigs,

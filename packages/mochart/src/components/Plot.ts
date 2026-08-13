@@ -43,6 +43,7 @@ interface PlotProps extends Omit<PlotFrontBackProps, 'front'> {
   stackData: StackData;
   categoryValueData: CategoryAxisData['valueData'];
   gradientIdMap: Record<string, string>;
+  patternIdMap: Record<string, string>;
   tooltipClipPathUniqueId: string;
   onSeriesShapeClick: ((seriesId: string, categoryIndex: number, event: Event) => void) | null;
   shapeRef: (element: Element | null) => void;
@@ -101,7 +102,7 @@ export default class Plot extends Renderer<PlotProps> {
 
   sync() {
     const { mochartConfig, categoryAxisLayoutInfo, valueAxisLayoutInfos, seriesLayoutInfo, plotLayoutInfo,
-      chartData, focusData, axisData, stackData, categoryValueData, gradientIdMap, categoryAxisTitleClipPathUniqueId,
+      chartData, focusData, axisData, stackData, categoryValueData, gradientIdMap, patternIdMap, categoryAxisTitleClipPathUniqueId,
       categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, seriesClipPathUniqueId, clippedEdges, clipIndicatorPatternUniqueId, onFocus, onSeriesShapeClick, shapeRef, a11yProps } = this.props;
     const { plot: plotConfig } = mochartConfig;
     const { categoryFocusDomainPercentages = [], seriesFocusDomainPercentages = [] } = focusData;
@@ -132,7 +133,7 @@ export default class Plot extends Renderer<PlotProps> {
 
     this.seriesContainer.set(SeriesContainer, { mochartConfig, seriesLayoutInfo, seriesData: chartData.seriesData,
       valueAxisData, stackData, focusData, onFocus, onSeriesShapeClick, categoryValueData,
-      gradientIdMap, shapeRef, a11yProps, seriesClipPathUniqueId });
+      gradientIdMap, patternIdMap, shapeRef, a11yProps, seriesClipPathUniqueId });
 
     this.front.set(PlotFrontBack, frontBackProps(true));
 

@@ -9,6 +9,7 @@ import type { Validator } from '@mochart/movalid';
 
 type ColorCondition = { colorProperty?: SeriesConfig['colorProperty'], colorScale?: DeepPartial<SeriesConfig['colorScale']> };
 type StackCondition = Pick<SeriesConfig, 'stack'>;
+type PaintCondition = Pick<SeriesConfig, 'gradient'>;
 
 type SeriesStyleMember = 'strokeColor' | 'strokeOpacity' | 'strokeWidth' | 'strokeDashArray' | 'fillColor' | 'fillOpacity';
 
@@ -66,6 +67,8 @@ const colorBaseNoneSuffix = 'when colorProperty is not ' + NONE + ' and colorSca
 
 const stackRule = { condition: ({ stack }: StackCondition) => stack !== NONE, suffix: stackSuffix };
 const stackNoneRule = { condition: ({ stack }: StackCondition) => stack === NONE, suffix: stackNoneSuffix };
+const gradientRule = { condition: ({ gradient }: PaintCondition) => gradient !== NONE, suffix: 'when gradient is not ' + NONE };
+const gradientNoneRule = { condition: ({ gradient }: PaintCondition) => gradient === NONE, suffix: 'when gradient is ' + NONE };
 
 const colorPropertyRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty !== NONE, suffix: colorPropertySuffix };
 const colorPropertyNoneRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty === NONE, suffix: colorPropertyNoneSuffix };
@@ -136,6 +139,10 @@ export default function getValidators(config: DeepPartial<SeriesConfig>) {
     labelAboveBasePosition: validators.oneOf([AUTO].concat(LABEL_POSITIONS)),
     labelBelowBasePosition: validators.oneOf([AUTO].concat(LABEL_POSITIONS)),
     gradient: validators.string().orEqual(NONE),
+    pattern: validators.conditional([
+      { ...gradientRule, validator: validators.equal(NONE) },
+      { ...gradientNoneRule, validator: validators.string().orEqual(NONE) }
+    ], config),
     colorScale: validators.partialObjectWithShape({
       interpolation: validators.conditional([
         { ...colorPropertyRule, validator: validators.oneOf(COLOR_INTERPOLATIONS) },

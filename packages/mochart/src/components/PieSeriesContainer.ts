@@ -22,6 +22,7 @@ interface PieSeriesContainerProps {
   seriesData: SeriesData;
   focusData: FocusData;
   gradientIdMap: Record<string, string>;
+  patternIdMap: Record<string, string>;
   /** 0..1 while the initial value tween runs (drives the sweep-in), else null. */
   initialAnimationPercentage: number | null;
   onFocus: (focus: { seriesId?: string | null; categoryIndex?: number | null }) => void;
@@ -112,7 +113,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
   }
 
   sync() {
-    const { mochartConfig, seriesLayoutInfo, seriesData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef, a11yProps } = this.props;
+    const { mochartConfig, seriesLayoutInfo, seriesData, focusData, gradientIdMap, patternIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef, a11yProps } = this.props;
     const { pie: pieConfig, colorPalette: colorPaletteConfig, seriesIndicesById: seriesConfigIndicesById } = mochartConfig;
     const { values: filteredValues } = seriesData.filtered;
 
@@ -187,7 +188,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
         labelFraction: pieConfig.adjustLabelsForFiltering
           ? sliceAngles[seriesConfig.id]?.fraction ?? 0
           : rawSliceAngles![seriesConfig.id]?.fraction ?? 0,
-        focusData, gradientIdMap, hideLabels: sweeping, onFocus, onSliceClick,
+        focusData, gradientIdMap, patternIdMap, hideLabels: sweeping, onFocus, onSliceClick,
         accessibility, tabStop: seriesConfig.id === effectiveRovingId }
     })));
 

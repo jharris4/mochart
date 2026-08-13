@@ -48,6 +48,7 @@ const sectionInterfaceMap: Record<string, string> = {
   categoryAxis: 'CategoryAxisConfig',
   legend: 'LegendConfig',
   linearGradients: 'LinearGradientConfig',
+  patterns: 'PatternConfig',
   pie: 'PieConfig',
   plot: 'PlotConfig',
   radialGradients: 'RadialGradientConfig',

@@ -10,7 +10,7 @@ import { areArraysAndEqual, translateObject } from '../utils/utils';
 import { NONE, RENDERER_AREA, RENDERER_LINE, RENDERER_BAR } from '../config/core/constants';
 import { COLOR_CATEGORY_INDEX } from '../config/core/constants';
 import { getSeriesFillColor, getSeriesStrokeColor } from '../utils/SeriesColors';
-import { getGradientReference } from '../utils/svgUtils';
+import { getGradientReference, getPatternReference } from '../utils/svgUtils';
 import { getFocusValue, getFocusStrokeWidth, getFocusStrokeDashArray, getCategoryFocusPercentage } from '../utils/FocusValue';
 
 import SeriesErrorBars from './SeriesErrorBars';
@@ -45,6 +45,7 @@ interface SeriesProps {
   rawDomains: SeriesDomainObject;
   filteredValues: SeriesValueObject;
   gradientIdMap: Record<string, string>;
+  patternIdMap: Record<string, string>;
   onFocus: (focus: SeriesFocusUpdate) => void;
   /** Reports shape clicks up to the chart's `onSeriesClick`; null when that callback is unset. */
   onSeriesShapeClick: ((seriesId: string, categoryIndex: number, event: Event) => void) | null;
@@ -225,7 +226,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
   }
 
   sync() {
-    const { colorPaletteConfig, seriesConfig, seriesIndex, stackData, seriesLayoutInfo, focusData, valueAxisScale, rawValueAxisDomain, filteredValues, rawDomains, gradientIdMap } = this.props;
+    const { colorPaletteConfig, seriesConfig, seriesIndex, stackData, seriesLayoutInfo, focusData, valueAxisScale, rawValueAxisDomain, filteredValues, rawDomains, gradientIdMap, patternIdMap } = this.props;
     const { seriesPositionData, onSeriesEnter, onSeriesLeave, onSeriesClick, onCategoryEnter, onCategoryLeave, onCategoryClick } = this.state;
 
     const seriesId = seriesConfig.id;
@@ -265,7 +266,10 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         }
       }
       else if (seriesConfig.renderer === RENDERER_AREA) {
-        if (seriesConfig.gradient !== NONE) {
+        if (seriesConfig.pattern !== NONE) {
+          seriesFillColor = getPatternReference(patternIdMap[seriesConfig.id]);
+        }
+        else if (seriesConfig.gradient !== NONE) {
           seriesFillColor = getGradientReference(gradientIdMap[seriesConfig.gradient]);
         }
         const areaGenerator = getAreaGenerator(seriesConfig, seriesPositionData, inverted);
@@ -281,7 +285,11 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         const columnGenerator = getColumnGenerator(seriesConfig, seriesPositionData, inverted, stackData);
         let barStrokeColor = seriesStrokeColor;
         let barFillColor = seriesFillColor;
-        if (seriesConfig.gradient !== NONE) {
+        const patterned = seriesConfig.pattern !== NONE;
+        if (patterned) {
+          barFillColor = getPatternReference(patternIdMap[seriesConfig.id]);
+        }
+        else if (seriesConfig.gradient !== NONE) {
           barFillColor = getGradientReference(gradientIdMap[seriesConfig.gradient]);
         }
         let barStrokeOpacity = seriesStrokeOpacity;
@@ -303,25 +311,27 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
               // null = colorScale.missing is null: keep the series' own colors
               const generatedColor = seriesColorGenerator(skipI);
               barStrokeColor = generatedColor !== null ? generatedColor : seriesStrokeColor;
-              barFillColor = generatedColor !== null ? generatedColor : seriesFillColor;
+              if (!patterned) {
+                barFillColor = generatedColor !== null ? generatedColor : seriesFillColor;
+              }
             }
             else if (hasDifferentColors) {
               if (hasDifferentStrokeColors) {
                 barStrokeColor = getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
               }
-              if (hasDifferentFillColors) {
+              if (hasDifferentFillColors && !patterned) {
                 barFillColor = getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
               }
             }
             else if (focusPercentage !== seriesFocusPercentage) {
               barStrokeColor = getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage);
-              if (seriesConfig.gradient === NONE) {
+              if (seriesConfig.gradient === NONE && !patterned) {
                 barFillColor = getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage);
               }
             }
             else {
               barStrokeColor = seriesStrokeColor;
-              if (seriesConfig.gradient === NONE) {
+              if (seriesConfig.gradient === NONE && !patterned) {
                 barFillColor = seriesFillColor;
               }
             }

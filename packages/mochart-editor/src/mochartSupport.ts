@@ -86,9 +86,9 @@ function propertiesForObject(path: JsonPath): EditorPropertyModel[] {
   if (!section) return [];
   if (keys.length === 1) {
     // unique properties cannot be set on an all config, so don't offer them
-    const { uniqueKeys } = section;
-    return path[0] === section.allKey && uniqueKeys
-      ? section.properties.filter(property => !uniqueKeys.includes(property.key))
+    const excludedKeys = [...(section.uniqueKeys ?? []), ...(section.allExcludedKeys ?? [])];
+    return path[0] === section.allKey && excludedKeys.length > 0
+      ? section.properties.filter(property => !excludedKeys.includes(property.key))
       : section.properties;
   }
   let property = section.properties.find(candidate => candidate.key === keys[1]) ?? null;
