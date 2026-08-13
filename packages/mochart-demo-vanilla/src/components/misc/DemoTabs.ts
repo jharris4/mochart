@@ -1,13 +1,4 @@
-// The Chart / Config / Data strip in the top bar, as an ARIA tablist.
-//
-// One place per port builds this, because the `tab` role is a package deal: the
-// roles and `aria-selected` are only half of it, the other half is the keyboard
-// contract (Left/Right wrap, Home/End, and a roving tabindex so the strip is one
-// stop rather than three). The keys themselves come from `nextDemoTabIndex` in
-// @mochart/demo-common, shared with the other five ports.
-//
-// Selection is automatic: arrowing to a tab shows its pane, which is what a
-// click already did and costs nothing here — every pane stays mounted.
+// The Chart / Config / Data strip in the top bar, as an ARIA tablist; the keyboard contract lives with `nextDemoTabIndex` in @mochart/demo-common.
 
 import { demoTabId, demoTabPanelId, demoTabPendingId, demoText, nextDemoTabIndex } from '@mochart/demo-common';
 import type { DemoTab } from '@mochart/demo-common';
