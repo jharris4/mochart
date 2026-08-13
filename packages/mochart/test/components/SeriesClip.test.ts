@@ -1,13 +1,4 @@
-/**
- * ANIM-1 part 3: an explicit axis `min`/`max` is a hard bound, so a value past it used to paint
- * over the axes and the title (confined only by the outermost svg's own viewport). The series are
- * now clipped to the plot.
- *
- * jsdom does not rasterize, so these assert the clip *contract* — the clipPath, the rect it
- * carries, and the reference from the series container — rather than the painted result. The
- * geometry deliberately still runs past the bound: clipping is a viewport operation, and the
- * value a mark reports must not change.
- */
+// Series are clipped to the plot so values past an explicit axis min/max cannot paint over the chrome; jsdom does not rasterize, so these assert the clip contract while the geometry deliberately still runs past the bound.
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

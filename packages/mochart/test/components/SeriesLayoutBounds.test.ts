@@ -1,16 +1,4 @@
-/**
- * COMP-2 regression: `applyLayoutInfo` recorded the new series bounds and invoked
- * `onSeriesLayoutBoundsChange` while still inside `derive()` — before `Renderer.update()`
- * assigns `this.props`. Two consequences, both covered here:
- *
- *  1. the callback invoked was the *previous* render's closure, so a host passing a fresh
- *     closure per render (React/Svelte/Vue) got one closed over stale state;
- *  2. a host that resized in response re-entered `update()`, that nested update committed,
- *     and then the outer `update()` overwrote props/state with the older values — the
- *     host's most recent instruction was lost with no error.
- *
- * The notification is now recorded and flushed from the post-commit `measure` hook.
- */
+// onSeriesLayoutBoundsChange used to fire inside derive() — invoking the previous render's closure and letting a re-entrant host update be overwritten — so it now flushes from the post-commit measure hook.
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

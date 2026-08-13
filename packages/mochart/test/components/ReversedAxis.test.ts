@@ -1,8 +1,4 @@
-/**
- * `axis.reversed` runs an axis in the opposite direction — the supported way to invert, replacing
- * the `min > max` accident. It reverses the scale's *range*, never its domain, so bases,
- * thresholds, tick generation and the animation deltas all keep seeing an ascending domain.
- */
+// axis.reversed runs an axis in the opposite direction by reversing the scale's *range* only — bases, thresholds, tick generation and animation deltas all keep seeing an ascending domain.
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

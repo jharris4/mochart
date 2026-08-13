@@ -1,10 +1,4 @@
-/**
- * Tooltip box config no test or demo had ever set: adjustSizeForFiltering, which
- * decides whether the hidden sizer that reserves the box's width still counts
- * filtered rows, the box's own border radius / drop shadow colour / row padding,
- * and crosshair.showBehindTooltip, whose only job is to drop the clip that keeps
- * the crosshair out from under the tooltip.
- */
+// Tooltip box config no test or demo had ever set: adjustSizeForFiltering, border radius, drop shadow colour, row padding, and crosshair.showBehindTooltip.
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

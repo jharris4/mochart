@@ -1,10 +1,4 @@
-/**
- * Three drawing switches no test or demo had ever set: series.missingValueMarkers
- * (a marker on a category with no value), seriesStacks.outerCapExpand (whether a
- * stack's rounded outer cap narrows a segment too short to hold the radius), and
- * pie.centerOffsetXFraction (the horizontal half of the pie centre offset, whose
- * vertical twin sits on the next line of the same expression).
- */
+// Three drawing switches no test or demo had ever set: series.missingValueMarkers, seriesStacks.outerCapExpand, and pie.centerOffsetXFraction.
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

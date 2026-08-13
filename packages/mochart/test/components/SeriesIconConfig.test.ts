@@ -1,11 +1,4 @@
-/**
- * The legend and tooltip series icons share one component, and the config that
- * decides what it draws had never been set anywhere: showIconColors,
- * showIconPlaceholders, iconUnfilteredColor and the icon border/spacer numbers
- * were only ever their defaults. The gradient half of the tooltip icon was dead
- * outright — its own <defs> is built only on the html render path, so a
- * gradient-filled series had never had a tooltip swatch drawn at all.
- */
+// Legend/tooltip icon config that had never been set anywhere: showIconColors, showIconPlaceholders, iconUnfilteredColor, the border/spacer numbers, and the tooltip icon's gradient path.
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

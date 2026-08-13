@@ -1,8 +1,4 @@
-/**
- * accessibility.targetMinSize: the floor the chart lays its own click targets
- * out to — legend item boxes, the tooltip controls' buttons, and interactive
- * tooltip rows — while series shapes keep the geometry their data gives them.
- */
+// accessibility.targetMinSize: the floor for the chart's own click targets (legend items, tooltip control buttons, interactive tooltip rows) while series shapes keep their data geometry.
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

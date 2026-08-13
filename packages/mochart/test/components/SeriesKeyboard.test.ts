@@ -153,9 +153,7 @@ describe('cartesian series keyboard semantics', () => {
     expect(document.activeElement).toBe(items[0]);
   });
 
-  // A11Y-8: Enter on a series did two things at once — the whole-series click and a
-  // tooltip opened at the *remembered* category, which has nothing to do with the series
-  // activated. A cartesian series spans every category, so there is no category to open at.
+  // Enter on a series used to also open the tooltip at the remembered category; a cartesian series spans every category, so there is none to open at
   it('activates the series only, without opening the tooltip', () => {
     const clicks: ChartSeriesClickPayload[] = [];
     const container = mountChart(makeConfig(), payload => clicks.push(payload));
@@ -181,8 +179,7 @@ describe('cartesian series keyboard semantics', () => {
     expect(rect.getAttribute('aria-expanded')).toBe('false');
   });
 
-  // A11Y-8: the category cursor lives on the plot rect alone, and arrows inside the
-  // series group are sibling navigation — they must not double as a second cursor
+  // the category cursor lives on the plot rect alone — arrows inside the series group are sibling navigation, not a second cursor
   it('steps between series with arrows without moving the open tooltip', () => {
     const container = mountChart(makeConfig(), () => {});
     const items = seriesNodes(container);
@@ -259,8 +256,7 @@ describe('cartesian series keyboard semantics', () => {
     expect(document.activeElement).toBe(items[1]);
   });
 
-  // A11Y-12: the roving series had only key handlers, so a screen reader announced a
-  // bare button with no enclosing group where the legend one Tab later announces "Legend, group"
+  // the roving series used to announce as bare buttons with no enclosing group, unlike the legend one Tab later
   it('groups the roving series like the legend, named from the accessibility config', () => {
     const container = mountChart(makeConfig(), () => {});
     const group = container.querySelector(getCssSelector('seriesContainer'))!;

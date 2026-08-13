@@ -175,8 +175,7 @@ describe('tooltip row keyboard semantics', () => {
     key(first, 'Enter');
     expect(document.activeElement).not.toBe(document.body);
     expect((document.activeElement as HTMLElement).getAttribute('data-row-key')).toBe('series-S1');
-    // A11Y-10: the same restore is reachable by clicking the row, where :focus-visible never
-    // matches, so the moved focus is marked for the stylesheet to ring
+    // the same restore is reachable by clicking the row, where :focus-visible never matches, so the moved focus is marked for the stylesheet to ring
     expect((document.activeElement as HTMLElement).hasAttribute(focusRestoredAttribute)).toBe(true);
   });
 
@@ -363,8 +362,7 @@ describe('tooltip row keyboard semantics', () => {
     expect(tooltipRows(container).map(row => row.getAttribute('data-row-key'))).toEqual(['series-S0', 'series-S1']);
   });
 
-  // A11Y-12: the roving rows had only key handlers, so they announced as bare buttons
-  // where the legend's identical container announces "Legend, group"
+  // the roving rows used to announce as bare buttons, where the legend's identical container announces "Legend, group"
   it('groups the roving rows like the legend, named from the accessibility config', () => {
     const container = mountChart(makeConfig({ showControls: true }));
     openTooltip(container);
@@ -583,7 +581,7 @@ describe('closing the tooltip returns focus to the plot tab stop', () => {
     expect(document.activeElement).toBe(plotRect);
   });
 
-  // A11Y-3: only Escape used to restore focus, so every other close left it on <body>
+  // only Escape used to restore focus, so every other close left it on <body>
   it('returns focus to the plot tab stop when a click inside closes the tooltip', () => {
     const container = mountChart(makeConfig({ showControls: true }));
     openTooltip(container);
@@ -624,7 +622,7 @@ describe('tooltip control buttons', () => {
     const next = Array.from(container.querySelectorAll<HTMLElement>(getCssSelector('tooltip') + ' button'))
       .find(button => button.textContent === '›')!;
     next.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    // the live region coalesces a burst, so this step lands after the settle window (A11Y-9)
+    // the live region coalesces a burst, so this step lands after the settle window
     await new Promise(resolve => setTimeout(resolve, 200));
 
     expect(liveText(container)).toContain('Feb');

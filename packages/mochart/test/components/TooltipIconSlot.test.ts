@@ -1,9 +1,4 @@
-/**
- * COMP-9: the tooltip row's colour icon sits in a different host element per layout, so the slot
- * holding it is rebuilt whenever tooltip.rightAlignValues flips. The outgoing slot used to stay
- * registered on the renderer with its SeriesColorIcon still mounted, growing without bound for a
- * host that lets users toggle the option.
- */
+// The tooltip row icon's slot is rebuilt whenever tooltip.rightAlignValues flips; the outgoing slot used to stay registered with its SeriesColorIcon still mounted, leaking per toggle.
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';
