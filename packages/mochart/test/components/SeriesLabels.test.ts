@@ -21,7 +21,11 @@ const rows = [
 
 let handles: ChartHandle<DefaultChartProps>[] = [];
 
-function labelCount(seriesOverrides: Record<string, unknown>, valueAxes?: unknown[]): number {
+function surviving(container: Element): string[] {
+  return [...container.querySelectorAll(getCssSelector('seriesLabel'))].map((label) => label.textContent ?? '');
+}
+
+function labelTexts(seriesOverrides: Record<string, unknown>, valueAxes?: unknown[]): string[] {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const config = {
@@ -34,7 +38,7 @@ function labelCount(seriesOverrides: Record<string, unknown>, valueAxes?: unknow
   handles.push(createDefaultChart(container, {
     config, data: rows, width: WIDTH, height: HEIGHT
   } as DefaultChartProps));
-  return container.querySelectorAll(getCssSelector('seriesLabel')).length;
+  return surviving(container);
 }
 
 beforeAll(() => {
@@ -57,21 +61,21 @@ afterEach(() => {
 
 describe('series label fraction guards', () => {
   it('labels every category when no guard is set', () => {
-    expect(labelCount({})).toBe(rows.length);
+    expect(labelTexts({})).toEqual(['10.00', '50.00', '100.00']);
   });
 
   it('hides labels below labelMinPositionFraction', () => {
-    // the smallest value sits at the bottom of the domain and drops out
-    expect(labelCount({ labelMinPositionFraction: 0.5 })).toBeLessThan(rows.length);
+    // domain 10–100, so the guard hides everything positioned below 55
+    expect(labelTexts({ labelMinPositionFraction: 0.5 })).toEqual(['100.00']);
   });
 
   it('hides labels above labelMaxPositionFraction', () => {
-    expect(labelCount({ labelMaxPositionFraction: 0.5 })).toBeLessThan(rows.length);
+    expect(labelTexts({ labelMaxPositionFraction: 0.5 })).toEqual(['10.00', '50.00']);
   });
 
   it('hides labels whose value spans less than labelMinRangeFraction', () => {
-    // no axis base, so the guard measures each value against the domain minimum
-    expect(labelCount({ labelMinRangeFraction: 0.5 }, [{ base: null }])).toBeLessThan(rows.length);
+    // no axis base, so each unstacked value measures from the zero baseline: extent 90 hides 10
+    expect(labelTexts({ labelMinRangeFraction: 0.5 }, [{ base: null }])).toEqual(['50.00', '100.00']);
   });
 
   it('measures a stacked series against the domain minimum when the axis has no base', () => {
@@ -92,13 +96,15 @@ describe('series label fraction guards', () => {
       } as unknown as MochartInputConfig,
       data: rows, width: WIDTH, height: HEIGHT
     } as DefaultChartProps));
-    expect(container.querySelectorAll(getCssSelector('seriesLabel')).length).toBeLessThan(rows.length);
+    // stack extents 10/50/100 against a threshold of half the stacked domain: only Mar survives
+    expect(surviving(container)).toEqual(['100.00']);
   });
 
   it('measures a ranged series against its own range property', () => {
-    expect(labelCount(
+    // range extents 2/40/80 against half of the 8–100 domain: only Mar survives
+    expect(labelTexts(
       { rangeProperty: 'floor', labelMinRangeFraction: 0.5 },
       [{ base: null }]
-    )).toBeLessThan(rows.length);
+    )).toEqual(['100.00']);
   });
 });
