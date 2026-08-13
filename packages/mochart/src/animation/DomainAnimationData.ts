@@ -27,15 +27,14 @@ import type {
  *
  **/
 
-const emptyCategoryAxisDomainDelta = {
-  deltaPercentage: 0,
-  delta: null
-};
+// factories, not shared singletons: setDeltaFactor stamps deltaFactor onto whatever these hand back
+function emptyCategoryAxisDomainDelta(): DomainDelta {
+  return { deltaPercentage: 0, delta: null };
+}
 
-const emptyValueAxisDomainDelta = {
-  deltaPercentage: 0,
-  deltas: null
-};
+function emptyValueAxisDomainDelta(): DomainDeltaMap {
+  return { deltaPercentage: 0, deltas: null };
+}
 
 const emptySeriesDomainDelta = {
   deltaPercentage: 0,
@@ -182,19 +181,19 @@ export function getCombinedAxisDomainDeltas(fromDomains: AxisDomains, toDomains:
     deltas[axisId] = { deltaPercentage: axisDeltaPercentage, delta };
     deltaPercentage = Math.max(deltaPercentage, axisDeltaPercentage);
   }
-  return deltaPercentage === 0 ? emptyValueAxisDomainDelta : { deltaPercentage, deltas };
+  return deltaPercentage === 0 ? emptyValueAxisDomainDelta() : { deltaPercentage, deltas };
 }
 
 /** Single-domain sibling of getCombinedAxisDomainDeltas for the category axis (dates coerce via +). */
 export function getCombinedCategoryDomainDelta(fromDomain: CategoryAxisDomain, toDomain: CategoryAxisDomain, fromDomainExtent: number): DomainDelta {
   if (fromDomain[0] === null || fromDomain[1] === null || toDomain[0] === null || toDomain[1] === null) {
-    return emptyCategoryAxisDomainDelta;
+    return emptyCategoryAxisDomainDelta();
   }
   const minDelta = +toDomain[0] - +fromDomain[0];
   const maxDelta = +toDomain[1] - +fromDomain[1];
   const magnitude = getDomainDeltaMagnitude(minDelta, maxDelta);
   if (magnitude === 0 || fromDomainExtent <= 0) {
-    return emptyCategoryAxisDomainDelta;
+    return emptyCategoryAxisDomainDelta();
   }
   return { deltaPercentage: magnitude / fromDomainExtent, delta: [minDelta, maxDelta] };
 }
@@ -553,7 +552,7 @@ function getValueAxisDomainDeltas(fromValueAxisDomains: AxisDomains, toValueAxis
       delta: axisDelta
     };
   }
-  return deltaPercentage === 0 ? emptyValueAxisDomainDelta : {
+  return deltaPercentage === 0 ? emptyValueAxisDomainDelta() : {
     deltaPercentage,
     deltas
   };
@@ -573,7 +572,7 @@ function getCategoryAxisDomainDelta(fromCategoryAxisDomain: CategoryAxisDomain, 
 
   const deltaPercentage = getPositiveDomainDeltaPercentage(delta, getDomainExtentWithValueGetter(fromCategoryAxisDomain, getValue));
 
-  return deltaPercentage === 0 ? emptyCategoryAxisDomainDelta : {
+  return deltaPercentage === 0 ? emptyCategoryAxisDomainDelta() : {
     deltaPercentage,
     delta
   }
