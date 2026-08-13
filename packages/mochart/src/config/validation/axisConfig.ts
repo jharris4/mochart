@@ -1,5 +1,5 @@
 import validators, { boundValue } from './validators';
-import { filterConfig } from '../core/mochartConfig';
+import { getRawIndices } from '../core/mochartConfig';
 import { getPropertyMessage, isConfigObject } from './messages';
 
 import { AUTO, NONE, ANCHORS, COLOR_SAME, SIDES, THRESHOLD_TITLE_SIDES } from '../core/constants';
@@ -153,16 +153,9 @@ export function validateAxisBounds(config: ConfigObject, configWithoutDefaults: 
   checkAxisBounds(config['categoryAxis'], 'categoryAxis', undefined, errors, errorDetails);
   const valueAxes = config['valueAxes'];
   if (Array.isArray(valueAxes)) {
-    // built sections drop ignored/non-object raw entries, so report at the filtered raw index
-    const rawSections = Array.isArray(configWithoutDefaults['valueAxes']) ? configWithoutDefaults['valueAxes'] as unknown[] : [];
-    const rawIndices: number[] = [];
-    for (let i = 0; i < rawSections.length; i++) {
-      if (filterConfig(rawSections[i])) {
-        rawIndices.push(i);
-      }
-    }
+    const rawIndices = getRawIndices(configWithoutDefaults['valueAxes']);
     for (let i = 0; i < valueAxes.length; i++) {
-      checkAxisBounds(valueAxes[i], 'valueAxes', rawIndices[i] ?? i, errors, errorDetails);
+      checkAxisBounds(valueAxes[i], 'valueAxes', rawIndices?.[i] ?? i, errors, errorDetails);
     }
   }
 }

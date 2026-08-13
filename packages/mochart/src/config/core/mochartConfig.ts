@@ -139,6 +139,20 @@ export function filterConfig(config: unknown): config is ConfigRecord {
   return isObject(config) && config.ignore !== true
 }
 
+/** Built list sections drop ignored/non-object raw entries, so errors report at the filtered raw index. */
+export function getRawIndices(sections: unknown): number[] | null {
+  if (!Array.isArray(sections)) {
+    return null;
+  }
+  const rawIndices: number[] = [];
+  for (let i = 0; i < sections.length; i++) {
+    if (filterConfig(sections[i])) {
+      rawIndices.push(i);
+    }
+  }
+  return rawIndices;
+}
+
 // never install the defaults' own entry objects: the build step wires list references onto entries in place
 // the *Defaults section still applies to an implicit entry, which is the only entry valueAxes ever has
 const copyDefaultsList = (defaultsSection: unknown[], allSection: ConfigRecord): unknown[] =>

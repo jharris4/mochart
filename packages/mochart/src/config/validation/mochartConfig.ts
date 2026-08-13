@@ -2,7 +2,7 @@ import validators from './validators';
 import { getMessage, getPropertyMessage, getMessages, addWarningMessages, DEFAULT } from './messages';
 import type { LocatedValidationMessage } from './messages';
 import { NONE, CONFIG_VERSION } from '../core/constants';
-import { applyDefaults, configWithAll, filterConfig, filterConfigs, sectionKeyAllMap } from '../core/mochartConfig';
+import { applyDefaults, configWithAll, filterConfig, filterConfigs, getRawIndices, sectionKeyAllMap } from '../core/mochartConfig';
 
 import accessibilityValidators from './accessibilityConfig';
 import animationValidators from './animationConfig';
@@ -486,19 +486,6 @@ function validateReferences(config: ConfigRecord, configWithoutDefaults: ConfigR
     targetSectionKey, targetProperty, sourceSectionKey, sourceProperty, errors, errorDetails, getRawIndices(rawTargetSection));
 }
 
-function getRawIndices(sections: unknown): number[] | null {
-  if (!Array.isArray(sections)) {
-    return null;
-  }
-  const rawIndices: number[] = [];
-  for (let i = 0; i < sections.length; i++) {
-    if (filterConfig(sections[i])) {
-      rawIndices.push(i);
-    }
-  }
-  return rawIndices;
-}
-
 // follower lookups never walk transitively, so a follower must not itself be followed
 function validateFollowSeries(config: ConfigRecord, configWithoutDefaults: ConfigRecord, errors: string[], errorDetails: LocatedValidationMessage[]): void {
   const seriesSections = config['series'];
@@ -511,14 +498,7 @@ function validateFollowSeries(config: ConfigRecord, configWithoutDefaults: Confi
       isFollower[String(section['id'])] = true;
     }
   }
-  // built sections drop ignored/non-object raw entries, so report at the filtered raw index
-  const rawSections = Array.isArray(configWithoutDefaults['series']) ? configWithoutDefaults['series'] as unknown[] : [configWithoutDefaults['series']];
-  const rawIndices: number[] = [];
-  for (let i = 0; i < rawSections.length; i++) {
-    if (filterConfig(rawSections[i])) {
-      rawIndices.push(i);
-    }
-  }
+  const rawIndices = getRawIndices(configWithoutDefaults['series']);
   for (let i = 0; i < seriesSections.length; i++) {
     const section = seriesSections[i];
     if (!isConfigRecord(section)) {
@@ -529,7 +509,7 @@ function validateFollowSeries(config: ConfigRecord, configWithoutDefaults: Confi
       continue;
     }
     const message = getFollowSeriesMessage() + ': ' + JSON.stringify(followSeries);
-    const reportIndex = rawIndices[i] ?? i;
+    const reportIndex = rawIndices?.[i] ?? i;
     errors.push(getPropertyMessage('series', 'followSeries', message, reportIndex));
     errorDetails.push({ path: ['series', reportIndex, 'followSeries'], message });
   }
