@@ -14,13 +14,6 @@
       ]
     },
 
-    "packages/mochart-editor": {
-      "entry": [
-        "playground/main.ts",
-        "playground/vite.config.ts"
-      ]
-    },
-
     "packages/mochart-docs": {
       "entry": [
         "scripts/*.ts",
