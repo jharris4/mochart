@@ -301,8 +301,7 @@ describe('generateDemoDataProvider', () => {
   });
 });
 
-// DEMO-12: the pivot from a generated provider's parallel arrays to data-tab
-// rows was written once per port.
+// The pivot from a generated provider's parallel arrays to data-tab rows was written once per port.
 describe('getRandomDataRows', () => {
   const seriesValues = { sales: [10, 20], cost: [3, undefined] };
 

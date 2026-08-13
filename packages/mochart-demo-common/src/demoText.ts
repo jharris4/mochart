@@ -64,9 +64,7 @@ export const demoText = {
   backToDemos: { label: 'Demos', tooltip: 'Back to the demo gallery', aria: 'Back to the demo gallery' },
   modeSwitcher: {
     label: 'Mode:',
-    // Names the switcher's `role="group"`: "Single / Multi / Random" says
-    // nothing about what they switch, and the visible `Mode:` label beside them
-    // is display:none'd below 900px, so it cannot be the group's name.
+    // Names the switcher's `role="group"`; the visible `Mode:` label cannot, since it is display:none'd below 900px.
     groupAria: 'Demo mode',
     // Heading over the mode rows in the phone nav overflow menu, where the
     // strip's `Mode:` label is display:none'd and "Single / Random" would
@@ -149,9 +147,7 @@ export const demoText = {
     label: 'Share',
     tooltip: 'Copy a link to this chart with the current config and data',
     tooltipCopied: 'Link copied',
-    // Spoken through the copier's live region. Pressing Share closes the menu,
-    // so this is the whole confirmation an assistive-tech user gets, and it says
-    // where the link went rather than only that something was copied.
+    // Spoken through the copier's live region — the whole confirmation an assistive-tech user gets, so it says where the link went.
     announcementCopied: 'Share link copied to clipboard',
     aria: 'Copy Share Link'
   },

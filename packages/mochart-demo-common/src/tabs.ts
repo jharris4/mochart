@@ -1,11 +1,4 @@
-// The Chart / Config / Data strip every demo view puts in its top bar, as ARIA
-// tabs. The six ports each build the strip in their own idiom, so what has to
-// agree between them lives here: the id pairing that ties a tab to the pane it
-// controls, and the arrow-key contract the `tab` role implies.
-//
-// The strip is a horizontal tablist with automatic activation — moving between
-// tabs selects them, which is what the mouse behaviour already was (one click,
-// one pane) and what makes sense when there is no cost to showing a pane.
+// The demo views' Chart/Config/Data strip as ARIA tabs: the tab/pane id pairing and arrow-key contract the six ports must agree on.
 
 /** A pane a demo view can show. One view mounts at a time, so the ids below stay unique. */
 export type DemoTabName = 'chart' | 'config' | 'data';
@@ -29,16 +22,7 @@ export function demoTabPanelId(name: DemoTabName): string {
   return 'demo-tabpanel-' + name;
 }
 
-/**
- * Id of the description of the pending-changes badge.
- *
- * The badge itself is a decorative dot (`aria-hidden`), and its explanation used
- * to live only in the button's `title`, which no screen reader reads. The strip
- * renders this text once in a `hidden` span and the Chart tab points
- * `aria-describedby` at it while the badge shows — referenced text is exposed
- * even when the element carrying it is hidden, which is the whole point of
- * putting it somewhere `hidden` rather than in the accessible name.
- */
+/** Id of the `hidden` span describing the pending badge; the Chart tab points `aria-describedby` at it while the badge shows (referenced text is exposed even when hidden). */
 export const demoTabPendingId = 'demo-tab-pending-note';
 
 export interface DemoTabPanelAttrs {
@@ -47,26 +31,12 @@ export interface DemoTabPanelAttrs {
   'aria-labelledby': string;
 }
 
-/**
- * The attributes tying a pane to the tab that selects it. Spread onto the pane's
- * root element — the names are spelled the same in every port's templates.
- *
- * Deliberately no `tabindex="0"`: that is only wanted for a panel with nothing
- * focusable inside it, and all three panes have controls of their own (the chart
- * controls strip, the editors' textareas and buttons).
- */
+/** Attributes tying a pane to its tab, spread onto the pane's root; no `tabindex="0"` because every pane has focusable controls of its own. */
 export function getDemoTabPanelAttrs(name: DemoTabName): DemoTabPanelAttrs {
   return { id: demoTabPanelId(name), role: 'tabpanel', 'aria-labelledby': demoTabId(name) };
 }
 
-/**
- * The tab a keypress in the strip moves to, or null for a key the strip does not
- * own (which the caller must leave to the browser).
- *
- * Left/Right wrap, Home/End jump to the ends: the horizontal tablist keys, and
- * only those. Up/Down are deliberately not handled — they belong to a vertical
- * tablist, and swallowing them here would break scrolling from a focused tab.
- */
+/** The tab a keypress moves to: Left/Right wrap, Home/End jump, and null for keys the strip does not own (Up/Down stay with the browser so scrolling works). */
 export function nextDemoTabIndex(key: string, activeIndex: number, tabCount: number): number | null {
   if (tabCount < 1) {
     return null;

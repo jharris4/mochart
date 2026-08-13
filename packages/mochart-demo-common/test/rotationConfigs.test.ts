@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import { getRotationGrid, rotationConfigs } from '../src/rotationConfigs';
 
-// DEMO-12: the column arithmetic (and its 400px minimum) lived in all six ports.
+// The column arithmetic (and its 400px minimum) lived in all six ports.
 describe('getRotationGrid', () => {
   it('fits as many 400px-or-wider square columns as the container allows', () => {
     expect(getRotationGrid(1200)).toEqual({ cols: 3, colWidth: 400 });

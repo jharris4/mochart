@@ -33,8 +33,7 @@ describe('toggleConfigSection across the clone boundary', () => {
   });
 });
 
-// DEMO-6: the Invert/Slow pressed states and the Reference links read the built config, which only
-// existed for the last APPLIED text - so after any edit they described the previous config.
+// The Invert/Slow pressed states and Reference links used to read the last APPLIED config, so after any edit they described the previous one.
 describe('demoConfigFromText', () => {
   const baseText = JSON.stringify({
     categoryAxis: { property: 'month' },
@@ -283,7 +282,7 @@ describe('applyTransitionConfigEdit error copy', () => {
   });
 });
 
-// DEMO-12: every port carried its own byte-identical copy of this.
+// Every port carried its own byte-identical copy of this.
 describe('getSeriesValuesText', () => {
   const rows = [{ month: 'Jan', sales: 10, high: 12, label: 'ten', tint: '#333' }];
   const config = (series: Record<string, unknown>) => ({

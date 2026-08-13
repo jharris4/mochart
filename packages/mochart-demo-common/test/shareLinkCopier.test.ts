@@ -16,8 +16,7 @@ function liveRegions(): HTMLElement[] {
   return Array.from(document.body.querySelectorAll<HTMLElement>('[role="status"]'));
 }
 
-// DEMO-12: the clipboard write, the prompt fallback and the revert timer were
-// spelled out in all six ports' export/share menus.
+// The clipboard write, prompt fallback and revert timer were spelled out in all six ports' export/share menus.
 describe('createShareLinkCopier', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -70,8 +69,7 @@ describe('createShareLinkCopier', () => {
     expect(changes).toEqual([]);
   });
 
-  // DEMO-13: nothing announced the copy — the label swap happens inside a menu
-  // that the same click closes, so it is spoken by nothing.
+  // The "Link copied" label swap happens inside a menu the same click closes, so only the live region speaks.
   it('announces the copy through a visually hidden polite live region', async () => {
     stubClipboard(() => Promise.resolve());
     const copier = createShareLinkCopier(() => { /* label swap not under test */ });

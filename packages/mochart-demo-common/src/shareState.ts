@@ -204,14 +204,7 @@ const copiedFeedbackMs = 1500;
 // same as core's chart announcer). Inline, because demo.css is optional.
 const liveRegionStyle = 'position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap';
 
-/**
- * The page's copy announcer. One region for the whole document, parked on
- * `<body>` rather than rendered by the Share item, because pressing Share closes
- * the menu: the item's "Link copied" label swap happens inside a `display: none`
- * panel, and nothing in a hidden subtree is spoken. An `aria-live` on that label
- * would be equally silent, so the confirmation needs a node that outlives the
- * menu.
- */
+// One copy announcer per document, parked on <body>: pressing Share closes the menu, and nothing inside a hidden panel is spoken.
 let liveRegion: HTMLElement | null = null;
 let announceTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -233,12 +226,7 @@ function getLiveRegion(): HTMLElement {
 // text arrives, short enough that the confirmation still feels immediate.
 const announceDelayMs = 100;
 
-/**
- * Speak a message through the region above. Emptying it first and writing on a
- * later task is what makes a second copy in a row announce: screen readers drop
- * a live-region write whose text matches what is already there, and a region
- * created and filled in one task can be missed entirely.
- */
+/** Empty the region first and write on a later task, so a repeat of the same message is still spoken. */
 function announce(message: string): void {
   const region = getLiveRegion();
   region.textContent = '';
@@ -258,15 +246,7 @@ export interface ShareLinkCopier {
   dispose(): void;
 }
 
-/**
- * Everything the Share item does apart from rendering: build the link, put it on
- * the clipboard, announce the result to assistive tech, and drive the
- * confirmation flag through `onCopiedChange` so the caller only has to poke its
- * own reactivity.
- *
- * Clipboard access can be unavailable (an insecure context, say), so the failure
- * path offers the link in a prompt rather than failing silently.
- */
+/** Everything the Share item does apart from rendering: build, copy, announce, and drive the copied flag through `onCopiedChange`; without a usable clipboard the link is offered in a prompt. */
 export function createShareLinkCopier(onCopiedChange: (copied: boolean) => void): ShareLinkCopier {
   let revertTimer: ReturnType<typeof setTimeout> | null = null;
 
