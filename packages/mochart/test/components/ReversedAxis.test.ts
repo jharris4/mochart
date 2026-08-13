@@ -50,9 +50,15 @@ function linePoints(container: Element) {
   return [...d.matchAll(/[ML](-?[\d.]+),(-?[\d.]+)/g)].map((match) => ({ x: Number(match[1]), y: Number(match[2]) }));
 }
 
+/** Tick labels of an axis, each with the translate position its wrapper places it at. */
 function tickLabels(container: Element, axis: 'value' | 'category') {
   const axisKey = axis === 'value' ? 'valueAxis' : 'categoryAxis';
-  return [...container.querySelectorAll(getCssSelector(axisKey) + ' text')].map((text) => text.textContent);
+  return [...container.querySelectorAll(getCssSelector(axisKey) + ' text')].map((text) => {
+    const transform = text.parentElement!.getAttribute('transform') ?? '';
+    const match = /translate\((-?[\d.]+)[ ,]\s*(-?[\d.]+)\)/.exec(transform);
+    expect(match, `unexpected tick transform: ${transform}`).not.toBeNull();
+    return { label: text.textContent, y: Number(match![2]) };
+  });
 }
 
 beforeAll(() => {
@@ -95,11 +101,16 @@ describe('value axis reversed', () => {
     }
   });
 
-  it('reverses the tick label order without changing the values', () => {
+  it('mirrors the tick label positions without changing the values', () => {
     const normal = tickLabels(mount({ valueAxes: [{ min: 0, max: 10 }] }), 'value');
     const reversed = tickLabels(mount({ valueAxes: [{ min: 0, max: 10, reversed: true }] }), 'value');
-    expect(reversed.length).toBe(normal.length);
-    expect(new Set(reversed)).toEqual(new Set(normal));
+
+    // ticks are generated in ascending domain order either way; only their positions flip
+    expect(normal.length).toBeGreaterThan(1);
+    expect(reversed.map((tick) => tick.label)).toEqual(normal.map((tick) => tick.label));
+    const byPosition = (ticks: { label: string | null; y: number }[]) =>
+      [...ticks].sort((a, b) => a.y - b.y).map((tick) => tick.label);
+    expect(byPosition(reversed)).toEqual(byPosition(normal).reverse());
   });
 
   it('leaves an unreversed axis untouched', () => {
