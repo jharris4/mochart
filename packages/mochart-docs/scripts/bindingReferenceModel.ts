@@ -310,11 +310,7 @@ function readAngularBinding(source: BindingSource): SourceMember[] {
   return members;
 }
 
-/**
- * An output's initializer is a factory call (`this.chartOutput<T>()`) or a constructor
- * (`new EventEmitter<T>()`). Either way the host-visible type is `EventEmitter<T>`; naming the
- * factory would publish a private helper.
- */
+/** Factory call or constructor, the host-visible type is `EventEmitter<T>` either way. */
 function outputTypeFromInitializer(initializer: ts.Expression, sourceFile: ts.SourceFile): string {
   if (ts.isNewExpression(initializer) || ts.isCallExpression(initializer)) {
     const typeArguments = initializer.typeArguments;

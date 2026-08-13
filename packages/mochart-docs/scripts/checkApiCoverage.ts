@@ -33,12 +33,7 @@ const corePackageDir = path.join(docsDir, '..', 'mochart');
 const coreSrcDir = path.join(corePackageDir, 'src');
 const apiModelPath = path.join(corePackageDir, 'generated', 'api-reference.json');
 
-// The prop-bearing interfaces whose members are part of the documented surface
-// are read out of the generated model's group interface names, not listed here:
-// the generator already fails when an exported interface in types/chart.ts has
-// neither a page group nor an `internalInterfaces` reason (`ChartDomAccessors`
-// and `InternalFocus`, internals documented only by the shipped `.d.ts`), so a
-// second copy of that list could only drift out of date.
+// Documented interfaces come from the generated model's group interface names; a list here could only drift.
 
 // name → why it needs no documentation.
 const undocumented: Record<string, string> = {
