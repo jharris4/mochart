@@ -28,8 +28,7 @@ export function depSourcemaps() {
         return mapped.has(id) ? null : inner.apply(this, args);
       };
     },
-    // The map has to come from `load`: rollup reads a `transform` map as a link in the chain back to
-    // the dist file rather than as the file's own map, and drops it (vite 5, i.e. the docs site).
+    // Must be `load`: rollup drops a `transform`-supplied map as a mere link back to the dist file (vite 5, i.e. the docs site).
     load(id: string) {
       const mapPath = id + '.map';
       if (!id.endsWith('.js') || !id.includes('/dist/') || !existsSync(mapPath)) {

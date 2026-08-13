@@ -131,13 +131,7 @@ function isPhoneViewport(viewport) {
 const tabConfig = { kind: 'tab', name: 'Config' };
 const tabData = { kind: 'tab', name: 'Data' };
 
-// Controls are addressed by `aria-label`, not by id: DEMO-3 deleted the whole
-// `edit-*` id set (they were duplicated once a second chart mounted, and
-// nothing consumed them). The aria name is the stable hook because it does not
-// change with state the way the visible label and the tooltip do — the mode
-// button reads "Edit Series" or "Edit Categories" depending on which panel is
-// showing, but is always named "Toggle Mode". Strings mirror
-// demo-common/src/demoText.ts, which this plain-node script cannot import.
+// Controls are addressed by `aria-label` (state-stable, unlike the visible label); strings mirror demo-common/src/demoText.ts.
 const clickEditMode = { kind: 'click', selector: '[aria-label="Toggle Mode"]' };
 const clickChartCount = { kind: 'click', selector: '[aria-label="Toggle Chart Count"]' };
 
@@ -151,11 +145,7 @@ const clickChartCount = { kind: 'click', selector: '[aria-label="Toggle Chart Co
 // under test — that is why these shots are full-viewport rather than scoped to
 // the menu element, which would frame out exactly the clamping being checked.
 //
-// No per-view prefix: DEMO-3 removed `ExportShareMenu`'s `idPrefix`, since every
-// port's menu helper already mints a unique trigger id when none is supplied.
-// Each of these shots is on its own path (single / random / multi), so the first
-// menu on the page is the right one — which is what the old `#edit-`/`#random-`/
-// `#multi-` ids resolved to anyway.
+// No per-view prefix: each of these shots is on its own path, so the first menu on the page is the right one.
 const openExportShareMenu = {
   kind: 'menu',
   selector: '.mochart-export-share-menu > .demo-menu-trigger',

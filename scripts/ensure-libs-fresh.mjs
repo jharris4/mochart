@@ -1,12 +1,4 @@
-// Rebuilds the libraries when any lib's src (or package.json) is newer than its dist.
-//
-// The docs and demo builds bundle the libraries from their built dist (the `default` export
-// condition), unlike the dev servers, which resolve src via the `development` condition — so a
-// dist left over from before a source edit silently ships stale code. Fresh checkouts (CI's
-// npm ci runs build:libs via the root prepare script) skip straight through.
-//
-// Usage: node scripts/ensure-libs-fresh.mjs  — run as a prebuild by every entry point that
-// bundles against dist. Importable as ensureLibsFresh() for scripts that need it inline.
+// Prebuild for every dist-bundling entry point: rebuilds any lib whose src is newer than its dist, so builds never ship stale code.
 import { execSync } from 'node:child_process';
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
