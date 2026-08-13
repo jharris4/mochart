@@ -107,8 +107,7 @@ describe('chart state arbitration', () => {
   });
 });
 
-// Regression: the internal read delegate reached the factories instead of the
-// host's own provider, so instanceof, refresh() and custom members were lost.
+// Regression: the internal read delegate reached the factories, losing instanceof, refresh() and custom members
 describe('the provider handed to the state factories', () => {
   class CountingProvider extends ArrayOfObjectsDataProvider {
     readonly label = 'mine';
@@ -144,8 +143,7 @@ describe('the provider handed to the state factories', () => {
   });
 });
 
-// Regression: style was a default parameter, so any caller value replaced
-// position: relative, which the tooltip and live region are positioned against.
+// Regression: style was a default parameter, so any caller value replaced the position: relative the tooltip needs
 describe('the chart root position', () => {
   function rootStyle(style?: unknown): CSSStyleDeclaration {
     const container = mountChart(style === undefined ? {} : { style } as Partial<DefaultChartProps>);
@@ -184,8 +182,7 @@ describe('the no-size state', () => {
     expect(svg?.getAttribute('width')).toBe(String(WIDTH));
   });
 
-  // Regression: only an exact 0 took the no-size route, so negative and
-  // non-finite sizes reached the svg as invalid width/height attributes.
+  // Regression: only an exact 0 took the no-size route, so negative and non-finite sizes reached the svg
   it('takes the no-size route for any non-positive or non-finite size', () => {
     for (const [width, height] of [[0, HEIGHT], [WIDTH, 0], [-100, -50], [NaN, HEIGHT], [WIDTH, NaN]]) {
       expect(chartSvg(width, height), `${width}x${height}`).toBeNull();
@@ -193,8 +190,7 @@ describe('the no-size state', () => {
   });
 });
 
-// Regression: only a config going away was treated as structural, so one
-// arriving after mount (what the bindings do while loading) threw.
+// Regression: only a config going away was structural, so one arriving after mount (bindings while loading) threw
 describe('a mochartConfig arriving after mount', () => {
   function mountManaged(props: Partial<ManagedChartProps>): { container: Element; handle: ChartHandle<ManagedChartProps> } {
     const container = document.createElement('div');

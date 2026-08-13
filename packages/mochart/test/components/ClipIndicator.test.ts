@@ -1,13 +1,4 @@
-/**
- * ANIM-1 part 3: the band marking plot edges that have data hidden behind them.
- *
- * It overlays the plot rather than reserving space, so it never enters the layout pass. Pointer
- * events are left on so the `<title>` can show on hover; the chart's own handlers are on the chart
- * root, so tooltip, crosshair and focus still arrive by bubbling.
- *
- * Bands are mitred quadrilaterals, not rects, so adjacent bands share a diagonal instead of one
- * covering the other's corner — which matters now that they are stroked.
- */
+// The band marking plot edges that have data hidden behind them: an overlay that never enters the layout pass
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

@@ -1,11 +1,4 @@
-/**
- * What stays interactive while `loading` is true.
- *
- * The rule: the chart reports but does not commit. Anything keyed to a series or axis id keeps
- * working, since ids survive a data change; anything keyed to a category position is suppressed,
- * since it may name something that no longer exists once the new data lands; and whatever is
- * already open can still be dismissed.
- */
+// While loading: id-keyed handling keeps working, category-keyed is suppressed, whatever is open can be dismissed
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';
@@ -76,8 +69,7 @@ describe('while loading, the chart still reports pointer movement', () => {
   });
 
   it('notices the pointer leaving during a load', () => {
-    // this is the leave the old code never saw: with the handlers detached the "pointer is
-    // inside" flag latched on, and every later entry arrived as a move instead of an entry
+    // the leave the old code never saw: the "pointer is inside" flag latched on, turning every later entry into a move
     const enters: ChartEventPayload[] = [];
     const leaves: ChartEventPayload[] = [];
     const { container, handle } = mountChart(makeConfig(), {

@@ -112,8 +112,7 @@ describe('legend keyboard semantics', () => {
   });
 
   it('moves focus to a neighbour when the focused legend item disappears', () => {
-    // the focused item's node is unmounted when its series leaves the legend; without this the
-    // browser drops keyboard focus to the page body and the user loses their place entirely
+    // the focused item's node is unmounted when its series leaves; the browser would drop keyboard focus to the body
     const container = mountChart(makeConfig());
     const handle = handles[handles.length - 1];
     legendItems(container)[1].focus();

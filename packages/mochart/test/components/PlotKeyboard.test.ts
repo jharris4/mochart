@@ -51,8 +51,7 @@ function tooltipText(container: Element): string {
   return container.querySelector(getCssSelector('tooltip'))?.textContent ?? '';
 }
 
-// A11Y-9: the live region speaks the first step at once and coalesces a burst, so a step taken
-// inside the settle window only lands after it.
+// the live region speaks the first step at once and coalesces a burst, so a step inside the settle window lands after it
 const settleAnnouncement = () => new Promise(resolve => setTimeout(resolve, 200));
 
 function liveText(container: Element): string {
@@ -243,8 +242,7 @@ describe('plot keyboard semantics', () => {
     expect(tooltipText(container)).toBe('');
   });
 
-  // A11Y-3: a refresh that drops the plot tab stop used to dump keyboard focus on <body>, so a
-  // polling chart lost the user's place. The message that replaced the plot takes the focus.
+  // Regression: a refresh that dropped the plot tab stop dumped keyboard focus on <body>; the replacing message takes it
   it('hands focus to the message when a refresh drops to zero categories', () => {
     const container = mountChart(makeConfig());
     const handle = handles[handles.length - 1];

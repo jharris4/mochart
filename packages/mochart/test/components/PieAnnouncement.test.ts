@@ -1,9 +1,4 @@
-/**
- * The screen-reader announcement of a pie tooltip: the aria-live region speaks
- * the same percentages the visible rows show (pie.tooltipValues), and those
- * percentages renormalize against the unfiltered slices exactly like the
- * visible rows do, so a sighted and a listening user hear the same shares.
- */
+// The pie tooltip's aria-live announcement speaks the same renormalized percentages the visible rows show
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

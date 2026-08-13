@@ -1,13 +1,4 @@
-/**
- * COMP-11 (CSS-scaling half): pointer coordinates come from `getBoundingClientRect()`, which
- * reports **CSS** pixels, and were then divided by the *logical* plot extents to derive
- * `categoryFraction`/`valueFraction` and the nearest category. Any CSS scaling of the chart
- * — `transform: scale()`, a `width: 100%` SVG, page zoom — therefore produced fractions outside
- * 0–1 and selected the wrong category.
- *
- * Here the chart is mounted at its logical size but its plot rect reports half that in CSS
- * pixels, i.e. the page has scaled it by 0.5.
- */
+// Pointer fractions and category picking must survive CSS scaling: the plot rect here reports half its logical size
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

@@ -149,8 +149,7 @@ describe('pie slice keyboard semantics', () => {
   // chart-level bounds gate swallowed it whenever the center fell outside the
   // series rect (exploded edge slices; jsdom's zero-size bboxes reproduce it) —
   // toggling the focus but leaving the tooltip out of sync.
-  // A11Y-8 deliberately keeps this for pie while dropping it for cartesian series: a pie
-  // has one category, so the tooltip Enter opens is the slice's own, not a remembered one.
+  // pie deliberately keeps this while cartesian series dropped it: the tooltip Enter opens is the slice's own category
   it('toggles the tooltip with Enter and Space regardless of slice geometry', () => {
     const container = mountChart(makeConfig(), () => {});
     const items = slices(container);
@@ -215,8 +214,7 @@ describe('pie slice keyboard semantics', () => {
     expect(document.activeElement).toBe(items[1]);
   });
 
-  // A11Y-12: Tab into a slice and the AT announced "Subscriptions, 30%, button" with no
-  // enclosing group, while the legend one Tab later announced "Legend, group"
+  // Regression: slices announced bare ("Subscriptions, 30%, button") while the legend announced as a named group
   it('groups the roving slices like the legend, named from the accessibility config', () => {
     const container = mountChart(makeConfig(), () => {});
     const group = container.querySelector(getCssSelector('seriesContainer'))!;

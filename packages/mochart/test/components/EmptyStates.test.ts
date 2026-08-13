@@ -1,10 +1,4 @@
-/**
- * TEST-3 regression: the "No Data" and "No Series" states, and five of the six ChartFactories
- * props, were never exercised. They are documented, publicly overridable states with their own
- * CSS classes and their own props on all five bindings, and the overlay positions itself from
- * `seriesLayoutInfo` — so a layout regression would put the message outside the plot with
- * nothing failing.
- */
+// The "No Data" and "No Series" states and the six ChartFactories props, publicly overridable and previously untested
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createChart, createDefaultChart } from '../../src/createChart';
@@ -81,8 +75,7 @@ describe('no-data state', () => {
     const container = mountChart({}, makeConfig(), []);
     const overlay = container.querySelector<HTMLElement>(getCssSelector('noData'))!;
 
-    // absolutely positioned from seriesLayoutInfo: a layout regression would park it at 0,0
-    // or size it past the chart, and nothing else in the suite would notice
+    // absolutely positioned from seriesLayoutInfo: a layout regression would park it at 0,0 and nothing would notice
     const left = Number.parseFloat(overlay.style.left);
     const top = Number.parseFloat(overlay.style.top);
     const width = Number.parseFloat(overlay.style.width);
@@ -165,11 +158,7 @@ describe('ChartFactories overrides', () => {
   });
 });
 
-/**
- * API-9: the six members used to arrive per code path — hasData reached only the loading factory,
- * mochartConfig skipped two call sites — so a factory reading one got undefined with no warning.
- * Every factory now gets all six; only width/height differ, per the box the content fills.
- */
+// Regression: context members arrived per code path, so a factory could read undefined; every factory now gets all six
 describe('the state factory context', () => {
   const contextKeys = ['dataProvider', 'error', 'hasData', 'height', 'mochartConfig', 'width'];
 

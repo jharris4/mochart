@@ -1,12 +1,4 @@
-/**
- * ANIM-7: flipping a series' showInLegend must not be treated as a structural
- * config change. It decides only whether a series appears in the legend, so the
- * chart must keep animating from where it is rather than being torn down and
- * replaying its opening animation from the baseline.
- *
- * Uses the golden suite's fake-clock harness: timers are faked before the
- * library import and frames are driven manually.
- */
+// Flipping showInLegend is not structural: the chart keeps animating from where it is, driven on a fake clock here
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 import { getCssClass, getIdCssClass } from '../../src/utils/ChartDom';
 
@@ -113,8 +105,7 @@ describe('showInLegend updates on a mounted animated chart', () => {
     expect(legendItemCount(container)).toBe(1);
 
     chart.update({ mochartConfig: makeConfig(true) });
-    // the frame straight after the flip is where a rebuild shows: it restarts the opening
-    // animation from the baseline, so the bars collapse before growing back
+    // the frame straight after the flip is where a rebuild shows: the opening animation restarts and the bars collapse
     vi.advanceTimersByTime(FRAME_MS);
     expect(legendItemCount(container)).toBe(2);
     expect(barHeights(container, 'sales')).toEqual(settled);
@@ -140,9 +131,7 @@ describe('showInLegend updates on a mounted animated chart', () => {
     chart.destroy();
   });
 
-  // The legend's measured sizes are read a frame after the legend draws. Before ANIM-7 the flag
-  // was structural so the mismatch could not arise; keyed by series id, the frame right after the
-  // flip simply has no entry for the series that just joined.
+  // legend sizes are measured a frame after the legend draws, so this frame has no entry for the series that just joined
   it('survives the frame straight after the flip, before the new item is measured', () => {
     const { container, chart } = mountChart(false);
     runFrames();
