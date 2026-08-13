@@ -935,6 +935,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       clearTimeout(this.announceTimer);
       this.announceTimer = null;
     }
+    this.pendingAnnouncement = null;
   }
 
   dispose(): void {
