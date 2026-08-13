@@ -1,5 +1,5 @@
 import validators, { boundValue } from './validators';
-import { getRawIndices } from '../core/mochartConfig';
+import { filterConfig, getRawIndices } from '../core/mochartConfig';
 import { getPropertyMessage, isConfigObject } from './messages';
 
 import { AUTO, NONE, ANCHORS, COLOR_SAME, SIDES, THRESHOLD_TITLE_SIDES } from '../core/constants';
@@ -153,7 +153,13 @@ export function validateAxisBounds(config: ConfigObject, configWithoutDefaults: 
   checkAxisBounds(config['categoryAxis'], 'categoryAxis', undefined, errors, errorDetails);
   const valueAxes = config['valueAxes'];
   if (Array.isArray(valueAxes)) {
-    const rawIndices = getRawIndices(configWithoutDefaults['valueAxes']);
+    const rawValueAxes = configWithoutDefaults['valueAxes'];
+    const rawIndices = getRawIndices(rawValueAxes);
+    // no authored entries: the implicit axis takes its bounds from valueAxisDefaults, so report there
+    if (rawIndices === null ? !filterConfig(rawValueAxes) : rawIndices.length === 0) {
+      checkAxisBounds(valueAxes[0], 'valueAxisDefaults', undefined, errors, errorDetails);
+      return;
+    }
     for (let i = 0; i < valueAxes.length; i++) {
       checkAxisBounds(valueAxes[i], 'valueAxes', rawIndices?.[i] ?? i, errors, errorDetails);
     }

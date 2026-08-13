@@ -506,6 +506,13 @@ describe('axis min/max bounds', () => {
     ]);
   });
 
+  it('attributes an implicit-axis violation to valueAxisDefaults', () => {
+    const mochartConfig = enhance({ ...base, categoryAxis: ordinal, valueAxisDefaults: { min: 10, max: 0 } });
+    expect(mochartConfig.validation.errors).toEqual([
+      'valueAxisDefaults - min - should not be above the max property of the same axis: 0'
+    ]);
+  });
+
   it('checks a numeric category axis', () => {
     const mochartConfig = enhance({ ...base,
       categoryAxis: { property: 'c', type: 'number', scale: 'linear', min: 10, max: 0 } });
