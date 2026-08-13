@@ -2335,9 +2335,7 @@ export interface ValueAxisConfig extends AxisConfigBase {
    *
    * With `"auto"` the maximum is computed from the data (including stacking) on
    * every update, and changes animate through the staged axis
-   * expansion/contraction phases. Set a number to pin the bound instead. Must
-   * be >= `min` unless either is `"auto"` (set
-   * [`reversed`](#valueAxes.reversed) to run the axis backwards). Values
+   * expansion/contraction phases. Set a number to pin the bound instead. Values
    * outside of the defined range are clipped rather than allowed to overflow
    * the plot area of the chart.
    *
@@ -2351,9 +2349,7 @@ export interface ValueAxisConfig extends AxisConfigBase {
    *
    * With `"auto"` the minimum is computed from the data (including stacking) on
    * every update, and changes animate through the staged axis
-   * expansion/contraction phases. Set a number to pin the bound instead. Must
-   * be <= `max` unless either is `"auto"` (set
-   * [`reversed`](#valueAxes.reversed) to run the axis backwards). Values
+   * expansion/contraction phases. Set a number to pin the bound instead. Values
    * outside of the defined range are clipped rather than allowed to overflow
    * the plot area of the chart.
    *
