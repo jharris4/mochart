@@ -469,7 +469,7 @@ describe('interaction callbacks', () => {
       } as DOMRect;
     };
     try {
-      const { el, seen } = await mountWithAllOutputs();
+      const { fixture, el, seen } = await mountWithAllOutputs();
       const chartRoot = el.querySelector('[data-mochart-version]')!;
       const mouse = (type: string, clientX: number, clientY: number) =>
         chartRoot.dispatchEvent(new MouseEvent(type, { clientX, clientY, bubbles: true }));
@@ -485,7 +485,13 @@ describe('interaction callbacks', () => {
       expect(seen.chartMouseLeave.length).toBe(1);
 
       // fires during mount, before the subscriptions above, so assert on a resize instead
-      expect(Array.isArray(seen.seriesLayoutBoundsChange)).toBe(true);
+      fixture.componentRef.setInput('width', 500);
+      fixture.componentRef.setInput('height', 400);
+      fixture.detectChanges();
+      expect(seen.seriesLayoutBoundsChange.length).toBeGreaterThan(0);
+      const bounds = seen.seriesLayoutBoundsChange[0] as { width: number; height: number };
+      expect(bounds.width).toBeGreaterThan(0);
+      expect(bounds.height).toBeGreaterThan(0);
     }
     finally {
       Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
