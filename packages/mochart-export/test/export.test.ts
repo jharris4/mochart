@@ -83,8 +83,7 @@ describe('getChartSvgText', () => {
     expect(svgText).toMatch(/<rect[^>]*width="400"[^>]*height="300"[^>]*fill: rgb\(255, 255, 255\)/);
   });
 
-  // BIND-13: the live svg carries a literal xmlns attribute, and the serializer writes the
-  // declaration itself for a document root, so the clone keeping it emitted xmlns twice
+  // the serializer writes the xmlns declaration itself, so a clone keeping the live svg's literal attribute emitted it twice
   it('serializes as valid xml with a single namespace declaration', () => {
     const svgText = getChartSvgText(container)!;
     const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
@@ -110,8 +109,7 @@ describe('getChartSvgText', () => {
     expect(svgText).toContain('aria-hidden="true"');
   });
 
-  // A11Y-4: role="img" with no accessible name is a harder failure than the unroled svg it came
-  // from, and the chart writes aria-label only while accessibility is enabled and not hidden.
+  // role="img" with no accessible name is worse than no role; the chart writes aria-label only while accessibility is enabled and not hidden
   it('hides the export instead of roling it when the chart has no accessible name', () => {
     for (const accessibility of [{ enabled: false }, { hidden: true }]) {
       const unnamedContainer = document.createElement('div');
@@ -185,8 +183,7 @@ describe('getChartSvgText', () => {
   });
 });
 
-// BIND-7: font styles are inlined by family name only, so a web font the page loaded is absent from
-// the exported file. fontFaceCss is the host's way to put the font data in it.
+// font styles are inlined by family name only, so fontFaceCss is the host's way to put web font data in the exported file
 describe('fontFaceCss', () => {
   const fontFaceCss = "@font-face { font-family: 'Test Sans'; src: url(data:font/woff2;base64,AAAA) format('woff2'); }";
 
@@ -470,12 +467,7 @@ describe('stitching several charts', () => {
   });
 });
 
-/**
- * TEST-1: the PNG success paths — the `.then(blob => { saveBlob(...); return true; })`
- * callbacks — had never executed, and `getStitchedSize` was never called at all. That is the
- * function B1 broke: multi-chart PNG export shipped permanently non-functional and nothing
- * noticed. A typo in its width=/height= regex would rasterize every stitched export at 1x1.
- */
+// the PNG success paths and getStitchedSize once went untested; a broken width/height regex would rasterize every stitched export at 1x1
 describe('png export success paths', () => {
   const OriginalImage = globalThis.Image;
   let canvases: HTMLCanvasElement[] = [];
