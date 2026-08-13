@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from 'react';
 import Icon from './Icon';
 
-import { demoText, notesMenuPlacement } from '@mochart/demo-common';
+import { demoText, menuKeepOpenClassName, notesMenuPlacement } from '@mochart/demo-common';
 
 import { useMenu } from './useMenu';
 
@@ -68,7 +68,7 @@ export function NotesMenuItem({ title, notes }: Props) {
   }
 
   return (
-    <div className="mochart-demo-notes-item demo-menu-keep-open">
+    <div className={'mochart-demo-notes-item ' + menuKeepOpenClassName}>
       <button type="button" className="demo-menu-item"
         title={demoText.demoNotes.trigger.tooltip}
         aria-expanded={expanded} aria-controls={disclosureId}

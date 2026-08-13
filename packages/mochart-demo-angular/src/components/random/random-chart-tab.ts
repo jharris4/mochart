@@ -6,7 +6,7 @@ import { Chart } from '@mochart/angular';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
+import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs, menuKeepOpenClassName } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
@@ -49,7 +49,7 @@ const defaultRate = 2000;
          input's own spinners in particular — cannot dismiss the panel it is
          hosted in. The class paints nothing, so it is unconditional. -->
     <ng-template #rateField>
-      <div class="demo-field demo-menu-keep-open">
+      <div class="demo-field {{ keepOpenClass }}">
         <label class="demo-label" for="random-rate">{{ text.intervalLabel }}</label>
         <input id="random-rate" [disabled]="playing()" type="number" min="5" max="60000" step="100" class="demo-input" [value]="rateText()"
                [attr.aria-label]="text.intervalAria" (input)="rateChanged($event)" />
@@ -123,6 +123,7 @@ export class RandomChartTab implements OnInit, OnChanges, OnDestroy {
   readonly panelAttrs = getDemoTabPanelAttrs('chart');
 
   readonly text = demoText.randomChartTab;
+  readonly keepOpenClass = menuKeepOpenClassName;
 
   @Input() active = false;
   @Input({ required: true }) mochartConfig!: MochartConfig;

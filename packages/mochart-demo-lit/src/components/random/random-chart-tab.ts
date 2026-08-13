@@ -6,7 +6,7 @@ import { chart } from '@mochart/lit';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
+import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs, menuKeepOpenClassName } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -118,7 +118,7 @@ export class RandomChartTab extends LightElement {
   // own spinners in particular — cannot dismiss the panel it is hosted in. The
   // class paints nothing, so it is unconditional.
   private renderRateField(): unknown {
-    return html`<div class="demo-field demo-menu-keep-open">
+    return html`<div class="demo-field ${menuKeepOpenClassName}">
       <label class="demo-label" for="random-rate">${demoText.randomChartTab.intervalLabel}</label>
       <input id="random-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="demo-input" .value=${'' + this.rateText} aria-label=${demoText.randomChartTab.intervalAria} @input=${this.rateChanged} />
     </div>`;

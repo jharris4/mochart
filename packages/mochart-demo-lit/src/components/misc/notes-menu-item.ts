@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
-import { demoText } from '@mochart/demo-common';
+import { demoText, menuKeepOpenClassName } from '@mochart/demo-common';
 
 import { LightElement } from './LightElement';
 import { icon } from './templates';
@@ -41,7 +41,7 @@ export class NotesMenuItem extends LightElement {
     if (this.notes === undefined) {
       return nothing;
     }
-    return html`<div class="mochart-demo-notes-item demo-menu-keep-open">
+    return html`<div class="mochart-demo-notes-item ${menuKeepOpenClassName}">
       <button type="button" class="demo-menu-item"
               title=${demoText.demoNotes.trigger.tooltip}
               aria-expanded=${String(this.expanded)} aria-controls=${this.disclosureId}

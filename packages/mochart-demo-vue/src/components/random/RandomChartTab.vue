@@ -5,7 +5,7 @@ import { Chart } from '@mochart/vue';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
+import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs, menuKeepOpenClassName } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -132,7 +132,7 @@ const ReuseButton = () => h(ButtonWithTooltip, {
 // `.demo-menu-keep-open` so a press inside the field — the number input's own
 // spinners in particular — cannot dismiss the panel it is hosted in. The class
 // paints nothing, so it is unconditional.
-const RateField = () => h('div', { class: 'demo-field demo-menu-keep-open' }, [
+const RateField = () => h('div', { class: 'demo-field ' + menuKeepOpenClassName }, [
   h('label', { class: 'demo-label', for: 'random-rate' }, demoText.randomChartTab.intervalLabel),
   h('input', {
     id: 'random-rate', disabled: playing.value, type: 'number', min: '5', max: '60000', step: '100',

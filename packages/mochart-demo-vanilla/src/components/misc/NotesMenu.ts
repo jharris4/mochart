@@ -1,4 +1,4 @@
-import { createMenuController, demoText, notesMenuPlacement } from '@mochart/demo-common';
+import { createMenuController, demoText, menuKeepOpenClassName, notesMenuPlacement } from '@mochart/demo-common';
 
 import { el, icon } from './dom';
 
@@ -114,7 +114,7 @@ export function notesMenu(props: NotesMenuProps): NotesMenuHandle {
   // handler leaves the panel open when the disclosure is toggled — otherwise the
   // note would be revealed and taken away again in the same tap.
   const menuItemEl = el('div', {
-    className: 'mochart-demo-notes-item demo-menu-keep-open'
+    className: 'mochart-demo-notes-item ' + menuKeepOpenClassName
   }, [disclosureButton, disclosureEl]);
 
   let expanded = false;

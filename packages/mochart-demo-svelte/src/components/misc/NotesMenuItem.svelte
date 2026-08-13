@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { demoText } from '@mochart/demo-common';
+  import { demoText, menuKeepOpenClassName } from '@mochart/demo-common';
 
   import Icon from './Icon.svelte';
 
@@ -30,7 +30,7 @@
 </script>
 
 {#if notes !== undefined}
-  <div class="mochart-demo-notes-item demo-menu-keep-open">
+  <div class="mochart-demo-notes-item {menuKeepOpenClassName}">
     <button type="button" class="demo-menu-item"
             title={demoText.demoNotes.trigger.tooltip}
             aria-expanded={expanded} aria-controls={disclosureId}

@@ -7,7 +7,7 @@
   // does not scroll.
   import { ref, useId, watch } from 'vue';
 
-  import { demoText } from '@mochart/demo-common';
+  import { demoText, menuKeepOpenClassName } from '@mochart/demo-common';
 
   import Icon from './Icon.vue';
 
@@ -28,7 +28,7 @@
 </script>
 
 <template>
-  <div v-if="props.notes !== undefined" class="mochart-demo-notes-item demo-menu-keep-open">
+  <div v-if="props.notes !== undefined" :class="'mochart-demo-notes-item ' + menuKeepOpenClassName">
     <button type="button" class="demo-menu-item"
             :title="demoText.demoNotes.trigger.tooltip"
             :aria-expanded="expanded" :aria-controls="disclosureId"

@@ -5,7 +5,7 @@ import { Chart } from '@mochart/react';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
+import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs, menuKeepOpenClassName } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -149,7 +149,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
   // own spinners in particular — cannot dismiss the panel it is hosted in.
   // The class paints nothing, so it is unconditional.
   const rateField = (
-    <div className="demo-field demo-menu-keep-open">
+    <div className={'demo-field ' + menuKeepOpenClassName}>
       <label className="demo-label" htmlFor="random-rate">{demoText.randomChartTab.intervalLabel}</label>
       <input id="random-rate" className="demo-input" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
         onChange={rateChanged} aria-label={demoText.randomChartTab.intervalAria} />

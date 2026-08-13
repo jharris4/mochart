@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import {
   getMenuPosition, watchMenuDismiss, createMenuController, isMenuDismissingClick,
-  navMenuPlacement, controlsMenuPlacement, notesMenuPlacement
+  navMenuPlacement, controlsMenuPlacement, notesMenuPlacement, menuKeepOpenClassName
 } from '../src/menu';
 import type { MenuAnchorRect } from '../src/menu';
 
@@ -409,7 +409,7 @@ describe('isMenuDismissingClick', () => {
       <div id="panel">
         <button id="action"><span id="glyph"></span></button>
         <a id="link">docs</a>
-        <div class="demo-menu-keep-open"><button id="stepper"></button></div>
+        <div class="${menuKeepOpenClassName}"><button id="stepper"></button></div>
         <label id="label">rate</label>
       </div>
       <button id="outside"></button>`;

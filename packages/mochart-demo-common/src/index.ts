@@ -62,7 +62,7 @@ export {
 } from './viewport';
 
 export {
-  getMenuPosition, watchMenuDismiss, createMenuController, menuZIndex,
+  getMenuPosition, watchMenuDismiss, createMenuController, menuZIndex, menuKeepOpenClassName,
   isMenuDismissingClick,
   navMenuPlacement, controlsMenuPlacement, notesMenuPlacement
 } from './menu';
