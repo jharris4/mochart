@@ -192,7 +192,13 @@ describe('band presentation', () => {
       .querySelector(getCssSelector('clipIndicator') + ' pattern')!;
     expect(pattern.getAttribute('width')).toBe('10');
     expect(pattern.getAttribute('height')).toBe('10');
-    expect(pattern.querySelector('line')!.getAttribute('stroke-width')).toBe('3');
+    const line = pattern.querySelector('line')!;
+    expect(line.getAttribute('stroke-width')).toBe('3');
+    // centred in the tile: a line along x=0 loses its negative half to the tile clip
+    expect(line.getAttribute('x1')).toBe('5');
+    expect(line.getAttribute('x2')).toBe('5');
+    expect(line.getAttribute('y1')).toBe('0');
+    expect(line.getAttribute('y2')).toBe('10');
   });
 
   it('gives each chart its own pattern id', () => {
