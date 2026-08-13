@@ -3,8 +3,9 @@
 // Drop those rather than ship maps that send go-to-definition nowhere; keep the plain-TS ones.
 import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const dist = new URL('../dist/', import.meta.url).pathname;
+const dist = fileURLToPath(new URL('../dist/', import.meta.url));
 
 for (const name of readdirSync(dist)) {
   if (!name.endsWith('.d.ts.map')) continue;
@@ -18,7 +19,7 @@ for (const name of readdirSync(dist)) {
   // Strip the now-dangling reference from the declaration file it belonged to.
   const declaration = join(dist, name.slice(0, -4));
   const stripped = readFileSync(declaration, 'utf8').replace(
-    new RegExp(`\\n?//# sourceMappingURL=${name}\\n?$`),
+    new RegExp(`\\n?//# sourceMappingURL=${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\n?$`),
     '\n'
   );
   writeFileSync(declaration, stripped);
