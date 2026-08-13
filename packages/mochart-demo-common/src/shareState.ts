@@ -280,6 +280,11 @@ export function createShareLinkCopier(onCopiedChange: (copied: boolean) => void)
   return {
     copy(state: ShareState) {
       const url = buildShareUrl(state);
+      // In an insecure context there is no `navigator.clipboard` at all.
+      if (navigator.clipboard?.writeText === undefined) {
+        window.prompt(demoText.shareButton.tooltip, url);
+        return;
+      }
       navigator.clipboard.writeText(url).then(() => {
         onCopiedChange(true);
         announce(demoText.shareButton.announcementCopied);

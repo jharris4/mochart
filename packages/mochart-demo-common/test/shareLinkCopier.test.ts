@@ -44,6 +44,20 @@ describe('createShareLinkCopier', () => {
     expect(changes).toEqual([true, false]);
   });
 
+  it('offers the link in a prompt when there is no clipboard at all', () => {
+    // jsdom's own navigator has no clipboard, like a real insecure context.
+    delete (navigator as { clipboard?: unknown }).clipboard;
+    const prompt = vi.spyOn(window, 'prompt').mockReturnValue(null);
+    const changes: boolean[] = [];
+    const copier = createShareLinkCopier(copied => changes.push(copied));
+
+    copier.copy(state);
+    expect(prompt).toHaveBeenCalledTimes(1);
+    expect(prompt.mock.calls[0][0]).toBe(demoText.shareButton.tooltip);
+    expect(prompt.mock.calls[0][1]).toContain(shareHashPrefix);
+    expect(changes).toEqual([]);
+  });
+
   it('offers the link in a prompt when the clipboard refuses', async () => {
     stubClipboard(() => Promise.reject(new Error('insecure context')));
     const prompt = vi.spyOn(window, 'prompt').mockReturnValue(null);
