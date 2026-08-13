@@ -15,8 +15,8 @@ updates:
       production-dependencies:
         dependency-type: production
         update-types: [minor, patch]
-    # Majors land as their own PR — d3, Angular and the framework peers all
-    # need the demos checked by hand.
+    # No major PRs at all — d3, Angular and the framework peers need the
+    # demos checked by hand, so majors are upgraded manually.
     ignore:
       - dependency-name: '*'
         update-types: [version-update:semver-major]
