@@ -1,9 +1,5 @@
 <script setup lang="ts">
-// The tab strip for a view with only one pane (Multi).
-//
-// Not a one-tab tablist: there is nothing to switch to, and a tab that cannot be
-// activated is exactly the dead button this replaces. It renders as the caption
-// it always was — same markup, same styling, no roles claiming otherwise.
+// The strip for a view with only one pane (Multi) — a caption with no tab roles, since there is nothing to switch to.
 interface Props {
   label: string;
 }

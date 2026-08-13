@@ -7,8 +7,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 import Icon from './Icon.vue';
 import { usePhoneViewport } from './usePhoneViewport';
 
-// The in-demo Single/Multi/Random mode switcher. Transition/rotation are
-// standalone gallery pages, not modes, so they don't appear here.
+// The in-demo Single/Multi/Random mode switcher (transition/rotation are gallery pages, not modes).
 interface Props {
   demoMode: SwitchableDemoMode;
   onModeChanged: (nextDemoMode: SwitchableDemoMode) => void;
@@ -20,16 +19,7 @@ const isPhone = usePhoneViewport();
 const availableModes = computed(() => getAvailableDemoModes(isPhone.value));
 </script>
 
-<!-- How the current mode is marked VISUALLY depends on the width. In the strip it
-     is a filled, disabled segment — plainly "you are here". On a phone the switcher
-     lives in the nav overflow menu, where `.demo-menu-overflow .demo-btn:disabled`
-     greys a row out and a greyed row in a list of destinations reads as
-     unavailable rather than current — so there it gets the panel's `.active`
-     tint instead, and is simply inert when tapped. `aria-current="page"` is
-     unconditional: each mode is a route, at either width.
-
-     The row is a named group, not a toolbar: independently tabbable buttons with
-     no arrow-key handling, and the name is what makes "Single" read as a mode. -->
+<!-- A named group (no arrow keys); the current mode is a filled disabled segment in the strip, but gets the `.active` tint and is inert in the phone overflow menu. -->
 <template>
   <div class="mochart-demo-mode-switcher">
     <span class="demo-label">{{ demoText.modeSwitcher.label }}</span>
