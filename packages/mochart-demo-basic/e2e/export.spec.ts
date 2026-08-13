@@ -1,8 +1,9 @@
-import { test, expect, openDemo, smokeTag } from './helpers';
+import { mochartCssClasses } from '@mochart/core';
+import { test, expect, openDemo, smokeTag, chartClass } from './helpers';
 
 test.beforeEach(async ({ page }) => {
   await openDemo(page, 'stacked');
-  await expect(page.locator('#chart-host .mochart-series').first()).toBeAttached();
+  await expect(page.locator('#chart-host ' + chartClass(mochartCssClasses.series)).first()).toBeAttached();
 });
 
 test('the SVG button downloads the chart as an svg file', { tag: smokeTag }, async ({ page }) => {

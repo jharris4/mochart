@@ -1,6 +1,7 @@
+import { mochartCssClasses } from '@mochart/core';
 import demosJson from '@mochart/demo-data/demos.json' with { type: 'json' };
 import type { DemoEntry } from './helpers';
-import { test, expect, openDemo, smokeTag } from './helpers';
+import { test, expect, openDemo, smokeTag, chartClass } from './helpers';
 
 const manifest = demosJson as { demos: DemoEntry[]; testDemos: DemoEntry[] };
 
@@ -23,7 +24,7 @@ test.describe('demo gallery', () => {
       }, async ({ page }) => {
         await openDemo(page, demo.id);
         await expect(page.locator('#errors')).toBeHidden();
-        await expect(page.locator('#chart-host .mochart-series').first()).toBeAttached();
+        await expect(page.locator('#chart-host ' + chartClass(mochartCssClasses.series)).first()).toBeAttached();
       });
     }
   }
