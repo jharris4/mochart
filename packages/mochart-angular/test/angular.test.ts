@@ -3,12 +3,13 @@
 import '@angular/compiler';
 
 import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
-import { Component, Input, PLATFORM_ID, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationRef, Component, EnvironmentInjector, Input, PLATFORM_ID, provideZonelessChangeDetection } from '@angular/core';
 import type { OnDestroy } from '@angular/core';
 import { TestBed, getTestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart, DefaultChart } from '../src/index';
+import { createPlaceholderAdapter } from '../src/placeholders';
 
 beforeAll(() => {
   getTestBed().initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
@@ -351,28 +352,18 @@ describe('removed placeholder components', () => {
   });
 });
 
-// Regression: only the keys present in a factory context were applied, so a key
-// the core stops passing kept the value from the previous state.
-describe('placeholder context keys the core drops', () => {
+// Regression: only the keys present in a factory context were applied, so an omitted key kept the stale value; core now always passes the full context, hence the direct adapter calls.
+describe('placeholder context keys a factory call omits', () => {
   it('clears an input the next factory call omits', () => {
-    const mochartConfig = enhanceConfig(rawConfig());
-    const fixture = createWith(Chart, {
-      mochartConfig,
-      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
-      loading: true,
-      loadingComponent: ContextLoading,
-      width: 400,
-      height: 300
-    });
-    const el: HTMLElement = fixture.nativeElement;
-    expect(el.textContent).toContain('Loading [true]');
+    const adapter = createPlaceholderAdapter(TestBed.inject(EnvironmentInjector), TestBed.inject(ApplicationRef));
+    const factory = adapter.transform({ loadingComponent: ContextLoading }).getLoadingComponent;
+    const node = factory({ width: 400, height: 300, hasData: true }) as HTMLElement;
+    expect(node.textContent).toContain('Loading [true]');
 
-    // without a config the core calls the same slot with only width and height
-    fixture.componentRef.setInput('mochartConfig', null);
-    fixture.detectChanges();
-    expect(el.textContent).toContain('Loading []');
+    factory({ width: 400, height: 300 });
+    expect(node.textContent).toContain('Loading []');
 
-    fixture.destroy();
+    adapter.destroy();
   });
 });
 
