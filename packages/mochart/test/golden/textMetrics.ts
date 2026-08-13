@@ -86,17 +86,12 @@ function getTextContent(element: Element): string {
   return element.textContent ?? '';
 }
 
-/** Code-point slice, so substring measurement never splits a surrogate pair. */
-function sliceCodePoints(text: string, start: number, count: number): string {
-  return Array.from(text).slice(start, start + count).join('');
-}
-
 /**
  * Install the metrics on every measurement entry point the chart uses:
- * `getComputedTextLength` (text truncation), `getSubStringLength`, `getBBox`
- * (all measured text bounds) and the `fontSize` of computed styles (legend
- * icon sizing and empty clip-indicator bands). All four report the same model,
- * so the library never sees a width that disagrees with a font size.
+ * `getComputedTextLength` (text truncation), `getBBox` (all measured text
+ * bounds) and the `fontSize` of computed styles (legend icon sizing and empty
+ * clip-indicator bands). All three report the same model, so the library never
+ * sees a width that disagrees with a font size.
  */
 export function installTextMetrics(): void {
   // Cast: the text-measurement methods live on SVGTextContentElement in the DOM
@@ -105,10 +100,6 @@ export function installTextMetrics(): void {
 
   svgProto.getComputedTextLength = function (this: SVGTextContentElement): number {
     return measureTextWidth(getTextContent(this));
-  };
-
-  svgProto.getSubStringLength = function (this: SVGTextContentElement, start: number, count: number): number {
-    return measureTextWidth(sliceCodePoints(getTextContent(this), start, count));
   };
 
   // Only text carries metrics here: the library measures bounds of <text> nodes
