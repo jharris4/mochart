@@ -5,7 +5,7 @@ import { mochartCssClasses } from '../utils/ChartDom';
 import { layoutInfoExtentChanged } from '../layout/LayoutInfo';
 import { resolveLegendIconSize, legendItemClickable } from '../layout/LegendLayout';
 import { prepareTruncation, getTruncatedText, updateTruncation } from '../utils/TextTruncation';
-import { accessibilityActive, translate, translateObject, centerTextY } from '../utils/utils';
+import { accessibilityActive, focusRestored, translate, translateObject, centerTextY } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
 import { getSeriesTitle } from '../utils/SeriesTitle';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
@@ -237,14 +237,14 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
 
       if (focusedItem !== null && document.activeElement !== focusedItem) {
         if (focusedItem.isConnected) {
-          focusedItem.focus();
+          focusRestored(focusedItem);
         }
         else if (effectiveRovingId !== null) {
           // the focused item is gone: keep keyboard focus in the legend, on the item that
           // inherited the tab stop, rather than dropping it to the page body
           for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
             if (node.getAttribute('data-series-id') === effectiveRovingId) {
-              node.focus();
+              focusRestored(node);
               break;
             }
           }
