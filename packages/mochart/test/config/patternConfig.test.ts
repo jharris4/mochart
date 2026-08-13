@@ -90,8 +90,58 @@ describe('built-in pattern config', () => {
     expect(mixed.series[0].gradient).toBeNull();
   });
 
+  it('does not automatically apply patterns or gradients to incompatible series', () => {
+    const line = enhance({ ...base,
+      patterns: [{ type: 'lines' }],
+      series: [{ property: 'v', renderer: 'line' }]
+    });
+    expect(line.validation.valid).toBe(true);
+    expect(line.series[0].pattern).toBeNull();
+
+    const colorProperty = enhance({ ...base,
+      linearGradients: [{ stops: [{ offset: 0, color: '#000', opacity: 1 }] }],
+      series: [{ property: 'v', renderer: 'bar', colorProperty: 'color' }]
+    });
+    expect(colorProperty.validation.valid).toBe(true);
+    expect(colorProperty.series[0].gradient).toBeNull();
+  });
+
+  it('rejects patterns and gradients on non-fill renderers', () => {
+    const pattern = enhance({ ...base,
+      patterns: [{ id: 'hatch', type: 'lines' }],
+      series: [{ property: 'v', renderer: 'line', pattern: 'hatch' }]
+    });
+    expect(pattern.validation.errors).toContain(
+      'series[0] - pattern - should be equal to null when renderer is not area or bar: "hatch"'
+    );
+
+    const gradient = enhance({ ...base,
+      linearGradients: [{ id: 'fade', stops: [{ offset: 0, color: '#000', opacity: 1 }] }],
+      series: [{ property: 'v', renderer: 'none', gradient: 'fade' }]
+    });
+    expect(gradient.validation.errors).toContain(
+      'series[0] - gradient - should be equal to null when renderer is not area or bar: "fade"'
+    );
+  });
+
+  it('rejects gradients but permits patterns when colorProperty is set', () => {
+    const gradient = enhance({ ...base,
+      linearGradients: [{ id: 'fade', stops: [{ offset: 0, color: '#000', opacity: 1 }] }],
+      series: [{ property: 'v', renderer: 'bar', colorProperty: 'color', gradient: 'fade' }]
+    });
+    expect(gradient.validation.errors).toContain(
+      'series[0] - gradient - should be equal to null when colorProperty is not null: "fade"'
+    );
+
+    const pattern = enhance({ ...base,
+      patterns: [{ id: 'dots', type: 'dots' }],
+      series: [{ property: 'v', renderer: 'bar', colorProperty: 'color', pattern: 'dots' }]
+    });
+    expect(pattern.validation.valid).toBe(true);
+  });
+
   it('rejects dangling pattern references and series that specify both pattern and gradient', () => {
-    const dangling = enhance({ ...base, series: [{ property: 'v', pattern: 'missing' }] });
+    const dangling = enhance({ ...base, series: [{ property: 'v', renderer: 'bar', pattern: 'missing' }] });
     expect(dangling.validation.errors).toContain(
       'series[0] - pattern - should equal the id property of one of the patterns: "missing"'
     );

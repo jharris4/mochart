@@ -121,7 +121,8 @@ describe('built-in SVG patterns', () => {
     const pie = createPie([{ label: 'A', value: 3 }, { label: 'B', value: 2 }]);
     const pieConfig = {
       version: '1.0.0', animation: { animate: false }, chart: pie.chart, pie: pie.pie,
-      categoryAxis: pie.categoryAxis, patterns: [{ type: 'crosshatch' }], series: pie.series
+      categoryAxis: pie.categoryAxis, patterns: [{ type: 'crosshatch' }],
+      series: pie.series.map(series => ({ ...series, renderer: 'bar' as const }))
     } as MochartInputConfig;
     const pieContainer = mount(pieConfig, pie.data);
     expect([...pieContainer.querySelectorAll(getCssSelector('seriesSlice'))]

@@ -49,7 +49,7 @@ describe('reference validation', () => {
   });
 
   it('flags a gradient reference against the combined gradient sections', () => {
-    expect(errorsFor({ version: V, categoryAxis: { property: 'p' }, series: [{ property: 'a', gradient: 'nope' }] }))
+    expect(errorsFor({ version: V, categoryAxis: { property: 'p' }, series: [{ property: 'a', renderer: 'area', gradient: 'nope' }] }))
       .toContain('series[0] - gradient - should equal the id property of one of the linearGradients or radialGradients: "nope"');
   });
 

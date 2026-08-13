@@ -2,7 +2,7 @@ import validators from './validators';
 
 import {
   AUTO, NONE, RENDERERS, CURVE_TYPES, CAP_TYPES, LABEL_POSITIONS, COLOR_INTERPOLATIONS, MARKER_SHAPES, MARKER_SIZE_SCALES,
-  COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX, MISSING_VALUES
+  COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX, MISSING_VALUES, RENDERER_AREA, RENDERER_BAR
 } from '../core/constants';
 import type { DeepPartial, SeriesConfig } from '../../types/config';
 import type { Validator } from '@mochart/movalid';
@@ -10,6 +10,8 @@ import type { Validator } from '@mochart/movalid';
 type ColorCondition = { colorProperty?: SeriesConfig['colorProperty'], colorScale?: DeepPartial<SeriesConfig['colorScale']> };
 type StackCondition = Pick<SeriesConfig, 'stack'>;
 type GradientCondition = Pick<SeriesConfig, 'gradient'>;
+type RendererCondition = Pick<SeriesConfig, 'renderer'>;
+type PatternCondition = Pick<SeriesConfig, 'renderer' | 'gradient'>;
 
 type SeriesStyleMember = 'strokeColor' | 'strokeOpacity' | 'strokeWidth' | 'strokeDashArray' | 'fillColor' | 'fillOpacity';
 
@@ -68,7 +70,19 @@ const colorBaseNoneSuffix = 'when colorProperty is not ' + NONE + ' and colorSca
 const stackRule = { condition: ({ stack }: StackCondition) => stack !== NONE, suffix: stackSuffix };
 const stackNoneRule = { condition: ({ stack }: StackCondition) => stack === NONE, suffix: stackNoneSuffix };
 const gradientRule = { condition: ({ gradient }: GradientCondition) => gradient !== NONE, suffix: 'when gradient is not ' + NONE };
-const gradientNoneRule = { condition: ({ gradient }: GradientCondition) => gradient === NONE, suffix: 'when gradient is ' + NONE };
+const nonFillRendererRule = {
+  condition: ({ renderer }: RendererCondition) => renderer !== RENDERER_AREA && renderer !== RENDERER_BAR,
+  suffix: 'when renderer is not area or bar'
+};
+const fillRendererRule = {
+  condition: ({ renderer }: RendererCondition) => renderer === RENDERER_AREA || renderer === RENDERER_BAR,
+  suffix: 'when renderer is area or bar'
+};
+const fillRendererWithoutGradientRule = {
+  condition: ({ renderer, gradient }: PatternCondition) =>
+    (renderer === RENDERER_AREA || renderer === RENDERER_BAR) && gradient === NONE,
+  suffix: 'when renderer is area or bar and gradient is ' + NONE
+};
 
 const colorPropertyRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty !== NONE, suffix: colorPropertySuffix };
 const colorPropertyNoneRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty === NONE, suffix: colorPropertyNoneSuffix };
@@ -138,10 +152,15 @@ export default function getValidators(config: DeepPartial<SeriesConfig>) {
     labelBelowBaseOffset: validators.number().orEqual(AUTO),
     labelAboveBasePosition: validators.oneOf([AUTO].concat(LABEL_POSITIONS)),
     labelBelowBasePosition: validators.oneOf([AUTO].concat(LABEL_POSITIONS)),
-    gradient: validators.string().orEqual(NONE),
+    gradient: validators.conditional([
+      { ...nonFillRendererRule, validator: validators.equal(NONE) },
+      { ...colorPropertyRule, validator: validators.equal(NONE) },
+      { ...fillRendererRule, validator: validators.string().orEqual(NONE) }
+    ], config),
     pattern: validators.conditional([
+      { ...nonFillRendererRule, validator: validators.equal(NONE) },
       { ...gradientRule, validator: validators.equal(NONE) },
-      { ...gradientNoneRule, validator: validators.string().orEqual(NONE) }
+      { ...fillRendererWithoutGradientRule, validator: validators.string().orEqual(NONE) }
     ], config),
     colorScale: validators.partialObjectWithShape({
       interpolation: validators.conditional([

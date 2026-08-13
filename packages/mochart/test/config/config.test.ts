@@ -366,7 +366,7 @@ describe('single-object sections with a *Defaults section', () => {
   });
 
   it('applies gradient all configs to a single-object gradient section', () => {
-    const single = enhance({ ...base, series: [{ property: 'v', gradient: 'lg' }],
+    const single = enhance({ ...base, series: [{ property: 'v', renderer: 'area', gradient: 'lg' }],
       linearGradients: { id: 'lg' }, linearGradientDefaults: { x2: 0.25 } });
     expect(single.linearGradients[0].x2).toBe(0.25);
   });

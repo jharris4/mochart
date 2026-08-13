@@ -128,6 +128,14 @@ function isCategoryIndexColored({ shapeStyle }: SeriesConfig): boolean {
   return strokeColor === COLOR_CATEGORY_INDEX || fillColor === COLOR_CATEGORY_INDEX;
 }
 
+function usesFillRenderer({ renderer }: SeriesConfig): boolean {
+  return renderer === RENDERER_AREA || renderer === RENDERER_BAR;
+}
+
+function supportsAutomaticGradient(config: SeriesConfig): boolean {
+  return usesFillRenderer(config) && config.colorProperty === NONE;
+}
+
 const categoryIndexColorSuffix = 'when shapeStyle.normal.strokeColor or shapeStyle.normal.fillColor is ' + COLOR_CATEGORY_INDEX;
 const notCategoryIndexColorSuffix = 'when neither shapeStyle.normal.strokeColor nor shapeStyle.normal.fillColor is ' + COLOR_CATEGORY_INDEX;
 
@@ -154,12 +162,12 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, 
       { ...defaultRule, default: soleSeriesGroupId }
     ], configWithRegularDefaults, index),
     gradient: conditionalDefault([
-      { condition: (_config, _index) => true, suffix: 'series gradient', default: soleGradientConfigId, defaultText: 'sole gradient id' },
-      { ...defaultRule, default: soleGradientConfigId }
+      { condition: supportsAutomaticGradient, suffix: 'when renderer is area or bar and colorProperty is null', default: soleGradientConfigId, defaultText: 'sole gradient id' },
+      { ...defaultRule, default: NONE }
     ], configWithRegularDefaults, index),
     pattern: conditionalDefault([
-      { condition: (_config, _index) => true, suffix: 'series pattern', default: solePatternConfigId, defaultText: 'sole pattern id' },
-      { ...defaultRule, default: solePatternConfigId }
+      { condition: usesFillRenderer, suffix: 'when renderer is area or bar', default: solePatternConfigId, defaultText: 'sole pattern id' },
+      { ...defaultRule, default: NONE }
     ], configWithRegularDefaults, index),
     animateBaseFromAdjacent: conditionalDefault([
       { condition: ({ renderer }) => renderer === RENDERER_BAR, suffix: 'when renderer is ' + RENDERER_BAR, default: false },
