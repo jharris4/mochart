@@ -305,8 +305,7 @@ describe('ignored entries and sole-id defaults', () => {
     }
   });
 
-  // CONFIG-3: validateReferences ran over the *unfiltered* raw list, so a disabled entry's
-  // dangling reference still invalidated the whole config and blanked the chart
+  // validateReferences used to run over the unfiltered raw list, so a disabled entry's dangling reference invalidated the whole config
   it('does not cross-reference-validate an ignored entry', () => {
     const mochartConfig = enhance({ ...base,
       series: [{ property: 'v', axis: 'main' }, { property: 'w', ignore: true, axis: 'nope' }],
@@ -467,8 +466,7 @@ describe('caller-supplied defaults immutability', () => {
   });
 });
 
-// ANIM-1 part 1: an axis whose min is above its max would run backwards. `reversed` is the
-// supported way to invert, so an inverted domain is a mistake rather than a spelling of it.
+// an axis whose min is above its max would run backwards; `reversed` is the supported way to invert, so an inverted domain is a mistake rather than a spelling of it
 describe('axis min/max bounds', () => {
   const base = { version: VERSION_STRING, series: [{ property: 'v' }] };
   const ordinal = { property: 'c', type: 'string', scale: 'ordinal' };

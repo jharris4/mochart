@@ -30,9 +30,7 @@ describe('filterConfig / filterConfigs', () => {
   });
 });
 
-// CONFIG-8: applyDefaults filters every array section on `ignore`, but it used to be typed,
-// validated and documented on `series` alone - so ignoring a value axis worked at runtime while
-// the types rejected it, and `ignore: false` on the other sections warned as an unknown property.
+// applyDefaults filters every array section on `ignore`, though it used to be typed, validated and documented on `series` alone
 describe('ignore across every list section', () => {
   const sections = ['valueAxes', 'seriesGroups', 'seriesStacks', 'linearGradients', 'radialGradients'] as const;
   const withSection = (section: string, entries: Record<string, unknown>[]) => makeConfig({
@@ -90,8 +88,7 @@ describe('applyDefaults', () => {
     expect(result.series).toEqual([{ order: 0, renderer: 'bar', property: 'a' }]);
   });
 
-  // CONFIG-2: valueAxes is the one list section with an implicit entry, so its *Defaults
-  // section has to reach the defaults list when the user declares nothing
+  // valueAxes is the one list section with an implicit entry, so its *Defaults section has to reach the defaults list when the user declares nothing
   it('merges the all-config into the defaults list when the section is not declared', () => {
     const result = applyDefaults(
       { valueAxisDefaults: { visible: false, title: 'T' } },
@@ -211,9 +208,7 @@ describe('hasConfigStructureChange', () => {
     expect(hasConfigStructureChange(withId('a'), withId('b'))).toBe(true);
   });
 
-  // ANIM-7: showInLegend only decides whether a series appears in the legend - no data, no
-  // colours, no series rendering - so it must not tear the chart down and replay its opening
-  // animation. The legend's measured sizes are keyed by series id, so a stale set is harmless.
+  // showInLegend only decides legend membership, so it must not tear the chart down and replay its opening animation
   it('reports no change when only a series showInLegend differs', () => {
     const withShowInLegend = (showInLegend: boolean) =>
       makeConfig({

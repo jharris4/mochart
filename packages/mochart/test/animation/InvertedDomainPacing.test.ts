@@ -1,12 +1,4 @@
-/**
- * ANIM-1 regression: an explicit value-axis `min` above the data (or `max` below it)
- * inverts the domain, giving it a negative extent. The phase-duration weight is
- * `deltaExtent / (deltaExtent + domainExtent)`, so a growth delta of the same magnitude
- * used to cancel the denominator to zero — Infinity duration, a tween whose percentage
- * is 0 forever, and a requestAnimationFrame loop that never terminates.
- *
- * Both tests drive real frames on a fake clock and assert the animation actually settles.
- */
+// an inverted explicit domain has a negative extent that used to zero the phase-duration denominator — an Infinity-duration tween that never settles; both tests drive real frames on a fake clock
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 
 const WIDTH = 800;

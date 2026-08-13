@@ -265,8 +265,7 @@ const dataErrorEndpoint = () => endpoint(config({
   state: 'dataError'
 });
 
-// TEST-17: parts that measure text must survive being turned on after mounting hidden — a hidden
-// part has no measurement to carry into the frame where it becomes visible
+// parts that measure text must survive being turned on after mounting hidden — a hidden part has no measurement to carry into the frame where it becomes visible
 const legendHiddenEndpoint = () => endpoint(config({ legend: { visible: false } }), {
   categoryLabels: ['Jan', 'Feb', 'Mar'], seriesIds: ['primary'], valueAxisIds: ['value'], pie: false
 });

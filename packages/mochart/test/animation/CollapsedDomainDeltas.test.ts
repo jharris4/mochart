@@ -1,10 +1,4 @@
-/**
- * ANIM-2 (value-delta half): `getSeriesValuesDeltas` weights a value change as
- * `maxAbsoluteDelta / valueAxisExtent`, gated on `valueAxisExtent > 0`. A collapsed
- * domain (every value equal) has extent 0 and an inverted one (an explicit `min` above
- * the data) has a negative extent, so both zeroed every value delta and the update was
- * applied instantly with no animation at all — silently, whatever the configured duration.
- */
+// getSeriesValuesDeltas weights value changes by valueAxisExtent; a collapsed (0) or inverted (negative) extent used to zero every delta and skip the animation entirely
 import { describe, it, expect } from 'vitest';
 import { getChartAnimationData } from '../../src/animation/ChartAnimationData';
 import { getChartData } from '../../src/data/ChartData';

@@ -1,11 +1,4 @@
-/**
- * API-1: the config union types were named in the public `.d.ts` as the types of public config
- * members but never re-exported, so a TS host could not write `function addSeries(renderer:
- * RendererType)` — only `SeriesConfig['renderer']`. Most of the value constants were missing too.
- *
- * The type half of this is enforced at typecheck time (test/tsconfig.json), not at runtime: if
- * an export is dropped, `npm run typecheck` fails on this file.
- */
+// every config union type and value constant must be exported by name; the type half is enforced at typecheck time — dropping an export fails `npm run typecheck` on this file
 import { describe, it, expect } from 'vitest';
 import * as mochart from '../../src';
 import type {
@@ -71,11 +64,7 @@ describe('public config type surface', () => {
   });
 });
 
-/**
- * CONFIG-5/CONFIG-4: the tooltip background is rendered as a css border, so its style has no
- * strokeDashArray. The type used to allow the key while validation rejected it as unknown, which
- * with strict validation turned a type-checking config into an invalid one.
- */
+// the tooltip background renders as a css border, so its style type has no strokeDashArray — type and validator agree
 describe('tooltip background style', () => {
   it('accepts the five keys the validator accepts', () => {
     const config: MochartInputConfig = {
@@ -103,13 +92,7 @@ describe('tooltip background style', () => {
   });
 });
 
-/**
- * API-2: `export type *` published the whole measure/layout pipeline, the tween delta types and
- * the axis/scale/series-position internals as named public types. They are internal now —
- * documented only by the shipped `.d.ts`, like types/enhanced.ts and the `internalInterfaces`
- * entries in scripts/apiReferenceModel.ts — while the types a host has to name to implement
- * `DataProvider` or `ChartDataSource` stay exported. Both halves are typecheck-time, not runtime.
- */
+// the measure/layout/tween internals are no longer exported; the types a host names to implement DataProvider or ChartDataSource stay public
 import type * as core from '../../src';
 
 // one directive per type, so re-exporting any single internal makes it unused and fails the typecheck

@@ -98,9 +98,7 @@ describe('getChartDataForAxisDelta (category added)', () => {
   });
 });
 
-// ANIM: a domain that translates (old and new barely overlap) skips the expand-to-union/contract
-// phases and interpolates its render domain during the value phase, so a flat value holds its
-// pixel position while only the tick labels move ("the pump" fix)
+// a translating domain (old and new barely overlap) skips the union phases and interpolates its render domain during the value phase, so a flat value holds its pixel position
 describe('isDomainTranslation', () => {
   it('classifies barely-overlapping domains as a translation', () => {
     expect(isDomainTranslation([2.85, 3.15], [4.75, 5.25])).toBe(true);
@@ -191,9 +189,7 @@ describe('non-translating updates keep the existing phases', () => {
   });
 });
 
-// ANIM-2 (category axis): a linear category domain that translates — a sliding window — skips the
-// union phases and slides its render domain during the value phase; entering/leaving categories
-// ride the moving window at their true values
+// a translating linear category domain (a sliding window) skips the union phases; entering/leaving categories ride the moving window at their true values
 describe('translating linear category axis (sliding date window)', () => {
   const DAY = 24 * 60 * 60 * 1000;
   const T0 = Date.UTC(2026, 0, 1);

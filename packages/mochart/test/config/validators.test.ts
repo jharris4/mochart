@@ -15,7 +15,7 @@ describe('svgColor', () => {
     expect(validate('currentColor')).toBe(true);
   });
 
-  // CONFIG-1: an svg color goes straight to a dom attribute, so the browser is the authority
+  // an svg color goes straight to a dom attribute, so the browser is the authority
   it('accepts every css color form, including ones d3-color predates', () => {
     for (const value of ['red', 'rebeccapurple', 'transparent', '#ff000080', 'rgb(255 0 0)',
       'rgb(100%,0%,0%)', 'hsl(200,50%,50%)', 'hsl(200 50% 50%)', 'oklch(0.7 0.1 200)',
@@ -58,8 +58,7 @@ describe('cssColor', () => {
   });
 });
 
-// CONFIG-1: the ramp bounds are handed to d3 scale ranges, so they must stay parseable by
-// d3-color — wider than the old regex, but still no keywords or css-only forms
+// the ramp bounds are handed to d3 scale ranges, so they must stay parseable by d3-color — no keywords or css-only forms
 describe('color (series color-scale bounds)', () => {
   const validate = configValidators.color();
 

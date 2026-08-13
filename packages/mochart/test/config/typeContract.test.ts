@@ -1,16 +1,4 @@
-/**
- * CONFIG-5: the config interfaces in src/types/config.ts and the validators in src/config/validation
- * are the two halves of one contract, and they had drifted in both directions — types that rejected
- * values the validators accept (a date category axis takes an ISO date string bound; the tooltip's
- * filtered-value character takes null), and types that allowed values the validators reject (a value
- * axis is always a linear number scale).
- *
- * The per-row tests below pin each case. The `types agree with the validators` ratchet is the general
- * form: it walks every section interface against that section's validators and reports any string
- * literal the type allows and the validators reject, any disagreement over null, any free-string form
- * the validators accept and the type cannot express, and any optionality that does not match whether
- * the section has a default. It reported all five type-side rows of the finding before they were fixed.
- */
+// the config interfaces and the validators are two halves of one contract; the per-row tests pin known drift cases and the ratchet walks every section interface against its validators
 import { describe, it, expect } from 'vitest';
 import ts from 'typescript';
 import path from 'node:path';
@@ -115,13 +103,7 @@ describe('tooltip filteredValueCharacter takes the documented null', () => {
   });
 });
 
-/**
- * The finding's sixth row wanted `stops` made required. It is optional in the type on purpose: the
- * same shape carries `linearGradientDefaults`, which may supply the stops for every entry, and a
- * config that supplies them nowhere is built anyway with the error reported by validation — exactly
- * how `categoryAxis.property` and `series.property`, the other two properties with no default,
- * are typed. These pin the runtime half of the contract instead.
- */
+// stops is optional in the type on purpose (linearGradientDefaults may supply it) and required by validation, like categoryAxis.property and series.property
 describe('gradient stops have no default and are required by validation', () => {
   it('reports an entry with no stops', () => {
     expect(errorsFor({
