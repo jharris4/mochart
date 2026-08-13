@@ -21,19 +21,7 @@ export interface ModeSwitcherProps {
   onModeChanged: (nextDemoMode: SwitchableDemoMode) => void;
 }
 
-/**
- * How the current mode is marked VISUALLY depends on the width. In the strip it
- * is a filled, disabled segment — plainly "you are here". On a phone the switcher
- * lives in the navigation row's overflow menu, where
- * `.demo-menu-overflow .demo-btn:disabled` greys a row out, and a greyed row
- * in a list of destinations reads as unavailable rather than current — so
- * there it gets the panel's `.active` tint instead, and is simply inert when
- * tapped. `aria-current="page"` is unconditional: each mode is a route, at
- * either width.
- *
- * The row is a named group, not a toolbar: independently tabbable buttons with
- * no arrow-key handling, and the name is what makes "Single" read as a mode.
- */
+/** A named group (no arrow keys); the current mode is a filled disabled segment in the strip, but gets the `.active` tint and is inert in the phone overflow menu. */
 export function modeSwitcher({ demoMode, isPhone, onModeChanged }: ModeSwitcherProps): TemplateResult {
   return html`<div class="mochart-demo-mode-switcher">
     <span class="demo-label">${demoText.modeSwitcher.label}</span>
