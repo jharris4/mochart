@@ -108,13 +108,14 @@ describe('legend icon switches', () => {
     }))).toHaveLength(0);
   });
 
-  it('writes the icon border color and opacity onto the shape', () => {
+  it('writes the icon border color, opacity and size onto the shape', () => {
     const icons = legendIcons(mountChart({
       legend: { visible: true, iconBorderColor: 'rgb(9,9,9)', iconBorderOpacity: 0.11, iconBorderSize: 2 }
     }));
 
     expect(icons[0].getAttribute('stroke')).toBe('rgb(9,9,9)');
     expect(icons[0].getAttribute('stroke-opacity')).toBe('0.11');
+    expect(icons[0].getAttribute('stroke-width')).toBe('2');
   });
 
   it('widens the icon slot by the icon spacer size', () => {
