@@ -12,25 +12,18 @@ const dashArrayRegexp = /^(\d+)([,\s]\s*\d+)*$/;
 // eslint-disable-next-line no-useless-escape
 const numberFormatRegexp = /^(?:(.)?([<>=^]))?([+\-\( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?([a-z%])?$/i;
 
-// Colors mochart has to interpolate itself must be parseable by d3-color, which is what
-// SeriesColors and utils/style use; that is the whole contract, so ask d3 rather than guess.
+// colors mochart interpolates itself must be parseable by d3-color (the SeriesColors/utils-style contract), so ask d3 rather than guess
 const parsableColor: CustomValidator = value => typeof value === 'string' && parseColor(value) !== null;
 parsableColor.message = 'should be a valid color';
 const color = () => validators.custom(parsableColor).withCustomName('color');
 
-// A color written straight to a dom attribute or declaration is resolved by the browser, not by
-// us, so those fields also accept css color functions d3-color predates.
-const cssColorFunctionRegexp = /^(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix|light-dark|var)\(.*\)$/i;
+// a color written straight to a dom attribute or declaration is resolved by the browser, so it also accepts css color functions d3-color predates
+const cssColorFunctionRegexp =/^(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix|light-dark|var)\(.*\)$/i;
 const renderableColor: CustomValidator = value =>
   typeof value === 'string' && (parseColor(value) !== null || cssColorFunctionRegexp.test(value.trim()));
 
-// 'currentColor' is accepted here and only here: an svg color is written
-// straight to a dom attribute, so the browser resolves it against the host
-// page's css color. The bare color() used for the color scale bounds
-// (colorScale.min/max/missing/base.*), palette entries and gradient stops must
-// stay strict - those values are handed to d3 scale ranges and a keyword would
-// interpolate to NaN.
-const svgColorValidator = validators.custom(renderableColor).orOneOf(['none', COLOR_CURRENT]).withCustomName('svgColor').withMessage('should be a valid svg color (or "none" / "currentColor")');
+// 'currentColor' is accepted only here, where the browser resolves it; the bare color() fields feed d3 scale ranges, where a keyword would interpolate to NaN
+const svgColorValidator =validators.custom(renderableColor).orOneOf(['none', COLOR_CURRENT]).withCustomName('svgColor').withMessage('should be a valid svg color (or "none" / "currentColor")');
 
 // The tooltip's colors become css declarations, where 'none' is not a color at all: it would be dropped
 // as an invalid declaration and leave the property inheriting, so it is rejected rather than accepted.

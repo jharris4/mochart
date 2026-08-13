@@ -139,12 +139,7 @@ export default function getValidators() {
   };
 }
 
-/**
- * An axis whose min is above its max would run backwards. `axis.reversed` is the supported way to
- * invert an axis, so an inverted domain is a mistake rather than a spelling of that intent.
- * `min === max` stays legal: `auto` already produces a collapsed domain from flat data, and it is
- * where computed bounds land when every value is the same.
- */
+/** min above max is a mistake (axis.reversed is the way to invert an axis); min === max stays legal, as auto produces it from flat data. */
 export function getAxisBoundsMessage(max: unknown): string {
   return 'should not be above the max property of the same axis: ' + JSON.stringify(max);
 }
