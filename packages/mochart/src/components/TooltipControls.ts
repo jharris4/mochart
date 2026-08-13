@@ -100,9 +100,7 @@ export default class TooltipControls extends Renderer<TooltipControlsProps> {
     const { mochartConfig, categoryCount, tooltipCategoryIndex, minWidth, mode } = this.props;
     const { tooltip: tooltipConfig, accessibility: accessibilityConfig } = mochartConfig;
     if (tooltipConfig.showControls) {
-      // the buttons are click targets whenever they are shown, so they take the target floor in
-      // both directions: the height a native button centres its glyph in, the width off the ends'
-      // fixed containers (the mode button's width is the tooltip's, always well past the floor)
+      // shown buttons are always click targets, so they take the target floor in both directions
       const { targetMinSize } = accessibilityConfig;
       const targetStyle = targetMinSize > 0 ? { minHeight: targetMinSize } : {};
       const containerStyle = { flex: '0 0 auto', width: Math.max(buttonWidth, targetMinSize) };

@@ -490,9 +490,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       tooltipCategoryIndex, focusedCategoryIndex,
       onFocus, mode, toggleMode: this.toggleMode, minWidth });
 
-    // The click-target floor for a row, keyed off what a click does rather than off the current
-    // mode or copy: the controls toggle their mode at will, and the hidden sizer copy has to
-    // measure the shown rows' height. Its own interactivity gates neither.
+    // the click-target floor for a row, keyed off what a click does rather than off the current mode, copy, or the row's own interactivity
     const { targetMinSize } = mochartConfig.accessibility;
     const categoryRowClickable = tooltipConfig.showControls || tooltipConfig.focusCategoryOnClick;
     const seriesRowClickable = (leaderSeriesId: string): boolean => tooltipConfig.showControls ||

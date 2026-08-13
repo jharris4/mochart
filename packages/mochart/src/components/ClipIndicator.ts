@@ -32,15 +32,7 @@ const defaultFontSize = 12;
 /** More or less centers text vertically (same value the axis title uses). */
 const textDY = '0.35em';
 
-/**
- * Marks the plot edges that have data hidden behind them. One band per clipped edge, so two axes
- * clipping the same end produce one band, and it overlays the plot rather than reserving space —
- * which keeps it out of the layout pass entirely.
- *
- * Bands are mitred rather than rectangular: adjacent bands meet on a diagonal, so the frame has no
- * seam running across an edge and no corner is covered twice. That only matters because the bands
- * are stroked — with a flat fill and no stroke, every corner treatment draws the same picture.
- */
+/** Marks the plot edges that have data hidden behind them: one mitred band per clipped edge, overlaying the plot rather than reserving layout space. */
 export default class ClipIndicator extends Renderer<ClipIndicatorProps, ClipIndicatorState> {
   root = svgEl('g');
   title = svgEl('title');
@@ -110,12 +102,7 @@ export default class ClipIndicator extends Renderer<ClipIndicatorProps, ClipIndi
     });
   }
 
-  /**
-   * The band's fill: a diagonal hatch drawn from the style's fill colour, so one property still
-   * controls both. Degenerate hatches collapse to the flat fill they would draw anyway rather than
-   * to a pattern that cannot paint — no hatch at all, lines so thick they close up (which would
-   * also seam along the 45 degree tile boundary), or lines too thin to show.
-   */
+  /** The band's fill: a diagonal hatch drawn from the style's fill colour; degenerate hatches collapse to the flat fill they would draw anyway. */
   private syncPattern(patternUniqueId: string, fill: string | null | undefined): string | null | undefined {
     const hatch = this.props.mochartConfig.clipIndicator.hatch;
     if (hatch === NONE || hatch.spacing <= 0 || hatch.width >= hatch.spacing) {
@@ -171,11 +158,7 @@ export default class ClipIndicator extends Renderer<ClipIndicatorProps, ClipIndi
     return band;
   }
 
-  /**
-   * Post-commit. The label is measured the same way the title and axis titles are — the bounding
-   * box, whose height is the font's em box and so covers descenders that the font size alone would
-   * clip. Only stored when it changes, so a stable label settles after one extra pass.
-   */
+  /** Post-commit: measure the label's bounding box (as the titles do), stored only when it changes so a stable label settles after one extra pass. */
   measure(): void {
     if (!this.present) {
       return;
@@ -223,12 +206,7 @@ function getBandDepths(seriesLayoutInfo: LayoutInfo, clippedEdges: ClippedEdges,
   };
 }
 
-/**
- * The band as a mitred quadrilateral: its outer edge runs the full side of the plot, and each end
- * angles inward wherever the neighbouring edge is also clipped. Adjacent bands therefore share a
- * diagonal and tile the frame exactly — no gap, no doubled corner, no seam across an edge. With no
- * clipped neighbour the ends stay square, so a lone band is an ordinary rectangle.
- */
+/** The band as a mitred quadrilateral: each end angles inward where the neighbouring edge is also clipped, so adjacent bands tile the frame exactly. */
 function getBandPath(seriesLayoutInfo: LayoutInfo, depths: BandDepths, edge: EdgeKey): string {
   const { x, y, width, height } = seriesLayoutInfo;
   const right = x + width;

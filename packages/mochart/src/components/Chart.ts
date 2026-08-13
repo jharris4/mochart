@@ -296,8 +296,7 @@ class ChartBody extends Renderer<ChartBodyProps> {
 
 const defaultChartStyle = { position: 'relative' };
 
-// the tooltip and live region are positioned against the root, so a caller's style
-// layers over the default rather than replacing it; their own position still wins
+// the tooltip and live region are positioned against the root, so a caller's style layers over the default; their own position still wins
 function withDefaultChartStyle(style: ChartProps['style']): ChartProps['style'] {
   if (style === undefined) {
     return defaultChartStyle;
@@ -851,8 +850,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     if (mochartConfig.tooltip.followPointer) {
       const { tooltip: tooltipConfig, crosshair: crosshairConfig } = mochartConfig;
       const { valueFraction: seriesPercentage, categoryFraction, categoryIndex } = eventPayload;
-      // same applyFocus gate as setTooltipOpen: enter, move and leave must
-      // agree on whether pointer interactions may change the focused category
+      // same applyFocus gate as setTooltipOpen: enter, move and leave must agree on whether pointer interactions may change the focused category
       if ((tooltipConfig.visible && tooltipConfig.applyFocus) || (crosshairConfig.visible && crosshairConfig.applyFocus)) {
         onFocus?.({ categoryIndex });
       }
@@ -1074,11 +1072,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     return activeElement !== null && activeElement !== document.body && this.root.node.contains(activeElement) ? activeElement : null;
   }
 
-  /**
-   * A render that tears down the focused tab stop — a refresh dropping to zero categories or an
-   * error, a closing tooltip — must not leave keyboard focus on <body>: hand it to a stop that
-   * survived. The plot stop when it is still there, else the message that replaced the plot.
-   */
+  /** A render that tears down the focused tab stop must not drop focus to <body>: hand it to the plot stop, else the message that replaced the plot. */
   private restoreTornDownFocus(focusedNode: Element | null): void {
     // an inner component may have moved focus itself (series reorder, tooltip row filtering)
     if (focusedNode === null || focusedNode.isConnected || this.getFocusedChartNode() !== null) {
@@ -1199,11 +1193,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     return !isErrorActive(error) && this.hasCategories();
   }
 
-  /**
-   * The context every state factory receives — built here so all six always get all six members.
-   * width/height are the box the returned content fills: the whole chart before it is laid out,
-   * the plot area for content placed inside a laid-out chart.
-   */
+  /** The context every state factory receives; width/height are the box the returned content fills. */
   private factoryContext(width: number, height: number, error: unknown): ChartFactoryContext {
     const { mochartConfig, dataProvider } = this.props;
     return {

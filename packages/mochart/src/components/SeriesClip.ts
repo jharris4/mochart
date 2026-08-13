@@ -9,14 +9,7 @@ interface SeriesClipProps {
   seriesClipPathUniqueId: string;
 }
 
-/**
- * Confines the series to the plot. An explicit axis `min`/`max` is a hard bound, so a value past
- * it would otherwise paint over the axes and the title.
- *
- * `plot.clipOverflow` widens the clip per side. It is 0 by default, which keeps the rule to one
- * sentence and keeps the clip edge exactly where the clip indicator marks it — a mark whose anchor
- * sits on a bound is cut there, and raising it is how a host opts out of that.
- */
+/** Confines the series to the plot so values past an explicit axis bound cannot paint over the chrome; `plot.clipOverflow` widens the clip per side. */
 export default class SeriesClip extends Renderer<SeriesClipProps> {
   root = svgEl('clipPath');
   rect = svgEl('rect');
