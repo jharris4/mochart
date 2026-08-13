@@ -1,8 +1,4 @@
-/**
- * Bar cap geometry: which cap a bar gets is decided by series capType,
- * capOnlyStackOuter and the stack's outerCapType, and the rounded cap falls
- * back to a flat end for bars too short to round.
- */
+// Bar cap geometry: cap selection via capType/capOnlyStackOuter/outerCapType, and the rounded cap's flat-end fallback
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

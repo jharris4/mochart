@@ -1,10 +1,4 @@
-/**
- * The nine axis `*Front` switches, which move one piece of axis chrome from the
- * back plot layer (behind the series) to the front one. Every switch defaults to
- * false, so the front layer had never held any axis chrome — and the seven that
- * Axis reads out of a single destructure are exactly where a key mix-up would
- * hide. The value axis base line's on/off switch is pinned alongside its layer.
- */
+// The nine axis `*Front` switches, each moving one piece of axis chrome from the back plot layer to the front one
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

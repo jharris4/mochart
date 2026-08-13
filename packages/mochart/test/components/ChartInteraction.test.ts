@@ -155,8 +155,7 @@ describe('chart mouse events', () => {
 });
 
 describe('background clicks', () => {
-  // every Background is rendered without an onClick prop, so its own handler is
-  // inert and the click reaches the chart root by bubbling
+  // every Background is rendered without an onClick prop, so the click reaches the chart root by bubbling
   it('reach the chart click callback by bubbling', () => {
     const clicks: ChartEventPayload[] = [];
     const container = mountChart(makeConfig(), { onChartClick: payload => { clicks.push(payload); } });
@@ -248,8 +247,6 @@ describe('title layout variants', () => {
   });
 });
 
-// TEST-5: the title's <a> wrapper, the linkDisabled navigation guard and the
-// pointer path into onTitleClick had no test of their own.
 describe('title link', () => {
   const linkConfig = (overrides: Record<string, unknown> = {}) => makeConfig({
     title: { text: 'Sales Chart', prefix: 'Q1', suffix: '(units)', link: 'https://example.com/sales', ...overrides }
@@ -381,8 +378,7 @@ describe('tooltip', () => {
     expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
   });
 
-  // COMP-1: enter and leave used to call a *toggle*, so any other path that changed
-  // tooltipVisible in between inverted the pairing for the rest of the session.
+  // Regression: enter and leave called a toggle, so a click in between inverted the pairing for the session
   it('keeps enter opening and leave closing after the tooltip is closed by a click', () => {
     const container = mountChart(makeConfig({ tooltip: { followPointer: true, closeOnClick: true } }));
     const root = chartRoot(container);

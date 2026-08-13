@@ -1,8 +1,4 @@
-/**
- * Axis placement and chrome permutations: side, collapsed, visibility, tick
- * label anchor/rotation/size, title size, and the focus range's title reach.
- * These decide the axis layout arithmetic, which no single demo config covers.
- */
+// Axis placement and chrome permutations: side, collapsed, visibility, tick label anchor/rotation/size, title size
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

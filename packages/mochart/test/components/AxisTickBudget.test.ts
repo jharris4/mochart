@@ -1,10 +1,4 @@
-/**
- * maxTickCount and minTickSpacing, the two halves of the automatic tick budget.
- * Neither was ever set: every test and demo took the defaults, so the budget's
- * arithmetic (the spacing formula, the max cap, and `tickCount` overriding both)
- * only ever ran with one set of numbers. On an ordinal category axis the budget
- * turns into an exact label interval, which pins the cap precisely.
- */
+// maxTickCount and minTickSpacing, the two halves of the automatic tick budget, and tickCount overriding both
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

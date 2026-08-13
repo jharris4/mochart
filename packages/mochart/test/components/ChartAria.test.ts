@@ -132,8 +132,7 @@ describe('chart aria semantics', () => {
   });
 });
 
-// A11Y-2: the title <g> got an onClick unconditionally, with no tabindex, role or key handler,
-// so onTitleClick was reachable by pointer only (WCAG 2.1.1)
+// Regression: the title got an onClick with no tabindex, role or key handler, so onTitleClick was pointer-only
 describe('clickable title', () => {
   it('exposes button semantics and fires on Enter and Space', () => {
     const clicks: number[] = [];
@@ -178,8 +177,7 @@ describe('clickable title', () => {
 });
 
 describe('decorative-hidden charts', () => {
-  // A11Y-1: assert against everything that is *natively* focusable, not just [tabindex] —
-  // an svg <a href> takes focus with no tabindex at all, so the old assertion could not see it
+  // covers everything natively focusable, not just [tabindex]: an svg <a href> takes focus with no tabindex at all
   const FOCUSABLE = ['a[href]', 'button', 'input', 'select', 'textarea', '[tabindex]']
     .map((selector) => `${selector}:not([tabindex="-1"])`).join(', ');
 

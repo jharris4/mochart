@@ -1,9 +1,4 @@
-/**
- * The four accessibility strings that had no test or demo override:
- * chartLabel, chartRoleDescription, plotLabel and legendLabel. Their entire
- * purpose is to be replaced for another language, so an override that silently
- * stopped reaching the DOM would leave a localized host speaking English.
- */
+// The chartLabel, chartRoleDescription, plotLabel and legendLabel accessibility overrides must reach the DOM
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

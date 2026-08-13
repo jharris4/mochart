@@ -1,11 +1,4 @@
-/**
- * What a screen reader reads inside the plot: the axis tick labels are text in
- * the reading order, wrapped in a group named for the axis so a run of numbers
- * arrives with the scale it belongs to. Text that would read as noise — the
- * width probe, overlap-suppressed ticks, an axis title the group is already
- * named from, threshold annotations, and the per-point data labels that are
- * interpolated mid-animation — stays aria-hidden.
- */
+// What a screen reader reads inside the plot: tick labels are exposed in named axis groups, noise text stays aria-hidden
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';
@@ -84,7 +77,6 @@ describe('axis text in the accessibility tree', () => {
     expect(texts).toContain('10');
   });
 
-  // A11Y-5 was measured here: 19 text nodes drawn, only 6 outside an aria-hidden subtree
   it('leaves only the unreadable text nodes hidden', () => {
     const container = mountChart(makeConfig());
     const texts = [...container.querySelectorAll('text')];

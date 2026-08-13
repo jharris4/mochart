@@ -1,8 +1,4 @@
-/**
- * Threshold lines and their titles: which side of the line the title sits on,
- * which end of the plot the axis side puts it at, and how titleSnapToValue
- * pulls it back to the line when the plot edge would otherwise clamp it.
- */
+// Threshold lines and their titles: title side, axis-side placement, and titleSnapToValue near the plot edges
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';
