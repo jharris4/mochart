@@ -3,8 +3,9 @@
 Series fills can use the built-in `lines`, `crosshatch`, and `dots` SVG
 patterns. Declare them in [`patterns`](/reference/patterns) and point a series
 at one with [`pattern`](/reference/series#series.pattern). A sole pattern is
-applied to every series automatically when no gradients are configured;
-with several paint definitions, select one explicitly by id.
+applied to every series automatically when no gradients are configured.
+When several patterns or any gradients are configured, select patterns
+explicitly by id.
 
 <script setup>
 import * as patterns from '../examples/patterns'

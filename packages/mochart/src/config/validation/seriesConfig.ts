@@ -9,7 +9,7 @@ import type { Validator } from '@mochart/movalid';
 
 type ColorCondition = { colorProperty?: SeriesConfig['colorProperty'], colorScale?: DeepPartial<SeriesConfig['colorScale']> };
 type StackCondition = Pick<SeriesConfig, 'stack'>;
-type PaintCondition = Pick<SeriesConfig, 'gradient'>;
+type GradientCondition = Pick<SeriesConfig, 'gradient'>;
 
 type SeriesStyleMember = 'strokeColor' | 'strokeOpacity' | 'strokeWidth' | 'strokeDashArray' | 'fillColor' | 'fillOpacity';
 
@@ -67,8 +67,8 @@ const colorBaseNoneSuffix = 'when colorProperty is not ' + NONE + ' and colorSca
 
 const stackRule = { condition: ({ stack }: StackCondition) => stack !== NONE, suffix: stackSuffix };
 const stackNoneRule = { condition: ({ stack }: StackCondition) => stack === NONE, suffix: stackNoneSuffix };
-const gradientRule = { condition: ({ gradient }: PaintCondition) => gradient !== NONE, suffix: 'when gradient is not ' + NONE };
-const gradientNoneRule = { condition: ({ gradient }: PaintCondition) => gradient === NONE, suffix: 'when gradient is ' + NONE };
+const gradientRule = { condition: ({ gradient }: GradientCondition) => gradient !== NONE, suffix: 'when gradient is not ' + NONE };
+const gradientNoneRule = { condition: ({ gradient }: GradientCondition) => gradient === NONE, suffix: 'when gradient is ' + NONE };
 
 const colorPropertyRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty !== NONE, suffix: colorPropertySuffix };
 const colorPropertyNoneRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty === NONE, suffix: colorPropertyNoneSuffix };

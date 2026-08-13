@@ -24,7 +24,7 @@ function setChildPresent(parent: El, child: El, present: boolean): void {
   }
 }
 
-/** A screen-space SVG paint pattern, instantiated once for each series that references it. */
+/** A screen-space SVG fill pattern, instantiated once for each series that references it. */
 export default class Pattern extends Renderer<PatternProps> {
   root = svgEl('pattern');
   background = svgEl('rect');

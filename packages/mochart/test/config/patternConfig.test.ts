@@ -70,7 +70,7 @@ describe('built-in pattern config', () => {
     expect(config.validation).toEqual({ valid: true, errors: [], warnings: [] });
   });
 
-  it('defaults the sole paint definition and leaves mixed paint definitions explicit', () => {
+  it('defaults a sole pattern, supports opt-out, and leaves pattern/gradient combinations explicit', () => {
     const sole = enhance({ ...base, patterns: [{ id: 'hatch', type: 'lines' }] });
     expect(sole.series[0].pattern).toBe('hatch');
     expect(sole.series[0].patternConfig).toBe(sole.patterns[0]);
@@ -90,7 +90,7 @@ describe('built-in pattern config', () => {
     expect(mixed.series[0].gradient).toBeNull();
   });
 
-  it('rejects dangling references and a series that sets both paint types', () => {
+  it('rejects dangling pattern references and series that specify both pattern and gradient', () => {
     const dangling = enhance({ ...base, series: [{ property: 'v', pattern: 'missing' }] });
     expect(dangling.validation.errors).toContain(
       'series[0] - pattern - should equal the id property of one of the patterns: "missing"'

@@ -54,7 +54,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
   defs: El | null = null;
   defsSlot!: ElSlot;
   shapeSlot!: ElSlot;
-  defsPaintSlot!: Slot;
+  defsFillSlot!: Slot;
 
   // renderHTML is decided per call site and never changes for a mounted
   // instance, so the structure is chosen once at create() time.
@@ -102,7 +102,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
         height: displaySize
       };
 
-      const paintId = svgUniqueId! + '-' + seriesConfig.id;
+      const fillDefinitionId = svgUniqueId! + '-' + seriesConfig.id;
 
       this.setPresent(true);
       this.span.set({ className: iconClassName, style: colorStyle });
@@ -113,8 +113,8 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
         viewBox: `0 0 ${geometrySize} ${geometrySize}`
       });
       this.spacer.set({ style: spacerStyle });
-      this.syncColorDefs(paintId);
-      this.syncColorContent(showSeriesColor, paintId, null);
+      this.syncColorDefs(fillDefinitionId);
+      this.syncColorContent(showSeriesColor, fillDefinitionId, null);
     }
     else {
       this.setPresent(false);
@@ -128,26 +128,26 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
 
     if (showSeriesColor || showIconPlaceholders) {
       const { seriesColorGradientUniqueIds, gradientIdMap, patternIdMap } = uniqueIds!;
-      const paintId = seriesConfig.pattern !== NONE
+      const fillDefinitionId = seriesConfig.pattern !== NONE
         ? patternIdMap[seriesConfig.id]
         : (seriesConfig.gradient !== NONE ? gradientIdMap[seriesConfig.gradient] : seriesColorGradientUniqueIds[seriesConfig.id]);
-      this.syncColorContent(showSeriesColor, paintId, iconClassName);
+      this.syncColorContent(showSeriesColor, fillDefinitionId, iconClassName);
     }
     else {
       this.shapeSlot.set(null);
     }
   }
 
-  ensureDefsPaintSlot() {
+  ensureDefsFillSlot() {
     if (this.defs === null) {
       this.defs = svgEl('defs');
-      this.defsPaintSlot = this.slot(this.defs);
+      this.defsFillSlot = this.slot(this.defs);
     }
     this.defsSlot.set('defs', () => this.defs!);
-    return this.defsPaintSlot;
+    return this.defsFillSlot;
   }
 
-  syncColorDefs(paintId: string): void {
+  syncColorDefs(fillDefinitionId: string): void {
     const { seriesConfig, visible = true } = this.props;
 
     if (!visible) {
@@ -161,31 +161,31 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     if (pattern !== NONE) {
       const fillPalette = this.props.colorPaletteConfig.series.normal.fillColors;
       const fallbackColor = fillPalette[this.props.seriesIndex % fillPalette.length] ?? null;
-      this.ensureDefsPaintSlot().set(Pattern, {
-        uniqueId: paintId,
+      this.ensureDefsFillSlot().set(Pattern, {
+        uniqueId: fillDefinitionId,
         patternConfig: seriesConfig.patternConfig!,
         seriesColor: getSeriesFillColor(this.props.colorPaletteConfig, seriesConfig, this.props.seriesIndex, null, fallbackColor)
       });
     }
     else if (gradient !== NONE) {
       const { linearGradientConfig, radialGradientConfig } = seriesConfig;
-      const gradientSlot = this.ensureDefsPaintSlot();
+      const gradientSlot = this.ensureDefsFillSlot();
       if (linearGradientConfig !== undefined) {
-        gradientSlot.set(LinearGradient, { uniqueId: paintId, linearGradientConfig });
+        gradientSlot.set(LinearGradient, { uniqueId: fillDefinitionId, linearGradientConfig });
       }
       else {
-        gradientSlot.set(RadialGradient, { uniqueId: paintId, radialGradientConfig });
+        gradientSlot.set(RadialGradient, { uniqueId: fillDefinitionId, radialGradientConfig });
       }
     }
     else if (seriesGradientColors) {
-      this.ensureDefsPaintSlot().set(SeriesColorGradient, { uniqueId: paintId, seriesConfig });
+      this.ensureDefsFillSlot().set(SeriesColorGradient, { uniqueId: fillDefinitionId, seriesConfig });
     }
     else {
       this.defsSlot.set(null);
     }
   }
 
-  syncColorContent(showSeriesColor: boolean, paintId: string, className: string | null | undefined): void {
+  syncColorContent(showSeriesColor: boolean, fillDefinitionId: string, className: string | null | undefined): void {
     const {
       seriesContextConfig, seriesConfig, seriesIndex, colorPaletteConfig,
       seriesIsFiltered, focusPercentage, visible = true
@@ -201,19 +201,23 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     const { gradient, pattern, markerShape } = seriesConfig;
 
     const { opacity, focusedOpacity, defocusedOpacity } = getSeriesOpacities(seriesConfig);
-    const seriesPaint = pattern !== NONE || gradient !== NONE || getSeriesGradientColors(seriesConfig);
+    const hasFillDefinition = pattern !== NONE || gradient !== NONE || getSeriesGradientColors(seriesConfig);
     const halfBorderSize = iconBorderSize / 2.0;
     // iconSize and iconBorderSize validate independently, so a border wider than the icon would
     // otherwise put a negative width on the rect and the browser would drop the element
     const shapeSize = Math.max(iconSize - iconBorderSize, 0);
-    const paintFillColor = pattern !== NONE ? getPatternReference(paintId) : getGradientReference(paintId);
+    const fillDefinitionReference = pattern !== NONE
+      ? getPatternReference(fillDefinitionId)
+      : getGradientReference(fillDefinitionId);
     const seriesColor = getSeriesColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, iconUnfilteredColor);
 
     // a filtered icon takes iconFilteredColor as given: it stands in for the series color rather
     // than dimming it, so it carries its own alpha and ignores the focus opacity
     const stroke = iconBorderColor;
     const strokeWidth = (seriesIsFiltered ? 1.5 : 1) * iconBorderSize;
-    const unfilteredFill = showSeriesColor ? (seriesPaint ? paintFillColor : seriesColor) : iconUnfilteredColor;
+    const unfilteredFill = showSeriesColor
+      ? (hasFillDefinition ? fillDefinitionReference : seriesColor)
+      : iconUnfilteredColor;
     const fill = seriesIsFiltered ? iconFilteredColor : unfilteredFill;
     const fillOpacity = seriesIsFiltered ? 1 : getFocusValue(focusPercentage, opacity, focusedOpacity, defocusedOpacity);
 

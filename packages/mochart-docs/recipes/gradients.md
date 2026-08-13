@@ -7,8 +7,8 @@ series at one with
 [`gradient`](/reference/series#series.gradient). As with
 [stacks](/recipes/stacked-bars) and [groups](/recipes/grouped-series), a
 sole configured gradient is applied to every series automatically when no
-[patterns](/recipes/patterns) are configured — `gradient` ids only come into
-play once several paint definitions are declared.
+[patterns](/recipes/patterns) are configured. Select gradients explicitly by
+id when several gradients or any patterns are configured.
 
 <script setup>
 import * as gradients from '../examples/gradients'
