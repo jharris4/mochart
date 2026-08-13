@@ -10,7 +10,7 @@
 import { execSync } from 'node:child_process';
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const rootDir = fileURLToPath(new URL('..', import.meta.url));
 
@@ -58,6 +58,6 @@ export function ensureLibsFresh() {
 }
 
 // `node scripts/ensure-libs-fresh.mjs` runs it; importing it does not
-if (process.argv[1] !== undefined && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
   ensureLibsFresh();
 }
