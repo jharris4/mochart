@@ -15,16 +15,7 @@ export function degreesToRadians(degrees: number): number {
   return (degrees * Math.PI) / 180;
 }
 
-/**
- * Clamps each value (missing, non-finite and non-positive values count as 0),
- * sums them and returns each one's fraction of the total. A non-positive total
- * yields all-zero fractions.
- *
- * When the sum of several huge values overflows a double, `total` is
- * `Infinity`: the sum genuinely is not representable, and any finite number
- * reported there would be wrong. The fractions stay correct regardless — they
- * are re-derived in units of the largest value, where the sum cannot overflow.
- */
+/** Clamps each value (missing/non-finite/non-positive count as 0) and returns each one's fraction of the total; an overflowed total stays Infinity while the fractions re-derive in units of the largest value. */
 export function computeSliceFractions(values: readonly (number | null | undefined)[]): { total: number; values: number[]; fractions: number[] } {
   const clamped = values.map(value => (typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 0));
   const total = clamped.reduce((sum, value) => sum + value, 0);

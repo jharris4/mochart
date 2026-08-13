@@ -10,18 +10,7 @@ export function hasClippedEdge(clippedEdges: ClippedEdges): boolean {
   return clippedEdges.top || clippedEdges.right || clippedEdges.bottom || clippedEdges.left;
 }
 
-/**
- * Which plot edges have data hidden behind them, for the clip indicator.
- *
- * Compares what is *drawn* against what is *rendered*: the filtered series (a legend-filtered
- * series is hidden by the filter, not by the clip) against the axis domain the scale was built
- * from. `plot.clipOverflow` is deliberately not accounted for — it is opt-in, and honouring it
- * would couple this to layout for a case that already accepts a band/clip-edge mismatch.
- *
- * Runs per frame off the current chart data, so during an animation an edge reports clipped only
- * while an interpolated value is actually outside. Interpolation is monotonic per value, so an
- * edge changes state at most once per animation.
- */
+/** Which plot edges have data hidden behind them (for the clip indicator): compares the drawn filtered values against the rendered axis domain, per frame. */
 export function getClippedEdges(mochartConfig: EnhancedMochartConfig, chartData: ChartData): ClippedEdges {
   const clippedEdges = { ...noClippedEdges };
 
@@ -61,14 +50,7 @@ function setClippedEdges(clippedEdges: ClippedEdges, mochartConfig: EnhancedMoch
   }
 }
 
-/**
- * Which screen edge an exceeded axis end lands on. `reversed` swaps the ends and `plot.inverted`
- * swaps each axis's orientation, and the two compose.
- *
- * Note the vertical cases differ by axis: a vertical *value* axis puts its maximum at the top,
- * while a vertical *category* axis runs top-to-bottom (that is what `plot.inverted` means), so its
- * maximum is at the bottom. Measured, not assumed. Both horizontal cases put the maximum right.
- */
+/** Which screen edge an exceeded axis end lands on: `reversed` swaps the ends, `plot.inverted` swaps each axis's orientation, and a vertical value axis tops out where a vertical category axis bottoms out. */
 function getClippedEdge(mochartConfig: EnhancedMochartConfig, reversed: boolean, isCategoryAxis: boolean,
   isMaxEnd: boolean): keyof ClippedEdges {
   const horizontal = isCategoryAxis ? !mochartConfig.plot.inverted : mochartConfig.plot.inverted;
