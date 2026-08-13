@@ -338,11 +338,11 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
   const startFilteredValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.filtered.renderAxisDomains);
   let endRawValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.raw.renderAxisDomains);
   let endFilteredValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.filtered.renderAxisDomains);
+
+  // combined-domain axes sit out both union phases: their domain moves during the value phase instead; classified before the base-fill so the empty-domain guard sees the nulls, like the value phase does
+  const combinedAxisIds = getCombinedDomainAxisIds(mochartConfig.animation.valueDomainChange, valueAxisConfigs, startRawValueAxisDomains, startFilteredValueAxisDomains, endRawValueAxisDomains, endFilteredValueAxisDomains);
   setAllBaseAxisDomainsForChanges(startRawValueAxisDomains, endRawValueAxisDomains);
   setAllBaseAxisDomainsForChanges(startFilteredValueAxisDomains, endFilteredValueAxisDomains);
-
-  // combined-domain axes sit out both union phases: their domain moves during the value phase instead
-  const combinedAxisIds = getCombinedDomainAxisIds(mochartConfig.animation.valueDomainChange, valueAxisConfigs, startRawValueAxisDomains, startFilteredValueAxisDomains, endRawValueAxisDomains, endFilteredValueAxisDomains);
   resetAxisDomainsForIds(endRawValueAxisDomains, startRawValueAxisDomains, combinedAxisIds);
   resetAxisDomainsForIds(endFilteredValueAxisDomains, startFilteredValueAxisDomains, combinedAxisIds);
 
