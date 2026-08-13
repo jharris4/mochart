@@ -275,6 +275,8 @@ describe('degenerate thresholds', () => {
       const threshold = { value: 50, title: 'T', titleSide, titlePadding: oversizedPadding };
       const snapped = titlePosition(valueThreshold({ ...threshold, titleSnapToValue: true }));
       const clamped = titlePosition(valueThreshold({ ...threshold, titleSnapToValue: false }));
+      // guard: the oversized padding must actually move the title, or these mounts test nothing
+      expect(clamped).not.toEqual(titlePosition(valueThreshold({ value: 50, title: 'T', titleSide, titleSnapToValue: false })));
       expect(snapped).toEqual(clamped);
     }
   });
@@ -284,6 +286,7 @@ describe('degenerate thresholds', () => {
       const threshold = { value: 50, title: 'T', titleSide, titlePadding: oversizedPadding };
       const snapped = titlePosition(categoryThreshold({ ...threshold, titleSnapToValue: true }));
       const clamped = titlePosition(categoryThreshold({ ...threshold, titleSnapToValue: false }));
+      expect(clamped).not.toEqual(titlePosition(categoryThreshold({ value: 50, title: 'T', titleSide, titleSnapToValue: false })));
       expect(snapped).toEqual(clamped);
     }
   });
