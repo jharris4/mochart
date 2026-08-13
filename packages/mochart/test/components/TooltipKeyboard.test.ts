@@ -566,7 +566,9 @@ describe('tooltip rows a series can opt out of', () => {
     expect(tooltipRows(container).length).toBe(0);
     expect(container.querySelector(getCssSelector('tooltipCategoryLine'))).not.toBeNull();
   });
+});
 
+describe('closing the tooltip returns focus to the plot tab stop', () => {
   it('closes on Escape anywhere inside and returns focus to the plot tab stop', () => {
     const container = mountChart(makeConfig({ showControls: true }));
     openTooltip(container);
