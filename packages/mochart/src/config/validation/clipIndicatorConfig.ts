@@ -9,10 +9,7 @@ export default function getValidators() {
     label: validators.string().orEqual(NONE),
     textStyle: validators.style(),
     style: validators.style(),
-    hatch: validators.objectWithShape({
-      spacing: validators.numberMin(0),
-      width: validators.numberMin(0)
-    }).orEqual(NONE),
+    hatch: validators.partialObjectWith(['spacing', 'width'], validators.numberMin(0)).orEqual(NONE),
     showInFront: validators.boolean()
   };
 }
