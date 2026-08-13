@@ -1151,11 +1151,9 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       ? demoText.editableChart.editMode.tooltipToSeries
       : demoText.editableChart.editMode.tooltipToCategories);
     modeButton.setContent([icon(categoryMode ? 'bullseye' : 'sliders', { size: 'lg', fixedWidth: true })]);
-    {
-      chartCountButton.setPressed(chartCount === 2);
-      chartCountButton.setTooltip(chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow);
-      chartCountButton.setContent([icon(chartCount === 2 ? 'window-maximize' : 'window-restore', { size: 'lg', fixedWidth: true })]);
-    }
+    chartCountButton.setPressed(chartCount === 2);
+    chartCountButton.setTooltip(chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow);
+    chartCountButton.setContent([icon(chartCount === 2 ? 'window-maximize' : 'window-restore', { size: 'lg', fixedWidth: true })]);
     exportShareMenuHandle.setDisabled(!!error);
     overflowMenuHandle.setDisabled(!!error);
 
