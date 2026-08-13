@@ -69,6 +69,7 @@ export function createChart(container: Element, props: ManagedChartProps): Chart
   const controller = new ChartController(container, currentProps, readDataProvider);
   return {
     update(nextProps: Partial<ManagedChartProps>) {
+      nextProps = withoutUndefinedKeys(nextProps);
       if (nextProps.dataProvider !== undefined && nextProps.dataProvider !== currentProps.dataProvider) {
         readDataProvider = wrapForReads(nextProps.dataProvider);
       }
@@ -93,6 +94,17 @@ export function createChart(container: Element, props: ManagedChartProps): Chart
   };
 }
 
+/** An explicitly-undefined key means "no change", like an absent key; replace() is the way to unset. */
+function withoutUndefinedKeys<TProps extends object>(props: Partial<TProps>): Partial<TProps> {
+  const defined: Partial<TProps> = {};
+  for (const key of Object.keys(props) as (keyof TProps)[]) {
+    if (props[key] !== undefined) {
+      defined[key] = props[key];
+    }
+  }
+  return defined;
+}
+
 /** null stays null: bindings mount with no provider for the loading/error states. */
 function wrapForReads(dataProvider: DataProvider | null | undefined): DataProvider | null {
   return dataProvider ? withFreshIdentity(dataProvider) : null;
@@ -110,6 +122,7 @@ export function createDefaultChart(container: Element, props: DefaultChartProps)
   const controller = new ChartController(container, toManagedProps(currentProps, input), input.dataProvider);
   return {
     update(nextProps: Partial<DefaultChartProps>) {
+      nextProps = withoutUndefinedKeys(nextProps);
       const prevProps = currentProps;
       currentProps = { ...currentProps, ...nextProps };
       input.update(prevProps, currentProps);
