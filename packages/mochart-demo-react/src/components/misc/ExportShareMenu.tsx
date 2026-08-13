@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Icon from './Icon';
 
 import { controlsMenuPlacement, createShareLinkCopier, demoText } from '@mochart/demo-common';
-import type { ShareState } from '@mochart/demo-common';
+import type { ShareLinkCopier, ShareState } from '@mochart/demo-common';
 
 import { useMenu } from './useMenu';
 
@@ -33,8 +33,11 @@ interface Props {
 
 export default function ExportShareMenu({ exportPng, exportSvg, getShareState, disabled = false, active = true }: Props) {
   const [copied, setCopied] = useState(false);
-  // `setCopied` is stable, so one copier lasts the component's life.
-  const shareLinkCopier = useRef(createShareLinkCopier(setCopied));
+  // `setCopied` is stable, so one lazily created copier lasts the component's life.
+  const shareLinkCopier = useRef<ShareLinkCopier | null>(null);
+  if (shareLinkCopier.current === null) {
+    shareLinkCopier.current = createShareLinkCopier(setCopied);
+  }
 
   const menu = useMenu({ placement: controlsMenuPlacement });
   const { close } = menu;
@@ -49,7 +52,7 @@ export default function ExportShareMenu({ exportPng, exportSvg, getShareState, d
 
   useEffect(() => {
     const copier = shareLinkCopier.current;
-    return () => copier.dispose();
+    return () => copier?.dispose();
   }, []);
 
   const runAndClose = (action: () => void) => {
@@ -61,7 +64,7 @@ export default function ExportShareMenu({ exportPng, exportSvg, getShareState, d
     if (!getShareState) {
       return;
     }
-    shareLinkCopier.current.copy(getShareState());
+    shareLinkCopier.current?.copy(getShareState());
     close();
   };
 
