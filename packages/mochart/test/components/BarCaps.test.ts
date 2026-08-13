@@ -84,11 +84,21 @@ describe('cap selection', () => {
 
     for (const capType of ['point', 'curve', 'round'] as const) {
       it(`draws a ${capType} cap on an ${orientation} plot`, () => {
-        const paths = barPaths(mount({ ...plot, series: [{ property: 'a', renderer: 'bar', capType }] }));
-        expect(paths.length).toBe(rows.length);
-        expect(paths.every(d => d.length > 0)).toBe(true);
+        const plain = barPaths(mount(plot));
+        const capped = barPaths(mount({ ...plot, series: [{ property: 'a', renderer: 'bar', capType }] }));
+        expect(capped.length).toBe(rows.length);
+        capped.forEach((d, i) => {
+          expect(d.length).toBeGreaterThan(0);
+          expect(d).not.toBe(plain[i]);
+        });
       });
     }
+
+    it(`draws a different shape for each cap type on an ${orientation} plot`, () => {
+      const shapes = (['point', 'curve', 'round'] as const).map(capType =>
+        barPaths(mount({ ...plot, series: [{ property: 'a', renderer: 'bar', capType }] })).join('|'));
+      expect(new Set(shapes).size).toBe(3);
+    });
 
     it(`caps only the stack's outer segment when capOnlyStackOuter is set on an ${orientation} plot`, () => {
       const every = barPaths(mount({ ...plot, ...stackedConfig({ capType: 'round' }, {}) }));
@@ -131,14 +141,15 @@ describe('rounded cap geometry', () => {
     const plot = { plot: { inverted } };
     const orientation = inverted ? 'inverted' : 'upright';
 
-    // bars shorter than the rounding threshold fall back to a flat end
-    it(`falls back to a flat end for bars too short to round on an ${orientation} plot`, () => {
-      const paths = barPaths(mount(
-        { ...plot, series: [{ property: 'a', renderer: 'bar', capType: 'round' }] },
-        [{ month: 'Jan', a: 1000 }, { month: 'Feb', a: 1001 }, { month: 'Mar', a: 1000.5 }]
-      ));
-      expect(paths.length).toBe(3);
-      expect(paths.every(d => d.length > 0)).toBe(true);
+    // the rounding threshold is the bar's cross extent, so thin bars keep a flat (arc-free) end
+    it(`falls back to a flat end for bars too thin to round on an ${orientation} plot`, () => {
+      const rounded = barPaths(mount({ ...plot, series: [{ property: 'a', renderer: 'bar', capType: 'round' }] }));
+      expect(rounded.every(d => d.includes('A'))).toBe(true);
+      const flat = barPaths(mount({
+        ...plot, series: [{ property: 'a', renderer: 'bar', capType: 'round', barWidthFraction: 0.01 }]
+      }));
+      expect(flat.length).toBe(rows.length);
+      expect(flat.every(d => d.length > 0 && !d.includes('A'))).toBe(true);
     });
 
     it(`handles a cap larger than the bar's rounding radius on an ${orientation} plot`, () => {
