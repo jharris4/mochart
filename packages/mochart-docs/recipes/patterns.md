@@ -11,7 +11,7 @@ explicitly by id.
 import * as patterns from '../examples/patterns'
 </script>
 
-<LiveChart :config="patterns.config" :data="patterns.data" demo="grouped" />
+<LiveChart :config="patterns.config" :data="patterns.data" demo="patterns" />
 
 <<< @/examples/patterns.ts
 

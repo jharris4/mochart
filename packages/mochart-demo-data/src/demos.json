@@ -427,6 +427,15 @@
       "random": "positive-random.json"
     },
     {
+      "id": "patterns",
+      "title": "Patterns",
+      "description": "Grouped bars filled with the built-in lines, crosshatch and dots patterns.",
+      "notes": "Three patterns are declared and referenced explicitly from the series: diagonal uses lines at 45 degrees, crosshatch adds its perpendicular line, and dots uses circular marks. patternDefaults gives every pattern 9px screen-space spacing and resolves both foregroundColor and backgroundColor from the owning series, with a low backgroundOpacity that preserves the series color while keeping the marks distinct. The three bar series share the sole series group, making their patterns easy to compare for each month. Plot markers remain solid, while the legend and tooltip icons reproduce these fills.",
+      "config": "patterns-config.json",
+      "data": "monthly-data.json",
+      "random": "positive-random.json"
+    },
+    {
       "id": "missing",
       "title": "Missing Values",
       "description": "Three series over the same gaps, showing the default break next to missingValues \"connect\" and missingValues \"base\".",

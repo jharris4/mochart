@@ -15,6 +15,7 @@ const referenceSectionIds = [
   'categoryAxis',
   'legend',
   'linearGradients',
+  'patterns',
   'pie',
   'plot',
   'radialGradients',
@@ -28,6 +29,7 @@ const referenceSectionIds = [
 
 const allKeySectionMap: Record<string, string> = {
   linearGradientDefaults: 'linearGradients',
+  patternDefaults: 'patterns',
   radialGradientDefaults: 'radialGradients',
   valueAxisDefaults: 'valueAxes',
   seriesDefaults: 'series',
