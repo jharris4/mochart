@@ -29,21 +29,7 @@ export function modeSwitcher(props: ModeSwitcherProps): ModeSwitcherHandle {
     attrs: { role: 'group', 'aria-label': demoText.modeSwitcher.groupAria }
   });
 
-  // Which modes exist depends on the width (Multi is out on a phone), so the
-  // row is rebuilt when the viewport crosses the breakpoint rather than built
-  // once at mount.
-  //
-  // How the current mode is marked VISUALLY depends on the width, because on a
-  // phone this whole switcher is folded into the navigation row's overflow menu
-  // and the segmented control's own idiom stops working there. In the strip the
-  // current mode is a filled, disabled segment — plainly "you are here". As a
-  // full-width menu row, `.demo-menu-overflow .demo-btn:disabled` greys it out
-  // (and outranks the panel's selected tint), and a greyed row in a list of
-  // destinations reads as unavailable rather than as current. So on a phone it
-  // gets the panel's own `.active` tint instead, and is simply inert when tapped.
-  //
-  // `aria-current="page"` is unconditional: each mode is a route, and the
-  // disabled segment conveys "current" to sighted users at both widths.
+  // Rebuilt when the viewport crosses the breakpoint; the current mode is a filled disabled segment in the strip, but gets the `.active` tint (inert, not disabled-grey) in the phone overflow menu.
   function render(isPhone: boolean): void {
     group.replaceChildren(...getAvailableDemoModes(isPhone).map(mode => {
       const current = mode === props.demoMode;
