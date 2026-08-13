@@ -521,6 +521,14 @@ describe('axis min/max bounds', () => {
     ]);
   });
 
+  it('does not date-parse string bounds on a non-date axis', () => {
+    const mochartConfig = enhance({ ...base,
+      categoryAxis: { property: 'c', type: 'number', scale: 'linear', min: '2020-06-01', max: 0 } });
+    // the type error stands alone — no bounds comparison against a date-parsed string
+    expect(mochartConfig.validation.errors).toHaveLength(1);
+    expect(mochartConfig.validation.errors[0]).toContain('categoryAxis - min');
+  });
+
   it('compares date bounds by their instant, not their text', () => {
     const dateAxis = (min: string, max: string) => enhance({ ...base,
       categoryAxis: { property: 'c', type: 'date', scale: 'linear', min, max } });

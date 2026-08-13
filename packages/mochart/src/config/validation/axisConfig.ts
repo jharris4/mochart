@@ -2,7 +2,7 @@ import validators, { boundValue } from './validators';
 import { filterConfig, getRawIndices } from '../core/mochartConfig';
 import { getPropertyMessage, isConfigObject } from './messages';
 
-import { AUTO, NONE, ANCHORS, COLOR_SAME, SIDES, THRESHOLD_TITLE_SIDES } from '../core/constants';
+import { AUTO, NONE, ANCHORS, COLOR_SAME, SIDES, THRESHOLD_TITLE_SIDES, TYPE_DATE } from '../core/constants';
 
 import type { Validator } from '@mochart/movalid';
 import type { ConfigObject, LocatedValidationMessage } from './messages';
@@ -175,8 +175,9 @@ function checkAxisBounds(section: unknown, sectionKey: string, index: number | u
   if (min === AUTO || max === AUTO || min === undefined || max === undefined) {
     return;
   }
-  const minValue = boundValue(min);
-  const maxValue = boundValue(max);
+  const dateAxis = section['type'] === TYPE_DATE;
+  const minValue = boundValue(min, dateAxis);
+  const maxValue = boundValue(max, dateAxis);
   if (minValue === null || maxValue === null || minValue <= maxValue) {
     return;
   }
