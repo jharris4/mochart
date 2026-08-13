@@ -2,13 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Stamps the package.json version into src/version.ts (the successor to the
-// pre-monorepo `update-version` script). Runs as `prepack`, so every published
-// build ships whatever version package.json declares.
-//
-// Usage: tsx scripts/stampVersion.ts [--check]
-// --check exits 1 when src/version.ts is out of sync instead of writing it, so
-// builds and installs never modify the tracked file.
+// Stamps the package.json version into src/version.ts; --check exits 1 on drift instead of writing.
 const check = process.argv.includes('--check');
 
 const packageDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');

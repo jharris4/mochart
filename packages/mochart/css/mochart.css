@@ -91,27 +91,13 @@
   outline-offset: -2px;
 }
 
-/* Focus the library moved itself, from a pointer path: a legend click that filters the focused
- * series, or a tooltip row that unmounts itself. :focus-visible does not match after a mouse
- * interaction, so without this the ring is missing exactly when the user cannot see where focus
- * went. The attribute is set only for those restores and cleared on blur. */
+/* Ring for focus the library restored after a pointer interaction, where :focus-visible does not match. */
 .mochart-chart.mochart-accessible [data-mochart-focus-restored]:focus {
   outline: 2px solid currentColor;
   outline-offset: 1px;
 }
 
-/* Windows High Contrast and other forced-colors modes. The chart chrome already follows the forced
- * text colour through currentColor, but three things need saying explicitly.
- *
- * The tooltip control buttons set their look inline, so forced-color-adjust must be released for
- * the system palette to reach them, and the hover/active tints above are color-mix over
- * currentColor, which forced colours flatten to invisible - Highlight fills replace them.
- *
- * Series fills and strokes are svg presentation attributes from the configured palette and are
- * deliberately left alone: forcing them to the system palette would collapse every series to one
- * colour, which is worse than keeping hues the mode did not ask about. A chart that must stay
- * legible here should carry a non-colour encoding (markerShape, or a pattern via a gradient id)
- * rather than relying on hue - see accessibility.md. */
+/* Forced-colors modes: system palette on the tooltip buttons, series colors left as configured — see the accessibility guide. */
 @media (forced-colors: active) {
   .mochart-tooltip-container .mochart-tooltip-controls button {
     forced-color-adjust: none;
