@@ -1,14 +1,7 @@
 import { byAria, byTitle, demoText, expect, openDemo, phoneTag, pressUntil, tabPanel, test } from './helpers';
 import type { Locator, Page } from '@playwright/test';
 
-// The phone fold. Tagged tests run in the `chromium-phone` project (390px wide),
-// untagged ones only at desktop width, so both halves of the behaviour live here.
-//
-// The fold REPARENTS controls into the overflow panel rather than mirroring them,
-// which is what keeps each control's state, id and accessible name single. A
-// duplicate is therefore the regression to guard, and "appears exactly once" is
-// the assertion that catches it — a mirroring fold would still look right on
-// screen and still pass every visibility check.
+// The phone fold reparents controls into the overflow panel rather than mirroring them, so a duplicate is the regression to guard and "appears exactly once" is the assertion that catches it.
 
 const { editableChart, overflowMenu } = demoText;
 

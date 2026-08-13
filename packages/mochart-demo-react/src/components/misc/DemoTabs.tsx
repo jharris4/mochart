@@ -4,16 +4,7 @@ import type { KeyboardEvent } from 'react';
 import { demoTabId, demoTabPanelId, demoTabPendingId, demoText, nextDemoTabIndex } from '@mochart/demo-common';
 import type { DemoTab } from '@mochart/demo-common';
 
-// The Chart / Config / Data strip in the top bar, as an ARIA tablist.
-//
-// One place per port builds this, because the `tab` role is a package deal: the
-// roles and `aria-selected` are only half of it, the other half is the keyboard
-// contract (Left/Right wrap, Home/End, and a roving tabindex so the strip is one
-// stop rather than three). The keys themselves come from `nextDemoTabIndex` in
-// @mochart/demo-common, shared with the other five ports.
-//
-// Selection is automatic: arrowing to a tab shows its pane, which is what a
-// click already did and costs nothing here — every pane stays mounted.
+// The Chart / Config / Data strip as an ARIA tablist: roving tabindex, arrow/Home/End keys via the shared nextDemoTabIndex, and automatic selection (arrowing shows the pane).
 
 interface DemoTabsProps {
   tabs: readonly DemoTab[];
@@ -30,12 +21,10 @@ export default function DemoTabs({ tabs, activeKey, onSelect }: DemoTabsProps) {
     if (nextIndex === null) {
       return;
     }
-    // Home/End would scroll the pane, and the arrows are ours once focus is on a
-    // tab — the tabs are the only focusable things in the strip.
+    // Home/End would scroll the pane, and the arrows are ours once focus is on a tab.
     event.preventDefault();
     onSelect(tabs[nextIndex].key);
-    // Every tab is already rendered, so this lands before the re-render that
-    // moves the roving tabindex onto it.
+    // Every tab is already rendered, so focus lands before the roving-tabindex re-render.
     listRef.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[nextIndex]?.focus();
   };
 
@@ -46,8 +35,7 @@ export default function DemoTabs({ tabs, activeKey, onSelect }: DemoTabsProps) {
         const selected = tab.key === activeKey;
         const pending = tab.pending === true && !selected;
         return (
-          // `presentation`, not `listitem`: a tablist's children are its tabs,
-          // and the `<li>`s are only here because the strip is styled as a list.
+          // `presentation`, not `listitem`: a tablist's children are its tabs.
           <li key={tab.key} className="demo-tab-item" role="presentation">
             <button type="button" id={demoTabId(tab.name)} role="tab"
               className={"demo-tab" + (selected ? " active" : "")}
@@ -60,10 +48,7 @@ export default function DemoTabs({ tabs, activeKey, onSelect }: DemoTabsProps) {
               {tab.label}
               {pending ? <span className="mochart-pending-badge" aria-hidden="true" /> : null}
             </button>
-            {/* The badge is a decorative dot, so the tab points
-                `aria-describedby` here while it shows. Hidden, and read anyway:
-                a referenced element's text is exposed whether or not the element
-                itself is. */}
+            {/* Hidden text is still exposed through the tab's `aria-describedby` while the badge shows. */}
             {tab.name === 'chart'
               ? <span id={demoTabPendingId} hidden>{demoText.tabs.chartPendingTitle}</span>
               : null}
@@ -74,13 +59,7 @@ export default function DemoTabs({ tabs, activeKey, onSelect }: DemoTabsProps) {
   );
 }
 
-/**
- * The strip for a view with only one pane (Multi).
- *
- * Not a one-tab tablist: there is nothing to switch to, and a tab that cannot be
- * activated is exactly the dead button this replaces. It renders as the caption
- * it always was — same markup, same styling, no roles claiming otherwise.
- */
+/** The strip for a view with only one pane (Multi) — a caption with no tab roles, since there is nothing to switch to. */
 export function StaticDemoTabs({ label }: { label: string }) {
   return (
     <ul className="demo-tabs">

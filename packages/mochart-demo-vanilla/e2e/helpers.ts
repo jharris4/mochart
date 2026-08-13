@@ -16,29 +16,15 @@ export const test = base.extend<{ page: Page }>({
 
 export { expect, demoText, shareHashPrefix };
 
-/**
- * Tag for the phone-viewport subset: tagged tests run ONLY in the
- * `chromium-phone` project (see the projects in playwright.config.ts), and
- * untagged ones only at desktop width. A spec about the fold can therefore hold
- * both halves of it — what collapses on a phone, and what must not at desktop.
- */
+/** Tag for the phone-viewport subset: tagged tests run only in `chromium-phone`, untagged ones only at desktop width. */
 export const phoneTag = '@phone';
 
-/**
- * A selector for one `mochartCssClasses` entry.
- *
- * Several entries are a class plus the prefix of a generated per-item class
- * ('mochart-series mochart-series-'), so the first token is the stable one.
- */
+/** A selector for one `mochartCssClasses` entry (the first token is the stable class). */
 export function chartClass(entry: string): string {
   return '.' + entry.split(' ')[0];
 }
 
-/**
- * The demo this suite drives. `stacked` is the same one demo-basic exercises:
- * a plain bar chart with several categories and series, no pie mode (which
- * swaps the whole control strip) and no generator step.
- */
+/** The demo this suite drives — plain bars with several series, no pie mode or generator step. */
 export const demoId = 'stacked';
 
 /** Element carrying an `aria-label` from demoText — the demos' control selector. */
@@ -46,15 +32,7 @@ export function byAria(scope: Page | Locator, ariaLabel: string): Locator {
   return scope.locator('[aria-label=' + JSON.stringify(ariaLabel) + ']');
 }
 
-/**
- * Element carrying a `title` from demoText.
- *
- * Used for the mode switcher's segments, which have no `aria-label` — their
- * accessible name is their visible text. A `getByRole` name match would be
- * wrong here anyway: Playwright's role engine skips elements the accessibility
- * tree hides, and a control folded into a closed (`display: none`) overflow
- * panel is exactly what these counts have to see.
- */
+/** Element carrying a `title` from demoText — a role query would skip controls hidden in a closed overflow panel. */
 export function byTitle(scope: Page | Locator, title: string): Locator {
   return scope.locator('[title=' + JSON.stringify(title) + ']');
 }
@@ -69,17 +47,7 @@ export function tabPanel(page: Page, name: DemoTabName): Locator {
   return page.locator('#' + demoTabPanelId(name));
 }
 
-/**
- * Press `control` until `attribute` reads `value` — the state the press is for.
- *
- * The retry is not decoration. Under a loaded machine a press landing in the
- * first moments after a view's initial render is occasionally lost: the element
- * is where Playwright measured it and the hit test resolves to it, but no
- * `click` event arrives (the demos' bars re-home their contents by moving the
- * very nodes involved, and a target detached between mousedown and mouseup fires
- * no click). Asserting the resulting state and pressing again is what a user
- * does, and it keeps the assertion strict instead of sleeping.
- */
+/** Press `control` until `attribute` reads `value` — a press right after render can be lost when the demos re-home nodes, so assert the state and retry. */
 export async function pressUntil(control: Locator, attribute: string, value: string): Promise<void> {
   await expect(async () => {
     await control.click();
@@ -98,28 +66,13 @@ export async function openDemo(page: Page, mode: 'single' | 'multi', id = demoId
   await expect(page.locator(chartClass(mochartCssClasses.series)).first()).toBeAttached();
 }
 
-/**
- * Follow a copied share link.
- *
- * The blank page in between is load-bearing: the copied link differs from the
- * page it was copied on only by the hash, and Playwright's `goto` treats that as
- * a same-document navigation — nothing would reload and no share state would be
- * consumed. A fresh document is also what pasting the link somewhere actually
- * does.
- */
+/** Follow a copied share link via about:blank, so the hash-only change loads a fresh document instead of navigating same-document. */
 export async function followShareLink(page: Page, link: string): Promise<void> {
   await page.goto('about:blank');
   await page.goto(link);
 }
 
-/**
- * Let the page read what it wrote to the clipboard.
- *
- * `navigator.clipboard.writeText` (what the demos' share copier calls) needs no
- * grant on a secure origin, but `readText` does — Chromium refuses it outright
- * without `clipboard-read`. Granting both keeps the copy path under test the
- * real one rather than a stub.
- */
+/** Grant clipboard permissions so the test can read back what the copier wrote — Chromium refuses `readText` without `clipboard-read`. */
 export async function grantClipboard(page: Page): Promise<void> {
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], {
     origin: new URL(page.url()).origin
@@ -139,8 +92,7 @@ export async function openExportShareMenu(scope: Page | Locator): Promise<void> 
 export async function copyShareLink(page: Page, scope: Page | Locator = page): Promise<string> {
   await grantClipboard(page);
   await openExportShareMenu(scope);
-  // No assertion on the confirmation label: pressing Share closes the menu, so
-  // the copied label swap happens in a hidden panel (DEMO-23).
+  // No assertion on the confirmation label: pressing Share closes the menu, so the label swap happens hidden.
   await byAria(scope, demoText.shareButton.aria).click();
   // The copier writes the clipboard from a promise callback, so the read polls.
   let link = '';

@@ -2,14 +2,7 @@ import { demoText, expect, openDemo, selectTab, tabPanel, test } from './helpers
 import type { Locator, Page } from '@playwright/test';
 import type { DemoTabName } from '@mochart/demo-common';
 
-// The @mochart/editor JSON tabs in situ. The editor is a lazily imported chunk,
-// so every wait here is a web-first assertion on something the editor itself
-// produces — never a fixed timeout.
-//
-// `[data-validity]` is the editor's own root attribute, and it is exactly the
-// right thing to wait on: it is 'pending' until the chunk has loaded AND the
-// linter has run, then 'valid' or 'invalid'. Selecting on it also avoids naming
-// a css class.
+// The @mochart/editor JSON tabs in situ: every wait is on the editor's own `[data-validity]` root attribute, which is 'pending' until the lazy chunk has loaded and the linter has run.
 
 /** The editor's text surface: CodeMirror's content element, named by the demo. */
 function editorTextbox(panel: Locator, ariaLabel: string): Locator {
