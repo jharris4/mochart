@@ -48,14 +48,14 @@ export type ConfigTextToggle =
   { demoConfig: null; text: null; error: string };
 
 export type ConfigTextParse =
-  { config: DemoConfig; error: null } |
-  { config: null; error: string };
+  { config: DemoConfig; build: MochartDemoConfig; error: null } |
+  { config: null; build: null; error: string };
 
 /** Parse editor text and check it builds: JSON syntax alone leaves a config the chart cannot render. */
 export function parseConfigFromText(configText: string): ConfigTextParse {
   const parsed = parseConfig(configText);
   if (parsed === null) {
-    return { config: null, error: demoText.errors.invalidJson };
+    return { config: null, build: null, error: demoText.errors.invalidJson };
   }
   const build = buildMochartDemoConfig(parsed);
   if (!build.configValidation.valid) {
@@ -66,9 +66,9 @@ export function parseConfigFromText(configText: string): ConfigTextParse {
     if (warnings.length > 0) {
       console.warn('warnings: ', warnings);
     }
-    return { config: null, error: demoText.errors.invalidChartConfig };
+    return { config: null, build: null, error: demoText.errors.invalidChartConfig };
   }
-  return { config: parsed, error: null };
+  return { config: parsed, build, error: null };
 }
 
 /**
@@ -77,11 +77,11 @@ export function parseConfigFromText(configText: string): ConfigTextParse {
  * toggle instead of being overwritten from the last built snapshot.
  */
 export function toggleConfigFromText(configText: string, showDefaults: boolean, transform: (current: DemoConfigView) => DemoConfigView): ConfigTextToggle {
-  const { config, error } = parseConfigFromText(configText);
-  if (config === null) {
+  const { build, error } = parseConfigFromText(configText);
+  if (build === null) {
     return { demoConfig: null, text: null, error };
   }
-  const demoConfig = transform(copyDemoConfig(buildMochartDemoConfig(config)));
+  const demoConfig = transform(copyDemoConfig(build));
   return { demoConfig, text: formatMochartDemoConfig(demoConfig, showDefaults), error: null };
 }
 
