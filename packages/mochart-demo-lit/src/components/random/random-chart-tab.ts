@@ -19,8 +19,6 @@ import type { DemoDataProvider, RandomConfigWithValid } from '../../types';
 
 const defaultRate = 2000;
 
-/** The strip sits at the bottom of the pane, so its menu opens upward. */
-
 const panelAttrs = getDemoTabPanelAttrs('chart');
 
 @customElement('random-chart-tab')

@@ -14,8 +14,6 @@ import '../misc/overflow-menu';
 
 import type { DemoConfig, MochartDemoConfig } from '../../types';
 
-/** The footer sits at the bottom of the pane, so its menu opens upward. */
-
 const panelAttrs = getDemoTabPanelAttrs('config');
 
 @customElement('config-tab')
