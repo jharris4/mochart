@@ -112,17 +112,129 @@ describe('tooltip background style', () => {
  */
 import type * as core from '../../src';
 
-// one line per file, so restoring a wildcard makes the directive unused and fails the typecheck
-// @ts-expect-error types/geometry.ts internals
-export type GeometryInternals = [core.TextBounds];
-// @ts-expect-error types/chart.ts internals
-export type ChartInternals = [core.ChartDomAccessors];
-// @ts-expect-error types/data.ts internals
-export type DataInternals = [core.StackData, core.AxisValue, core.TickLabel, core.TickLabelFormatter, core.AxisScale, core.AxisTick, core.CategorySpacingInfo, core.CategoryAxisData, core.SeriesPosition, core.SeriesPositionAccessor, core.SeriesPositionData, core.ValueAxisData, core.AxisData, core.ClippedEdges, core.CategoryValueObject];
-// @ts-expect-error types/animation.ts internals
-export type AnimationInternals = [core.ArrayFocusDeltaData, core.MapFocusDeltaData, core.FocusAnimationData, core.NumericDomain, core.DateDomain, core.AxisDomain, core.AnimationChartData, core.DomainDelta, core.DomainDeltaMap, core.SeriesDomainDelta, core.SeriesDomainDeltaMap, core.NumericValuesDelta, core.SeriesValueDelta, core.SeriesValueDeltaMap, core.NumericArrayDelta, core.CompleteNumericArrayDelta, core.AxisDeltaData, core.EmptyAxisDeltaData, core.AxisTransitionData, core.ValueChangeData, core.ChartAnimationData, core.CategoryMergedValuesData, core.CategoryMergedIndicesData, core.OuterChangeCounts, core.CategoryDeltaData];
-// @ts-expect-error types/layout.ts internals
-export type LayoutInternals = [core.SpacingBoundsInput, core.SpacingLayoutInfo, core.LayoutInfo, core.BeforeAfter, core.AxisTickInfo, core.AxisTickInfos, core.AxisLayoutInfo, core.CategoryAxisLayoutInfo, core.TitleLayoutResult, core.LegendLayoutResult, core.PlotLayoutResult, core.ChartLayoutInfo, core.ChartTextBoundsData, core.ChartDataForLayout];
+// one directive per type, so re-exporting any single internal makes it unused and fails the typecheck
+export type GeometryInternals = [
+  // @ts-expect-error types/geometry.ts internal
+  core.TextBounds
+];
+export type ChartInternals = [
+  // @ts-expect-error types/chart.ts internal
+  core.ChartDomAccessors
+];
+export type DataInternals = [
+  // @ts-expect-error types/data.ts internal
+  core.StackData,
+  // @ts-expect-error types/data.ts internal
+  core.AxisValue,
+  // @ts-expect-error types/data.ts internal
+  core.TickLabel,
+  // @ts-expect-error types/data.ts internal
+  core.TickLabelFormatter,
+  // @ts-expect-error types/data.ts internal
+  core.AxisScale,
+  // @ts-expect-error types/data.ts internal
+  core.AxisTick,
+  // @ts-expect-error types/data.ts internal
+  core.CategorySpacingInfo,
+  // @ts-expect-error types/data.ts internal
+  core.CategoryAxisData,
+  // @ts-expect-error types/data.ts internal
+  core.SeriesPosition,
+  // @ts-expect-error types/data.ts internal
+  core.SeriesPositionAccessor,
+  // @ts-expect-error types/data.ts internal
+  core.SeriesPositionData,
+  // @ts-expect-error types/data.ts internal
+  core.ValueAxisData,
+  // @ts-expect-error types/data.ts internal
+  core.AxisData,
+  // @ts-expect-error types/data.ts internal
+  core.ClippedEdges,
+  // @ts-expect-error types/data.ts internal
+  core.CategoryValueObject
+];
+export type AnimationInternals = [
+  // @ts-expect-error types/animation.ts internal
+  core.ArrayFocusDeltaData,
+  // @ts-expect-error types/animation.ts internal
+  core.MapFocusDeltaData,
+  // @ts-expect-error types/animation.ts internal
+  core.FocusAnimationData,
+  // @ts-expect-error types/animation.ts internal
+  core.NumericDomain,
+  // @ts-expect-error types/animation.ts internal
+  core.DateDomain,
+  // @ts-expect-error types/animation.ts internal
+  core.AxisDomain,
+  // @ts-expect-error types/animation.ts internal
+  core.AnimationChartData,
+  // @ts-expect-error types/animation.ts internal
+  core.DomainDelta,
+  // @ts-expect-error types/animation.ts internal
+  core.DomainDeltaMap,
+  // @ts-expect-error types/animation.ts internal
+  core.SeriesDomainDelta,
+  // @ts-expect-error types/animation.ts internal
+  core.SeriesDomainDeltaMap,
+  // @ts-expect-error types/animation.ts internal
+  core.NumericValuesDelta,
+  // @ts-expect-error types/animation.ts internal
+  core.SeriesValueDelta,
+  // @ts-expect-error types/animation.ts internal
+  core.SeriesValueDeltaMap,
+  // @ts-expect-error types/animation.ts internal
+  core.NumericArrayDelta,
+  // @ts-expect-error types/animation.ts internal
+  core.CompleteNumericArrayDelta,
+  // @ts-expect-error types/animation.ts internal
+  core.AxisDeltaData,
+  // @ts-expect-error types/animation.ts internal
+  core.EmptyAxisDeltaData,
+  // @ts-expect-error types/animation.ts internal
+  core.AxisTransitionData,
+  // @ts-expect-error types/animation.ts internal
+  core.ValueChangeData,
+  // @ts-expect-error types/animation.ts internal
+  core.ChartAnimationData,
+  // @ts-expect-error types/animation.ts internal
+  core.CategoryMergedValuesData,
+  // @ts-expect-error types/animation.ts internal
+  core.CategoryMergedIndicesData,
+  // @ts-expect-error types/animation.ts internal
+  core.OuterChangeCounts,
+  // @ts-expect-error types/animation.ts internal
+  core.CategoryDeltaData
+];
+export type LayoutInternals = [
+  // @ts-expect-error types/layout.ts internal
+  core.SpacingBoundsInput,
+  // @ts-expect-error types/layout.ts internal
+  core.SpacingLayoutInfo,
+  // @ts-expect-error types/layout.ts internal
+  core.LayoutInfo,
+  // @ts-expect-error types/layout.ts internal
+  core.BeforeAfter,
+  // @ts-expect-error types/layout.ts internal
+  core.AxisTickInfo,
+  // @ts-expect-error types/layout.ts internal
+  core.AxisTickInfos,
+  // @ts-expect-error types/layout.ts internal
+  core.AxisLayoutInfo,
+  // @ts-expect-error types/layout.ts internal
+  core.CategoryAxisLayoutInfo,
+  // @ts-expect-error types/layout.ts internal
+  core.TitleLayoutResult,
+  // @ts-expect-error types/layout.ts internal
+  core.LegendLayoutResult,
+  // @ts-expect-error types/layout.ts internal
+  core.PlotLayoutResult,
+  // @ts-expect-error types/layout.ts internal
+  core.ChartLayoutInfo,
+  // @ts-expect-error types/layout.ts internal
+  core.ChartTextBoundsData,
+  // @ts-expect-error types/layout.ts internal
+  core.ChartDataForLayout
+];
 
 // the kept surface, named the way a host implementing the two extension points has to name it
 const rows: readonly core.DataRow[] = [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }];
