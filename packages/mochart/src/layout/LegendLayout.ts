@@ -71,7 +71,8 @@ export function getLegendHeight(mochartConfig: EnhancedMochartConfig, chartTextB
     let maxY = y;
     let textWidth: number, itemWidth: number;
     for (const itemTextBounds of legendItemTextRawBounds) {
-      textWidth = Math.min(itemTextBounds.width, itemTextMaxWidth);
+      // same clamp as getLegendLayoutInfo, so both passes wrap identically
+      textWidth = Math.max(0, Math.min(itemTextBounds.width, itemTextMaxWidth));
       itemWidth = Math.max(textWidth + iconWidth + itemSpacingWidth, itemMinWidth);
       if (x !== legendMinSpacingX && (x + itemWidth) > legendMaxSpacingX) {
         x = legendMinSpacingX;
