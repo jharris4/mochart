@@ -41,7 +41,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "deadcode": "knip",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "tsc -p scripts && npm run typecheck --workspaces --if-present"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
