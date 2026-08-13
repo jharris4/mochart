@@ -243,29 +243,41 @@ describe('fontFaceCss', () => {
   });
 });
 
+// jsdom has no object-url implementation, so install fresh mocks and remove them again on restore
+function stubObjectUrls() {
+  const statics = URL as unknown as { createObjectURL?: unknown; revokeObjectURL?: unknown };
+  const createObjectURL = vi.fn(() => 'blob:mock');
+  statics.createObjectURL = createObjectURL;
+  statics.revokeObjectURL = vi.fn();
+  return {
+    createObjectURL,
+    restore() {
+      delete statics.createObjectURL;
+      delete statics.revokeObjectURL;
+    }
+  };
+}
+
 describe('exportSVG', () => {
   it('downloads a file named from the chart title', () => {
-    const createObjectURL = vi.fn(() => 'blob:mock');
-    const revokeObjectURL = vi.fn();
-    (URL as any).createObjectURL = createObjectURL;
-    (URL as any).revokeObjectURL = revokeObjectURL;
+    const urls = stubObjectUrls();
     let clickedDownload = '';
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
       clickedDownload = this.download;
     });
     try {
       expect(exportSVG(container)).toBe(true);
-      expect(createObjectURL).toHaveBeenCalledTimes(1);
+      expect(urls.createObjectURL).toHaveBeenCalledTimes(1);
       expect(clickedDownload).toBe('Test_Chart.svg');
     }
     finally {
       click.mockRestore();
+      urls.restore();
     }
   });
 
   it('applies filenamePrefix and filename overrides', () => {
-    (URL as any).createObjectURL = vi.fn(() => 'blob:mock');
-    (URL as any).revokeObjectURL = vi.fn();
+    const urls = stubObjectUrls();
     const downloads: string[] = [];
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
       downloads.push(this.download);
@@ -277,6 +289,7 @@ describe('exportSVG', () => {
     }
     finally {
       click.mockRestore();
+      urls.restore();
     }
   });
 
@@ -442,8 +455,7 @@ describe('stitching several charts', () => {
   });
 
   it('exportChartsSVG downloads a file named from the first chart found', () => {
-    (URL as any).createObjectURL = vi.fn(() => 'blob:mock');
-    (URL as any).revokeObjectURL = vi.fn();
+    const urls = stubObjectUrls();
     const downloads: string[] = [];
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
       downloads.push(this.download);
@@ -455,6 +467,7 @@ describe('stitching several charts', () => {
     }
     finally {
       click.mockRestore();
+      urls.restore();
     }
   });
 
@@ -500,13 +513,10 @@ describe('png export success paths', () => {
       .mockImplementation(function (this: HTMLAnchorElement) {
         downloads.push({ href: this.href, download: this.download });
       });
-    if (typeof URL.createObjectURL !== 'function') {
-      (URL as unknown as { createObjectURL: unknown }).createObjectURL = () => 'blob:fake';
-      (URL as unknown as { revokeObjectURL: unknown }).revokeObjectURL = () => {};
-    }
+    const urls = stubObjectUrls();
 
     restore = [() => getContext.mockRestore(), () => toBlob.mockRestore(), () => click.mockRestore(),
-      () => { (globalThis as unknown as { Image: unknown }).Image = OriginalImage; }];
+      () => urls.restore(), () => { (globalThis as unknown as { Image: unknown }).Image = OriginalImage; }];
   });
 
   afterEach(() => {
