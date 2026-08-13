@@ -129,7 +129,8 @@ export default class ClipIndicator extends Renderer<ClipIndicatorProps, ClipIndi
     this.root.append(this.pattern);
     this.pattern.set({ id: patternUniqueId, width: hatch.spacing, height: hatch.spacing,
       patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' });
-    this.patternLine.set({ x1: 0, y1: 0, x2: 0, y2: hatch.spacing,
+    // centered in the tile: a line along x=0 loses its negative half to the tile clip
+    this.patternLine.set({ x1: hatch.spacing / 2, y1: 0, x2: hatch.spacing / 2, y2: hatch.spacing,
       stroke: fill ?? null, strokeWidth: hatch.width });
     return 'url(#' + patternUniqueId + ')';
   }
