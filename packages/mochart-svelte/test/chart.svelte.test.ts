@@ -279,8 +279,7 @@ describe('removed props', () => {
   });
 });
 
-// BIND-5: clearing the prop left the mounted instance alive in its detached
-// container, so its onDestroy, effects and subscriptions never ran down.
+// Regression: clearing the prop left the mounted instance alive in its detached container, so its onDestroy never ran.
 describe('removed placeholder components', () => {
   it('destroys the placeholder instance when the component is cleared', () => {
     const el = target();
@@ -354,13 +353,7 @@ describe('refresh', () => {
   });
 });
 
-/**
- * TEST-2: nothing in any binding test asserted that an interaction callback reaches the chart.
- * These maps are string-to-string plumbing — a typo or a dropped row compiles, typechecks, lints
- * and ships, and the callback simply never fires for that framework. Core also switches
- * behaviour on callback *presence* (a clickable title becomes a tab stop), so a dropped row
- * changes rendering too.
- */
+// The callback maps are string-to-string plumbing — a dropped or misspelled row ships and the callback never fires — and core switches behaviour on callback presence, so every row gets a delivery case.
 describe('interaction callbacks', () => {
   async function mountCallbacks(callbacks: Record<string, unknown>, config = rawConfig()) {
     const el = target();

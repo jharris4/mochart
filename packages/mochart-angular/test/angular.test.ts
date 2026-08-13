@@ -321,8 +321,7 @@ describe('removed placeholder components', () => {
     expect(el.querySelector('.mochart-loading')).not.toBeNull();
   });
 
-  // BIND-5: clearing the input left the created component alive in its detached
-  // container, so its ngOnDestroy, timers and subscriptions never ran.
+  // Regression: clearing the input left the created component alive in its detached container, so its ngOnDestroy never ran.
   it('destroys the placeholder component when the input is cleared', () => {
     const before = TrackedLoading.destroyed;
     const fixture = createWith(Chart, {
@@ -426,12 +425,7 @@ describe('refresh', () => {
   });
 });
 
-/**
- * TEST-2: only `chartClick` was ever verified; the other nine entries of the emitter -> core-name
- * table in base-chart.ts were unchecked. That table is string-to-string plumbing — a typo or a
- * dropped row compiles, typechecks, lints and ships, and the output simply never fires. It is
- * iterated here so a new row cannot be added without a case.
- */
+// The emitter -> core-name table in base-chart.ts is string-to-string plumbing — a dropped or misspelled row ships and the output never fires — so every row is iterated here.
 describe('interaction callbacks', () => {
   const OUTPUTS = [
     'chartClick', 'sliceClick', 'seriesClick', 'chartMouseEnter', 'chartMouseMove',

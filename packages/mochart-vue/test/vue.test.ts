@@ -257,8 +257,7 @@ describe('removed placeholder components', () => {
     el.remove();
   });
 
-  // BIND-5: clearing the prop left the mounted instance alive in its detached
-  // container, so its hooks, timers and watchers kept running.
+  // Regression: clearing the prop left the mounted instance alive in its detached container, so its hooks kept running.
   it('unmounts the placeholder instance when the component is cleared', async () => {
     let unmounted = 0;
     const Loading = markRaw(
@@ -338,8 +337,7 @@ describe('dataTestId', () => {
 });
 
 describe('refresh', () => {
-  // BIND-1: SetupContext.expose does not reach the instance type, so a template ref typed the
-  // way a TS host actually writes it used to have no `refresh` at all. Typechecked, not run.
+  // Regression: SetupContext.expose does not reach the instance type, so an InstanceType-typed template ref used to have no refresh at all.
   it('is on the inferred instance type of both components', async () => {
     const el = document.createElement('div');
     document.body.appendChild(el);
@@ -373,13 +371,7 @@ describe('refresh', () => {
   });
 });
 
-/**
- * TEST-2: nothing in any binding test asserted that an interaction callback reaches the chart.
- * These maps are string-to-string plumbing — a typo or a dropped row compiles, typechecks, lints
- * and ships, and the callback simply never fires for that framework. Core also switches
- * behaviour on callback *presence* (a clickable title becomes a tab stop), so a dropped row
- * changes rendering too.
- */
+// The callback maps are string-to-string plumbing — a dropped or misspelled row ships and the callback never fires — and core switches behaviour on callback presence, so every row gets a delivery case.
 describe('interaction callbacks', () => {
   function mountCallbacks(callbacks: Record<string, any>, config = rawConfig()) {
     return mountWith(DefaultChart, { config, data: rows, width: 400, height: 300, ...callbacks });

@@ -429,13 +429,7 @@ describe('refresh', () => {
   });
 });
 
-/**
- * TEST-2: nothing in any binding test asserted that an interaction callback reaches the chart.
- * These maps are string-to-string plumbing — a typo ('onTitleClicked') or a dropped row
- * compiles, typechecks, lints and ships, and the callback simply never fires for that framework.
- * Core also switches behaviour on callback *presence* (a clickable title becomes a tab stop), so
- * a dropped row changes rendering too.
- */
+// The callback maps are string-to-string plumbing — a dropped or misspelled row ships and the callback never fires — and core switches behaviour on callback presence, so every row gets a delivery case.
 describe('interaction callbacks', () => {
   function mountWithCallbacks(callbacks: Record<string, unknown>, config = rawConfig()) {
     const { container, root } = host();

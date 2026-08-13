@@ -265,8 +265,7 @@ describe('defaultChart', () => {
   });
 });
 
-// BIND-5: clearing the prop left the rendered template alive in its detached
-// container, so its directives were never disconnected and kept their work running.
+// Regression: clearing the prop left the rendered template alive in its detached container, so its directives were never disconnected.
 describe('removed placeholder templates', () => {
   it('clears the placeholder template when the prop is removed', async () => {
     const log = { disconnected: 0 };
@@ -333,13 +332,7 @@ describe('refresh', () => {
   });
 });
 
-/**
- * TEST-2: nothing in any binding test asserted that an interaction callback reaches the chart.
- * These maps are string-to-string plumbing — a typo or a dropped row compiles, typechecks, lints
- * and ships, and the callback simply never fires for that framework. Core also switches
- * behaviour on callback *presence* (a clickable title becomes a tab stop), so a dropped row
- * changes rendering too.
- */
+// The callback maps are string-to-string plumbing — a dropped or misspelled row ships and the callback never fires — and core switches behaviour on callback presence, so every row gets a delivery case.
 describe('interaction callbacks', () => {
   async function mountCallbacks(callbacks: Record<string, unknown>, config = rawConfig()) {
     const el = mountPoint();
