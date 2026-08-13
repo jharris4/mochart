@@ -3,7 +3,7 @@ import { json } from '@codemirror/lang-json';
 import { EditorState } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMochartConfigSupport, mochartSupportTesting } from '../src/mochartSupport';
+import { createMochartConfigSupport, mochartConfigEditorModel, mochartSupportTesting } from '../src/mochartSupport';
 
 const views: EditorView[] = [];
 
@@ -247,9 +247,20 @@ describe('config model / core version skew', () => {
   });
 
   it('checks the shipped model against the installed core when support is created', () => {
-    const support = createMochartConfigSupport();
+    // the regenerated model always matches the installed core, so skew it to prove the wiring
+    const shipped = mochartConfigEditorModel.coreVersion;
+    const [major = '', minor = ''] = shipped.split('.');
+    const skewed = `${major}.${Number(minor) + 1}.0`;
+    mochartConfigEditorModel.coreVersion = skewed;
+    try {
+      const support = createMochartConfigSupport();
 
-    expect(support.name).toBe('mochart-config');
-    expect(warn).not.toHaveBeenCalled();
+      expect(support.name).toBe('mochart-config');
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(String(warn.mock.calls[0]?.[0])).toContain(`generated from @mochart/core ${skewed}`);
+    }
+    finally {
+      mochartConfigEditorModel.coreVersion = shipped;
+    }
   });
 });
