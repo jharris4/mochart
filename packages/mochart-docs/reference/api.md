@@ -168,7 +168,7 @@ yours. Each links to a recipe with a live example.
 ```ts
 createHistogram(values, options?)   // → { bins, data, categoryAxis, seriesConfig }
 createWaterfall(items, options?)    // → { steps, data, categoryAxis, series }
-createHeatmap(rows, options?)       // → { domain, colorScale, data, categoryAxis, valueAxisConfig, series }
+createHeatmap(rows, options?)       // → { domain, colorScale, data, categoryAxis, valueAxes, series }
 createCandlestick(items, options?)  // → { candles, data, categoryAxis, series, valueAxes? }
 createOhlc(items, options?)         // → { candles, data, categoryAxis, series, valueAxes? }
 createPie(items, options?)          // → { total, fractions, data, chart, pie, categoryAxis, series }
