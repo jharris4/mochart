@@ -1,9 +1,4 @@
-/**
- * DATA-2 regression: the stacking accumulators treated only `undefined` as missing.
- * `NaN >= 0` is false, so a NaN fell into the negative branch and was *added* into
- * `negativeStackValues[i]`, poisoning the running total for every later series in that
- * stack at that category — their stacked values and the axis domain both went NaN.
- */
+// the stacking accumulators treated only `undefined` as missing; `NaN >= 0` is false, so a NaN was *added* into the negative running total, sending every later series' stacked values and the axis domain NaN at that category
 import { describe, it, expect } from 'vitest';
 import { getChartData } from '../../src/data/ChartData';
 import { makeConfig, ArrayOfObjectsDataProvider } from './fixtures';

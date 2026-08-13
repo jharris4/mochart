@@ -491,8 +491,7 @@ describe('config updates on a mounted chart', () => {
     expect(normalizeHtml(container.innerHTML)).toBe(appliedHtml);
     await expectSnapshot(container, demo.id, 'config-animate-off');
 
-    // animate back on with unchanged data settles to the same DOM, style attributes included:
-    // B12 made an emptied style remove its attribute, so neither path leaves style="" behind
+    // animate back on with unchanged data settles to the same DOM, style attributes included — an emptied style removes its attribute, so neither path leaves style="" behind
     chart.update({ mochartConfig: animatedConfig });
     runFrames();
     expect(normalizeHtml(container.innerHTML)).toBe(appliedHtml);

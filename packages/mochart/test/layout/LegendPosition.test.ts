@@ -1,9 +1,4 @@
-/**
- * legend.position: the legend can sit above the plot instead of below it, which
- * moves the plot down by the legend's height and reorders the title, legend and
- * plot bands. Both branches of the legend arithmetic in ChartLayout were dead —
- * no test or demo config had ever put a legend at the top.
- */
+// legend.position can put the legend above the plot, moving the plot down by the legend's height and reordering the title/legend/plot bands; both branches of that ChartLayout arithmetic were dead — nothing had ever put a legend at the top
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from '../components/svgShims';
 import { createDefaultChart } from '../../src/createChart';

@@ -131,8 +131,7 @@ describe('truncateSVGText', () => {
     expect(out).toEqual({ text: 'Hello', truncatedText: 'He', lastText: 'He' });
   });
 
-  // API-7: slicing by UTF-16 code unit cut astral characters in half and emitted a lone surrogate,
-  // which renders as U+FFFD. Every cut lands on a user-perceived character boundary instead.
+  // slicing by UTF-16 code unit cut astral characters in half and emitted a lone surrogate, which renders as U+FFFD; every cut lands on a user-perceived character boundary instead
   describe('multi-code-unit characters', () => {
     // a high surrogate not followed by a low one, or a low one not preceded by a high one
     const loneSurrogate = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;

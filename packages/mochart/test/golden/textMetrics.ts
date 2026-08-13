@@ -1,35 +1,4 @@
-/**
- * Deterministic text metrics for the golden suite.
- *
- * jsdom has no layout or font engine: `getComputedTextLength()` and `getBBox()`
- * do not exist, and `getComputedStyle().fontSize` resolves to the keyword
- * `medium`. Stubbing those with zeros (what the suite used to do) makes every
- * measured text element fall into the library's `defaultBounds` fallback, so
- * every truncation, tick-pruning and layout-fitting decision in the goldens is
- * taken against 20x20 placeholder text — the truncation demo produced no
- * ellipsis at all.
- *
- * Instead of zeros, this module models one synthetic proportional font:
- *
- *   - a fixed em box of EM_PX pixels for every text element (no CSS is loaded
- *     in jsdom, so the DOM carries no per-element font size to honour);
- *   - a per-character advance table in fractions of the em, grouped the way a
- *     Helvetica/Arial-class face is proportioned (narrow `il.`, wide `MW`, …);
- *   - a text width that is the sum of its characters' advances, counted in
- *     code points so a surrogate pair measures once;
- *   - a text height of the em box times LINE_HEIGHT_FRACTION, matching the
- *     1.15-1.25em the library documents real browsers report.
- *
- * The model is a pure function of the string's code points and two constants,
- * so it is identical on every machine, Node version and installed font set —
- * which is what checked-in snapshots require. It is deliberately *not* an
- * attempt to reproduce any real font's metrics; it only has to be proportional,
- * non-zero and stable so the measured code paths actually run.
- *
- * Box layout stays unmodelled: `getBoundingClientRect` is still jsdom's 0x0, so
- * the legend container keeps the library's default-bounds marker (its layout
- * uses the per-item text bounds, which are measured here).
- */
+// A synthetic proportional font for the golden suite: jsdom has no font engine, and the old zero stubs made every measurement fall to the 20x20 defaultBounds fallback, so truncation, tick pruning and layout fitting never ran; widths are per-code-point advance fractions of a fixed em — a pure function of the string, identical on every machine, deliberately not any real font
 
 /** Nominal font size, in pixels, for every text element the chart renders. */
 export const EM_PX = 16;

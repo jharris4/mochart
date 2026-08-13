@@ -105,7 +105,7 @@ describe('createOhlc', () => {
     expect(seriesConfigs).toHaveLength(6);
   });
 
-  // HELP-2: createOhlc shares computeCandlesticks, so it inherits the guard
+  // createOhlc shares computeCandlesticks, so it inherits the guard
   it('throws when two bars share a label', () => {
     expect(() => createOhlc([
       { label: 'Mon', open: 1, high: 3, low: 0, close: 2 },

@@ -1,10 +1,4 @@
-/**
- * ANIM-1 part 3: which plot edges have data hidden behind them, for the clip indicator.
- *
- * The result is keyed to *screen* edges rather than axis ends, so two axes clipping the same end
- * collapse to one flag — the band is one piece of geometry per edge. `reversed` and
- * `plot.inverted` each move which edge an exceeded end lands on, and they compose.
- */
+// getClippedEdges reports which *screen* edges have data hidden behind them (not axis ends), so two axes clipping the same end collapse to one flag; `reversed` and `plot.inverted` each move which edge an exceeded end lands on, and they compose
 import { describe, it, expect } from 'vitest';
 import { getClippedEdges, hasClippedEdge, noClippedEdges } from '../../src/data/ClipData';
 import { getChartData } from '../../src/data/ChartData';

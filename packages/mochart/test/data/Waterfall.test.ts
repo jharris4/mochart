@@ -138,7 +138,7 @@ describe('createWaterfall', () => {
     expect(seriesConfigs).toHaveLength(3);
   });
 
-  // HELP-2: duplicates used to reach getDataErrors, which blanks the whole chart
+  // duplicates used to reach getDataErrors, which blanks the whole chart
   it('throws when two steps share a label', () => {
     expect(() => createWaterfall([
       { label: 'Start', total: true, value: 100 },

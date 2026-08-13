@@ -1,8 +1,4 @@
-/**
- * A chart smaller than its own spacing used to emit rects with negative width or height.
- * Browsers drop those elements, so host-styled backgrounds vanished silently, and strict
- * SVG-to-PNG converters reject the document outright.
- */
+// a chart smaller than its own spacing used to emit rects with negative width or height, which browsers drop silently (vanishing host-styled backgrounds) and strict SVG-to-PNG converters reject outright
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from '../components/svgShims';
 import { createDefaultChart } from '../../src/createChart';
@@ -54,8 +50,7 @@ describe('charts smaller than their own spacing', () => {
     expect(negativeRects(config({ title: { text: 'T' }, legend: { visible: true } }), 20, 20)).toEqual([]);
   });
 
-  // COMP-7: legend.iconSize and legend.iconBorderSize validate independently, so a border wider
-  // than the icon put a negative width on the icon rect and the browser dropped it.
+  // legend.iconSize and legend.iconBorderSize validate independently, so a border wider than the icon put a negative width on the icon rect and the browser dropped it
   it('emits no negative rect when the legend icon border exceeds the icon size', () => {
     expect(negativeRects(config({
       legend: { visible: true, iconSize: 4, iconBorderSize: 10, showIconShapes: false }

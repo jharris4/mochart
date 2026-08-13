@@ -24,8 +24,7 @@ describe('cssStyleColor', () => {
     expect(cssStyleColor('rgba(0,0,255,0.4)', 0.5)).toBe('rgba(0, 0, 255, 0.2)');
   });
 
-  // API-8: a keyword d3 cannot parse used to have its opacity silently dropped, so
-  // { fillColor: 'currentColor', fillOpacity: 0.9 } validated and then rendered opaque.
+  // a keyword d3 cannot parse used to have its opacity silently dropped, so { fillColor: 'currentColor', fillOpacity: 0.9 } validated and then rendered opaque
   it('composites an opacity into a keyword color with color-mix', () => {
     expect(cssStyleColor('currentColor', 0.5)).toBe('color-mix(in srgb, currentColor 50%, transparent)');
     expect(cssStyleColor('currentColor', 0.9)).toBe('color-mix(in srgb, currentColor 90%, transparent)');

@@ -1,9 +1,4 @@
-/**
- * One measurement space for text width. TextTruncation fits text with
- * getComputedTextLength(), so every width a layout reserves must come from the same call —
- * getBBox().width is not interchangeable with it (Gecko inflates text boxes by 2px per side,
- * reporting the advance plus 4, which makes Firefox reserve more than it needs).
- */
+// TextTruncation fits text with getComputedTextLength(), so every width a layout reserves must come from the same call — getBBox().width is not interchangeable (Gecko inflates text boxes by 2px per side, making Firefox reserve more than it needs)
 import { describe, it, expect } from 'vitest';
 import { getSvgMaxWidthAndHeight, getSvgWidthAndHeight } from '../../src/utils/TextMeasurement';
 import { truncateSVGText } from '../../src/utils/TextTruncation';

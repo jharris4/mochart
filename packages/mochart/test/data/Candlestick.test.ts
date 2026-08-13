@@ -167,7 +167,7 @@ describe('createCandlestick', () => {
       expect(seriesConfigs.find((seriesConfig) => seriesConfig.id === 'upVolume')!.valueLabel).toBe('Shares');
     });
 
-    // HELP-1: these all used to produce a config the validator rejects, blanking the chart
+    // these all used to produce a config the validator rejects, blanking the chart
     it.each([
       ['heightFraction 1', { heightFraction: 1 }],
       ['heightFraction 0', { heightFraction: 0 }],
@@ -249,7 +249,7 @@ describe('createCandlestick', () => {
     });
   });
 
-  // HELP-2: duplicates used to reach getDataErrors, which blanks the whole chart
+  // duplicates used to reach getDataErrors, which blanks the whole chart
   it('throws when two candles share a label', () => {
     expect(() => createCandlestick([
       { label: 'Mon', open: 1, high: 3, low: 0, close: 2 },
@@ -257,7 +257,7 @@ describe('createCandlestick', () => {
     ])).toThrow(/createCandlestick: labels must be unique, duplicates: Mon/);
   });
 
-  // HELP-3: one bad tick used to blank a whole chart, or half-draw the candle, silently
+  // one bad tick used to blank a whole chart, or half-draw the candle, silently
   it.each([
     ['a NaN high', { label: 'Mon', open: 2, high: NaN, low: 1.5, close: 1.8 }],
     ['a NaN close', { label: 'Mon', open: 5, high: 6, low: 4, close: NaN }],

@@ -7,7 +7,7 @@
  *
  * The bounds are keyed by series id rather than legend position, so that a set
  * measured one frame ago cannot describe a different series after showInLegend
- * flips (see ANIM-7).
+ * flips.
  */
 import { describe, it, expect } from 'vitest';
 import { getLegendItemBoundsList, getLegendItemTextRawBounds, getSvgMaxWidthAndHeight } from '../../src/utils/TextMeasurement';
@@ -70,9 +70,7 @@ describe('getLegendItemBoundsList', () => {
     ]);
   });
 
-  // ANIM-7: measuring runs a frame behind drawing, so after showInLegend flips the stored bounds
-  // describe the old item set. Keyed by id, a series that just joined reads as unmeasured for one
-  // frame instead of borrowing another series' size or running the list short.
+  // measuring runs a frame behind drawing, so after showInLegend flips the stored bounds describe the old item set; keyed by id, a series that just joined reads as unmeasured for one frame instead of borrowing another series' size
   it('falls back to unmeasured for a series that just joined the legend', () => {
     const before = makeConfig([false, true]);
     const measured = getLegendItemTextRawBounds(before, makeDomAccessors([50]));
