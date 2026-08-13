@@ -46,6 +46,20 @@ function tickLabels(container: Element): string[] {
   return [...container.querySelectorAll(getCssSelector('axisTickLabel'))].map(el => el.textContent ?? '');
 }
 
+function categoryTickLabelTexts(container: Element): Element[] {
+  return [...container.querySelectorAll(getDescendantCssSelector('categoryAxis', 'axisTickLabel') + ' text')];
+}
+
+function expectAnchoredAt(container: Element, anchor: string): void {
+  const styles = categoryTickLabelTexts(container).map(el => el.getAttribute('style') ?? '');
+  expect(styles.length).toBeGreaterThan(0);
+  expect(styles.every(style => style.includes(`text-anchor: ${anchor}`))).toBe(true);
+}
+
+function plotClipHeight(container: Element): number {
+  return Number(container.querySelector('clipPath[id^="series__clippath__"] rect')!.getAttribute('height'));
+}
+
 beforeAll(() => {
   installSvgMeasurementShims();
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
@@ -134,12 +148,15 @@ describe('axis visibility and chrome', () => {
 describe('tick label anchoring and rotation', () => {
   for (const tickLabelAnchor of ['start', 'middle', 'end'] as const) {
     it(`anchors category tick labels at ${tickLabelAnchor}`, () => {
-      expect(tickLabels(mount({ ...categoryAxis({ tickLabelAnchor }) })).length).toBeGreaterThan(0);
+      expectAnchoredAt(mount({ ...categoryAxis({ tickLabelAnchor }) }), tickLabelAnchor);
     });
 
     it(`anchors tick labels at ${tickLabelAnchor} on a single-category chart`, () => {
       const container = mount({ ...categoryAxis({ tickLabelAnchor }) }, [rows[0]]);
-      expect(tickLabels(container).length).toBeGreaterThan(0);
+      expectAnchoredAt(container, tickLabelAnchor);
+      const visible = categoryTickLabelTexts(container)
+        .filter(el => !(el.getAttribute('style') ?? '').includes('hidden'));
+      expect(visible.map(el => el.textContent)).toEqual(['Jan']);
     });
 
     it(`anchors tick labels at ${tickLabelAnchor} on a linear axis`, () => {
@@ -147,7 +164,7 @@ describe('tick label anchoring and rotation', () => {
         categoryAxis: { property: 'x', type: 'number', scale: 'linear', tickLabelAnchor },
         series: [{ property: 'sales', renderer: 'line' }]
       }, [{ x: 1, sales: 10 }, { x: 2, sales: 20 }]);
-      expect(tickLabels(container).length).toBeGreaterThan(0);
+      expectAnchoredAt(container, tickLabelAnchor);
     });
   }
 
@@ -164,14 +181,18 @@ describe('tick label anchoring and rotation', () => {
 });
 
 describe('explicit axis sizing', () => {
+  // a measured size would be identical in both mounts, so the plot must shrink by exactly the difference
   it('uses an explicit tickLabelSize instead of measuring', () => {
-    expect(mount({ ...categoryAxis({ tickLabelSize: 40 }) })
-      .querySelector(getCssSelector('categoryAxis'))).not.toBeNull();
+    const at40 = plotClipHeight(mount({ ...categoryAxis({ tickLabelSize: 40 }) }));
+    const at80 = plotClipHeight(mount({ ...categoryAxis({ tickLabelSize: 80 }) }));
+    expect(at40 - at80).toBe(40);
   });
 
   it('uses an explicit titleSize instead of measuring', () => {
-    expect(mount({ ...categoryAxis({ title: 'Month', titleSize: 30 }) })
-      .textContent).toContain('Month');
+    const container = mount({ ...categoryAxis({ title: 'Month', titleSize: 30 }) });
+    expect(container.textContent).toContain('Month');
+    const at60 = plotClipHeight(mount({ ...categoryAxis({ title: 'Month', titleSize: 60 }) }));
+    expect(plotClipHeight(container) - at60).toBe(30);
   });
 
   it('extends the focus range over the title when focusRangeApplyToTitle is set', () => {
