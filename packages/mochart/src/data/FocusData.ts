@@ -13,9 +13,10 @@ function isFocused(value: number | string | null | undefined): value is number |
   return value !== undefined && value !== null && value !== -1;
 }
 
-function getPercentageForDomain(domain: [number, number], value: number, inverted: boolean): number {
+// ascending: whether the axis's pixel position grows with the value along its direction
+function getPercentageForDomain(domain: [number, number], value: number, ascending: boolean): number {
   if (domain[0] === domain[1]) {
-    return inverted ? 0 : 1;
+    return ascending ? 0 : 1;
   }
   if (value >= domain[1]) {
     value = domain[1];
@@ -23,7 +24,7 @@ function getPercentageForDomain(domain: [number, number], value: number, inverte
   else if (value <= domain[0]) {
     value = domain[0];
   }
-  if (inverted) {
+  if (ascending) {
     return (value - domain[0]) / (domain[1] - domain[0]);
   }
   else {
@@ -251,7 +252,9 @@ function getCategoryFocusDomainPercentages(mochartConfig: EnhancedMochartConfig,
       const numericMax = +max;
       const domainExtent = (numericMax === numericMin) ? 1 : (numericMax - numericMin);
 
-      categoryPercentages = [minPercentage + extentPercentage * (value - numericMin) / domainExtent];
+      // a reversed axis flips the scale range, so the fraction mirrors within the category range
+      const domainFraction = (value - numericMin) / domainExtent;
+      categoryPercentages = [minPercentage + extentPercentage * (mochartConfig.categoryAxis.reversed ? 1 - domainFraction : domainFraction)];
     }
   }
   return categoryPercentages;
@@ -260,8 +263,9 @@ function getCategoryFocusDomainPercentages(mochartConfig: EnhancedMochartConfig,
 function getValueAxisFocusDomainPercentages(mochartConfig: EnhancedMochartConfig, seriesData: SeriesData, focusedValueAxisId: string | null): number[] {
   let seriesPercentages: number[] = [];
   if (isFocused(focusedValueAxisId)) {
-    const inverted = mochartConfig.plot.inverted;
     const valueAxisConfig = mochartConfig.valueAxesById[focusedValueAxisId];
+    // reversed flips the scale range, so it flips whether pixel position grows with the value
+    const ascending = mochartConfig.plot.inverted !== valueAxisConfig.reversed;
     const { raw, filtered } = seriesData;
     const { id } = valueAxisConfig;
     const axisDomains = valueAxisConfig.adjustForFiltering ? filtered.renderAxisDomains : raw.renderAxisDomains;
@@ -270,12 +274,12 @@ function getValueAxisFocusDomainPercentages(mochartConfig: EnhancedMochartConfig
       const completeDomain: [number, number] = [axisDomain[0], axisDomain[1]];
       if (axisDomain[0] !== axisDomain[1]) {
         seriesPercentages = [
-          getPercentageForDomain(completeDomain, axisDomain[0], inverted),
-          getPercentageForDomain(completeDomain, axisDomain[1], inverted)
+          getPercentageForDomain(completeDomain, axisDomain[0], ascending),
+          getPercentageForDomain(completeDomain, axisDomain[1], ascending)
         ];
       }
       else {
-        seriesPercentages = [getPercentageForDomain(completeDomain, axisDomain[0], inverted)];
+        seriesPercentages = [getPercentageForDomain(completeDomain, axisDomain[0], ascending)];
       }
     }
   }
@@ -286,12 +290,13 @@ function getSeriesFocusDomainPercentages(mochartConfig: EnhancedMochartConfig, s
   let seriesPercentages: number[] = [];
   if (isFocused(focusedCategoryIndex) || isFocused(focusedSeriesId)) {
     if (isFocused(focusedSeriesId)) {
-      const inverted = mochartConfig.plot.inverted;
       const seriesConfig = mochartConfig.seriesById[focusedSeriesId];
       const { axisBases, raw, filtered } = seriesData;
       const { id } = seriesConfig;
       const axis = seriesConfig.axis!;
       const valueAxisConfig = seriesConfig.valueAxisConfig!;
+      // reversed flips the scale range, so it flips whether pixel position grows with the value
+      const ascending = mochartConfig.plot.inverted !== valueAxisConfig.reversed;
       const axisDomains = valueAxisConfig.adjustForFiltering ? filtered.renderAxisDomains : raw.renderAxisDomains;
       const axisDomain = axisDomains[axis] as [number, number];
       const axisBase = axisBases[axis];
@@ -326,7 +331,7 @@ function getSeriesFocusDomainPercentages(mochartConfig: EnhancedMochartConfig, s
             seriesCategoryValues.push(axisBase);
           }
         }
-        seriesPercentages = seriesCategoryValues.map(value => getPercentageForDomain(axisDomain, value, inverted));
+        seriesPercentages = seriesCategoryValues.map(value => getPercentageForDomain(axisDomain, value, ascending));
       }
       else {
         let seriesFocusDomain: NullableDomain = [null, null];
@@ -353,24 +358,24 @@ function getSeriesFocusDomainPercentages(mochartConfig: EnhancedMochartConfig, s
             if (seriesFocusDomain[0] !== undefined && seriesFocusDomain[1] !== undefined) {
               if (seriesFocusDomain[0] !== seriesFocusDomain[1]) {
                 seriesPercentages = [
-                  getPercentageForDomain(axisDomain, seriesFocusDomain[0], inverted),
-                  getPercentageForDomain(axisDomain, seriesFocusDomain[1]!, inverted)
+                  getPercentageForDomain(axisDomain, seriesFocusDomain[0], ascending),
+                  getPercentageForDomain(axisDomain, seriesFocusDomain[1]!, ascending)
                 ];
               }
               else {
                 seriesPercentages = [
-                  getPercentageForDomain(axisDomain, seriesFocusDomain[0], inverted)
+                  getPercentageForDomain(axisDomain, seriesFocusDomain[0], ascending)
                 ];
               }
             }
             else if (seriesFocusDomain[0] !== undefined) {
               seriesPercentages = [
-                getPercentageForDomain(axisDomain, seriesFocusDomain[0], inverted)
+                getPercentageForDomain(axisDomain, seriesFocusDomain[0], ascending)
               ];
             }
             else {
               seriesPercentages = [
-                getPercentageForDomain(axisDomain, seriesFocusDomain[1]!, inverted)
+                getPercentageForDomain(axisDomain, seriesFocusDomain[1]!, ascending)
               ];
             }
           }

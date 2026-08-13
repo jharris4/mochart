@@ -44,10 +44,9 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
     this.root.set({ className: mochartCssClasses['axisThresholdContainer'],
       ariaHidden: accessibilityActive(mochartConfig.accessibility) ? 'true' : null });
 
-    // The category axis renders ascending in both orientations; a value axis
-    // ascends only when horizontal (inverted charts).
+    // ascending: a category axis renders ascending, a value axis only when horizontal (inverted); reversed flips either
     this.categoryThreshold.set(AxisThreshold, { front, plotConfig, axisConfig: categoryAxisConfig, axisLayoutInfo: categoryAxisLayoutInfo,
-      hidden: false, seriesLayoutInfo, axisDomain: categoryAxisDomain, vertical: inverted, ascending: true,
+      hidden: false, seriesLayoutInfo, axisDomain: categoryAxisDomain, vertical: inverted, ascending: !categoryAxisConfig.reversed,
       axisFocusPercentage: null, seriesFocusPercentage: null, axisThresholdClass: mochartCssClasses['categoryAxisThreshold'] });
 
     this.seriesThresholds.sync(valueAxisConfigs.map((axisConfig: EnhancedValueAxisConfig) => {
@@ -59,7 +58,7 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
         key: 'value-axis-' + id,
         ctor: AxisThreshold,
         props: { front, plotConfig, axisConfig, axisLayoutInfo: valueAxisLayoutInfos[id],
-          hidden: axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: valueAxisDomain, vertical: !inverted, ascending: inverted,
+          hidden: axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: valueAxisDomain, vertical: !inverted, ascending: inverted !== axisConfig.reversed,
           axisFocusPercentage, seriesFocusPercentage, axisThresholdClass: mochartCssClasses['valueAxisThreshold'] + id }
       };
     }));
