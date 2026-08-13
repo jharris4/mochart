@@ -30,7 +30,7 @@ const rows = [
   { month: 'Feb', sales: 20 }
 ];
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
+let handles: (ChartHandle<DefaultChartProps> | ChartHandle<ManagedChartProps>)[] = [];
 
 function mountChart(extra: Partial<DefaultChartProps>): Element {
   const container = document.createElement('div');
@@ -121,7 +121,7 @@ describe('the provider handed to the state factories', () => {
     let seen: unknown = 'NOT CALLED';
     const container = document.createElement('div');
     document.body.appendChild(container);
-    createChart(container, {
+    handles.push(createChart(container, {
       mochartConfig: enhanceConfig(config),
       dataProvider: new CountingProvider(rows, 'month'),
       width: WIDTH,
@@ -131,7 +131,7 @@ describe('the provider handed to the state factories', () => {
         seen = context.dataProvider;
         return 'error';
       }
-    } as unknown as ManagedChartProps);
+    } as unknown as ManagedChartProps));
     return seen;
   }
 
@@ -202,6 +202,7 @@ describe('a mochartConfig arriving after mount', () => {
     const handle = createChart(container, {
       mochartConfig: null, dataProvider: null, width: WIDTH, height: HEIGHT, ...props
     } as unknown as ManagedChartProps);
+    handles.push(handle);
     return { container, handle };
   }
 
