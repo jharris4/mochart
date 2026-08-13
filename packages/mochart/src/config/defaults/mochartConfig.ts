@@ -90,7 +90,7 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
     const { inverted } = plotConfigDefault;
 
     const seriesDefaults = (aConfig: DeepPartial<SeriesConfig>, index: number) =>
-      getSeriesDefaults(aConfig, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId, solePatternConfigId);
+      getSeriesDefaults(aConfig, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId, solePatternConfigId, pieMode);
 
     return {
       accessibility: getAccessibilityDefaults(),

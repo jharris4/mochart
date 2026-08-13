@@ -110,23 +110,46 @@ describe('built-in SVG patterns', () => {
     expect(bars[1].getAttribute('stroke')).not.toBe(bars[0].getAttribute('stroke'));
   });
 
-  it('uses patterns for areas and pie slices but leaves plot markers solid', () => {
+  it('uses patterns for areas but leaves plot markers solid', () => {
     const area = mount(base({
       patterns: [{ type: 'lines' }],
       series: [{ id: 'A', property: 'a', renderer: 'area', markerShape: 'circle' }]
     }));
     expect(area.querySelector(getCssSelector('seriesArea'))!.getAttribute('fill')).toMatch(/^url\(#series__pattern__/);
     expect(area.querySelector(getCssSelector('seriesMarker'))!.getAttribute('fill')).not.toMatch(/^url\(/);
+  });
 
+  it('uses patterns and both gradient types on pie slices with their default line renderer', () => {
     const pie = createPie([{ label: 'A', value: 3 }, { label: 'B', value: 2 }]);
-    const pieConfig = {
+    const common = {
       version: '1.0.0', animation: { animate: false }, chart: pie.chart, pie: pie.pie,
-      categoryAxis: pie.categoryAxis, patterns: [{ type: 'crosshatch' }],
-      series: pie.series.map(series => ({ ...series, renderer: 'bar' as const }))
-    } as MochartInputConfig;
-    const pieContainer = mount(pieConfig, pie.data);
-    expect([...pieContainer.querySelectorAll(getCssSelector('seriesSlice'))]
-      .every(slice => /^url\(#series__pattern__/.test(slice.getAttribute('fill') ?? ''))).toBe(true);
+      categoryAxis: pie.categoryAxis, series: pie.series
+    };
+
+    const patternContainer = mount({ ...common, patterns: [{ type: 'crosshatch' }] }, pie.data);
+    const patternSlices = [...patternContainer.querySelectorAll(getCssSelector('seriesSlice'))];
+    expect(patternSlices).toHaveLength(2);
+    expect(patternSlices.every(slice => /^url\(#series__pattern__/.test(slice.getAttribute('fill') ?? ''))).toBe(true);
+
+    const gradientContainer = mount({ ...common, linearGradients: [{
+      stops: [
+        { offset: 0, color: '#000', opacity: 1 },
+        { offset: 1, color: '#fff', opacity: 1 }
+      ]
+    }] }, pie.data);
+    const gradientSlices = [...gradientContainer.querySelectorAll(getCssSelector('seriesSlice'))];
+    expect(gradientSlices).toHaveLength(2);
+    expect(gradientSlices.every(slice => /^url\(#linear__gradient__/.test(slice.getAttribute('fill') ?? ''))).toBe(true);
+
+    const radialGradientContainer = mount({ ...common, radialGradients: [{
+      stops: [
+        { offset: 0, color: '#fff', opacity: 1 },
+        { offset: 1, color: '#000', opacity: 1 }
+      ]
+    }] }, pie.data);
+    const radialGradientSlices = [...radialGradientContainer.querySelectorAll(getCssSelector('seriesSlice'))];
+    expect(radialGradientSlices).toHaveLength(2);
+    expect(radialGradientSlices.every(slice => /^url\(#radial__gradient__/.test(slice.getAttribute('fill') ?? ''))).toBe(true);
   });
 
   it('recreates the pattern in tooltip icons and uses rectangular pattern swatches', () => {

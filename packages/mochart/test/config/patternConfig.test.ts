@@ -112,7 +112,7 @@ describe('built-in pattern config', () => {
       series: [{ property: 'v', renderer: 'line', pattern: 'hatch' }]
     });
     expect(pattern.validation.errors).toContain(
-      'series[0] - pattern - should be equal to null when renderer is not area or bar: "hatch"'
+      'series[0] - pattern - should be equal to null when chart type is not pie and renderer is not area or bar: "hatch"'
     );
 
     const gradient = enhance({ ...base,
@@ -120,8 +120,24 @@ describe('built-in pattern config', () => {
       series: [{ property: 'v', renderer: 'none', gradient: 'fade' }]
     });
     expect(gradient.validation.errors).toContain(
-      'series[0] - gradient - should be equal to null when renderer is not area or bar: "fade"'
+      'series[0] - gradient - should be equal to null when chart type is not pie and renderer is not area or bar: "fade"'
     );
+  });
+
+  it('allows patterns and gradients on pie slices regardless of series renderer', () => {
+    const pattern = enhance({ ...base,
+      chart: { type: 'pie' },
+      patterns: [{ id: 'hatch', type: 'lines' }],
+      series: [{ property: 'v', renderer: 'line', pattern: 'hatch' }]
+    });
+    expect(pattern.validation.valid).toBe(true);
+
+    const gradient = enhance({ ...base,
+      chart: { type: 'pie' },
+      linearGradients: [{ id: 'fade', stops: [{ offset: 0, color: '#000', opacity: 1 }] }],
+      series: [{ property: 'v', renderer: 'none', gradient: 'fade' }]
+    });
+    expect(gradient.validation.valid).toBe(true);
   });
 
   it('rejects gradients but permits patterns when colorProperty is set', () => {

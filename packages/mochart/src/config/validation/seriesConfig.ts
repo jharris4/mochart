@@ -70,26 +70,26 @@ const colorBaseNoneSuffix = 'when colorProperty is not ' + NONE + ' and colorSca
 const stackRule = { condition: ({ stack }: StackCondition) => stack !== NONE, suffix: stackSuffix };
 const stackNoneRule = { condition: ({ stack }: StackCondition) => stack === NONE, suffix: stackNoneSuffix };
 const gradientRule = { condition: ({ gradient }: GradientCondition) => gradient !== NONE, suffix: 'when gradient is not ' + NONE };
-const nonFillRendererRule = {
-  condition: ({ renderer }: RendererCondition) => renderer !== RENDERER_AREA && renderer !== RENDERER_BAR,
-  suffix: 'when renderer is not area or bar'
-};
-const fillRendererRule = {
-  condition: ({ renderer }: RendererCondition) => renderer === RENDERER_AREA || renderer === RENDERER_BAR,
-  suffix: 'when renderer is area or bar'
-};
-const fillRendererWithoutGradientRule = {
-  condition: ({ renderer, gradient }: PatternCondition) =>
-    (renderer === RENDERER_AREA || renderer === RENDERER_BAR) && gradient === NONE,
-  suffix: 'when renderer is area or bar and gradient is ' + NONE
-};
-
 const colorPropertyRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty !== NONE, suffix: colorPropertySuffix };
 const colorPropertyNoneRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty === NONE, suffix: colorPropertyNoneSuffix };
 const colorBaseRule = { condition: ({ colorProperty, colorScale }: ColorCondition) => colorProperty !== NONE && colorScale?.base?.value !== NONE, suffix: colorBaseSuffix };
 const colorBaseNoneRule = { condition: ({ colorProperty, colorScale }: ColorCondition) => colorProperty !== NONE && colorScale?.base?.value === NONE, suffix: colorBaseNoneSuffix };
 
-export default function getValidators(config: DeepPartial<SeriesConfig>) {
+export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode = false) {
+  const supportsFill = ({ renderer }: RendererCondition) =>
+    pieMode || renderer === RENDERER_AREA || renderer === RENDERER_BAR;
+  const nonFillRendererRule = {
+    condition: (condition: RendererCondition) => !supportsFill(condition),
+    suffix: 'when chart type is not pie and renderer is not area or bar'
+  };
+  const fillRendererRule = {
+    condition: supportsFill,
+    suffix: 'when chart type is pie or renderer is area or bar'
+  };
+  const fillRendererWithoutGradientRule = {
+    condition: (condition: PatternCondition) => supportsFill(condition) && condition.gradient === NONE,
+    suffix: 'when chart type is pie or renderer is area or bar, and gradient is ' + NONE
+  };
   return {
     id: validators.string(),
     order: validators.integer(),

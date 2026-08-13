@@ -2653,20 +2653,21 @@ export interface SeriesConfig {
    */
   group: string | null;
   /**
-   * The unique id of the gradient config used to fill an area or bar series
-   * (use null for none; cannot be combined with pattern or colorProperty).
+   * The unique id of the gradient config used to fill an area or bar series, or
+   * a pie slice (use null for none; cannot be combined with pattern or
+   * colorProperty).
    *
    * Default:
-   * - `sole gradient id` — when renderer is area or bar and colorProperty is
-   *   null
+   * - `sole gradient id` — when chart type is pie or renderer is area or bar,
+   *   and colorProperty is null
    */
   gradient: string | null;
   /**
-   * The unique id of the pattern config used to fill an area or bar series (use
-   * null for none; cannot be combined with gradient).
+   * The unique id of the pattern config used to fill an area or bar series, or
+   * a pie slice (use null for none; cannot be combined with gradient).
    *
    * Default:
-   * - `sole pattern id` — when renderer is area or bar
+   * - `sole pattern id` — when chart type is pie or renderer is area or bar
    */
   pattern: string | null;
   /**

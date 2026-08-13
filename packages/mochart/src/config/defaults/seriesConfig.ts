@@ -14,10 +14,10 @@ const colorPropertyNoneSuffix = 'when colorProperty is ' + NONE;
 const colorBaseSuffix = 'when colorProperty is not ' + NONE + ' and colorScale.base.value is not ' + NONE;
 const colorBaseNoneSuffix = 'when colorProperty is not ' + NONE + ' and colorScale.base.value is ' + NONE;
 
-export default function getDefaults(config: DeepPartial<SeriesConfig> = {}, index: number, soleValueAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null, solePatternConfigId: string | null): Partial<SeriesConfig> {
+export default function getDefaults(config: DeepPartial<SeriesConfig> = {}, index: number, soleValueAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null, solePatternConfigId: string | null, pieMode = false): Partial<SeriesConfig> {
   const regularDefaults = getRegularDefaults();
   const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesConfig, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId, solePatternConfigId));
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesConfig, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId, solePatternConfigId, pieMode));
 
   return deepMerge(regularDefaults, conditionalDefaults) as Partial<SeriesConfig>;
 }
@@ -128,18 +128,18 @@ function isCategoryIndexColored({ shapeStyle }: SeriesConfig): boolean {
   return strokeColor === COLOR_CATEGORY_INDEX || fillColor === COLOR_CATEGORY_INDEX;
 }
 
-function usesFillRenderer({ renderer }: SeriesConfig): boolean {
-  return renderer === RENDERER_AREA || renderer === RENDERER_BAR;
+function usesFillRenderer({ renderer }: SeriesConfig, pieMode: boolean): boolean {
+  return pieMode || renderer === RENDERER_AREA || renderer === RENDERER_BAR;
 }
 
-function supportsAutomaticGradient(config: SeriesConfig): boolean {
-  return usesFillRenderer(config) && config.colorProperty === NONE;
+function supportsAutomaticGradient(config: SeriesConfig, pieMode: boolean): boolean {
+  return usesFillRenderer(config, pieMode) && config.colorProperty === NONE;
 }
 
 const categoryIndexColorSuffix = 'when shapeStyle.normal.strokeColor or shapeStyle.normal.fillColor is ' + COLOR_CATEGORY_INDEX;
 const notCategoryIndexColorSuffix = 'when neither shapeStyle.normal.strokeColor nor shapeStyle.normal.fillColor is ' + COLOR_CATEGORY_INDEX;
 
-export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, index: number, soleValueAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null, solePatternConfigId: string | null) {
+export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, index: number, soleValueAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null, solePatternConfigId: string | null, pieMode = false) {
   return {
     id: conditionalDefault([
       { condition: (_config, _index) => true, suffix: 'series index', default: 'S' + index, defaultText: 'S${index}' },
@@ -162,11 +162,11 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, 
       { ...defaultRule, default: soleSeriesGroupId }
     ], configWithRegularDefaults, index),
     gradient: conditionalDefault([
-      { condition: supportsAutomaticGradient, suffix: 'when renderer is area or bar and colorProperty is null', default: soleGradientConfigId, defaultText: 'sole gradient id' },
+      { condition: config => supportsAutomaticGradient(config, pieMode), suffix: 'when chart type is pie or renderer is area or bar, and colorProperty is null', default: soleGradientConfigId, defaultText: 'sole gradient id' },
       { ...defaultRule, default: NONE }
     ], configWithRegularDefaults, index),
     pattern: conditionalDefault([
-      { condition: usesFillRenderer, suffix: 'when renderer is area or bar', default: solePatternConfigId, defaultText: 'sole pattern id' },
+      { condition: config => usesFillRenderer(config, pieMode), suffix: 'when chart type is pie or renderer is area or bar', default: solePatternConfigId, defaultText: 'sole pattern id' },
       { ...defaultRule, default: NONE }
     ], configWithRegularDefaults, index),
     animateBaseFromAdjacent: conditionalDefault([

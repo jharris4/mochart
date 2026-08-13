@@ -1,7 +1,7 @@
 import validators from './validators';
 import { getMessage, getPropertyMessage, getMessages, addWarningMessages, DEFAULT } from './messages';
 import type { LocatedValidationMessage } from './messages';
-import { NONE, CONFIG_VERSION } from '../core/constants';
+import { CHART_TYPE_PIE, NONE, CONFIG_VERSION } from '../core/constants';
 import { applyDefaults, configWithAll, filterConfig, filterConfigs, getRawIndices, sectionKeyAllMap } from '../core/mochartConfig';
 
 import accessibilityValidators from './accessibilityConfig';
@@ -32,7 +32,7 @@ type ValidatorMap = Record<string, Validator>;
 type SectionReference = { section: string | string[]; key: string; commonKey?: string };
 interface ConfigSectionValidator {
   validator: Validator;
-  validators?: (configSection: ConfigRecord) => ValidatorMap;
+  validators?: (configSection: ConfigRecord, config?: ConfigRecord) => ValidatorMap;
   list?: boolean;
   uniqueKeys?: string[];
   allExcludedKeys?: string[];
@@ -158,7 +158,10 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
   series: {
     list: true,
     validator: arrayOfObjectsOrEmpty,
-    validators: (configSection: ConfigRecord) => seriesValidators(configSection),
+    validators: (configSection: ConfigRecord, config?: ConfigRecord) => {
+      const chart = config?.chart;
+      return seriesValidators(configSection, isConfigRecord(chart) && chart.type === CHART_TYPE_PIE);
+    },
     uniqueKeys: ['id', 'order'],
     references: {
       axis: { section: 'valueAxes', key: 'id' },
@@ -343,16 +346,16 @@ export function validateConfigDetailed(configWithoutDefaults: unknown, configDef
   };
 }
 
-function validateConfigSection(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, sectionKey: string, allKey: string | undefined, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, allExcludedKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[]): void {
+function validateConfigSection(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, sectionKey: string, allKey: string | undefined, sectionValidators: (section: ConfigRecord, config?: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, allExcludedKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[]): void {
   validateSection(sectionKey, allKey, config[sectionKey], configWithoutDefaults[sectionKey], configDefaults[sectionKey],
-    allKey ? config[allKey] : null, sectionValidators, uniqueKeys, allExcludedKeys, errors, warnings, errorDetails, warningDetails, false);
+    allKey ? config[allKey] : null, sectionValidators, config, uniqueKeys, allExcludedKeys, errors, warnings, errorDetails, warningDetails, false);
 }
 
 function safeIndex(array: unknown, i: number): unknown {
   return Array.isArray(array) ? array[i] : undefined;
 }
 
-function validateConfigSections(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, sectionKey: string, allKey: string | undefined, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, allExcludedKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[]): void {
+function validateConfigSections(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, sectionKey: string, allKey: string | undefined, sectionValidators: (section: ConfigRecord, config?: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, allExcludedKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[]): void {
   const sections = config[sectionKey] as unknown[];
   const rawSections = Array.isArray(configWithoutDefaults[sectionKey]) ? configWithoutDefaults[sectionKey] : [configWithoutDefaults[sectionKey]];
   const sectionDefaults = configDefaults[sectionKey];
@@ -368,10 +371,10 @@ function validateConfigSections(config: ConfigRecord, configWithoutDefaults: Con
   for (let i = 0; i < sections.length; i++) {
     rawIndex = rawIndices[i];
     validateSection(sectionKey, allKey, safeIndex(sections, i), rawIndex === undefined ? undefined : rawSections[rawIndex], safeIndex(sectionDefaults, i),
-      all, sectionValidators, uniqueKeys, allExcludedKeys, errors, warnings, errorDetails, warningDetails, false, rawIndex ?? i, i === 0);
+      all, sectionValidators, config, uniqueKeys, allExcludedKeys, errors, warnings, errorDetails, warningDetails, false, rawIndex ?? i, i === 0);
   }
   if (sections.length === 0 && all) {
-    validateSection(sectionKey, allKey, all, undefined, undefined, all, sectionValidators, uniqueKeys, allExcludedKeys,
+    validateSection(sectionKey, allKey, all, undefined, undefined, all, sectionValidators, config, uniqueKeys, allExcludedKeys,
       errors, warnings, errorDetails, warningDetails, true);
   }
 }
@@ -384,10 +387,10 @@ function pushAll(target: string[], source: string[]): void {
   }
 }
 
-function validateSection(sectionKey: string, allKey: string | undefined, section: unknown, sectionWithoutDefaults: unknown, sectionDefaults: unknown, all: unknown, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, allExcludedKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[], onlyAll: boolean, i: number | undefined = undefined, first: boolean = i === undefined || i === 0): void {
+function validateSection(sectionKey: string, allKey: string | undefined, section: unknown, sectionWithoutDefaults: unknown, sectionDefaults: unknown, all: unknown, sectionValidators: (section: ConfigRecord, config?: ConfigRecord) => ValidatorMap, config: ConfigRecord, uniqueKeys: string[] | undefined, allExcludedKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[], onlyAll: boolean, i: number | undefined = undefined, first: boolean = i === undefined || i === 0): void {
   const sectionAll = configWithAll(section, all);
   const messages = getMessages(sectionKey, allKey, uniqueKeys, sectionWithoutDefaults, sectionDefaults, all,
-    sectionValidators(isConfigRecord(sectionAll) ? sectionAll : {}), onlyAll, i, first, allExcludedKeys);
+    sectionValidators(isConfigRecord(sectionAll) ? sectionAll : {}, config), onlyAll, i, first, allExcludedKeys);
   const { errorMessages, warningMessages } = messages;
   pushAll(errors, errorMessages);
   pushAll(warnings, warningMessages);
