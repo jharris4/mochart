@@ -99,19 +99,23 @@ export class ChartController {
     return this.isAnimated() ? new AnimatedDataSource(this.push) : new StaticDataSource();
   }
 
+  /** The props config as its enhanced view: ManagedChartProps carries the public MochartConfig type, but enhanceConfig always builds the enhanced one. */
+  private enhancedConfig(): EnhancedMochartConfig | null {
+    return this.props.mochartConfig as EnhancedMochartConfig | null;
+  }
+
   /** Snapshot the committed category ordering (the sources' read gate); reconcile remaps focus from it. */
   private captureCategoryValues(): void {
-    const mochartConfig = this.props.mochartConfig as EnhancedMochartConfig | null | undefined;
+    const mochartConfig = this.enhancedConfig();
     const dataProvider = this.readDataProvider;
-    this.lastCategoryValues = mochartConfig?.validation.valid && dataProvider && isDataProviderValid(dataProvider)
+    this.lastCategoryValues = mochartConfig?.validation.valid && dataProvider !== null && isDataProviderValid(dataProvider)
       ? [...readCategoryValues(dataProvider, mochartConfig.categoryAxis.property!)]
       : null;
   }
 
   private buildInput(): ChartDataSourceInput {
-    // casts: the internal input/renderer types still declare these non-null
-    const mochartConfig = this.props.mochartConfig as EnhancedMochartConfig;
-    const dataProvider = this.readDataProvider as DataProvider;
+    const mochartConfig = this.enhancedConfig();
+    const dataProvider = this.readDataProvider;
     const { filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId } = this.focus;
     return { mochartConfig, dataProvider, filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId };
   }
@@ -146,11 +150,11 @@ export class ChartController {
 
   private chartProps(): ChartProps {
     const {
-      mochartConfig, dataProvider, loading, error, style, width, height,
+      dataProvider, loading, error, style, width, height,
       onChartClick, onSliceClick, onSeriesClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick, onSeriesLayoutBoundsChange,
       getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent, getConfigErrorComponent
     } = this.props;
-    return { mochartConfig: mochartConfig as EnhancedMochartConfig, dataProvider: dataProvider as DataProvider, loading, error, style, width, height, standalone: true,
+    return { mochartConfig: this.enhancedConfig(), dataProvider, loading, error, style, width, height, standalone: true,
       chartData: this.source.chartData, focusData: this.source.focusData,
       initialAnimationPercentage: this.source.initialAnimationPercentage,
       onFocus: this.handleFocus, onSeriesFilter: this.handleSeriesFilter,

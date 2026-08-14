@@ -141,5 +141,5 @@ export function createDefaultChart(container: Element, props: DefaultChartProps)
 
 function toManagedProps(props: DefaultChartProps, input: DefaultChartInput): ManagedChartProps {
   const { config: _config, data: _data, ...rest } = props;
-  return { ...rest, mochartConfig: input.mochartConfig!, dataProvider: input.dataProvider! };
+  return { ...rest, mochartConfig: input.mochartConfig, dataProvider: input.dataProvider };
 }

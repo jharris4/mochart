@@ -44,8 +44,9 @@ import type { ChartLayoutInfo, ChartTextBoundsData, LayoutInfo } from '../types/
 import type { Bounds, Size } from '../types/geometry';
 
 export interface ChartProps {
-  mochartConfig: EnhancedMochartConfig;
-  dataProvider: DataProvider;
+  // both null while the host is still loading them; the chart renders its loading/error states then
+  mochartConfig: EnhancedMochartConfig | null;
+  dataProvider: DataProvider | null;
   chartData: ChartData | null;
   focusData: FocusData | null;
   /** 0..1 while the initial value tween runs (pie sweep-in), else null. */
@@ -240,6 +241,8 @@ const getInitialTooltipState = (): Pick<ChartState, 'tooltipVisible' | 'tooltipC
  */
 interface ChartBodyProps {
   chart: Chart;
+  /** The rendered config: sync() only mounts the body once it is non-null and valid. */
+  mochartConfig: EnhancedMochartConfig;
   /** Change tokens that force the pass-through body to resync with its owner. */
   chartProps: ChartProps;
   chartState: ChartState;
@@ -415,7 +418,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
    * moved, and refresh the tooltip layout. Returns the delta for the caller
    * to merge (derive) or setState (post-commit).
    */
-  applyLayoutInfo(props: ChartProps, state: ChartStateUpdate & { layoutInfo: ChartLayoutInfo | null }): ChartStateUpdate {
+  /** Non-null whenever chartRef, the chart body or a computed layout exist — sync() and init() gate all three on a valid config. */
+  private renderedConfig(): EnhancedMochartConfig {
+    return this.props.mochartConfig!;
+  }
+
+  applyLayoutInfo(mochartConfig: EnhancedMochartConfig, state: ChartStateUpdate & { layoutInfo: ChartLayoutInfo | null }): ChartStateUpdate {
     if (state.layoutInfo !== null) {
       state.layoutInfo = getChartLayoutInfoWithMutations(this.state.layoutInfo, state.layoutInfo);
       if (this.state.layoutInfo !== state.layoutInfo) {
@@ -431,13 +439,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         }
       }
       state.tooltipLayoutInfo = getTooltipLayoutInfoWithMutations(this.state.tooltipLayoutInfo,
-        this.getTooltipLayoutInfo(props, state));
+        this.getTooltipLayoutInfo(mochartConfig, state));
     }
     return state;
   }
 
-  getTooltipLayoutInfo(props: ChartProps, state: ChartStateUpdate): Bounds {
-    const { mochartConfig } = props;
+  getTooltipLayoutInfo(mochartConfig: EnhancedMochartConfig, state: ChartStateUpdate): Bounds {
     const { layoutInfo, axisData, tooltipCategoryIndex, tooltipSeriesPercentage, tooltipCategoryPercentage, tooltipBounds } =
       { ...this.state, ...state };
 
@@ -449,9 +456,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       tooltipCategoryPercentage!, tooltipSeriesPercentage!);
   }
 
-  constructUniqueIds(props: ChartProps): Pick<ChartState, 'uniqueIds'> {
+  constructUniqueIds(mochartConfig: EnhancedMochartConfig): Pick<ChartState, 'uniqueIds'> {
     const uniqueId = this.uniqueId;
-    const { mochartConfig } = props;
     const { valueAxes: valueAxisConfigs, series: seriesConfigs, linearGradients: linearGradientConfigs, radialGradients: radialGradientConfigs } = mochartConfig;
 
     const svgUniqueId = mochartChartIdPrefix + uniqueId;
@@ -498,7 +504,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       const { valid, errors, warnings } = validation;
 
       if (valid) {
-        const uniqueIdState = this.constructUniqueIds(props);
+        const uniqueIdState = this.constructUniqueIds(mochartConfig);
         const domAccessors = this.chartRef ? getDomAccessors(this.chartRef) : null;
         const chartTextBoundsData = getChartTextBoundsData(mochartConfig, domAccessors);
 
@@ -509,7 +515,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           axisData = getAxisData(mochartConfig, layoutInfo, chartData);
           stackData = getStackData(mochartConfig, chartData);
         }
-        return this.applyLayoutInfo(props, { ...newState, layoutInfo, axisData, stackData, chartTextBoundsData, ...uniqueIdState });
+        return this.applyLayoutInfo(mochartConfig, { ...newState, layoutInfo, axisData, stackData, chartTextBoundsData, ...uniqueIdState });
       }
       if (warn && standalone) {
         if (errors.length > 0) {
@@ -525,17 +531,18 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   }
 
   calculateTooltipTextSize = () => {
-    const { mochartConfig } = this.props;
+    const mochartConfig = this.renderedConfig();
     let { tooltipBounds } = this.state;
     tooltipBounds = getBoundsWithMutations(tooltipBounds, getTooltipBounds(mochartConfig, getDomAccessors(this.chartRef!)));
     const tooltipLayoutInfo = getTooltipLayoutInfoWithMutations(this.state.tooltipLayoutInfo,
-      this.getTooltipLayoutInfo(this.props, { tooltipBounds }));
+      this.getTooltipLayoutInfo(mochartConfig, { tooltipBounds }));
     this.setState({ tooltipBounds, tooltipLayoutInfo });
   }
 
   calculateInitialTextSizes() {
     if (this.chartRef) {
-      const { mochartConfig, chartData } = this.props;
+      const { chartData } = this.props;
+      const mochartConfig = this.renderedConfig();
       const newState = this.calculateTextSizes(false);
       if (newState.layoutInfo == null) {
         // measurements were unchanged; push any tooltip remeasure through on its own
@@ -547,14 +554,15 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       if (chartData) {
         newState.axisData = getAxisDataWithMutations(this.state.axisData, mochartConfig, newState.layoutInfo, chartData);
       }
-      this.setState(this.applyLayoutInfo(this.props, { ...newState, layoutInfo: newState.layoutInfo }));
+      this.setState(this.applyLayoutInfo(mochartConfig, { ...newState, layoutInfo: newState.layoutInfo }));
     }
   }
 
   calculateTextSizes(setState = true): ChartStateUpdate {
     let newState: ChartStateUpdate = {};
     if (this.chartRef) {
-      const { mochartConfig, chartData, width, height } = this.props;
+      const { chartData, width, height } = this.props;
+      const mochartConfig = this.renderedConfig();
       const domAccessors = getDomAccessors(this.chartRef);
       let chartTextBoundsData = getChartTextBoundsData(mochartConfig, domAccessors);
       chartTextBoundsData = getChartTextBoundsDataWithMutations(this.state.chartTextBoundsData, chartTextBoundsData);
@@ -568,7 +576,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         let { tooltipBounds } = this.state;
         tooltipBounds = getBoundsWithMutations(tooltipBounds, getTooltipBounds(mochartConfig, domAccessors));
         const tooltipLayoutInfo = getTooltipLayoutInfoWithMutations(this.state.tooltipLayoutInfo,
-          this.getTooltipLayoutInfo(this.props, { tooltipBounds }));
+          this.getTooltipLayoutInfo(mochartConfig, { tooltipBounds }));
         newState.tooltipBounds = tooltipBounds;
         newState.tooltipLayoutInfo = tooltipLayoutInfo;
       }
@@ -590,7 +598,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
             }
           }
         }
-        this.setState(this.applyLayoutInfo(this.props, { ...newState, layoutInfo }));
+        this.setState(this.applyLayoutInfo(mochartConfig, { ...newState, layoutInfo }));
       }
     }
     return newState;
@@ -598,7 +606,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   updateTextSizes() {
     if (this.chartRef) {
-      const { mochartConfig, chartData, width, height } = this.props;
+      const { chartData, width, height } = this.props;
+      const mochartConfig = this.renderedConfig();
       const domAccessors = getDomAccessors(this.chartRef);
       let chartTextBoundsData = getChartTextBoundsData(mochartConfig, domAccessors);
       chartTextBoundsData = getChartTextBoundsDataWithMutations(this.state.chartTextBoundsData, chartTextBoundsData);
@@ -690,11 +699,11 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         }
 
         if (mochartConfigChanged) {
-          ({ uniqueIds } = this.constructUniqueIds(nextProps));
+          ({ uniqueIds } = this.constructUniqueIds(mochartConfig));
         }
         const { tooltipVisible, tooltipCategoryIndex, tooltipCategoryPercentage, tooltipSeriesPercentage, tooltipValueObject } = tooltipStateSource;
         const newState = { uniqueIds, layoutInfo, axisData, stackData, tooltipVisible, tooltipCategoryIndex, tooltipCategoryPercentage, tooltipSeriesPercentage, tooltipValueObject };
-        return this.applyLayoutInfo(nextProps, newState);
+        return this.applyLayoutInfo(mochartConfig, newState);
       }
       else {
         return getInitialState();
@@ -780,7 +789,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { chartData } = this.props;
     this.lastTooltipCategoryIndex = tooltipCategoryIndex;
     const tooltipValueObject = getCategorySeriesValueObject(chartData!, tooltipCategoryIndex);
-    const tooltipLayoutInfo = this.getTooltipLayoutInfo(this.props, { ...this.state, tooltipCategoryIndex });
+    const tooltipLayoutInfo = this.getTooltipLayoutInfo(this.renderedConfig(), { ...this.state, tooltipCategoryIndex });
     this.setState({ tooltipCategoryIndex, tooltipValueObject, tooltipLayoutInfo });
     // announce here so the tooltip's own prev/next buttons read out, not just the keyboard
     this.announceTooltipCategory(tooltipCategoryIndex);
@@ -788,7 +797,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   /** Open or close explicitly: enter must always open and leave always close, or the pairing inverts. */
   setTooltipOpen(open: boolean, { categoryIndex, categoryFraction, valueFraction: seriesPercentage }: Pick<ChartEventPayload, 'categoryIndex' | 'categoryFraction' | 'valueFraction'>): void {
-    const { mochartConfig, onFocus, chartData } = this.props;
+    const { onFocus, chartData } = this.props;
+    const mochartConfig = this.renderedConfig();
     const { tooltip: tooltipConfig, crosshair: crosshairConfig } = mochartConfig;
     if (tooltipConfig.visible || crosshairConfig.visible) {
       let { tooltipVisible, tooltipCategoryIndex, tooltipSeriesPercentage, tooltipCategoryPercentage, tooltipLayoutInfo, tooltipBounds, tooltipValueObject } = this.state;
@@ -813,7 +823,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   }
 
   getChartEventPayload = (chartX: number, chartY: number): ChartEventPayload => {
-    const { mochartConfig } = this.props;
+    const mochartConfig = this.renderedConfig();
     const { axisData, layoutInfo } = this.state;
     const dataCategoryPositions = axisData!.category!.valueData.positions;
     const { seriesLayoutInfo } = layoutInfo!;
@@ -842,16 +852,17 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   }
 
   onChartMouseEnter = (chartX: number, chartY: number): void => {
-    const { mochartConfig, onChartMouseEnter } = this.props;
+    const { onChartMouseEnter } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseEnter?.(eventPayload);
-    if (mochartConfig.tooltip.followPointer && !this.isLoading()) {
+    if (this.renderedConfig().tooltip.followPointer && !this.isLoading()) {
       this.setTooltipOpen(true, eventPayload);
     }
   }
 
   onChartMouseMove = (chartX: number, chartY: number): void => {
-    const { mochartConfig, onFocus, onChartMouseMove, chartData } = this.props;
+    const { onFocus, onChartMouseMove, chartData } = this.props;
+    const mochartConfig = this.renderedConfig();
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseMove?.(eventPayload);
     if (mochartConfig.tooltip.followPointer) {
@@ -871,7 +882,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
             : this.state.tooltipValueObject;
           const tooltipCategoryPercentage = categoryFraction;
           const tooltipSeriesPercentage = seriesPercentage;
-          const tooltipLayoutInfo = this.getTooltipLayoutInfo(this.props,
+          const tooltipLayoutInfo = this.getTooltipLayoutInfo(mochartConfig,
             { ...this.state, tooltipCategoryIndex, tooltipCategoryPercentage, tooltipSeriesPercentage });
           this.setState({ tooltipCategoryIndex, tooltipValueObject, tooltipCategoryPercentage, tooltipSeriesPercentage, tooltipLayoutInfo });
         }
@@ -886,19 +897,19 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   }
 
   onChartMouseLeave = (chartX: number, chartY: number): void => {
-    const { mochartConfig, onChartMouseLeave } = this.props;
+    const { onChartMouseLeave } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseLeave?.(eventPayload);
-    if (mochartConfig.tooltip.followPointer) {
+    if (this.renderedConfig().tooltip.followPointer) {
       this.setTooltipOpen(false, eventPayload);
     }
   }
 
   onChartClick = (chartX: number, chartY: number): void => {
-    const { mochartConfig, onChartClick } = this.props;
+    const { onChartClick } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartClick?.(eventPayload);
-    if (!mochartConfig.tooltip.followPointer) {
+    if (!this.renderedConfig().tooltip.followPointer) {
       this.setTooltipOpen(!this.state.tooltipVisible, eventPayload);
     }
   }
@@ -950,9 +961,9 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   /** announce a category's tooltip values to screen readers; null silences the region */
   announceTooltipCategory(categoryIndex: number | null): void {
     if (this.liveRegionNode !== null) {
-      const { mochartConfig, chartData } = this.props;
+      const { chartData } = this.props;
       const announcement = categoryIndex === null ? '' :
-        getTooltipAnnouncement(mochartConfig, getCategorySeriesValueObject(chartData!, categoryIndex));
+        getTooltipAnnouncement(this.renderedConfig(), getCategorySeriesValueObject(chartData!, categoryIndex));
       if (announcement === '') {
         this.cancelAnnouncement();
         this.writeAnnouncement(announcement);
@@ -1000,8 +1011,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   /** step the open tooltip to a category, moving the focus like the pointer would */
   stepTooltipCategoryIndex(categoryIndex: number): void {
-    const { mochartConfig, onFocus } = this.props;
-    const { tooltip: tooltipConfig, crosshair: crosshairConfig } = mochartConfig;
+    const { onFocus } = this.props;
+    const { tooltip: tooltipConfig, crosshair: crosshairConfig } = this.renderedConfig();
     if ((tooltipConfig.visible && tooltipConfig.applyFocus) || (crosshairConfig.visible && crosshairConfig.applyFocus)) {
       onFocus?.({ categoryIndex });
     }
@@ -1168,7 +1179,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       'aria-hidden': mochartConfig.accessibility.hidden ? 'true' : null });
     this.chartRef = this.root.node;
     this.setSimpleContent(false);
-    this.body.set(ChartBody, { chart: this, chartProps: this.props, chartState: this.state, error, loading });
+    this.body.set(ChartBody, { chart: this, mochartConfig, chartProps: this.props, chartState: this.state, error, loading });
   }
 
   /** Insert factory-produced content (Node | El | string | falsy) into the simple-content region of the root div. */
@@ -1216,14 +1227,14 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   /** Fill in the ChartBody's slots — called from ChartBody.sync with the body renderer. */
   syncBody(body: ChartBody): void {
     const {
-      mochartConfig, chartData, focusData, onFocus, onSeriesFilter, width, height,
+      chartData, focusData, onFocus, onSeriesFilter, width, height,
       getErrorComponent: errorFactory = getErrorComponent,
       getLoadingComponent: loadingFactory = getLoadingComponent,
       getNoDataComponent: noDataFactory = getNoDataComponent,
       getNoSeriesComponent: noSeriesFactory = getNoSeriesComponent
     } = this.props;
     const { layoutInfo, tooltipLayoutInfo, axisData, stackData, tooltipVisible, tooltipCategoryIndex, tooltipBounds, uniqueIds, tooltipValueObject } = this.state;
-    const { error, loading } = body.props;
+    const { mochartConfig, error, loading } = body.props;
     // read before the slots below can unmount whatever holds focus
     const focusedNode = this.getFocusedChartNode();
 

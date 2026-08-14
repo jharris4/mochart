@@ -64,12 +64,12 @@ export class AnimatedDataSource implements ChartDataSource {
     this.focusTweening = false;
     this.initialAnimationPercentage = null;
     this.tweenManager.cancelTweens();
-    if (mochartConfig && mochartConfig.validation.valid && isDataProviderValid(dataProvider)) {
+    if (mochartConfig !== null && mochartConfig.validation.valid && dataProvider !== null && isDataProviderValid(dataProvider)) {
       const newChartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
       this.targetChartData = newChartData;
       this.chartAnimationData = getChartAnimationData(mochartConfig, null, newChartData);
 
-      this.startDataTween(input, this.chartAnimationData);
+      this.startDataTween(mochartConfig, this.chartAnimationData);
 
       // keep the chart data null until the animation starts...
       this.chartData = null;
@@ -101,21 +101,23 @@ export class AnimatedDataSource implements ChartDataSource {
     const focusValueAxisChanged = focusedValueAxisId !== prevInput.focusedValueAxisId;
     const focusSeriesChanged = focusedSeriesId !== prevInput.focusedSeriesId;
     const focusChanged = focusCategoryChanged || focusValueAxisChanged || focusSeriesChanged;
-    const configValid = mochartConfig && mochartConfig.validation.valid;
+    const configValid = mochartConfig !== null && mochartConfig.validation.valid;
     const mochartConfigStructureChanged = configChanged && hasConfigStructureChange(prevInput.mochartConfig, mochartConfig);
+    // a config appearing or going away is structural, so a non-structural change has both configs non-null
     const focusConfigChanged = configChanged && !mochartConfigStructureChanged && focusedSeriesId !== null &&
+      mochartConfig !== null && prevInput.mochartConfig !== null &&
       hasFollowSeriesChange(prevInput.mochartConfig, mochartConfig);
     if (dataProviderValidityChanged || mochartConfigStructureChanged) {
       this.start(input);
     }
-    else if (dataProviderValid && configValid && (configChanged || dataChanged || focusChanged)) {
+    else if (dataProvider !== null && dataProviderValid && configValid && (configChanged || dataChanged || focusChanged)) {
       let categoriesChanged = false;
       if (configChanged || dataChanged) {
         const chartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
         this.targetChartData = chartData;
         const chartAnimationData = this.chartAnimationData = getChartAnimationData(mochartConfig, this.chartData, chartData);
 
-        this.startDataTween(input, chartAnimationData);
+        this.startDataTween(mochartConfig, chartAnimationData);
         categoriesChanged = this.hasCategoryAdditions || this.hasCategoryRemovals || this.hasCategoryReorder;
       }
 
@@ -136,22 +138,20 @@ export class AnimatedDataSource implements ChartDataSource {
         // category — and the stale index would drop the pin from the target.
         if (focusedCategoryIndex >= 0 && this.dataTweening && !this.valuesTweened) {
           if (this.valuesTweening) {
-            this.startFocusTween(input, mergedIndexForNewIndex(this.chartAnimationData!.categoryDeltaData, focusedCategoryIndex));
+            this.startFocusTween(mochartConfig, input, mergedIndexForNewIndex(this.chartAnimationData!.categoryDeltaData, focusedCategoryIndex));
           }
           else {
-            this.startFocusTween(input, oldIndexForNewIndex(this.chartAnimationData!.categoryDeltaData, focusedCategoryIndex));
+            this.startFocusTween(mochartConfig, input, oldIndexForNewIndex(this.chartAnimationData!.categoryDeltaData, focusedCategoryIndex));
           }
         }
         else {
-          this.startFocusTween(input);
+          this.startFocusTween(mochartConfig, input);
         }
       }
     }
   }
 
-  private startDataTween(input: ChartDataSourceInput, chartAnimationData: ChartAnimationData): void {
-    const { mochartConfig } = input;
-
+  private startDataTween(mochartConfig: EnhancedMochartConfig, chartAnimationData: ChartAnimationData): void {
     this.hasCategoryAdditions = hasCategoryAdditions(chartAnimationData.categoryDeltaData);
     this.hasCategoryRemovals = hasCategoryRemovals(chartAnimationData.categoryDeltaData);
     this.hasCategoryReorder = hasCategoryReorder(chartAnimationData.categoryDeltaData);
@@ -179,8 +179,8 @@ export class AnimatedDataSource implements ChartDataSource {
     });
   }
 
-  private startFocusTween(input: ChartDataSourceInput, overrideFocusedCategoryIndex?: number): void {
-    const { mochartConfig, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId } = input;
+  private startFocusTween(mochartConfig: EnhancedMochartConfig, input: ChartDataSourceInput, overrideFocusedCategoryIndex?: number): void {
+    const { focusedCategoryIndex, focusedValueAxisId, focusedSeriesId } = input;
     const newFocusedCategoryIndex = overrideFocusedCategoryIndex !== undefined ? overrideFocusedCategoryIndex : focusedCategoryIndex;
     const focusData = getFocusDataWithMutations(this.focusData!, getFocusData(mochartConfig, this.chartData!, newFocusedCategoryIndex, focusedValueAxisId, focusedSeriesId));
     const focusAnimationData = getFocusAnimationData(mochartConfig, this.focusData!, focusData);
@@ -196,7 +196,9 @@ export class AnimatedDataSource implements ChartDataSource {
   }
 
   private updateChartData = (chartData: ChartData, updateType: DataTweenEvent, percentage?: number): void => {
-    const { mochartConfig, focusedCategoryIndex } = this.input;
+    const { focusedCategoryIndex } = this.input;
+    // tween callbacks only fire while tweens run, and a config going null/invalid cancels them via start()
+    const mochartConfig = this.input.mochartConfig!;
     this.chartData = chartData;
     // Expose the initial value tween's progress (chart types with entrance
     // effects — the pie sweep-in — consume it); cleared once values settle.
@@ -220,7 +222,7 @@ export class AnimatedDataSource implements ChartDataSource {
       this.focusData = getFocusDataWithMutations(this.focusData!, getFocusDataWithDomainPercentages(this.focusData!, mochartConfig, chartData));
       if (this.focusTweening || focusedCategoryIndex >= 0) {
         const newFocusedCategoryIndex = focusedCategoryIndex >= 0 ? mergedIndexForNewIndex(this.chartAnimationData!.categoryDeltaData, focusedCategoryIndex) : -1;
-        this.startFocusTween(this.input, newFocusedCategoryIndex);
+        this.startFocusTween(mochartConfig, this.input, newFocusedCategoryIndex);
       }
     }
     else if (this.hasCategoryRemovals && updateType === dataTweenValueComplete) {
@@ -228,7 +230,7 @@ export class AnimatedDataSource implements ChartDataSource {
         this.focusData!, mochartConfig, chartData, this.chartAnimationData!.categoryDeltaData, false, this.focusTweening));
       this.focusData = getFocusDataWithMutations(this.focusData!, getFocusDataWithDomainPercentages(this.focusData!, mochartConfig, chartData));
       if (this.focusTweening || focusedCategoryIndex >= 0 && this.focusData!.focusedCategoryIndex !== focusedCategoryIndex) {
-        this.startFocusTween(this.input);
+        this.startFocusTween(mochartConfig, this.input);
       }
     }
     else {
@@ -238,7 +240,8 @@ export class AnimatedDataSource implements ChartDataSource {
   }
 
   private updateFocusData = (focusData: FocusData): void => {
-    const { mochartConfig } = this.input;
+    // same invariant as updateChartData: the running tween implies a valid config
+    const mochartConfig = this.input.mochartConfig!;
     this.focusData = getFocusDataWithMutations(this.focusData!, getFocusDataWithDomainPercentages(focusData, mochartConfig, this.chartData!));
     this.emit();
   }

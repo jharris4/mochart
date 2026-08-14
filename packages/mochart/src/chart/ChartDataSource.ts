@@ -7,8 +7,9 @@ export type { InternalFocus };
 
 /** Everything a data source needs to compute chartData/focusData for one chart state. */
 export interface ChartDataSourceInput {
-  mochartConfig: EnhancedMochartConfig;
-  dataProvider: DataProvider;
+  // both null while the host is still loading them; the sources emit null chartData then
+  mochartConfig: EnhancedMochartConfig | null;
+  dataProvider: DataProvider | null;
   filteredSeriesIds: Record<string, boolean>;
   focusedCategoryIndex: number;
   focusedValueAxisId: string | null;
