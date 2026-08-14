@@ -57,11 +57,11 @@
     "@mochart/core": "^1.0.0"
   },
   "devDependencies": {
-    "@angular/compiler": "^22.0.7",
+    "@angular/compiler": "^22.1.1",
     "@mochart/core": "^1.0.0",
     "@angular/compiler-cli": "^22.0.7",
-    "@angular/core": "^22.0.7",
-    "@angular/platform-browser": "^22.0.7",
+    "@angular/core": "^22.1.1",
+    "@angular/platform-browser": "^22.1.1",
     "rxjs": "^7.8.2"
   },
   "scripts": {
