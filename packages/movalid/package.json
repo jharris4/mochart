@@ -21,7 +21,13 @@
     "url": "https://github.com/jharris4/mochart/issues"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/validators.d.ts",
+        "default": "./dist/validators.js"
+      }
+    }
   },
   "type": "module",
   "engines": {
@@ -33,8 +39,8 @@
   "types": "./dist/validators.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/validators.d.ts",
       "development": "./src/validators.ts",
+      "types": "./dist/validators.d.ts",
       "default": "./dist/validators.js"
     }
   },

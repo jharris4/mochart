@@ -25,7 +25,14 @@
     "url": "https://github.com/jharris4/mochart/issues"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./editor.css": "./css/editor.css"
+    }
   },
   "type": "module",
   "engines": {
@@ -39,8 +46,8 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
     "./editor.css": "./css/editor.css"

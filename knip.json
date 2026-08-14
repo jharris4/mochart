@@ -4,7 +4,8 @@
   "workspaces": {
     ".": {
       "entry": ["scripts/*.mjs"],
-      "project": ["scripts/**/*.mjs"]
+      "project": ["scripts/**/*.mjs"],
+      "ignoreDependencies": ["pnpm"]
     },
 
     "packages/mochart": {

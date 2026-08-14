@@ -44,6 +44,9 @@ jobs:
       - run: npm run lint
       - run: npm run deadcode
       - run: npm run typecheck
+      # Published manifests must be dist-only: pnpm swaps in publishConfig.exports
+      # at pack time, stripping the monorepo-only development condition.
+      - run: npm run check:publish
       - run: npm test
       # Browser binaries are tied to the resolved @playwright/test version, so
       # keying on it invalidates the cache exactly when a bump needs new ones.
