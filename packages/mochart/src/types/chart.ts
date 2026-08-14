@@ -173,6 +173,11 @@ export interface BaseChartProps extends ChartCallbacks, ChartFactories {
    * `position: relative`. The tooltip and the screen-reader live region are
    * positioned against that root, so override `position` only with another
    * non-`static` value (`absolute`, `fixed` and `sticky` all work).
+   *
+   * Object keys are camelCase CSS property names (`minWidth`, not
+   * `'min-width'`), and bare numbers get a `px` suffix except on unitless
+   * properties such as `opacity`, `zIndex` and `flex`. The string form is
+   * regular CSS text and uses kebab-case as usual.
    */
   style?: string | Record<string, string | number | null | undefined>;
   /** Switches the chart into its loading state (see `getLoadingComponent`). */
