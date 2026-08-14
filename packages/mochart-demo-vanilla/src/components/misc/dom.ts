@@ -253,19 +253,46 @@ export function buttonWithTooltip(options: ButtonOptions): ButtonHandle {
     ? null
     : el('span', { className: 'btn-menu-label', text: options.menuLabel });
 
+  // Equivalent content bails out (compare setChildren): sync passes call this
+  // unconditionally with freshly minted icons, and replacing equal children
+  // detaches the pressed node mid-press — the browser then never fires `click`.
+  function contentMatches(desired: readonly (Node | string)[]): boolean {
+    const current = button.childNodes;
+    if (current.length !== desired.length) {
+      return false;
+    }
+    for (let i = 0; i < desired.length; i++) {
+      const want = desired[i];
+      const have = current[i];
+      if (typeof want === 'string') {
+        if (have.nodeType !== Node.TEXT_NODE || have.textContent !== want) {
+          return false;
+        }
+      }
+      else if (want !== have && !have.isEqualNode(want)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   function setContent(content: Child[]): void {
-    button.replaceChildren();
+    const desired: (Node | string)[] = [];
     for (const child of content) {
       if (child !== null && child !== undefined) {
-        button.append(child);
+        desired.push(child);
       }
     }
     if (menuLabelSpan !== null) {
-      button.append(menuLabelSpan);
+      desired.push(menuLabelSpan);
     }
     if (hasLabel) {
-      button.append(labelSpan);
+      desired.push(labelSpan);
     }
+    if (contentMatches(desired)) {
+      return;
+    }
+    button.replaceChildren(...desired);
   }
 
   function setLabel(label: string): void {

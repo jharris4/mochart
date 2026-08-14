@@ -1,4 +1,4 @@
-import { byAria, byTitle, demoText, expect, openDemo, phoneTag, pressUntil, tabPanel, test } from './helpers';
+import { byAria, byTitle, demoText, expect, openDemo, phoneTag, press, tabPanel, test } from './helpers';
 import type { Locator, Page } from '@playwright/test';
 
 // The phone fold reparents controls into the overflow panel rather than mirroring them, so a duplicate is the regression to guard and "appears exactly once" is the assertion that catches it.
@@ -41,7 +41,7 @@ async function expectExactlyOnce(scope: Locator, ariaLabels: readonly string[]):
 
 /** Open the chart strip's `…` menu, whose contents are the folded controls themselves. */
 async function openChartMenu(page: Page): Promise<void> {
-  await pressUntil(byAria(chartPanel(page), overflowMenu.chart.aria), 'aria-expanded', 'true');
+  await press(byAria(chartPanel(page), overflowMenu.chart.aria), 'aria-expanded', 'true');
 }
 
 /**
@@ -55,7 +55,7 @@ async function openChartMenu(page: Page): Promise<void> {
 async function toggleEditMode(page: Page, toSeries: boolean): Promise<void> {
   const { editMode } = editableChart;
   const nextTooltip = toSeries ? editMode.tooltipToCategories : editMode.tooltipToSeries;
-  await pressUntil(byAria(chartPanel(page), editMode.aria), 'title', nextTooltip);
+  await press(byAria(chartPanel(page), editMode.aria), 'title', nextTooltip);
 }
 
 test.beforeEach(async ({ page }) => {
@@ -110,7 +110,7 @@ test('the navigation row folds and offers each control once', { tag: phoneTag },
   await expect(byTitle(page, demoText.modeSwitcher.modes.random.title)).toHaveCount(1);
   await expect(byTitle(page, demoText.modeSwitcher.modes.multi.title)).toHaveCount(0);
 
-  await pressUntil(trigger, 'aria-expanded', 'true');
+  await press(trigger, 'aria-expanded', 'true');
   await expect(back).toBeVisible();
   await expect(byTitle(page, demoText.modeSwitcher.modes.single.title)).toBeVisible();
 });

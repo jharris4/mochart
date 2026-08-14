@@ -47,16 +47,14 @@ export function tabPanel(page: Page, name: DemoTabName): Locator {
   return page.locator('#' + demoTabPanelId(name));
 }
 
-/** Press `control` until `attribute` reads `value` — a press right after render can be lost when the demos re-home nodes, so assert the state and retry. */
-export async function pressUntil(control: Locator, attribute: string, value: string): Promise<void> {
-  await expect(async () => {
-    await control.click();
-    await expect(control).toHaveAttribute(attribute, value, { timeout: 1000 });
-  }).toPass();
+/** Press `control` once and assert `attribute` reads `value` — no retry, so a lost press fails the gate. */
+export async function press(control: Locator, attribute: string, value: string): Promise<void> {
+  await control.click();
+  await expect(control).toHaveAttribute(attribute, value);
 }
 
 export async function selectTab(page: Page, name: DemoTabName): Promise<void> {
-  await pressUntil(page.locator('#' + demoTabId(name)), 'aria-selected', 'true');
+  await press(page.locator('#' + demoTabId(name)), 'aria-selected', 'true');
 }
 
 /** Open a demo in one of the switchable modes and wait for its first chart. */
@@ -85,7 +83,7 @@ export function readClipboard(page: Page): Promise<string> {
 
 /** Open the export/share dropdown inside `scope` and wait for it to be expanded. */
 export async function openExportShareMenu(scope: Page | Locator): Promise<void> {
-  await pressUntil(byAria(scope, demoText.exportShareMenu.trigger.aria), 'aria-expanded', 'true');
+  await press(byAria(scope, demoText.exportShareMenu.trigger.aria), 'aria-expanded', 'true');
 }
 
 /** Copy the current view's share link and hand back what landed on the clipboard. */
