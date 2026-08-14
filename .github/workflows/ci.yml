@@ -135,7 +135,7 @@ jobs:
     env:
       CLOUDFLARE_PROJECT: mochart
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: cloudflare-site
           path: site
