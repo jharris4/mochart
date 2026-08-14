@@ -1,5 +1,5 @@
 import { NONE } from './constants';
-import { deepMerge, deepMergeAll, withoutUndefined } from './deepMerge';
+import { deepClone, deepMerge, deepMergeAll, withoutUndefined } from './deepMerge';
 import type { ConfigValidation, MochartConfig } from '../../types/config';
 
 type ConfigRecord = Record<string, unknown>;
@@ -154,12 +154,12 @@ export function getRawIndices(sections: unknown): number[] | null {
   return rawIndices;
 }
 
-// never install the defaults' own entry objects: the build step wires list references onto entries in place
 // the *Defaults section still applies to an implicit entry, which is the only entry valueAxes ever has
 const copyDefaultsList = (defaultsSection: unknown[], allSection: ConfigRecord): unknown[] =>
   defaultsSection.map(entry => isObject(entry) ? deepMerge<ConfigRecord>(entry, allSection) : entry);
 
-export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRecord): ConfigRecord {
+/** A fully independent config with `defaults` merged in: the result shares no object with either argument. */
+export function getConfigWithDefaults(configWithoutDefaults: unknown, defaults: ConfigRecord): ConfigRecord {
   if (isObject(configWithoutDefaults)) {
     const config = { ...configWithoutDefaults };
     const sectionKeys = Object.keys(defaults);
@@ -201,15 +201,111 @@ export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRe
         }
       }
     }
-    return config;
+    return deepClone(config);
   }
   return {};
 }
 
+function areEqual(a: unknown, b: unknown): boolean {
+  if (a === b) {
+    return true;
+  }
+  else if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length === b.length) {
+      const count = a.length;
+      let i;
+      for (i = 0; i < count; i++) {
+        if (!areEqual(a[i], b[i])) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+  else if (isObject(a) && isObject(b)) {
+    const keys = Object.keys(a);
+    if (areEqual(keys, Object.keys(b))) {
+      for (const key of keys) {
+        if (!areEqual(a[key], b[key])) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+function removeSectionDefaults(defaultSectionValue: unknown, allSection: ConfigRecord, configSection: unknown): unknown {
+  if (isObject(configSection)) {
+    const defaultSection = isObject(defaultSectionValue) ? defaultSectionValue : {};
+    const sectionKeys = Object.keys(configSection);
+    const newSection: ConfigRecord = {};
+    for (const sectionKey of sectionKeys) {
+      if (!areEqual(defaultSection[sectionKey], configSection[sectionKey]) &&
+          !areEqual(allSection[sectionKey], configSection[sectionKey])) {
+        newSection[sectionKey] = configSection[sectionKey];
+      }
+    }
+    return newSection;
+  }
+  else {
+    return configSection;
+  }
+}
+
+/** The minimal config: a fully independent copy of `config` with every value that matches `defaults` (or the config's own `*Defaults` sections) removed. Inverse of `getConfigWithDefaults`. */
+export function getConfigWithoutDefaults(config: unknown, defaults: ConfigRecord): ConfigRecord {
+  const minimal: ConfigRecord = {};
+  if (isObject(config) && isObject(defaults)) {
+    const sectionKeys = Object.keys(config);
+    for (const sectionKey of sectionKeys) {
+      const configSection = config[sectionKey];
+      const allKey = sectionKeyAllMap[sectionKey];
+      const allSectionValue = allKey && config[allKey] !== undefined ? config[allKey] : {};
+      const allSection = isObject(allSectionValue) ? allSectionValue : {};
+      if (configSection !== undefined) {
+        const defaultsSection = defaults[sectionKey];
+        if (defaultsSection !== undefined) {
+          if (Array.isArray(configSection)) {
+            const defaultSections = Array.isArray(defaultsSection) ? defaultsSection : [];
+            const newSections: unknown[] = [];
+            const count = defaultSections.length;
+            let i, newSection;
+            for (i = 0; i < count; i++) {
+              newSection = removeSectionDefaults(defaultSections[i], allSection, configSection[i]);
+              newSections.push(newSection);
+            }
+            // defaults-only sections (e.g. seriesStacks: []) stay out, like empty objects below
+            if (newSections.length > 0) {
+              minimal[sectionKey] = newSections;
+            }
+          }
+          else if (isObject(configSection)) {
+            const newSection = removeSectionDefaults(defaultsSection, allSection, configSection);
+            if (isObject(newSection) && Object.keys(newSection).length > 0) {
+              minimal[sectionKey] = newSection;
+            }
+          }
+          else {
+            minimal[sectionKey] = configSection;
+          }
+        }
+        else {
+          minimal[sectionKey] = configSection;
+        }
+      }
+    }
+  }
+  return deepClone(minimal);
+}
+
 function applyAllConfig(configs: ConfigRecord[], allConfig: unknown): ConfigRecord[] {
   if (isObject(allConfig)) {
+    // cloned so the built graph shares nothing with the caller's *Defaults sections
+    const ownedAllConfig = deepClone(allConfig);
     if (Array.isArray(configs)) {
-      configs = configs.map(config => isObject(config) ? deepMerge<ConfigRecord>(allConfig, config) : allConfig);
+      configs = configs.map(config => isObject(config) ? deepMerge<ConfigRecord>(ownedAllConfig, config) : ownedAllConfig);
     }
   }
   return configs;
@@ -232,7 +328,7 @@ export default function buildMochartConfig(configWithoutDefaults: unknown, confi
     console.warn('mochartConfig had a validation property that will be overriden');
   }
 
-  const config = applyDefaults(configWithoutDefaults, configDefaults);
+  const config = getConfigWithDefaults(configWithoutDefaults, configDefaults);
   let valueAxisConfigs = config.valueAxes as ConfigRecord[];
   let seriesStackConfigs = config.seriesStacks as ConfigRecord[];
   let seriesGroupConfigs = config.seriesGroups as ConfigRecord[];

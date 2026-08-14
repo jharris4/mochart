@@ -8,7 +8,7 @@ export { createChart, createDefaultChart } from './createChart';
 export type { ChartHandle } from './createChart';
 export { getVersionString } from './version';
 export { ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider } from './data/DataProvider';
-export { default as buildMochartConfig, hasConfigStructureChange, applyDefaults, sectionKeyAllMap } from './config/core/mochartConfig';
+export { default as buildMochartConfig, hasConfigStructureChange, getConfigWithDefaults, getConfigWithoutDefaults, sectionKeyAllMap } from './config/core/mochartConfig';
 export { getDefaults } from './config/defaults/mochartConfig';
 export { default as validateConfig } from './config/validation/mochartConfig';
 export { validateConfigDetailed } from './config/validation/mochartConfig';

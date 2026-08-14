@@ -2,7 +2,7 @@ import validators from './validators';
 import { getMessage, getPropertyMessage, getMessages, addWarningMessages, DEFAULT } from './messages';
 import type { LocatedValidationMessage } from './messages';
 import { CHART_TYPE_PIE, NONE, CONFIG_VERSION } from '../core/constants';
-import { applyDefaults, configWithAll, filterConfig, filterConfigs, getRawIndices, sectionKeyAllMap } from '../core/mochartConfig';
+import { configWithAll, filterConfig, filterConfigs, getConfigWithDefaults, getRawIndices, sectionKeyAllMap } from '../core/mochartConfig';
 
 import accessibilityValidators from './accessibilityConfig';
 import animationValidators from './animationConfig';
@@ -223,7 +223,7 @@ function validateConfigInternal(configWithoutDefaults: unknown, configDefaults: 
   const errorDetails: LocatedValidationMessage[] = [];
   const warningDetails: LocatedValidationMessage[] = [];
   if (objectValidator(configWithoutDefaults) && isConfigRecord(configWithoutDefaults)) {
-    const config = applyDefaults(configWithoutDefaults, configDefaults);
+    const config = getConfigWithDefaults(configWithoutDefaults, configDefaults);
     addWarningMessages('config', config, configSectionValidators, warnings, warningDetails);
     const sectionKeys = Object.keys(configWithoutAllValidators);
     for (const sectionKey of sectionKeys) {

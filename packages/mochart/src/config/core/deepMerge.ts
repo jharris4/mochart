@@ -66,3 +66,21 @@ export function deepMergeAll<T extends object>(...layers: (object | null | undef
   }
   return merged as T;
 }
+
+/** A fully independent copy: plain objects and arrays are copied recursively, dates are copied, anything else passes through by reference. */
+export function deepClone<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map(deepClone) as T;
+  }
+  if (value instanceof Date) {
+    return new Date(value.getTime()) as T;
+  }
+  if (isPlainObject(value)) {
+    const clone: MergeRecord = Object.create(null); // null proto: a JSON-owned __proto__ key must not rewrite the clone prototype
+    for (const key of Object.keys(value)) {
+      clone[key] = deepClone(value[key]);
+    }
+    return clone as T;
+  }
+  return value;
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { deepMerge, deepMergeAll, isPlainObject, withoutUndefined } from '../../src/config/core/deepMerge';
+import { deepClone, deepMerge, deepMergeAll, isPlainObject, withoutUndefined } from '../../src/config/core/deepMerge';
 import { enhanceConfig } from '../../src/config/helper';
 import { getDefaults } from '../../src/config/defaults/mochartConfig';
 import { validateConfigDetailed } from '../../src/config/validation/mochartConfig';
@@ -112,6 +112,32 @@ describe('deepMergeAll', () => {
   it('layers each object over the ones before it, member by member', () => {
     expect(deepMergeAll({ s: { a: 1, b: 1, c: 1 } }, { s: { b: 2 } }, { s: { c: 3 } }))
       .toEqual({ s: { a: 1, b: 2, c: 3 } });
+  });
+});
+
+describe('deepClone', () => {
+  it('copies plain objects and arrays recursively', () => {
+    const value = { a: { b: [1, { c: 2 }] } };
+    const clone = deepClone(value);
+    expect(clone).toEqual(value);
+    expect(clone.a).not.toBe(value.a);
+    expect(clone.a.b).not.toBe(value.a.b);
+    expect(clone.a.b[1]).not.toBe(value.a.b[1]);
+  });
+
+  it('copies dates', () => {
+    const date = new Date('2026-01-01T00:00:00Z');
+    const clone = deepClone({ min: date });
+    expect(clone.min).not.toBe(date);
+    expect(clone.min.getTime()).toBe(date.getTime());
+  });
+
+  it('passes primitives and non-plain values through by reference', () => {
+    const callback = () => 'x';
+    const clone = deepClone({ a: 1, b: null, c: callback });
+    expect(clone.a).toBe(1);
+    expect(clone.b).toBe(null);
+    expect(clone.c).toBe(callback);
   });
 });
 
