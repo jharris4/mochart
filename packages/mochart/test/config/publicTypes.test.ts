@@ -56,31 +56,26 @@ describe('public config type surface', () => {
     expect(invalidConfig.patterns).toHaveLength(1);
   });
 
-  it('exposes the value constants for every enumerated config member', () => {
+  it('exposes only the value constants consumers import; enumerated values are written as literals', () => {
     const expected: Record<string, unknown> = {
-      CONFIG_VERSION: '1.0.0', AUTO: 'auto', NONE: null,
-      ALIGN_LEFT: 'left', ALIGN_CENTER: 'center', ALIGN_RIGHT: 'right',
-      VERTICAL_ALIGN_TOP: 'top', VERTICAL_ALIGN_MIDDLE: 'middle', VERTICAL_ALIGN_BOTTOM: 'bottom',
-      ANCHOR_START: 'start', ANCHOR_MIDDLE: 'middle', ANCHOR_END: 'end',
-      POSITION_TOP: 'top', POSITION_BOTTOM: 'bottom',
-      SIDE_START: 'start', SIDE_END: 'end',
-      TITLE_SIDE_LOW: 'low', TITLE_SIDE_HIGH: 'high',
-      MISSING_VALUES_BREAK: 'break', MISSING_VALUES_CONNECT: 'connect', MISSING_VALUES_BASE: 'base',
-      RENDERER_BAR: 'bar', RENDERER_LINE: 'line', RENDERER_AREA: 'area', RENDERER_NONE: 'none',
-      PATTERN_TYPE_LINES: 'lines', PATTERN_TYPE_CROSSHATCH: 'crosshatch', PATTERN_TYPE_DOTS: 'dots',
-      CURVE_TYPE_LINEAR: 'linear', CURVE_TYPE_STEP_AFTER: 'stepAfter',
-      CAP_TYPE_POINT: 'point', CAP_TYPE_ROUND: 'round',
-      LABEL_POSITION_INSIDE: 'inside', LABEL_POSITION_OUTSIDE: 'outside',
-      COLOR_SERIES: 'series', COLOR_SAME: 'same', COLOR_CURRENT: 'currentColor',
-      COLOR_INTERPOLATION_RGB: 'rgb', COLOR_INTERPOLATION_HCL: 'hcl',
-      MARKER_SHAPE_CIRCLE: 'circle', MARKER_SHAPE_WYE: 'wye',
-      MARKER_SIZE_SCALE_SQRT: 'sqrt', MARKER_SIZE_SCALE_LINEAR: 'linear',
-      PIE_LABEL_TYPE_VALUE: 'value', PIE_LABEL_TYPE_TITLE_PERCENT: 'titlePercent'
+      AUTO: 'auto', NONE: null,
+      TYPE_STRING: 'string', TYPE_NUMBER: 'number', TYPE_DATE: 'date',
+      SCALE_ORDINAL: 'ordinal', SCALE_LINEAR: 'linear',
+      CHART_TYPE_XY: 'xy', CHART_TYPE_PIE: 'pie'
     };
     const exported = mochart as unknown as Record<string, unknown>;
     for (const [name, value] of Object.entries(expected)) {
       expect(name in exported, `${name} is not exported`).toBe(true);
       expect(exported[name], name).toBe(value);
+    }
+    const removed = [
+      'CONFIG_VERSION', 'ALIGN_LEFT', 'RENDERER_BAR', 'CURVE_TYPE_LINEAR', 'MARKER_SHAPE_CIRCLE',
+      'PIE_LABEL_TYPE_VALUE', 'COLOR_SERIES', 'PATTERN_TYPE_LINES',
+      'Chart', 'Legend', 'Crosshair', 'Tooltip', 'Renderer', 'El', 'svgEl',
+      'FocusController', 'StaticDataSource', 'AnimatedDataSource', 'isDataProviderValid'
+    ];
+    for (const name of removed) {
+      expect(name in exported, `${name} should no longer be exported`).toBe(false);
     }
   });
 });
@@ -113,8 +108,17 @@ describe('tooltip background style', () => {
   });
 });
 
-// the measure/layout/tween internals are no longer exported; the types a host names to implement DataProvider or ChartDataSource stay public
+// the measure/layout/tween internals and the data-source pipeline are no longer exported; the types a host names to implement DataProvider stay public
 import type * as core from '../../src';
+
+export type DataSourceInternals = [
+  // @ts-expect-error chart/ChartDataSource.ts internal
+  core.ChartDataSource,
+  // @ts-expect-error chart/ChartDataSource.ts internal
+  core.ChartDataSourceInput,
+  // @ts-expect-error chart/ChartDataSource.ts internal
+  core.InternalFocus
+];
 
 // one directive per type, so re-exporting any single internal makes it unused and fails the typecheck
 export type GeometryInternals = [
@@ -240,7 +244,7 @@ export type LayoutInternals = [
   core.ChartDataForLayout
 ];
 
-// the kept surface, named the way a host implementing the two extension points has to name it
+// the kept surface, named the way a host implementing the DataProvider extension point has to name it
 const rows: readonly core.DataRow[] = [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }];
 
 const provider: core.DataProvider = {
@@ -251,92 +255,11 @@ const provider: core.DataProvider = {
   refresh: (): void => {}
 };
 
-function makeDomain(low: core.DomainValue, high: core.DomainValue): core.NullableDomain<number | Date> {
-  return [low, high];
-}
-
-function makeCategoryData(values: readonly core.CategoryValue[]): core.CategoryData {
-  const axisDomain: core.CategoryAxisDomain = makeDomain(0, values.length - 1);
-  const categoryValues: core.CategoryValues = {
-    raw: values, display: values, parsed: values, numeric: values.map((_value, index) => index)
-  };
-  return { axisDomain, renderAxisDomain: axisDomain, values: categoryValues };
-}
-
-function makeSeriesData(seriesId: string, plain: core.NumericValues): core.SeriesData {
-  const axisDomains: core.AxisDomains = { A0: [0, 100] };
-  const seriesDomain: core.SeriesDomainObject = { A0: [0, 100] };
-  const domains: core.SeriesDomainObjects = { [seriesId]: seriesDomain };
-  const seriesValues: core.SeriesValueObject = {
-    plain, range: null, errorLow: null, errorHigh: null, stack: null, prior: null,
-    marker: null, label: null, color: null, tooltip: null,
-    markerCopyKey: null, labelCopyKey: null, colorCopyKey: null, tooltipCopyKey: null,
-    min: plain, max: plain
-  };
-  const values: core.SeriesValueObjects = { [seriesId]: seriesValues };
-  const raw: core.SeriesDataSet = { axisDomains, renderAxisDomains: axisDomains, domains, values };
-  return { axisBases: { A0: 0 }, axisSeriesCounts: { A0: 1 }, raw, filteredFlags: {}, filtered: raw };
-}
-
-// a host swapping the data pipeline implements this interface, so every type it names must be public
-class RecordingDataSource implements core.ChartDataSource {
-  readonly animated = false;
-
-  chartData: core.ChartData | null = null;
-
-  focusData: core.FocusData | null = null;
-
-  readonly initialAnimationPercentage: number | null = null;
-
-  start(input: core.ChartDataSourceInput): void {
-    const first: core.NumericValue = 10;
-    this.chartData = {
-      categoryData: makeCategoryData((input.dataProvider.getPropertyValues(input.mochartConfig?.categoryAxis.property ?? 'month') ?? []) as readonly core.CategoryValue[]),
-      seriesData: makeSeriesData('S0', [first, 20])
-    };
-    const categoryFocusPercentages: core.FocusPercentage[] = [null, null];
-    const axisFocusPercentages: core.FocusPercentageMap = { A0: null };
-    this.focusData = {
-      focusedCategoryIndex: input.focusedCategoryIndex,
-      focusedValueAxisId: input.focusedValueAxisId,
-      focusedSeriesId: input.focusedSeriesId,
-      categoryFocusPercentages,
-      valueAxisFocusPercentages: axisFocusPercentages,
-      seriesFocusPercentages: { S0: null }
-    };
-  }
-
-  update(_prevInput: core.ChartDataSourceInput, input: core.ChartDataSourceInput): void {
-    this.start(input);
-  }
-
-  remapFocus(focus: core.InternalFocus): core.InternalFocus {
-    return focus;
-  }
-
-  dispose(): void {}
-}
-
 describe('public extension-point type surface', () => {
   it('exposes every type a DataProvider implementation names', () => {
     expect(provider.getPropertyValues('month')).toEqual(['Jan', 'Feb']);
     expect(provider.getPropertyValues('sales')).toEqual([10, 20]);
     expect(provider.getPropertyValues('vlaue')).toBeUndefined();
-  });
-
-  it('exposes every type a ChartDataSource implementation names', () => {
-    const source = new RecordingDataSource();
-    source.start({
-      mochartConfig: null as unknown as core.ChartDataSourceInput['mochartConfig'],
-      dataProvider: provider,
-      filteredSeriesIds: {},
-      focusedCategoryIndex: -1,
-      focusedValueAxisId: null,
-      focusedSeriesId: null
-    });
-    expect(source.chartData?.categoryData.values.raw).toEqual(['Jan', 'Feb']);
-    expect(source.chartData?.seriesData.raw.values.S0?.plain).toEqual([10, 20]);
-    expect(source.focusData?.categoryFocusPercentages).toHaveLength(2);
   });
 
   it('reports its bounds and spacing types by name', () => {
