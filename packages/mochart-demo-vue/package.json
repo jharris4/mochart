@@ -13,7 +13,7 @@
     "@mochart/editor": "^1.0.0",
     "@mochart/export": "^1.0.0",
     "@mochart/vue": "^1.0.0",
-    "vue": "^3.5.40"
+    "vue": "^3.5.41"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",
