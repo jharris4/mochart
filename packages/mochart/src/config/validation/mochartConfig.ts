@@ -2,7 +2,9 @@ import validators from './validators';
 import { getMessage, getPropertyMessage, getMessages, addWarningMessages, DEFAULT } from './messages';
 import type { LocatedValidationMessage } from './messages';
 import { CHART_TYPE_PIE, NONE, CONFIG_VERSION } from '../core/constants';
-import { configWithAll, filterConfig, filterConfigs, getConfigWithDefaults, getRawIndices, sectionKeyAllMap } from '../core/mochartConfig';
+import { configWithAll, filterConfig, filterConfigs, getRawIndices } from '../core/configUtils';
+import { getConfigWithDefaults, sectionKeyAllMap } from '../core/mochartConfig';
+import { getDefaults } from '../defaults/mochartConfig';
 
 import accessibilityValidators from './accessibilityConfig';
 import animationValidators from './animationConfig';
@@ -212,7 +214,7 @@ for (const allKey of allKeys) {
   configSectionValidators[validator.allKey] = validator;
 }
 
-export default function validateConfig(configWithoutDefaults: unknown, configDefaults: ConfigRecord, strict = true): ConfigValidation {
+export default function validateConfig(configWithoutDefaults: unknown, configDefaults: ConfigRecord = getDefaults(configWithoutDefaults), strict = true): ConfigValidation {
   const { valid, errors, warnings } = validateConfigInternal(configWithoutDefaults, configDefaults, strict);
   return { valid, errors, warnings };
 }
@@ -336,7 +338,7 @@ function diagnosticFromDetail(detail: LocatedValidationMessage, severity: 'error
  * editor integrations. The legacy validateConfig result deliberately keeps
  * its exact three-property shape.
  */
-export function validateConfigDetailed(configWithoutDefaults: unknown, configDefaults: ConfigRecord, strict = true): DetailedConfigValidation {
+export function validateConfigDetailed(configWithoutDefaults: unknown, configDefaults: ConfigRecord = getDefaults(configWithoutDefaults), strict = true): DetailedConfigValidation {
   const { errorDetails, warningDetails, ...validation } = validateConfigInternal(configWithoutDefaults, configDefaults, strict);
   return {
     ...validation,

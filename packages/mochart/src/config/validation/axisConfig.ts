@@ -1,5 +1,5 @@
 import validators, { boundValue } from './validators';
-import { filterConfig, getRawIndices } from '../core/mochartConfig';
+import { filterConfig, getRawIndices } from '../core/configUtils';
 import { getPropertyMessage, isConfigObject } from './messages';
 
 import { AUTO, NONE, ANCHORS, COLOR_SAME, SIDES, THRESHOLD_TITLE_SIDES, TYPE_DATE } from '../core/constants';

@@ -3,11 +3,9 @@ import buildMochartConfig, {
   getConfigWithDefaults,
   getConfigWithoutDefaults,
   sectionKeyAllMap,
-  hasConfigStructureChange,
-  configWithAll,
-  filterConfig,
-  filterConfigs
+  hasConfigStructureChange
 } from '../../src/config/core/mochartConfig';
+import { configWithAll, filterConfig, filterConfigs } from '../../src/config/core/configUtils';
 import { getDefaults } from '../../src/config/defaults/mochartConfig';
 import { makeConfig } from '../data/fixtures';
 import type { MochartConfig } from '../../src/types/config';
@@ -160,6 +158,27 @@ describe('with/without defaults round-trip', () => {
     const defaults = getDefaults(config);
     const minimal = getConfigWithoutDefaults(getConfigWithDefaults(config, defaults), defaults);
     expect(getConfigWithoutDefaults(getConfigWithDefaults(minimal, defaults), defaults)).toEqual(minimal);
+  });
+
+  // the one-argument forms self-derive their defaults, so the pair only composes
+  // if a fully-defaulted config derives the same defaults graph as its raw form
+  it('derives the same defaults from a config and its fully-defaulted form', () => {
+    const pieConfig = {
+      chart: { type: 'pie' },
+      categoryAxis: { property: 'label', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'value' }, { property: 'other' }]
+    };
+    for (const aConfig of [config, pieConfig]) {
+      const defaults = getDefaults(aConfig);
+      expect(getDefaults(getConfigWithDefaults(aConfig, defaults))).toEqual(defaults);
+    }
+  });
+
+  it('the one-argument forms match the explicit-defaults forms', () => {
+    const defaults = getDefaults(config);
+    const configWithDefaults = getConfigWithDefaults(config, defaults);
+    expect(getConfigWithDefaults(config)).toEqual(configWithDefaults);
+    expect(getConfigWithoutDefaults(configWithDefaults)).toEqual(getConfigWithoutDefaults(configWithDefaults, defaults));
   });
 });
 

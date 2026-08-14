@@ -6,12 +6,12 @@ The complete documented API of `@mochart/core`, grouped by task:
 | --- | --- |
 | [Entry points](#createdefaultchart) | `createDefaultChart`, `createChart`, [`ChartHandle`](#charthandle) |
 | [Data providers](#data-providers) | `ArrayOfObjectsDataProvider`, `ObjectOfArraysDataProvider`, the `DataProvider` interface |
-| [Config helpers](#config-helpers) | `enhanceConfig`, `validateConfig`, `validateConfigDetailed`, `migrateConfig`, `getDefaults`, `getDataErrors` |
+| [Config helpers](#config-helpers) | `enhanceConfig`, `validateConfig`, `validateConfigDetailed`, `migrateConfig`, `getDefaults`, `getConfigWithDefaults`, `getConfigWithoutDefaults`, `getDataErrors` |
 | [Chart helpers](#chart-helpers) | `createHistogram`, `createWaterfall`, `createHeatmap`, `createCandlestick`, `createOhlc`, `createPie`, `createSparklineConfig` |
 | [Constants](#constants) | `NONE`, `AUTO`, `TYPE_*`, `SCALE_*`, `CHART_TYPE_*`, and the config union types |
 | [Styling hooks](#styling-hooks) | `mochartCssClasses` |
 | [Version](#version) | `getVersionString` |
-| [Advanced exports](#advanced-exports) | `hasConfigStructureChange` |
+| [Advanced exports](#advanced-exports) | `buildMochartConfig`, `hasConfigStructureChange` |
 
 The framework bindings — see the
 [framework pages](/guide/frameworks/react) — have their own entry points
@@ -127,18 +127,24 @@ properties are read.
 
 ```ts
 import {
-  enhanceConfig, validateConfig, validateConfigDetailed,
-  migrateConfig, getDefaults, getDataErrors
+  enhanceConfig, validateConfig, validateConfigDetailed, migrateConfig,
+  getDefaults, getConfigWithDefaults, getConfigWithoutDefaults, getDataErrors
 } from '@mochart/core';
 
-validateConfig(config, getDefaults(config), strict?)
-                                             // → { valid, errors, warnings }
-validateConfigDetailed(config, getDefaults(config), strict?)
+validateConfig(config, defaults?, strict?)   // → { valid, errors, warnings }
+validateConfigDetailed(config, defaults?, strict?)
                                              // → validation plus path-addressable diagnostics
 migrateConfig(config)                        // → config upgraded to the current format version
 enhanceConfig(config)                        // → MochartConfig (validated, defaults applied)
+getConfigWithDefaults(config, defaults?)     // → the config with every default value filled in
+getConfigWithoutDefaults(config, defaults?)  // → the minimal config: every default-matching value removed
 getDataErrors(mochartConfig, dataProvider)   // → string[] of readable data problems
 ```
+
+Every `defaults` parameter is optional: when omitted it is derived from the
+config, which is what one-off calls want. Pass it explicitly — from
+`getDefaults(config)` — to share one defaults graph across several calls on
+the same config, or to substitute a custom graph.
 
 `strict` defaults to `true`, which is what the chart entry points use: warnings — an unknown
 config property, for instance — make the config invalid. Pass `false` to keep a config valid
@@ -158,8 +164,21 @@ while still collecting its warnings, which is what a live-preview editor wants.
 - `enhanceConfig` produces the fully-built `MochartConfig` that
   `createChart` consumes: migrated to the current format, validated, every
   default applied, `*Defaults` sections merged, and cross-references resolved.
-  The lower-level `getDefaults` / `validateConfig` do not migrate — call
-  `migrateConfig` first if you use them directly on a stored config.
+  It never mutates the config it is given. The lower-level helpers —
+  `getDefaults`, `validateConfig`, `getConfigWithDefaults`,
+  `getConfigWithoutDefaults` — do not migrate: call `migrateConfig` first if
+  you use them directly on a stored config.
+- `getConfigWithDefaults` returns the config a chart would actually run:
+  every default filled in and the `*Defaults` sections merged into their
+  entries. Unlike `enhanceConfig`, the result is still a plain raw config —
+  serializable JSON, no cross-references resolved.
+- `getConfigWithoutDefaults` is its inverse: the minimal config, with every
+  value that only restates a default removed — what a config editor wants to
+  display or store. Re-applying defaults to a minimal config reproduces the
+  fully-defaulted one.
+- Both return fully independent copies sharing no object with their
+  arguments, so the results can be serialized, diffed, or edited freely
+  without reaching into a mounted chart.
 - `getDataErrors` checks a dataset against an enhanced config —
   non-numeric series values, category values that don't match the configured
   type, duplicate category values. A series property absent from every row
@@ -293,8 +312,20 @@ classes: `'mochart-chart mochart-chart-error'`.
 
 ## Advanced exports
 
-One export for hosts that manage chart lifecycles by hand — most
-applications never need it:
+Exports for hosts that manage chart lifecycles by hand — most applications
+never need them:
+
+```ts
+buildMochartConfig(config, defaults?, validation?): MochartConfig
+```
+
+The build step of `enhanceConfig` alone: defaults applied, `*Defaults`
+sections merged, and cross-references resolved, with the given validation
+result attached (or a blank valid one). Unlike `enhanceConfig` it neither
+migrates nor validates — call it directly only to share one defaults graph
+or validation result across several steps, the way
+[`@mochart/demo-common`](https://github.com/jharris4/mochart/tree/main/packages/mochart-demo-common)
+derives a chart build and its editor views from a single `getDefaults` call.
 
 ```ts
 hasConfigStructureChange(prev: MochartConfig | null, next: MochartConfig | null): boolean

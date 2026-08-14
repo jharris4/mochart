@@ -38,7 +38,8 @@ const apiModelPath = path.join(corePackageDir, 'generated', 'api-reference.json'
 // name → why it needs no documentation.
 const undocumented: Record<string, string> = {
   // conventional and read by tooling rather than imported, so there is nothing for a page to say
-  '@mochart/core/package.json': 'manifest subpath, exported so tooling can read it; not a documented API'
+  '@mochart/core/package.json': 'manifest subpath, exported so tooling can read it; not a documented API',
+  'sectionKeyAllMap': 'section→*Defaults key lookup consumed by the docs generator and coverage tooling; not a documented API'
 };
 
 const docsGlobs = ['guide', 'reference', 'recipes'];

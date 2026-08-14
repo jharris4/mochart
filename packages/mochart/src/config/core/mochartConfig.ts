@@ -1,5 +1,7 @@
 import { NONE } from './constants';
+import { filterConfig, filterConfigs } from './configUtils';
 import { deepClone, deepMerge, deepMergeAll, withoutUndefined } from './deepMerge';
+import { getDefaults } from '../defaults/mochartConfig';
 import type { ConfigValidation, MochartConfig } from '../../types/config';
 
 type ConfigRecord = Record<string, unknown>;
@@ -132,34 +134,12 @@ function validateValidation(validation: unknown): asserts validation is ConfigVa
   }
 }
 
-export function filterConfigs(configs: unknown): ConfigRecord[] {
-  return Array.isArray(configs) ? configs.filter(filterConfig) : [];
-}
-
-export function filterConfig(config: unknown): config is ConfigRecord {
-  return isObject(config) && config.ignore !== true
-}
-
-/** Built list sections drop ignored/non-object raw entries, so errors report at the filtered raw index. */
-export function getRawIndices(sections: unknown): number[] | null {
-  if (!Array.isArray(sections)) {
-    return null;
-  }
-  const rawIndices: number[] = [];
-  for (let i = 0; i < sections.length; i++) {
-    if (filterConfig(sections[i])) {
-      rawIndices.push(i);
-    }
-  }
-  return rawIndices;
-}
-
 // the *Defaults section still applies to an implicit entry, which is the only entry valueAxes ever has
 const copyDefaultsList = (defaultsSection: unknown[], allSection: ConfigRecord): unknown[] =>
   defaultsSection.map(entry => isObject(entry) ? deepMerge<ConfigRecord>(entry, allSection) : entry);
 
-/** A fully independent config with `defaults` merged in: the result shares no object with either argument. */
-export function getConfigWithDefaults(configWithoutDefaults: unknown, defaults: ConfigRecord): ConfigRecord {
+/** A fully independent config with `defaults` merged in: the result shares no object with either argument. `defaults` is derived from the config when omitted; pass it to share one graph across calls or to use a custom graph. */
+export function getConfigWithDefaults(configWithoutDefaults: unknown, defaults: ConfigRecord = getDefaults(configWithoutDefaults)): ConfigRecord {
   if (isObject(configWithoutDefaults)) {
     const config = { ...configWithoutDefaults };
     const sectionKeys = Object.keys(defaults);
@@ -254,8 +234,8 @@ function removeSectionDefaults(defaultSectionValue: unknown, allSection: ConfigR
   }
 }
 
-/** The minimal config: a fully independent copy of `config` with every value that matches `defaults` (or the config's own `*Defaults` sections) removed. Inverse of `getConfigWithDefaults`. */
-export function getConfigWithoutDefaults(config: unknown, defaults: ConfigRecord): ConfigRecord {
+/** The minimal config: a fully independent copy of `config` with every value that matches `defaults` (or the config's own `*Defaults` sections) removed. Inverse of `getConfigWithDefaults`; `defaults` is derived from the config when omitted. */
+export function getConfigWithoutDefaults(config: unknown, defaults: ConfigRecord = getDefaults(config)): ConfigRecord {
   const minimal: ConfigRecord = {};
   if (isObject(config) && isObject(defaults)) {
     const sectionKeys = Object.keys(config);
@@ -311,7 +291,7 @@ function applyAllConfig(configs: ConfigRecord[], allConfig: unknown): ConfigReco
   return configs;
 }
 
-export default function buildMochartConfig(configWithoutDefaults: unknown, configDefaults: ConfigRecord, validation?: ConfigValidation): MochartConfig {
+export default function buildMochartConfig(configWithoutDefaults: unknown, configDefaults: ConfigRecord = getDefaults(configWithoutDefaults), validation?: ConfigValidation): MochartConfig {
   if (validation === undefined) {
     validation = { valid: true, errors: [], warnings: [] };
   }
@@ -478,19 +458,3 @@ export function hasConfigStructureChange(configOld: MochartConfig | null, config
   return false;
 }
 
-export function configWithAll(config: unknown, allConfig: unknown): unknown {
-  if (isObject(allConfig)) {
-    if (Array.isArray(config)) {
-      return config.map(aConfig => configWithAll(aConfig, allConfig));
-    }
-    else if (isObject(config)) {
-      return deepMerge<ConfigRecord>(allConfig, config);
-    }
-    else {
-      return { ...allConfig };
-    }
-  }
-  else {
-    return config;
-  }
-}

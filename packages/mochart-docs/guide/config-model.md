@@ -140,9 +140,9 @@ Configs are validated with [@mochart/movalid](https://github.com/jharris4/mochar
 producing human-readable messages rather than schema jargon:
 
 ```js
-import { validateConfig, getDefaults } from '@mochart/core';
+import { validateConfig } from '@mochart/core';
 
-const { valid, errors, warnings } = validateConfig(config, getDefaults(config));
+const { valid, errors, warnings } = validateConfig(config);
 // e.g. "series[1] - had 1 invalid properties: valueFormt"
 ```
 
@@ -150,9 +150,9 @@ Editor and tooling integrations can request structured locations while
 retaining the same validation result:
 
 ```js
-import { validateConfigDetailed, getDefaults } from '@mochart/core';
+import { validateConfigDetailed } from '@mochart/core';
 
-const { diagnostics } = validateConfigDetailed(config, getDefaults(config));
+const { diagnostics } = validateConfigDetailed(config);
 // [{
 //   path: ['series', 1, 'axis'],
 //   severity: 'error',
@@ -201,3 +201,10 @@ default applied and cross-references resolved — which is what the renderer
 consumes. Data can then be checked against it with
 `getDataErrors(mochartConfig, dataProvider)` (see
 [Data providers](/guide/data-providers)).
+
+To work with defaults on the *raw* config — a config editor showing or
+hiding them, for instance — use the
+[`getConfigWithDefaults` / `getConfigWithoutDefaults`](/reference/api#config-helpers)
+pair instead: the first fills every default in, the second strips every value
+that only restates one, and both return plain serializable configs that share
+nothing with the object passed in.

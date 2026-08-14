@@ -1,7 +1,7 @@
 import { isObject } from './utils';
 import { CHART_TYPE_PIE, NONE } from '../core/constants';
 import { deepMergeAll } from '../core/deepMerge';
-import { configWithAll, filterConfigs, filterConfig } from '../core/mochartConfig';
+import { configWithAll, filterConfigs, filterConfig } from '../core/configUtils';
 
 import getAccessibilityDefaults from './accessibilityConfig';
 import getAnimationDefaults from './animationConfig';
