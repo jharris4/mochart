@@ -1396,12 +1396,6 @@ export interface TooltipConfig extends SeriesIconConfig {
    */
   keepInside: boolean;
   /**
-   * The minimum width (in pixels) for the tooltip.
-   *
-   * @default 120
-   */
-  minWidth: number;
-  /**
    * The padding (in pixels) for the top, right, bottom and left sides of the
    * tooltip.
    *

@@ -19,7 +19,6 @@ export default function getValidators() {
     filterModeText: validators.string(),
     focusModeText: validators.string(),
     keepInside: validators.boolean(),
-    minWidth: validators.numberMin(0),
     padding: validators.padding(),
     linePadding: validators.numberMin(0),
     rightAlignValues: validators.boolean(),

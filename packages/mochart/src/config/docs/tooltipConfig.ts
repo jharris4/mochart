@@ -31,7 +31,6 @@ export default function getDescriptions() {
     filterModeText: 'the text shown on the tooltip controls’ mode button while filter mode is active',
     focusModeText: 'the text shown on the tooltip controls’ mode button while focus mode is active',
     keepInside: 'whether to keep the tooltip within the series drawing area (true) or allow it to overlap the axes (false)',
-    minWidth: 'the minimum width (in pixels) for the tooltip',
     padding: spacing('the padding (in pixels) for the top, right, bottom and left sides of the tooltip'),
     linePadding: 'the padding (in pixels) between each line of the tooltip',
     rightAlignValues: 'whether to right-align the values shown in the tooltip',
