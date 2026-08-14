@@ -3,7 +3,9 @@ import validators from './validators';
 import { AUTO, NONE, SCALE_ORDINAL, SCALE_LINEAR, TYPE_STRING, TYPE_NUMBER, TYPE_DATE } from '../core/constants';
 
 import getAxisValidators from './axisConfig';
+import { getPropertyMessage, isConfigObject } from './messages';
 import type { CategoryAxisConfig } from '../../types/config';
+import type { ConfigObject, LocatedValidationMessage } from './messages';
 
 type CategoryAxisCondition = Pick<CategoryAxisConfig, 'type' | 'scale'>;
 
@@ -105,4 +107,20 @@ export default function getValidators(config: Partial<CategoryAxisConfig>) {
     valuePrefix: validators.string().orEqual(NONE),
     valueSuffix: validators.string().orEqual(NONE)
   };
+}
+
+/** An ordinal axis places its categories at even positions, so there is no value scale to place a threshold on. */
+export const ordinalThresholdsMessage = 'should be an empty array when scale is ' + SCALE_ORDINAL;
+
+export function validateOrdinalThresholds(config: ConfigObject, errors: string[], errorDetails: LocatedValidationMessage[]): void {
+  const categoryAxis = config['categoryAxis'];
+  if (!isConfigObject(categoryAxis) || categoryAxis['scale'] !== SCALE_ORDINAL) {
+    return;
+  }
+  const thresholds = categoryAxis['thresholds'];
+  if (!Array.isArray(thresholds) || thresholds.length === 0) {
+    return;
+  }
+  errors.push(getPropertyMessage('categoryAxis', 'thresholds', ordinalThresholdsMessage));
+  errorDetails.push({ path: ['categoryAxis', 'thresholds'], message: ordinalThresholdsMessage });
 }

@@ -1873,6 +1873,12 @@ export interface AxisConfigBase {
    * line across the plot at an axis value (the array replaces the default
    * wholesale).
    *
+   * An ordinal axis places its categories at evenly spaced positions rather
+   * than on a value scale, so there is no position to place a threshold at — it
+   * accepts only an empty array. On a linear axis each entry's `value` takes
+   * the same forms as `min`: a number when `type` is `number`, and either a
+   * millisecond timestamp or an ISO date string when `type` is `date`.
+   *
    * @default []
    */
   thresholds: ThresholdConfig[];

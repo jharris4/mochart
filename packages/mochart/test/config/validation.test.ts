@@ -517,6 +517,26 @@ describe('tooltip drop-shadow validation', () => {
   });
 });
 
+// An ordinal axis has no value scale to place a threshold on.
+describe('ordinal-scale thresholds validation', () => {
+  const base = { version: V, series: [{ property: 'v' }] };
+
+  it('rejects thresholds on an ordinal category axis', () => {
+    expect(errorsFor({ ...base, categoryAxis: { property: 'p', thresholds: [{ value: 5 }] } }))
+      .toContainEqual(expect.stringContaining('thresholds - should be an empty array when scale is ordinal'));
+  });
+
+  it('accepts thresholds on a linear category axis', () => {
+    expect(errorsFor({ ...base, categoryAxis: { property: 'p', type: 'number', scale: 'linear', thresholds: [{ value: 5 }] } }))
+      .toEqual([]);
+  });
+
+  it('accepts an empty thresholds array on an ordinal category axis', () => {
+    expect(errorsFor({ ...base, categoryAxis: { property: 'p', thresholds: [] } }))
+      .toEqual([]);
+  });
+});
+
 // Regression: margin/padding (and categoryPaddingFraction) demanded all their
 // keys at once, though nested configs deep-merge over their defaults and the
 // DeepPartial input type promises partial objects.

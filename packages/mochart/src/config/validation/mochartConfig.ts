@@ -10,7 +10,7 @@ import chartValidators from './chartConfig';
 import colorPaletteValidators from './colorPaletteConfig';
 import clipIndicatorValidators from './clipIndicatorConfig';
 import crosshairValidators from './crosshairConfig';
-import categoryAxisValidators from './categoryAxisConfig';
+import categoryAxisValidators, { validateOrdinalThresholds } from './categoryAxisConfig';
 import { validateAxisBounds } from './axisConfig';
 import legendValidators from './legendConfig';
 import linearGradientValidators from './linearGradientConfig';
@@ -309,6 +309,7 @@ function validateConfigInternal(configWithoutDefaults: unknown, configDefaults: 
     }
     validateFollowSeries(config, configWithoutDefaults, errors, errorDetails);
     validateAxisBounds(config, configWithoutDefaults, errors, errorDetails);
+    validateOrdinalThresholds(config, errors, errorDetails);
   }
   else {
     const message = objectValidator.getErrorMessage(configWithoutDefaults);
