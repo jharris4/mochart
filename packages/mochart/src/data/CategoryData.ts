@@ -1,6 +1,6 @@
 import { getCategoryDomainForValues } from './DomainData';
 import { getAxisDomain, getRenderAxisDomain } from './AxisDomainData';
-import { readAlignedColumn, readCategoryColumn } from './ColumnData';
+import { readAlignedValues, readCategoryValues } from './PropertyData';
 import { NONE, TYPE_DATE, SCALE_ORDINAL } from '../config/core/constants';
 import type { CategoryAxisConfig } from '../types/config';
 import type {
@@ -14,11 +14,11 @@ import type {
 
 export function getCategoryData(categoryAxisConfig: CategoryAxisConfig, dataProvider: DataProvider): CategoryData {
   // config/provider mismatches and duplicate/missing categories are getDataErrors' job; this hot path trusts its input
-  const rawCategoryValues = readCategoryColumn(dataProvider, categoryAxisConfig.property!);
+  const rawCategoryValues = readCategoryValues(dataProvider, categoryAxisConfig.property!);
   let displayCategoryValues: readonly CategoryValue[] = rawCategoryValues;
   if (categoryAxisConfig.displayProperty !== NONE) {
-    // displayProperty is an ordinary column; getDataErrors checks it against the axis type, not the numeric series validator
-    displayCategoryValues = readAlignedColumn(dataProvider, categoryAxisConfig.displayProperty, rawCategoryValues.length) as CategoryValue[];
+    // displayProperty is an ordinary property; getDataErrors checks it against the axis type, not the numeric series validator
+    displayCategoryValues = readAlignedValues(dataProvider, categoryAxisConfig.displayProperty, rawCategoryValues.length) as CategoryValue[];
   }
   return getCategoryDataFromValues(categoryAxisConfig, rawCategoryValues, displayCategoryValues);
 }

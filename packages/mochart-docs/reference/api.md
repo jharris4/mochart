@@ -1,26 +1,27 @@
 # API Reference
 
-Everything below is imported from `@mochart/core`. The framework bindings
-have their own entry points — see the
-[framework pages](/guide/frameworks/react) — but accept the same props,
-callbacks, and helpers documented here.
+The complete documented API of `@mochart/core`, grouped by task:
+
+| Section | Exports |
+| --- | --- |
+| [Entry points](#createdefaultchart) | `createDefaultChart`, `createChart`, [`ChartHandle`](#charthandle) |
+| [Data providers](#data-providers) | `ArrayOfObjectsDataProvider`, `ObjectOfArraysDataProvider`, the `DataProvider` interface |
+| [Config helpers](#config-helpers) | `enhanceConfig`, `validateConfig`, `validateConfigDetailed`, `migrateConfig`, `getDefaults`, `getDataErrors` |
+| [Chart helpers](#chart-helpers) | `createHistogram`, `createWaterfall`, `createHeatmap`, `createCandlestick`, `createOhlc`, `createPie`, `createSparklineConfig` |
+| [Constants](#constants) | `NONE`, `AUTO`, `TYPE_*`, `SCALE_*`, `CHART_TYPE_*`, and the config union types |
+| [Styling hooks](#styling-hooks) | `mochartCssClasses` |
+| [Version](#version) | `getVersionString` |
+| [Advanced exports](#advanced-exports) | `hasConfigStructureChange` |
+
+The framework bindings — see the
+[framework pages](/guide/frameworks/react) — have their own entry points
+but accept the same props, callbacks, and helpers documented here.
 
 The props the entry points accept are listed property by property in
 [Chart props](/reference/props) and
 [Callbacks and payloads](/reference/callbacks), and the name each binding
 gives them in [Framework props](/reference/framework-props). All three are
 generated from the packages' type declarations.
-
-```js
-import {
-  createDefaultChart, createChart,
-  ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider,
-  validateConfig, validateConfigDetailed, migrateConfig, enhanceConfig, getDefaults, getDataErrors,
-  createHistogram, createWaterfall, createSparklineConfig, createHeatmap, createCandlestick,
-  createOhlc, createPie,
-  mochartCssClasses, getVersionString
-} from '@mochart/core';
-```
 
 ## createDefaultChart
 
@@ -83,6 +84,8 @@ interface ChartHandle<TProps> {
 ## Data providers
 
 ```ts
+import { ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider } from '@mochart/core';
+
 new ArrayOfObjectsDataProvider(data)  // [{ month: 'Jan', revenue: 10 }, …]
 new ObjectOfArraysDataProvider(data)  // { month: ['Jan', …], revenue: [10, …] }
 ```
@@ -98,8 +101,8 @@ implement to read straight from an existing store:
 type DataValue = number | string | Date | null | undefined;
 
 interface DataProvider {
-  // required — one named column, index-aligned with every other column;
-  // undefined when the property isn't in the data
+  // required — the values of one named property, index-aligned with every
+  // other property's values; undefined when the property isn't in the data
   getPropertyValues(property: string): readonly DataValue[] | undefined;
   // optional
   getError?(): unknown;    // non-null → the chart shows its error state ('' and 0 count)
@@ -109,13 +112,13 @@ interface DataProvider {
 ```
 
 `getPropertyValues` is the interface's one accessor: the chart requests every
-property the config names as a whole column — the category property,
-`categoryAxis.displayProperty`, and the series properties alike. Series
-columns hold numbers, with `null`/`undefined` as missing values; category and
-display columns hold strings, numbers, or `Date`s matching
-`categoryAxis.type`. The config's category column defines the category count,
-and `getDataErrors` flags any other column whose length doesn't match. A
-provider missing the accessor is invalid, and `getDataErrors` says so.
+property the config names as all of that property's values — the category
+property, `categoryAxis.displayProperty`, and the series properties alike.
+Series values are numbers, with `null`/`undefined` as missing values;
+category and display values are strings, numbers, or `Date`s matching
+`categoryAxis.type`. The config's category property defines the category
+count, and `getDataErrors` flags any other property whose value count doesn't
+match. A provider missing the accessor is invalid, and `getDataErrors` says so.
 
 See [Data providers](/guide/data-providers) for the full contract and which
 properties are read.
@@ -123,6 +126,11 @@ properties are read.
 ## Config helpers
 
 ```ts
+import {
+  enhanceConfig, validateConfig, validateConfigDetailed,
+  migrateConfig, getDefaults, getDataErrors
+} from '@mochart/core';
+
 validateConfig(config, getDefaults(config), strict?)
                                              // → { valid, errors, warnings }
 validateConfigDetailed(config, getDefaults(config), strict?)
@@ -150,9 +158,8 @@ while still collecting its warnings, which is what a live-preview editor wants.
 - `enhanceConfig` produces the fully-built `MochartConfig` that
   `createChart` consumes: migrated to the current format, validated, every
   default applied, `*Defaults` sections merged, and cross-references resolved.
-  The lower-level `getDefaults` / `validateConfig` / `buildMochartConfig` do
-  not migrate — call `migrateConfig` first if you use them directly on a
-  stored config.
+  The lower-level `getDefaults` / `validateConfig` do not migrate — call
+  `migrateConfig` first if you use them directly on a stored config.
 - `getDataErrors` checks a dataset against an enhanced config —
   non-numeric series values, category values that don't match the configured
   type, duplicate category values. A series property absent from every row
@@ -169,6 +176,11 @@ config — they never touch the chart, so titles, axes, and styling stay
 yours. Each links to a recipe with a live example.
 
 ```ts
+import {
+  createHistogram, createWaterfall, createHeatmap,
+  createCandlestick, createOhlc, createPie, createSparklineConfig
+} from '@mochart/core';
+
 createHistogram(values, options?)   // → { bins, data, categoryAxis, seriesConfig }
 createWaterfall(items, options?)    // → { steps, data, categoryAxis, series }
 createHeatmap(rows, options?)       // → { domain, colorScale, data, categoryAxis, valueAxes, series }
@@ -226,34 +238,20 @@ wrapper prop that forwards one can be typed.
 
 ## Constants
 
-Every enumerated config value is exported so configs built in code can avoid
-string literals. `AUTO` (`'auto'`), `NONE` (`null`) and `CONFIG_VERSION` stand
-alone; the rest come in families:
+Enumerated config values are written as string literals — `renderer: 'bar'`,
+`curveType: 'monotoneX'` — and each member's page in this reference lists its
+allowed values. Only a handful of constants are exported, for the values that
+recur in code that builds configs:
 
-| Config member | Constants |
+| Constant | Value |
 | --- | --- |
-| axis `type` | `TYPE_STRING`, `TYPE_NUMBER`, `TYPE_DATE` |
-| axis `scale` | `SCALE_ORDINAL`, `SCALE_LINEAR` |
-| [`chart.type`](/reference/chart#chart.type) | `CHART_TYPE_XY`, `CHART_TYPE_PIE` |
-| `align` | `ALIGN_LEFT`, `ALIGN_CENTER`, `ALIGN_RIGHT` |
-| `verticalAlign` | `VERTICAL_ALIGN_TOP`, `VERTICAL_ALIGN_MIDDLE`, `VERTICAL_ALIGN_BOTTOM` |
-| `anchor` | `ANCHOR_START`, `ANCHOR_MIDDLE`, `ANCHOR_END` |
-| `position` | `POSITION_TOP`, `POSITION_BOTTOM` |
-| axis `side` | `SIDE_START`, `SIDE_END` |
-| threshold `titleSide` | `TITLE_SIDE_LOW`, `TITLE_SIDE_HIGH` |
-| [`series.missingValues`](/reference/series#series.missingValues) | `MISSING_VALUES_BREAK`, `MISSING_VALUES_CONNECT`, `MISSING_VALUES_BASE` |
-| [`series.renderer`](/reference/series#series.renderer) | `RENDERER_BAR`, `RENDERER_LINE`, `RENDERER_AREA`, `RENDERER_NONE` |
-| [`patterns.type`](/reference/patterns#patterns.type) | `PATTERN_TYPE_LINES`, `PATTERN_TYPE_CROSSHATCH`, `PATTERN_TYPE_DOTS` |
-| [`series.curveType`](/reference/series#series.curveType) | `CURVE_TYPE_LINEAR`, `CURVE_TYPE_MONOTONE_X`, `CURVE_TYPE_MONOTONE_Y`, `CURVE_TYPE_BASIS`, `CURVE_TYPE_CARDINAL`, `CURVE_TYPE_CATMULL_ROM`, `CURVE_TYPE_NATURAL`, `CURVE_TYPE_STEP`, `CURVE_TYPE_STEP_BEFORE`, `CURVE_TYPE_STEP_AFTER` |
-| bar cap type | `CAP_TYPE_POINT`, `CAP_TYPE_CURVE`, `CAP_TYPE_ROUND` |
-| label `position` | `LABEL_POSITION_INSIDE`, `LABEL_POSITION_CENTER`, `LABEL_POSITION_OUTSIDE` |
-| style color modes | `COLOR_SERIES`, `COLOR_SAME`, `COLOR_SERIES_INDEX`, `COLOR_CATEGORY_INDEX`, `COLOR_CURRENT` |
-| `colorScale.interpolation` | `COLOR_INTERPOLATION_RGB`, `COLOR_INTERPOLATION_HSL`, `COLOR_INTERPOLATION_LAB`, `COLOR_INTERPOLATION_HCL` |
-| [`series.markerShape`](/reference/series#series.markerShape) | `MARKER_SHAPE_CIRCLE`, `MARKER_SHAPE_CROSS`, `MARKER_SHAPE_DIAMOND`, `MARKER_SHAPE_SQUARE`, `MARKER_SHAPE_STAR`, `MARKER_SHAPE_TRIANGLE`, `MARKER_SHAPE_WYE` |
-| marker size scale | `MARKER_SIZE_SCALE_SQRT`, `MARKER_SIZE_SCALE_LINEAR` |
-| [`pie`](/reference/pie) label types | `PIE_LABEL_TYPE_VALUE`, `PIE_LABEL_TYPE_PERCENT`, `PIE_LABEL_TYPE_TITLE`, `PIE_LABEL_TYPE_VALUE_PERCENT`, `PIE_LABEL_TYPE_PERCENT_VALUE`, `PIE_LABEL_TYPE_TITLE_VALUE`, `PIE_LABEL_TYPE_TITLE_PERCENT` |
+| `NONE` | `null` — the explicit "off" value config members accept |
+| `AUTO` | `'auto'` |
+| `TYPE_STRING`, `TYPE_NUMBER`, `TYPE_DATE` | axis `type` values |
+| `SCALE_ORDINAL`, `SCALE_LINEAR` | axis `scale` values |
+| `CHART_TYPE_XY`, `CHART_TYPE_PIE` | [`chart.type`](/reference/chart#chart.type) values |
 
-The union types those constants form are exported too — `Align`,
+The union types the enumerated values form are all exported — `Align`,
 `VerticalAlign`, `Anchor`, `Position`, `AxisSide`, `ThresholdTitleSide`,
 `MissingValues`, `Scale`, `DataType`, `ChartType`, `RendererType`,
 `PatternType`, `CurveType`, `CapType`, `LabelPosition`, `ColorMode`, `ColorInterpolation`,
@@ -274,6 +272,8 @@ axis or category carry two space-separated tokens: the class shared by all of
 them, then a prefix to which the id is appended.
 
 ```js
+import { mochartCssClasses } from '@mochart/core';
+
 mochartCssClasses.series      // 'mochart-series mochart-series-'
 mochartCssClasses.seriesBar   // 'mochart-series-bar mochart-series-bar-'
 
@@ -287,41 +287,34 @@ Treat any value containing a space this way. The one exception to the
 base-plus-prefix reading is `chartError`, whose two tokens are both complete
 classes: `'mochart-chart mochart-chart-error'`.
 
-`getVersionString()` returns the library's version.
+## Version
+
+`getVersionString()` returns the library's version string.
 
 ## Advanced exports
 
-Building blocks for hosts that embed chart internals directly — most
-applications never need these:
+One export for hosts that manage chart lifecycles by hand — most
+applications never need it:
 
-- `Chart`, `Legend`, `Crosshair`, `Tooltip` — the retained-mode components
-  the entry points assemble.
-- `StaticDataSource`, `AnimatedDataSource`, `FocusController` — the chart
-  controllers driving data flow, staged transitions, and focus state. Their
-  contracts are the types `ChartDataSource` (the interface both data
-  sources implement), `ChartDataSourceInput` (the config + data provider +
-  focus/filter snapshot a source consumes), and `InternalFocus` (a partial
-  focus update raised from inside the chart). A source emits `ChartData` (the
-  parsed categories and per-series values, domains and stacks) and `FocusData`
-  (the focused category/series/axis plus the 0–1 focus percentages the
-  renderer interpolates); both are exported, along with the types their
-  members are declared with, so an implementation can name them.
-- `Renderer`, `El`, `TextEl`, `svgEl`, `htmlEl`, `textEl`, `shallowEqual` —
-  the retained-mode rendering primitives.
-- `buildMochartConfig`, `applyDefaults`, `hasConfigStructureChange`,
-  `sectionKeyAllMap`, `isDataProviderValid` — the lower-level pieces
-  `enhanceConfig` and the chart controllers are built from.
+```ts
+hasConfigStructureChange(prev: MochartConfig | null, next: MochartConfig | null): boolean
+```
 
-The shipped `.d.ts` documents all of these — hover any import in your
-editor for details.
+Compares two enhanced configs (from `enhanceConfig`; either side may be
+`null` while a host is still loading) and reports whether the change is
+*structural* — a different chart type, category axis, series set, or
+validity. A structural change makes the chart rebuild and replay its
+initial animation instead of animating the difference in place, so a host
+can use this to know a config edit's blast radius before applying it. The
+entry points run the same check internally; only hosts that rebuild charts
+themselves need to call it.
 
 ### What is not exported
 
-The pipeline types between those building blocks are deliberately not
-exported: the measure/layout results, the staged-animation delta types, the
-axis scale/tick and series-position types, and the enhanced config views.
-They are the types the components' props are declared with, so the shipped
-`.d.ts` still describes them and editor hovers still show their shape — but
-they are not importable by name from `@mochart/core`, and they change
-without notice. Embed the components by passing them the values the chart
-controllers produce; do not annotate your own code with those types.
+Everything else is internal: the retained-mode components and rendering
+primitives, the data-source and focus controllers, the measure/layout and
+staged-animation pipeline types, and the enhanced config views. The shipped
+`.d.ts` still describes the shape of every prop and result — editor hovers
+show them — but internals are not importable by name from `@mochart/core`
+and change without notice. Anything importable but not documented on this
+page is repo tooling, not supported API.

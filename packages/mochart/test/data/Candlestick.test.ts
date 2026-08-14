@@ -124,7 +124,7 @@ describe('createCandlestick', () => {
       { label: 'Tue', open: 2, high: 4, low: 1, close: 1.5, volume: 800 } // down
     ];
 
-    it('emits no volume columns, series or axes by default', () => {
+    it('emits no volume properties, series or axes by default', () => {
       const { data, series: seriesConfigs, valueAxes: valueAxisConfigs } = createCandlestick(items);
       expect(valueAxisConfigs).toBeUndefined();
       expect('upVolume' in data[0]).toBe(false);
@@ -240,7 +240,7 @@ describe('createCandlestick', () => {
       }
     });
 
-    it('adds the upOpen column only in hollow mode', () => {
+    it('adds the upOpen property only in hollow mode', () => {
       const hollowData = createCandlestick(items, { hollow: true }).data;
       expect(hollowData[0].upOpen).toBe(1); // up day
       expect(hollowData[1].upOpen).toBeUndefined(); // down day

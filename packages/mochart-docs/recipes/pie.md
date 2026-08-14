@@ -20,7 +20,7 @@ import * as gauge from '../examples/gauge'
 
 - `createPie` returns config *fragments* (like the other chart-type
   helpers): a `chart` fragment setting the type, a `categoryAxis`
-  naming the single category column, and one series per slice. The data is a
+  naming the single category property, and one series per slice. The data is a
   single row — `{ category: 'all', slice0: 420, slice1: 210, ... }`.
 - **Slices are series.** Hovering a slice or its legend entry focuses it,
   and clicking a legend entry filters it — the remaining slices grow to
@@ -41,7 +41,7 @@ import * as gauge from '../examples/gauge'
   defaults to `false` — a pie has a single category, so its value (`createPie`
   writes `'all'`) would head every tooltip. Set `showCategory: true` with a
   meaningful `categoryValue` if you want that line back.
-- The category and value axes still exist structurally (the category column and
+- The category and value axes still exist structurally (the category property and
   value domains feed the data model and animations) but default to
   [`visible: false`](/reference/categoryAxis#categoryAxis.visible) in
   pie mode. The crosshair does not apply.

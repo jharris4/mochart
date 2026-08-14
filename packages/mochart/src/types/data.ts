@@ -178,18 +178,19 @@ export type DataValue = number | string | Date | null | undefined;
  * `ObjectOfArraysDataProvider` cover the common dataset shapes; implement
  * this to read straight from an existing store without copying.
  *
- * A provider is a read-only column lookup over one dataset: any property the
- * config names — `categoryAxis.property` and `displayProperty` included — is
- * answered the same way, as the whole column. `getPropertyValues` is the one
- * required member (`isDataProviderValid` is false without it); the optional
- * members each buy a single behaviour.
+ * A provider is a read-only property-values lookup over one dataset: any
+ * property the config names — `categoryAxis.property` and `displayProperty`
+ * included — is answered the same way, as all of that property's values.
+ * `getPropertyValues` is the one required member; the optional members each
+ * buy a single behaviour.
  */
 export interface DataProvider {
   /**
    * All values of one named data property, index-aligned with every other
    * property's values; `undefined` when the property isn't in the data.
    * The config's category property defines the category count — every other
-   * column must match its length, and `getDataErrors` flags one that doesn't.
+   * property's values must match its length, and `getDataErrors` flags one
+   * that doesn't.
    * Called whenever the chart recomputes its data, so it should stay a plain
    * lookup; the chart snapshots what it needs and never mutates the array.
    */

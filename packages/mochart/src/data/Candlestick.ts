@@ -94,7 +94,7 @@ export interface CreateCandlestickOptions {
    * the classic hollow-candle style where a filled body means down. The wicks
    * split into segments above and below each body so they don't show through
    * the hollow interior, the tooltip keeps its single low–high range row, and
-   * the data rows gain an `upOpen` column for the below-body wick segment.
+   * the data rows gain an `upOpen` property for the below-body wick segment.
    *
    * @default false
    */
@@ -277,7 +277,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
     upHigh: candle.direction === 'up' ? candle.high : undefined,
     downHigh: candle.direction === 'down' ? candle.high : undefined,
     // The below-body wick segment of a hollow up candle spans low→open, and
-    // needs the open under an up-only property (the shared `open` column is
+    // needs the open under an up-only property (the shared `open` property is
     // defined on every row, so it can't gate the segment by direction).
     ...(hollow ? { upOpen: candle.direction === 'up' ? candle.open : undefined } : {}),
     ...(volumeOptions !== null ? {

@@ -1,6 +1,6 @@
 import { nullDomain, getDomainForValues, mergeDomain } from './DomainData';
 import { getAxisDomain, getRenderAxisDomain } from './AxisDomainData';
-import { readNumericColumn } from './ColumnData';
+import { readNumericValues } from './PropertyData';
 import { NONE } from '../config/core/constants';
 
 import { keyPlain, valueKeys, positionKeys, extraKeys, extraCopyKeys, positionOrComputedOrExtraKeys } from './constants';
@@ -119,9 +119,9 @@ function createEmptySeriesValueObjects(seriesConfigs: EnhancedSeriesConfig[]): S
   }));
 }
 
-/** One series column, aligned to the category values. */
+/** The values of one series, aligned to the category values. */
 function getSeriesValuesForProperty(seriesProperty: string, rawCategoryValues: readonly CategoryValue[], dataProvider: DataProvider): NumericValues {
-  return readNumericColumn(dataProvider, seriesProperty, rawCategoryValues.length);
+  return readNumericValues(dataProvider, seriesProperty, rawCategoryValues.length);
 }
 
 function setPlainSeriesValues(seriesConfigs: EnhancedSeriesConfig[], rawCategoryValues: readonly CategoryValue[], dataProvider: DataProvider, valueObjects: SeriesValueObjects): void {

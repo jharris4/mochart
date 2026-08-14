@@ -19,7 +19,7 @@ import * as errorBars from '../examples/errorBars'
 
 - The bounds are **absolute values** in value-axis units (e.g. the ends of a
   confidence interval), not deltas from the value. For `value ± error` data,
-  derive the bound columns once when preparing the rows.
+  derive the bound properties once when preparing the rows.
 - The bounds join the value axis domain, so whiskers never clip — note the
   axis above reaching past the tallest bar to cover its upper bound.
 - Whiskers center on each bar's layout slot — including grouped sub-slots, as

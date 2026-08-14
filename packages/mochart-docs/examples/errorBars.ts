@@ -1,5 +1,5 @@
 // Error bars are first-class series config: point errorLowProperty and
-// errorHighProperty at the columns holding each point's absolute bounds and
+// errorHighProperty at the properties holding each point's absolute bounds and
 // the chart draws a capped whisker per bar (or line point).
 import type { MochartInputConfig } from '@mochart/core';
 

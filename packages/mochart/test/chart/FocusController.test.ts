@@ -54,10 +54,10 @@ function makeHarness(): Harness {
       const nextInput = { ...harness.input, ...next };
       // what ChartController snapshots at commit: the ordering last read from the provider
       const categoryProperty = harness.input.mochartConfig?.categoryAxis.property;
-      const renderedColumn = harness.input.dataProvider && categoryProperty !== undefined
+      const renderedValues = harness.input.dataProvider && categoryProperty !== undefined
         ? harness.input.dataProvider.getPropertyValues(categoryProperty)
         : undefined;
-      const renderedCategoryValues = renderedColumn ? [...renderedColumn] as CategoryValue[] : null;
+      const renderedCategoryValues = renderedValues ? [...renderedValues] as CategoryValue[] : null;
       const changes = controller.reconcile(harness.input, nextInput, renderedCategoryValues);
       if (changes.focus) {
         focuses.push(changes.focus);

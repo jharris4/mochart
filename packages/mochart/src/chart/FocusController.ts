@@ -87,7 +87,7 @@ export class FocusController {
       if (dataProvider !== oldDataProvider) {
         if (oldDataProvider && dataProvider) {
           if (this.focusedCategoryIndex >= 0) {
-            // the config names the category column; an absent column drops the focus like a vanished category
+            // the config names the category property; absent values drop the focus like a vanished category
             const categoryProperty = mochartConfig?.categoryAxis.property;
             const newCategoryValues = categoryProperty !== undefined
               ? dataProvider.getPropertyValues(categoryProperty) as readonly CategoryValue[] | undefined

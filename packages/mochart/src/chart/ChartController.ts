@@ -1,6 +1,6 @@
 import Chart from '../components/Chart';
 import { isDataProviderValid } from '../data/ChartData';
-import { readCategoryColumn } from '../data/ColumnData';
+import { readCategoryValues } from '../data/PropertyData';
 import { FocusController } from './FocusController';
 import { StaticDataSource } from './StaticDataSource';
 import { AnimatedDataSource } from './AnimatedDataSource';
@@ -104,7 +104,7 @@ export class ChartController {
     const mochartConfig = this.props.mochartConfig as EnhancedMochartConfig | null | undefined;
     const dataProvider = this.readDataProvider;
     this.lastCategoryValues = mochartConfig?.validation.valid && dataProvider && isDataProviderValid(dataProvider)
-      ? [...readCategoryColumn(dataProvider, mochartConfig.categoryAxis.property!)]
+      ? [...readCategoryValues(dataProvider, mochartConfig.categoryAxis.property!)]
       : null;
   }
 

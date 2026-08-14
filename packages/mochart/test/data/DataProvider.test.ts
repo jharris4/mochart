@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider } from '../../src/data/DataProvider';
-import { readAlignedColumn, readCategoryColumn, readNumericColumn } from '../../src/data/ColumnData';
+import { readAlignedValues, readCategoryValues, readNumericValues } from '../../src/data/PropertyData';
 import type { DataProvider } from '../../src/types/data';
 
 describe('ArrayOfObjectsDataProvider', () => {
@@ -10,7 +10,7 @@ describe('ArrayOfObjectsDataProvider', () => {
     { month: 'Mar', sales: 30, costs: 12 }
   ];
 
-  it('returns any property as a column in row order', () => {
+  it('returns the values of any property in row order', () => {
     const provider = new ArrayOfObjectsDataProvider(rows);
     expect(provider.getPropertyValues('month')).toEqual(['Jan', 'Feb', 'Mar']);
     expect(provider.getPropertyValues('sales')).toEqual([10, 20, 30]);
@@ -22,13 +22,13 @@ describe('ArrayOfObjectsDataProvider', () => {
     expect(provider.getPropertyValues('vlaue')).toBeUndefined();
   });
 
-  // partial gaps are legitimate holey data, not an absent column
-  it('returns a column with holes for a property present on only some rows', () => {
+  // partial gaps are legitimate holey data, not an absent property
+  it('returns values with holes for a property present on only some rows', () => {
     const partial: Array<Record<string, unknown>> = [{ month: 'Jan', sales: 1 }, { month: 'Feb' }];
     expect(new ArrayOfObjectsDataProvider(partial).getPropertyValues('sales')).toEqual([1, undefined]);
   });
 
-  it('returns an empty column for any property of an empty dataset', () => {
+  it('returns empty values for any property of an empty dataset', () => {
     const provider = new ArrayOfObjectsDataProvider([] as Array<Record<string, unknown>>);
     expect(provider.getPropertyValues('anything')).toEqual([]);
   });
@@ -76,13 +76,13 @@ describe('ObjectOfArraysDataProvider', () => {
     costs: [4, 8, 12]
   };
 
-  it('returns the stored column itself, zero-copy', () => {
+  it('returns the stored array itself, zero-copy', () => {
     const provider = new ObjectOfArraysDataProvider(data);
     expect(provider.getPropertyValues('month')).toBe(data.month);
     expect(provider.getPropertyValues('sales')).toBe(data.sales);
   });
 
-  it('returns undefined for an absent column', () => {
+  it('returns undefined for an absent property', () => {
     const provider = new ObjectOfArraysDataProvider(data);
     expect(provider.getPropertyValues('vlaue')).toBeUndefined();
   });
@@ -92,7 +92,7 @@ describe('ObjectOfArraysDataProvider', () => {
     expect(new ObjectOfArraysDataProvider(bad).getPropertyValues('month')).toBeUndefined();
   });
 
-  it('is stateless: mutated and reassigned columns are seen on the next read', () => {
+  it('is stateless: mutated and reassigned arrays are seen on the next read', () => {
     const mutable: Record<string, readonly unknown[]> = { month: ['Jan', 'Feb'], sales: [10, 20] };
     const provider = new ObjectOfArraysDataProvider(mutable);
 
@@ -105,29 +105,29 @@ describe('ObjectOfArraysDataProvider', () => {
 
 // The chart-side readers: alignment carries the index, and null normalizes to
 // undefined at this boundary so the chart keeps a single missing sentinel.
-describe('column readers', () => {
+describe('property-values readers', () => {
   const provider: DataProvider = new ObjectOfArraysDataProvider({
     month: ['Jan', 'Feb', 'Mar'],
     sales: [10, null, 30],
     short: [1]
   } as Record<string, readonly unknown[]>);
 
-  it('readCategoryColumn reads an absent column as no categories', () => {
-    expect(readCategoryColumn(provider, 'month')).toEqual(['Jan', 'Feb', 'Mar']);
-    expect(readCategoryColumn(provider, 'missing')).toEqual([]);
+  it('readCategoryValues reads an absent property as no categories', () => {
+    expect(readCategoryValues(provider, 'month')).toEqual(['Jan', 'Feb', 'Mar']);
+    expect(readCategoryValues(provider, 'missing')).toEqual([]);
   });
 
-  it('readNumericColumn normalizes null cells to undefined', () => {
-    expect(readNumericColumn(provider, 'sales', 3)).toEqual([10, undefined, 30]);
+  it('readNumericValues normalizes null cells to undefined', () => {
+    expect(readNumericValues(provider, 'sales', 3)).toEqual([10, undefined, 30]);
   });
 
-  it('readNumericColumn reads an absent column as all-missing', () => {
-    expect(readNumericColumn(provider, 'missing', 3)).toEqual([undefined, undefined, undefined]);
+  it('readNumericValues reads an absent property as all-missing', () => {
+    expect(readNumericValues(provider, 'missing', 3)).toEqual([undefined, undefined, undefined]);
   });
 
-  it('readAlignedColumn snapshots exactly categoryCount cells', () => {
-    // a short column pads with missing; extra cells are never read (getDataErrors flags the mismatch)
-    expect(readAlignedColumn(provider, 'short', 3)).toEqual([1, undefined, undefined]);
-    expect(readAlignedColumn(provider, 'month', 2)).toEqual(['Jan', 'Feb']);
+  it('readAlignedValues snapshots exactly categoryCount values', () => {
+    // short values pad with missing; extra cells are never read (getDataErrors flags the mismatch)
+    expect(readAlignedValues(provider, 'short', 3)).toEqual([1, undefined, undefined]);
+    expect(readAlignedValues(provider, 'month', 2)).toEqual(['Jan', 'Feb']);
   });
 });

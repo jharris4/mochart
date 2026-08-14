@@ -1,9 +1,9 @@
 import type { DataProvider, DataRow, DataValue } from '../types/data';
 
 /**
- * Stateless column reads over an array of row objects. Rows added, removed,
- * or edited in place are seen whenever the chart re-reads; the chart handle's
- * `refresh` triggers that re-read.
+ * Stateless per-property reads over an array of row objects. Rows added,
+ * removed, or edited in place are seen whenever the chart re-reads; the chart
+ * handle's `refresh` triggers that re-read.
  */
 export class ArrayOfObjectsDataProvider<TRow extends DataRow = DataRow> implements DataProvider {
   constructor(private readonly data: readonly TRow[]) {
@@ -18,19 +18,19 @@ export class ArrayOfObjectsDataProvider<TRow extends DataRow = DataRow> implemen
   }
 }
 
-type ColumnData = Record<string, readonly unknown[]>;
+type PropertyArrays = Record<string, readonly unknown[]>;
 
 /**
- * Stateless zero-copy column reads over an object of column arrays. In-place
- * column mutations and reassigned columns alike are seen whenever the chart
+ * Stateless zero-copy reads over an object holding one array per property.
+ * In-place mutations and reassigned arrays alike are seen whenever the chart
  * re-reads; the chart handle's `refresh` triggers that re-read.
  */
-export class ObjectOfArraysDataProvider<TData extends ColumnData = ColumnData> implements DataProvider {
+export class ObjectOfArraysDataProvider<TData extends PropertyArrays = PropertyArrays> implements DataProvider {
   constructor(private readonly data: TData) {
   }
 
   getPropertyValues(property: string): readonly DataValue[] | undefined {
-    const column = this.data[property];
-    return Array.isArray(column) ? column as readonly DataValue[] : undefined;
+    const values = this.data[property];
+    return Array.isArray(values) ? values as readonly DataValue[] : undefined;
   }
 }

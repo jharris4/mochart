@@ -30,8 +30,8 @@ the store moved.
 
 ## The provider interface
 
-A provider is a read-only **column lookup** over one dataset. One member is
-required, three are optional:
+A provider is a read-only **property-values lookup** over one dataset. One
+member is required, three are optional:
 
 ```ts
 /** number | string | Date | null | undefined */
@@ -50,24 +50,24 @@ interface DataProvider {
 `getPropertyValues(property)` returns **all values of one named data
 property**, index-aligned with every other property's values, or `undefined`
 when the property isn't in the data at all. That one accessor serves every
-column the config names — the category property, `displayProperty`, and all
+property the config names — the category property, `displayProperty`, and all
 the series properties alike — so a provider does not need to know which
-config property asked. Return the stored column either way; `getDataErrors`
-checks each column against its own rule.
+config property asked. Return the stored values either way; `getDataErrors`
+checks each property's values against their own rule.
 
-The rules the chart holds the columns to:
+The rules the chart holds the values to:
 
-- **The config's category column defines the category count.** Every other
-  requested column must have the same length; a mismatch is a hard data
-  error naming both counts.
-- **Cells hold `DataValue`s.** Series columns must be numeric, with `null`
-  and `undefined` both reading as a missing value (`null` is how JSON writes
-  a hole in a column, and the chart normalizes it to `undefined` internally).
-  Category and display columns hold strings, numbers, or `Date`s matching
-  `categoryAxis.type`.
-- **A whole-column `undefined` means "not in the data".** That is distinct
-  from a column of missing values, and `getDataErrors` reports which problem
-  you have.
+- **The config's category property defines the category count.** Every other
+  requested property must return the same number of values; a mismatch is a
+  hard data error naming both counts.
+- **Every value is a `DataValue`.** Series values must be numeric, with
+  `null` and `undefined` both reading as a missing value (`null` is how JSON
+  writes a hole in the data, and the chart normalizes it to `undefined`
+  internally). Category and display values are strings, numbers, or `Date`s
+  matching `categoryAxis.type`.
+- **`undefined` in place of the array means "not in the data".** That is
+  distinct from an array of missing values, and `getDataErrors` reports
+  which problem you have.
 
 The chart treats returned arrays as read-only snapshots: it copies what it
 needs during each recompute and never mutates or holds onto the array.
@@ -81,15 +81,16 @@ The optional three are independent — implement only the ones you want:
   [`refresh()`](#when-the-data-changes) before it re-reads.
 
 A provider missing `getPropertyValues` is treated as invalid:
-`isDataProviderValid` returns false, `getDataErrors` reports
+`getDataErrors` reports
 `data provider must implement: getPropertyValues`, and the chart renders no
 data rather than failing mid-read.
 
-A complete custom provider over a column store is one method:
+A complete custom provider over a store that already holds one array per
+property is one method:
 
 ```ts
 const provider = {
-  getPropertyValues: (property) => store.columns[property]
+  getPropertyValues: (property) => store.arrays[property]
 };
 ```
 
@@ -151,14 +152,14 @@ keep a marker at the missing values — most useful with
 `getDataErrors` checks a dataset against an enhanced config and returns
 readable messages:
 
-- a missing category column — data with nothing under
+- a missing category property — data with nothing under
   `categoryAxis.property` — is one loud error naming the property, since
   nothing else is checkable without it
 - a *series* property absent from the data is reported as
-  `no values found for property: …` — distinct from a column of legitimate
-  missing values, which is valid
-- a column whose length doesn't match the category column's is reported
-  with both counts
+  `no values found for property: …` — distinct from a property full of
+  legitimate missing values, which is valid
+- a property whose value count doesn't match the category property's is
+  reported with both counts
 - non-numeric series values, category values that don't match the
   configured type, and duplicate category values each get their own message
 
