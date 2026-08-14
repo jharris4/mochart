@@ -33,7 +33,7 @@ jobs:
       DEPLOY_PAGES: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_PAGES_DEPLOY == 'true' }}
       DEPLOY_CLOUDFLARE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_CLOUDFLARE_DEPLOY == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
@@ -71,7 +71,7 @@ jobs:
       # Both suites write their own: demo-basic's minimal harness and the
       # vanilla gallery's (share links, editor tabs, phone fold).
       - if: failure() && steps.e2e.outcome == 'failure'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-traces-node${{ matrix.node-version }}
           path: |
@@ -99,7 +99,7 @@ jobs:
         env:
           PAGES_BASE: /
       - if: matrix.site && env.DEPLOY_CLOUDFLARE == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cloudflare-site
           path: site
@@ -122,7 +122,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   deploy-cloudflare:
     # Requires two repo secrets (CLOUDFLARE_API_TOKEN with the "Cloudflare
@@ -135,7 +135,7 @@ jobs:
     env:
       CLOUDFLARE_PROJECT: mochart
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: cloudflare-site
           path: site
