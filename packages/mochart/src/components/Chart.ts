@@ -182,27 +182,33 @@ function getConfigErrorComponent({ width, height }: ChartFactoryContext): Node {
   return buildMessageDiv(width, height, 'Mochart Config Error');
 }
 
-/** Replace a container's children with factory-produced content (Node | El | string | falsy). */
+/** Normalize factory-produced content (Node | El | string | falsy) to a DOM node; null for falsy content. */
+function factoryContentToNode(content: FactoryContent): Node | null {
+  if (content === null || content === undefined || content === false) {
+    return null;
+  }
+  if (content instanceof El) {
+    return content.node;
+  }
+  if (typeof content === 'string' || typeof content === 'number') {
+    return document.createTextNode(String(content));
+  }
+  return content;
+}
+
+/** Replace a container's children with factory-produced content. */
 function setFactoryContent(containerEl: FactoryEl, content: FactoryContent): void {
   if (containerEl._factoryContent === content) {
     return;
   }
   containerEl._factoryContent = content;
-  const node = containerEl.node;
-  while (node.firstChild) {
-    node.removeChild(node.firstChild);
+  const containerNode = containerEl.node;
+  while (containerNode.firstChild) {
+    containerNode.removeChild(containerNode.firstChild);
   }
-  if (content === null || content === undefined || content === false) {
-    return;
-  }
-  if (content instanceof El) {
-    node.appendChild(content.node);
-  }
-  else if (typeof content === 'string' || typeof content === 'number') {
-    node.appendChild(document.createTextNode(String(content)));
-  }
-  else {
-    node.appendChild(content);
+  const node = factoryContentToNode(content);
+  if (node) {
+    containerNode.appendChild(node);
   }
 }
 
@@ -1170,7 +1176,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     this.body.set(ChartBody, { chart: this, mochartConfig, chartProps: this.props, chartState: this.state, error, loading });
   }
 
-  /** Insert factory-produced content (Node | El | string | falsy) into the simple-content region of the root div. */
+  /** Insert factory-produced content into the simple-content region of the root div. */
   setSimpleContent(content: FactoryContent): void {
     if (this._simpleNodeContent === content) {
       return;
@@ -1180,13 +1186,11 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       this._simpleNode.parentNode.removeChild(this._simpleNode);
     }
     this._simpleNode = null;
-    if (content === null || content === undefined || content === false) {
-      return;
+    const node = factoryContentToNode(content);
+    if (node) {
+      this.root.node.insertBefore(node, this.simpleContent.anchor);
+      this._simpleNode = node;
     }
-    const node = content instanceof El ? content.node :
-      (typeof content === 'string' || typeof content === 'number') ? document.createTextNode(String(content)) : content;
-    this.root.node.insertBefore(node, this.simpleContent.anchor);
-    this._simpleNode = node;
   }
 
   /** True when the committed dataset holds at least one category. */
