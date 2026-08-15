@@ -14,7 +14,7 @@ import { mapMap } from '../utils/utils';
 
 import { SCALE_ORDINAL, DOMAIN_CHANGE_COMBINED, DOMAIN_CHANGE_STAGED } from '../config/core/constants';
 import type { DomainChange } from '../config/core/constants';
-import type { AxisDomains, ChartData, CategoryAxisDomain, DomainValue, NullableDomain, SeriesDomainObject, SeriesDomainObjects, SeriesValueObjects } from '../types/data';
+import type { AxisDomains, ChartData, CategoryAxisDomain, DomainValue, NullableDomain, SeriesData, SeriesDataSet, SeriesDomainObject, SeriesDomainObjects, SeriesValueObjects } from '../types/data';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig, EnhancedValueAxisConfig } from '../types/enhanced';
 import type {
   AxisDeltaData, CompleteNumericArrayDelta, DomainDelta, DomainDeltaMap, CategoryDeltaData,
@@ -308,105 +308,69 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
   let finalRawValueAxisDomains = prevChartData.seriesData.raw.renderAxisDomains;
   let finalFilteredValueAxisDomains = prevChartData.seriesData.filtered.renderAxisDomains;
   let finalValueAxisBases = prevChartData.seriesData.axisBases;
+  let finalRawSeriesDomains = prevChartData.seriesData.raw.domains;
+  let finalFilteredSeriesDomains = prevChartData.seriesData.filtered.domains;
 
-  const startRawValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.raw.renderAxisDomains);
-  const startFilteredValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.filtered.renderAxisDomains);
-  let endRawValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.raw.renderAxisDomains);
-  let endFilteredValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.filtered.renderAxisDomains);
+  // combined-domain axes sit out both union phases: their domain moves during the value phase instead; classified on the unfilled domains so the empty-domain guard sees the nulls, like the value phase does
+  const combinedAxisIds = getCombinedDomainAxisIds(mochartConfig.animation.valueDomainChange, valueAxisConfigs,
+    prevChartData.seriesData.raw.renderAxisDomains, prevChartData.seriesData.filtered.renderAxisDomains,
+    newChartData.seriesData.raw.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains);
+  const rawSet = getDomainDeltaSet(seriesConfigs, prevChartData.seriesData.raw, newChartData.seriesData.raw, false, combinedAxisIds);
+  const filteredSet = getDomainDeltaSet(seriesConfigs, prevChartData.seriesData.filtered, newChartData.seriesData.filtered, false, combinedAxisIds);
 
-  // combined-domain axes sit out both union phases: their domain moves during the value phase instead; classified before the base-fill so the empty-domain guard sees the nulls, like the value phase does
-  const combinedAxisIds = getCombinedDomainAxisIds(mochartConfig.animation.valueDomainChange, valueAxisConfigs, startRawValueAxisDomains, startFilteredValueAxisDomains, endRawValueAxisDomains, endFilteredValueAxisDomains);
-  setAllBaseAxisDomainsForChanges(startRawValueAxisDomains, endRawValueAxisDomains);
-  setAllBaseAxisDomainsForChanges(startFilteredValueAxisDomains, endFilteredValueAxisDomains);
-  resetAxisDomainsForIds(endRawValueAxisDomains, startRawValueAxisDomains, combinedAxisIds);
-  resetAxisDomainsForIds(endFilteredValueAxisDomains, startFilteredValueAxisDomains, combinedAxisIds);
+  let endRawValueAxisDomains = rawSet.startValueAxisDomains;
+  let endFilteredValueAxisDomains = filteredSet.startValueAxisDomains;
+  let endRawSeriesDomains = rawSet.startSeriesDomains;
+  let endFilteredSeriesDomains = filteredSet.startSeriesDomains;
 
-  const rawValueAxisExtents = getDomainExtents(startRawValueAxisDomains);
-  const filteredValueAxisExtents = getDomainExtents(startFilteredValueAxisDomains);
-  const rawValueAxisDomainDeltas = getValueAxisDomainDeltas(startRawValueAxisDomains, endRawValueAxisDomains, rawValueAxisExtents);
-  const filteredValueAxisDomainDeltas = getValueAxisDomainDeltas(startFilteredValueAxisDomains, endFilteredValueAxisDomains, filteredValueAxisExtents);
-
-  if (rawValueAxisDomainDeltas.deltaPercentage !== 0) {
-    endRawValueAxisDomains = getMaxAxisDomains(startRawValueAxisDomains, endRawValueAxisDomains);
+  if (rawSet.valueAxisDomainDeltas.deltaPercentage !== 0) {
+    endRawValueAxisDomains = getMaxAxisDomains(rawSet.startValueAxisDomains, rawSet.endValueAxisDomains);
     finalRawValueAxisDomains = withAxisDomainsForIds(
       getMaxAxisDomains(prevChartData.seriesData.raw.renderAxisDomains, newChartData.seriesData.raw.renderAxisDomains),
       prevChartData.seriesData.raw.renderAxisDomains, combinedAxisIds);
   }
-  else {
-    endRawValueAxisDomains = startRawValueAxisDomains;
-  }
-  if (filteredValueAxisDomainDeltas.deltaPercentage !== 0) {
-    endFilteredValueAxisDomains = getMaxAxisDomains(startFilteredValueAxisDomains, endFilteredValueAxisDomains);
+  if (filteredSet.valueAxisDomainDeltas.deltaPercentage !== 0) {
+    endFilteredValueAxisDomains = getMaxAxisDomains(filteredSet.startValueAxisDomains, filteredSet.endValueAxisDomains);
     finalFilteredValueAxisDomains = withAxisDomainsForIds(
       getMaxAxisDomains(prevChartData.seriesData.filtered.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains),
       prevChartData.seriesData.filtered.renderAxisDomains, combinedAxisIds);
     finalValueAxisBases = getValueAxisBases(valueAxisConfigs, finalRawValueAxisDomains, finalFilteredValueAxisDomains);
   }
-  else {
-    endFilteredValueAxisDomains = startFilteredValueAxisDomains;
-  }
-
-  let finalRawSeriesDomains = prevChartData.seriesData.raw.domains;
-  let finalFilteredSeriesDomains = prevChartData.seriesData.filtered.domains;
-
-  const startRawSeriesDomains = copySeriesDomains(prevChartData.seriesData.raw.domains);
-  const startFilteredSeriesDomains = copySeriesDomains(prevChartData.seriesData.filtered.domains);
-  let endRawSeriesDomains = copySeriesDomains(newChartData.seriesData.raw.domains);
-  let endFilteredSeriesDomains = copySeriesDomains(newChartData.seriesData.filtered.domains);
-  setAllBaseSeriesDomainsForChanges(startRawSeriesDomains, endRawSeriesDomains);
-  setAllBaseSeriesDomainsForChanges(startFilteredSeriesDomains, endFilteredSeriesDomains);
-
-  // series on combined-domain axes sit out the union with their axis
-  resetSeriesDomainsForAxes(endRawSeriesDomains, startRawSeriesDomains, seriesConfigs, combinedAxisIds);
-  resetSeriesDomainsForAxes(endFilteredSeriesDomains, startFilteredSeriesDomains, seriesConfigs, combinedAxisIds);
-
-  const rawSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, startRawSeriesDomains, endRawSeriesDomains, rawValueAxisExtents);
-  const filteredSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, startFilteredSeriesDomains, endFilteredSeriesDomains, filteredValueAxisExtents);
-
-  if (rawSeriesDomainDeltas.deltaPercentage !== 0) {
-    endRawSeriesDomains = getMaxSeriesDomains(startRawSeriesDomains, endRawSeriesDomains);
+  if (rawSet.seriesDomainDeltas.deltaPercentage !== 0) {
+    endRawSeriesDomains = getMaxSeriesDomains(rawSet.startSeriesDomains, rawSet.endSeriesDomains);
     finalRawSeriesDomains = withSeriesDomainsForAxes(
       getMaxSeriesDomains(prevChartData.seriesData.raw.domains, newChartData.seriesData.raw.domains),
       prevChartData.seriesData.raw.domains, seriesConfigs, combinedAxisIds);
   }
-  else {
-    endRawSeriesDomains = startRawSeriesDomains;
-  }
-  if (filteredSeriesDomainDeltas.deltaPercentage !== 0) {
-    endFilteredSeriesDomains = getMaxSeriesDomains(startFilteredSeriesDomains, endFilteredSeriesDomains);
+  if (filteredSet.seriesDomainDeltas.deltaPercentage !== 0) {
+    endFilteredSeriesDomains = getMaxSeriesDomains(filteredSet.startSeriesDomains, filteredSet.endSeriesDomains);
     finalFilteredSeriesDomains = withSeriesDomainsForAxes(
       getMaxSeriesDomains(prevChartData.seriesData.filtered.domains, newChartData.seriesData.filtered.domains),
       prevChartData.seriesData.filtered.domains, seriesConfigs, combinedAxisIds);
   }
-  else {
-    endFilteredSeriesDomains = startFilteredSeriesDomains;
-  }
 
-  if (rawValueAxisDomainDeltas.deltaPercentage !== 0 || filteredValueAxisDomainDeltas.deltaPercentage !== 0 ||
-      rawSeriesDomainDeltas.deltaPercentage !== 0 || filteredSeriesDomainDeltas.deltaPercentage !== 0) {
-    endSeriesData = getSeriesDataWithRenderAxisDomains(endSeriesData, endRawValueAxisDomains, endFilteredValueAxisDomains);
-    endSeriesData = getSeriesDataWithDomains(endSeriesData, endRawSeriesDomains, endFilteredSeriesDomains);
-    finalSeriesData = getSeriesDataWithRenderAxisDomains(finalSeriesData, finalRawValueAxisDomains, finalFilteredValueAxisDomains);
+  const hasDomainDelta = hasAnyDomainDelta(rawSet, filteredSet);
+  if (hasDomainDelta) {
+    endSeriesData = getSeriesDataWithAllDomains(endSeriesData, endRawValueAxisDomains, endFilteredValueAxisDomains, endRawSeriesDomains, endFilteredSeriesDomains);
+    finalSeriesData = getSeriesDataWithAllDomains(finalSeriesData, finalRawValueAxisDomains, finalFilteredValueAxisDomains, finalRawSeriesDomains, finalFilteredSeriesDomains);
     finalSeriesData = getSeriesDataWithAxisBases(finalSeriesData, finalValueAxisBases);
-    finalSeriesData = getSeriesDataWithDomains(finalSeriesData, finalRawSeriesDomains, finalFilteredSeriesDomains);
   }
 
-  if (categoryAxisDomainDelta.deltaPercentage !== 0 || rawValueAxisDomainDeltas.deltaPercentage !== 0 || filteredValueAxisDomainDeltas.deltaPercentage !== 0 ||
-    rawSeriesDomainDeltas.deltaPercentage !== 0 || filteredSeriesDomainDeltas.deltaPercentage !== 0) {
+  if (categoryAxisDomainDelta.deltaPercentage !== 0 || hasDomainDelta) {
     finalChartData = getChartDataWithData(prevChartData, finalCategoryData, finalSeriesData);
     endChartData = getChartDataWithData(prevChartData, endCategoryData, endSeriesData);
   }
 
-  let startChartData = getChartDataWithRenderAxisDomains(prevChartData, startCategoryAxisDomain, startRawValueAxisDomains, startFilteredValueAxisDomains);
-  startChartData = getChartDataWithSeriesData(startChartData, getSeriesDataWithDomains(startChartData.seriesData, startRawSeriesDomains, startFilteredSeriesDomains));
+  let startChartData = getChartDataWithRenderAxisDomains(prevChartData, startCategoryAxisDomain, rawSet.startValueAxisDomains, filteredSet.startValueAxisDomains);
+  startChartData = getChartDataWithSeriesData(startChartData, getSeriesDataWithDomains(startChartData.seriesData, rawSet.startSeriesDomains, filteredSet.startSeriesDomains));
 
-  adjustFilteredAxisDomainDeltas(valueAxisConfigs, rawValueAxisDomainDeltas, filteredValueAxisDomainDeltas);
+  adjustFilteredAxisDomainDeltas(valueAxisConfigs, rawSet.valueAxisDomainDeltas, filteredSet.valueAxisDomainDeltas);
 
   // series hidden at the start of the expansion render nothing during it, so they must not stretch its duration
-  const filteredSeriesPacingDeltaPercentage = getVisibleSeriesPacingDeltaPercentage(filteredSeriesDomainDeltas, prevChartData.seriesData.filtered.values);
+  const filteredSeriesPacingDeltaPercentage = getVisibleSeriesPacingDeltaPercentage(filteredSet.seriesDomainDeltas, prevChartData.seriesData.filtered.values);
 
-  return createAxisDeltaData(startChartData, endChartData, finalChartData, categoryAxisDomainDelta, rawValueAxisDomainDeltas,
-    filteredValueAxisDomainDeltas, rawSeriesDomainDeltas, filteredSeriesDomainDeltas, filteredSeriesPacingDeltaPercentage, categoryValueDeltaData);
+  return createAxisDeltaData(startChartData, endChartData, finalChartData, categoryAxisDomainDelta, rawSet.valueAxisDomainDeltas,
+    filteredSet.valueAxisDomainDeltas, rawSet.seriesDomainDeltas, filteredSet.seriesDomainDeltas, filteredSeriesPacingDeltaPercentage, categoryValueDeltaData);
 }
 
 export function getTransitionAxisContractionData(mochartConfig: EnhancedMochartConfig, prevChartData: ChartData, newChartData: ChartData, categoryDeltaData: CategoryDeltaData): AxisDeltaData {
@@ -432,46 +396,69 @@ export function getTransitionAxisContractionData(mochartConfig: EnhancedMochartC
   let startSeriesData = newChartData.seriesData;
   let endSeriesData = newChartData.seriesData;
 
-  const startRawValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.raw.renderAxisDomains);
-  const startFilteredValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.filtered.renderAxisDomains);
-  const endRawValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.raw.renderAxisDomains);
-  const endFilteredValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.filtered.renderAxisDomains);
-  setAllBaseAxisDomainsForChanges(startRawValueAxisDomains, endRawValueAxisDomains);
-  setAllBaseAxisDomainsForChanges(startFilteredValueAxisDomains, endFilteredValueAxisDomains);
+  const rawSet = getDomainDeltaSet(seriesConfigs, prevChartData.seriesData.raw, newChartData.seriesData.raw, true, []);
+  const filteredSet = getDomainDeltaSet(seriesConfigs, prevChartData.seriesData.filtered, newChartData.seriesData.filtered, true, []);
 
-  const rawValueAxisExtents = getDomainExtents(endRawValueAxisDomains);
-  const filteredValueAxisExtents = getDomainExtents(endFilteredValueAxisDomains);
-  const rawValueAxisDomainDeltas = getValueAxisDomainDeltas(endRawValueAxisDomains, startRawValueAxisDomains, rawValueAxisExtents);
-  const filteredValueAxisDomainDeltas = getValueAxisDomainDeltas(endFilteredValueAxisDomains, startFilteredValueAxisDomains, filteredValueAxisExtents);
-
-  const startRawSeriesDomains = copySeriesDomains(prevChartData.seriesData.raw.domains);
-  const startFilteredSeriesDomains = copySeriesDomains(prevChartData.seriesData.filtered.domains);
-  const endRawSeriesDomains = copySeriesDomains(newChartData.seriesData.raw.domains);
-  const endFilteredSeriesDomains = copySeriesDomains(newChartData.seriesData.filtered.domains);
-  setAllBaseSeriesDomainsForChanges(startRawSeriesDomains, endRawSeriesDomains);
-  setAllBaseSeriesDomainsForChanges(startFilteredSeriesDomains, endFilteredSeriesDomains);
-
-  const rawSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, endRawSeriesDomains, startRawSeriesDomains, rawValueAxisExtents);
-  const filteredSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, endFilteredSeriesDomains, startFilteredSeriesDomains, filteredValueAxisExtents);
-
-  if (rawValueAxisDomainDeltas.deltaPercentage !== 0 || filteredValueAxisDomainDeltas.deltaPercentage !== 0 ||
-    rawSeriesDomainDeltas.deltaPercentage !== 0 || filteredSeriesDomainDeltas.deltaPercentage !== 0) {
-    startSeriesData = getSeriesDataWithRenderAxisDomains(startSeriesData, startRawValueAxisDomains, startFilteredValueAxisDomains);
-    startSeriesData = getSeriesDataWithDomains(startSeriesData, startRawSeriesDomains, startFilteredSeriesDomains);
-    endSeriesData = getSeriesDataWithRenderAxisDomains(endSeriesData, endRawValueAxisDomains, endFilteredValueAxisDomains);
-    endSeriesData = getSeriesDataWithDomains(endSeriesData, endRawSeriesDomains, endFilteredSeriesDomains);
+  if (hasAnyDomainDelta(rawSet, filteredSet)) {
+    startSeriesData = getSeriesDataWithAllDomains(startSeriesData, rawSet.startValueAxisDomains, filteredSet.startValueAxisDomains, rawSet.startSeriesDomains, filteredSet.startSeriesDomains);
+    endSeriesData = getSeriesDataWithAllDomains(endSeriesData, rawSet.endValueAxisDomains, filteredSet.endValueAxisDomains, rawSet.endSeriesDomains, filteredSet.endSeriesDomains);
   }
 
   const startChartData = getChartDataWithData(newChartData, startCategoryData, startSeriesData);
   const endChartData = getChartDataWithData(newChartData, endCategoryData, endSeriesData);
 
-  adjustFilteredAxisDomainDeltas(valueAxisConfigs, rawValueAxisDomainDeltas, filteredValueAxisDomainDeltas);
+  adjustFilteredAxisDomainDeltas(valueAxisConfigs, rawSet.valueAxisDomainDeltas, filteredSet.valueAxisDomainDeltas);
 
   // series hidden at the end of the contraction render nothing during it, so they must not stretch its duration
-  const filteredSeriesPacingDeltaPercentage = getVisibleSeriesPacingDeltaPercentage(filteredSeriesDomainDeltas, newChartData.seriesData.filtered.values);
+  const filteredSeriesPacingDeltaPercentage = getVisibleSeriesPacingDeltaPercentage(filteredSet.seriesDomainDeltas, newChartData.seriesData.filtered.values);
 
   return invertAxisDeltas(createAxisDeltaData(startChartData, endChartData, newChartData, categoryAxisDomainDelta,
-    rawValueAxisDomainDeltas, filteredValueAxisDomainDeltas, rawSeriesDomainDeltas, filteredSeriesDomainDeltas, filteredSeriesPacingDeltaPercentage, categoryValueDeltaData));
+    rawSet.valueAxisDomainDeltas, filteredSet.valueAxisDomainDeltas, rawSet.seriesDomainDeltas, filteredSet.seriesDomainDeltas, filteredSeriesPacingDeltaPercentage, categoryValueDeltaData));
+}
+
+// one raw-or-filtered slice of the expansion/contraction pipeline: copied, base-filled start (prev) and end (new) domains plus the deltas measured from one side to the other
+interface DomainDeltaSet {
+  startValueAxisDomains: AxisDomains;
+  endValueAxisDomains: AxisDomains;
+  valueAxisDomainDeltas: DomainDeltaMap;
+  startSeriesDomains: SeriesDomainObjects;
+  endSeriesDomains: SeriesDomainObjects;
+  seriesDomainDeltas: SeriesDomainDeltaMap;
+}
+
+function getDomainDeltaSet(seriesConfigs: EnhancedSeriesConfig[], prevDataSet: SeriesDataSet, newDataSet: SeriesDataSet, fromEnd: boolean, combinedAxisIds: string[]): DomainDeltaSet {
+  const startValueAxisDomains = copyValueAxisDomains(prevDataSet.renderAxisDomains);
+  const endValueAxisDomains = copyValueAxisDomains(newDataSet.renderAxisDomains);
+  setAllBaseAxisDomainsForChanges(startValueAxisDomains, endValueAxisDomains);
+  resetAxisDomainsForIds(endValueAxisDomains, startValueAxisDomains, combinedAxisIds);
+
+  const startSeriesDomains = copySeriesDomains(prevDataSet.domains);
+  const endSeriesDomains = copySeriesDomains(newDataSet.domains);
+  setAllBaseSeriesDomainsForChanges(startSeriesDomains, endSeriesDomains);
+  // series on combined-domain axes sit out the union with their axis
+  resetSeriesDomainsForAxes(endSeriesDomains, startSeriesDomains, seriesConfigs, combinedAxisIds);
+
+  const fromValueAxisDomains = fromEnd ? endValueAxisDomains : startValueAxisDomains;
+  const toValueAxisDomains = fromEnd ? startValueAxisDomains : endValueAxisDomains;
+  const fromSeriesDomains = fromEnd ? endSeriesDomains : startSeriesDomains;
+  const toSeriesDomains = fromEnd ? startSeriesDomains : endSeriesDomains;
+  const valueAxisExtents = getDomainExtents(fromValueAxisDomains);
+
+  return {
+    startValueAxisDomains, endValueAxisDomains,
+    valueAxisDomainDeltas: getValueAxisDomainDeltas(fromValueAxisDomains, toValueAxisDomains, valueAxisExtents),
+    startSeriesDomains, endSeriesDomains,
+    seriesDomainDeltas: getSeriesDomainDeltas(seriesConfigs, fromSeriesDomains, toSeriesDomains, valueAxisExtents)
+  };
+}
+
+function hasAnyDomainDelta(rawSet: DomainDeltaSet, filteredSet: DomainDeltaSet): boolean {
+  return rawSet.valueAxisDomainDeltas.deltaPercentage !== 0 || filteredSet.valueAxisDomainDeltas.deltaPercentage !== 0 ||
+    rawSet.seriesDomainDeltas.deltaPercentage !== 0 || filteredSet.seriesDomainDeltas.deltaPercentage !== 0;
+}
+
+function getSeriesDataWithAllDomains(seriesData: SeriesData, rawValueAxisDomains: AxisDomains, filteredValueAxisDomains: AxisDomains, rawSeriesDomains: SeriesDomainObjects, filteredSeriesDomains: SeriesDomainObjects): SeriesData {
+  return getSeriesDataWithDomains(getSeriesDataWithRenderAxisDomains(seriesData, rawValueAxisDomains, filteredValueAxisDomains), rawSeriesDomains, filteredSeriesDomains);
 }
 
 // pacing max over visible series only; the map keeps every entry so end/final domain bookkeeping still covers hidden series
