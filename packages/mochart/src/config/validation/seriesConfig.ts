@@ -1,4 +1,5 @@
 import validators from './validators';
+import { createStyleValidators, lineMembers, styleMembers } from './styleStateValidators';
 
 import {
   AUTO, NONE, RENDERERS, CURVE_TYPES, CAP_TYPES, LABEL_POSITIONS, COLOR_INTERPOLATIONS, MARKER_SHAPES, MARKER_SIZE_SCALES,
@@ -13,11 +14,6 @@ type GradientCondition = Pick<SeriesConfig, 'gradient'>;
 type RendererCondition = Pick<SeriesConfig, 'renderer'>;
 type PatternCondition = Pick<SeriesConfig, 'renderer' | 'gradient'>;
 
-type SeriesStyleMember = 'strokeColor' | 'strokeOpacity' | 'strokeWidth' | 'strokeDashArray' | 'fillColor' | 'fillOpacity';
-
-const lineMembers: SeriesStyleMember[] = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'];
-const styleMembers: SeriesStyleMember[] = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity'];
-
 function seriesColor(allowSeries: boolean, allowSame: boolean): Validator {
   const keywords: string[] = [];
   if (allowSeries) keywords.push(COLOR_SERIES);
@@ -26,38 +22,9 @@ function seriesColor(allowSeries: boolean, allowSame: boolean): Validator {
   return validators.svgColor().orOneOf(keywords);
 }
 
-function memberValidator(member: SeriesStyleMember, allowSeries: boolean, allowSame: boolean): Validator {
-  switch (member) {
-    case 'strokeColor':
-    case 'fillColor':
-      return seriesColor(allowSeries, allowSame);
-    case 'strokeOpacity':
-    case 'fillOpacity':
-      return validators.opacity();
-    case 'strokeWidth':
-      // null (leave the attribute unset) is a supported width like on the axis style states — getFocusStrokeWidth handles it
-      return allowSame ? validators.numberMin(0).orOneOf([NONE, COLOR_SAME]) : validators.numberMin(0).orEqual(NONE);
-    case 'strokeDashArray':
-      return allowSame ? validators.dashArray().orOneOf([NONE, COLOR_SAME]) : validators.dashArray().orEqual(NONE);
-  }
-}
-
-// Partial, and extra members pass: an unknown member is reported once by the unknown-key walk.
-function styleShape(members: SeriesStyleMember[], allowSeries: boolean, allowSame: boolean) {
-  const shape: Record<string, Validator> = {};
-  for (const member of members) {
-    shape[member] = memberValidator(member, allowSeries, allowSame);
-  }
-  return validators.partialObjectWithShape(shape, true);
-}
-
-function styleStates(members: SeriesStyleMember[], allowSeries: boolean) {
-  return validators.partialObjectWithShape({
-    normal: styleShape(members, allowSeries, false),
-    focused: styleShape(members, allowSeries, true),
-    defocused: styleShape(members, allowSeries, true)
-  }, true);
-}
+// shapeStyle defines the series colour itself, so it cannot reference it with 'series'
+const seriesStyle = createStyleValidators(allowSame => seriesColor(true, allowSame));
+const ownStyle = createStyleValidators(allowSame => seriesColor(false, allowSame));
 
 const stackSuffix = 'when stack is not ' + NONE;
 const stackNoneSuffix = 'when stack is ' + NONE;
@@ -128,18 +95,18 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
     capExpand: validators.boolean(),
     capOnlyStackOuter: validators.boolean(),
     errorBarCapSize: validators.numberMin(0),
-    errorBarStyle: styleStates(lineMembers, true),
+    errorBarStyle: seriesStyle.styleStates(lineMembers),
     valueLabel: validators.string().orEqual(NONE),
     valueFormat: validators.numberFormat().orOneOf([NONE, AUTO]),
     valuePrefix: validators.string().orEqual(NONE),
     valueSuffix: validators.string().orEqual(NONE),
     useTitleForValueLabel: validators.boolean(),
     title: validators.string().orEqual(NONE),
-    shapeStyle: styleStates(styleMembers, false),
+    shapeStyle: ownStyle.styleStates(styleMembers),
     labelFormat: validators.numberFormat().orOneOf([NONE, AUTO]),
     labelPrefix: validators.string().orEqual(NONE),
     labelSuffix: validators.string().orEqual(NONE),
-    labelTextStyle: styleStates(styleMembers, true),
+    labelTextStyle: seriesStyle.styleStates(styleMembers),
     labelMinPositionFraction: validators.numberMinMax(0, 1).orEqual(NONE),
     labelMaxPositionFraction: validators.numberMinMax(0, 1).orEqual(NONE),
     labelMinRangeFraction: validators.numberMinMax(0, 1).orEqual(NONE),
@@ -211,7 +178,7 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
     missingValueMarkers: validators.boolean(),
     markerSize: validators.numberMin(0),
     markerSizeScale: validators.oneOf(MARKER_SIZE_SCALES),
-    markerStyle: styleStates(styleMembers, true),
+    markerStyle: seriesStyle.styleStates(styleMembers),
     showInLegend: validators.boolean(),
     showInTooltip: validators.boolean(),
     showColorInLegend: validators.boolean(),

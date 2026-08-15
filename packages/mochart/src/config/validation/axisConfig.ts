@@ -1,49 +1,16 @@
 import validators, { boundValue } from './validators';
 import { filterConfig, getRawIndices } from '../core/configUtils';
 import { getPropertyMessage, isConfigObject } from './messages';
+import { createStyleValidators, lineMembers, styleMembers } from './styleStateValidators';
 
 import { AUTO, NONE, ANCHORS, COLOR_SAME, SIDES, THRESHOLD_TITLE_SIDES, TYPE_DATE } from '../core/constants';
 
-import type { Validator } from '@mochart/movalid';
 import type { ConfigObject, LocatedValidationMessage } from './messages';
 
-export type StyleMember = 'strokeColor' | 'strokeOpacity' | 'strokeWidth' | 'strokeDashArray' | 'fillColor' | 'fillOpacity';
-
-const lineMembers: StyleMember[] = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'];
-const styleMembers: StyleMember[] = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity'];
-
-function memberValidator(member: StyleMember, allowSame: boolean): Validator {
-  switch (member) {
-    // Never null: an axis writes stroke="none" so a host-css stroke cannot inherit onto its text.
-    case 'strokeColor':
-    case 'fillColor':
-      return allowSame ? validators.svgColor().orEqual(COLOR_SAME) : validators.svgColor();
-    case 'strokeOpacity':
-    case 'fillOpacity':
-      return validators.opacity();
-    case 'strokeWidth':
-      return allowSame ? validators.numberMin(0).orOneOf([NONE, COLOR_SAME]) : validators.numberMin(0).orEqual(NONE);
-    case 'strokeDashArray':
-      return allowSame ? validators.dashArray().orOneOf([NONE, COLOR_SAME]) : validators.dashArray().orEqual(NONE);
-  }
-}
-
-// Partial, and extra members pass: an unknown member is reported once by the unknown-key walk.
-function styleShape(members: StyleMember[], allowSame: boolean) {
-  const shape: Record<string, Validator> = {};
-  for (const member of members) {
-    shape[member] = memberValidator(member, allowSame);
-  }
-  return validators.partialObjectWithShape(shape, true);
-}
-
-function styleStates(members: StyleMember[]) {
-  return validators.partialObjectWithShape({
-    normal: styleShape(members, false),
-    focused: styleShape(members, true),
-    defocused: styleShape(members, true)
-  }, true);
-}
+// Never null: an axis writes stroke="none" so a host-css stroke cannot inherit onto its text.
+const { styleShape, styleStates } = createStyleValidators(allowSame =>
+  allowSame ? validators.svgColor().orEqual(COLOR_SAME) : validators.svgColor()
+);
 
 export const axisStyleValidators = { styleShape, styleStates, lineMembers, styleMembers };
 
