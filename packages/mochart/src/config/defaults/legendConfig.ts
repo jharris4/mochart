@@ -1,15 +1,10 @@
 import { NONE, POSITION_BOTTOM, ALIGN_CENTER, ELLIPSIS, COLOR_CURRENT } from '../core/constants';
-import { deepMerge } from '../core/deepMerge';
-import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 import { getRegularDefaults as getSeriesIconRegularDefaults } from './seriesIconConfig';
 import type { DeepPartial, LegendConfig } from '../../types/config';
 
 export default function getDefaults(config: DeepPartial<LegendConfig> = {}, seriesCount: number): Partial<LegendConfig> {
-  const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as LegendConfig, seriesCount));
-
-  return deepMerge(regularDefaults, conditionalDefaults) as Partial<LegendConfig>;
+  return resolveDefaults(getRegularDefaults(), getConditionalDefaults, config, seriesCount);
 }
 
 export function getRegularDefaults() {

@@ -1,14 +1,10 @@
 import { AUTO, NONE, PIE_LABEL_TYPE_PERCENT, PIE_LABEL_TYPE_VALUE, COLOR_CURRENT } from '../core/constants';
-import { deepMerge } from '../core/deepMerge';
-import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
 import type { DeepPartial, PieConfig } from '../../types/config';
 
 export default function getDefaults(config: DeepPartial<PieConfig> = {}): Partial<PieConfig> {
-  const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as PieConfig));
-  return deepMerge(regularDefaults, conditionalDefaults) as Partial<PieConfig>;
+  return resolveDefaults(getRegularDefaults(), getConditionalDefaults, config);
 }
 
 export function getRegularDefaults() {

@@ -1,16 +1,11 @@
 import {
   COLOR_SERIES, NONE, PATTERN_TYPE_CROSSHATCH, PATTERN_TYPE_DOTS, PATTERN_TYPE_LINES
 } from '../core/constants';
-import { deepMerge } from '../core/deepMerge';
-import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 import type { DeepPartial, PatternConfig, PatternInputConfig } from '../../types/config';
 
 export default function getDefaults(config: DeepPartial<PatternInputConfig> = {}, index: number): Partial<PatternConfig> {
-  const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = deepMerge(regularDefaults, config) as PatternConfig;
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults, index));
-
-  return deepMerge(regularDefaults, conditionalDefaults) as Partial<PatternConfig>;
+  return resolveDefaults(getRegularDefaults(), getConditionalDefaults, config, index);
 }
 
 export function getRegularDefaults() {

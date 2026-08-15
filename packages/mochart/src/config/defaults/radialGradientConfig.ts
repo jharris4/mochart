@@ -1,13 +1,8 @@
-import { deepMerge } from '../core/deepMerge';
-import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 import type { DeepPartial, RadialGradientConfig } from '../../types/config';
 
 export default function getDefaults(config: DeepPartial<RadialGradientConfig> = {}, index: number): Partial<RadialGradientConfig> {
-  const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as RadialGradientConfig, index));
-
-  return deepMerge(regularDefaults, conditionalDefaults) as Partial<RadialGradientConfig>;
+  return resolveDefaults(getRegularDefaults(), getConditionalDefaults, config, index);
 }
 
 export function getRegularDefaults() {

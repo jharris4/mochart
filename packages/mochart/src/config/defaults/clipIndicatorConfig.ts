@@ -1,14 +1,9 @@
 import { NONE, AUTO, COLOR_CURRENT } from '../core/constants';
-import { deepMerge } from '../core/deepMerge';
-import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 import type { DeepPartial, ClipIndicatorConfig } from '../../types/config';
 
 export default function getDefaults(config: DeepPartial<ClipIndicatorConfig> = {}): Partial<ClipIndicatorConfig> {
-  const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as ClipIndicatorConfig));
-
-  return deepMerge(regularDefaults, conditionalDefaults) as Partial<ClipIndicatorConfig>;
+  return resolveDefaults(getRegularDefaults(), getConditionalDefaults, config);
 }
 
 export function getRegularDefaults() {

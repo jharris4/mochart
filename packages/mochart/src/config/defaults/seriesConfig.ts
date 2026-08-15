@@ -4,8 +4,7 @@ import {
   COLOR_INTERPOLATION_HCL, MISSING_VALUES_BREAK
 } from '../core/constants';
 
-import { deepMerge } from '../core/deepMerge';
-import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 import type { DeepPartial, SeriesConfig } from '../../types/config';
 
 // The suffixes are the prose the generated config reference shows for each branch.
@@ -15,11 +14,7 @@ const colorBaseSuffix = 'when colorProperty is not ' + NONE + ' and colorScale.b
 const colorBaseNoneSuffix = 'when colorProperty is not ' + NONE + ' and colorScale.base.value is ' + NONE;
 
 export default function getDefaults(config: DeepPartial<SeriesConfig> = {}, index: number, soleValueAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null, solePatternConfigId: string | null, pieMode = false): Partial<SeriesConfig> {
-  const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesConfig, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId, solePatternConfigId, pieMode));
-
-  return deepMerge(regularDefaults, conditionalDefaults) as Partial<SeriesConfig>;
+  return resolveDefaults(getRegularDefaults(), getConditionalDefaults, config, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId, solePatternConfigId, pieMode);
 }
 
 export function getRegularDefaults() {

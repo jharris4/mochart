@@ -1,16 +1,11 @@
 import { AUTO, NONE, TYPE_STRING, SCALE_LINEAR, SCALE_ORDINAL, ELLIPSIS, SIDE_START, SIDE_END } from '../core/constants';
-import { deepMerge } from '../core/deepMerge';
-import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
 import getAxisDefaults from './axisConfig';
 import type { DeepPartial, CategoryAxisConfig } from '../../types/config';
 
 export default function getDefaults(config: DeepPartial<CategoryAxisConfig> = {}, inverted: boolean, pieMode = false): Partial<CategoryAxisConfig> {
-  const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as unknown as CategoryAxisConfig, inverted, pieMode));
-
-  return deepMerge(regularDefaults, conditionalDefaults) as Partial<CategoryAxisConfig>;
+  return resolveDefaults(getRegularDefaults(), getConditionalDefaults, config, inverted, pieMode);
 }
 
 export function getRegularDefaults() {

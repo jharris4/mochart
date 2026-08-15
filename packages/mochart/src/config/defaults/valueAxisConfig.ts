@@ -1,15 +1,11 @@
 import { NONE, TYPE_NUMBER, SCALE_LINEAR, COLOR_CURRENT, COLOR_SAME } from '../core/constants';
-import { deepMerge } from '../core/deepMerge';
-import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
 import getAxisDefaults from './axisConfig';
 import type { DeepPartial, ValueAxisConfig } from '../../types/config';
 
 export default function getDefaults(config: DeepPartial<ValueAxisConfig> = {}, index: number, hasStack: boolean, pieMode = false): Partial<ValueAxisConfig> {
-  const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as unknown as ValueAxisConfig, index, hasStack, pieMode));
-  return deepMerge(regularDefaults, conditionalDefaults) as Partial<ValueAxisConfig>;
+  return resolveDefaults(getRegularDefaults(), getConditionalDefaults, config, index, hasStack, pieMode);
 }
 
 export function getRegularDefaults() {

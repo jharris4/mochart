@@ -1,15 +1,11 @@
 import { NONE } from '../core/constants';
-import { deepMerge } from '../core/deepMerge';
-import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 import { getRegularDefaults as getSeriesIconRegularDefaults } from './seriesIconConfig';
 
 import type { DeepPartial, TooltipConfig } from '../../types/config';
 
 export default function getDefaults(config: DeepPartial<TooltipConfig> = {}, pieMode = false): Partial<TooltipConfig> {
-  const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as TooltipConfig, pieMode));
-  return deepMerge(regularDefaults, conditionalDefaults) as Partial<TooltipConfig>;
+  return resolveDefaults(getRegularDefaults(), getConditionalDefaults, config, pieMode);
 }
 
 export function getRegularDefaults() {

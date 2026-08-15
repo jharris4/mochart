@@ -1,3 +1,5 @@
+import { deepMerge } from '../core/deepMerge';
+
 export interface ConditionalDefaultRule<C, E, T> {
   condition: { bivarianceHack(config: C, extraArg: E): boolean }['bivarianceHack'];
   suffix: string | null;
@@ -32,6 +34,18 @@ export function getActualDefaults<T extends ConditionalDefaults>(conditionalDefa
     actualDefaults[key] = typeof value === 'function' ? value() : getActualDefaults(value);
   }
   return actualDefaults as ActualDefaults<T>;
+}
+
+/** Merge the config over the regular defaults, evaluate the conditional defaults against it, and layer those over the regular defaults. */
+export function resolveDefaults<T extends object, A extends unknown[]>(
+  regularDefaults: object,
+  getConditionalDefaults: (configWithRegularDefaults: T, ...args: A) => ConditionalDefaults,
+  config: object,
+  ...args: A
+): Partial<T> {
+  const configWithRegularDefaults = deepMerge(regularDefaults, config) as T;
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults, ...args));
+  return deepMerge(regularDefaults, conditionalDefaults) as Partial<T>;
 }
 
 export const defaultRule = { condition: () => true, suffix: null };
