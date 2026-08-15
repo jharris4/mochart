@@ -96,7 +96,7 @@ export function binValues(values: readonly number[], options: BinValuesOptions =
     return [];
   }
   const [domainMin, domainMax] = domain;
-  if (!(domainMax >= domainMin)) {
+  if (!Number.isFinite(domainMin) || !Number.isFinite(domainMax) || domainMax < domainMin) {
     throw new Error(`binValues: invalid domain [${domainMin}, ${domainMax}]`);
   }
 

@@ -68,6 +68,13 @@ describe('binValues', () => {
     expect(() => binValues([1, 2], { domain: [10, 0] })).toThrow();
   });
 
+  it('throws on a non-finite domain', () => {
+    expect(() => binValues([1, 2, 3], { domain: [0, Infinity] })).toThrow(/invalid domain/);
+    expect(() => binValues([1, 2, 3], { domain: [-Infinity, 0] })).toThrow(/invalid domain/);
+    expect(() => binValues([1, 2, 3], { domain: [0, Infinity], nice: false })).toThrow(/invalid domain/);
+    expect(() => binValues([1, 2, 3], { domain: [0, NaN] })).toThrow(/invalid domain/);
+  });
+
   it('bins right up to the maximum bin count', () => {
     expect(binValues([0, 10000], { binWidth: 1, nice: false })).toHaveLength(10000);
   });
