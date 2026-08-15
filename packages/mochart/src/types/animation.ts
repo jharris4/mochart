@@ -21,23 +21,17 @@ export interface FocusData {
   valueAxisComputedFocusDomainPercentages?: Record<string, number[]>;
 }
 
-export interface ArrayFocusDeltaData {
-  start: FocusPercentage[];
-  deltas: number[];
+export interface FocusDeltaData<P, D> {
+  start: P;
+  deltas: D;
   deltaPercentage: number;
-  deltaPercentages: number[] | null;
-  deltaFactors: number[] | null;
-  end: FocusPercentage[];
+  deltaPercentages: D | null;
+  deltaFactors: D | null;
+  end: P;
 }
 
-export interface MapFocusDeltaData {
-  start: FocusPercentageMap;
-  deltas: Record<string, number>;
-  deltaPercentage: number;
-  deltaPercentages: Record<string, number> | null;
-  deltaFactors: Record<string, number> | null;
-  end: FocusPercentageMap;
-}
+export type ArrayFocusDeltaData = FocusDeltaData<FocusPercentage[], number[]>;
+export type MapFocusDeltaData = FocusDeltaData<FocusPercentageMap, Record<string, number>>;
 
 export interface FocusAnimationData {
   start: FocusData;
