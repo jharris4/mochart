@@ -1,6 +1,7 @@
 import validators from './validators';
+import getSeriesIconValidators from './seriesIconConfig';
 
-import { AUTO, NONE } from '../core/constants';
+import { NONE } from '../core/constants';
 
 export default function getValidators() {
   return {
@@ -30,17 +31,7 @@ export default function getValidators() {
     dropShadowOffsetX: validators.number(),
     dropShadowOffsetY: validators.number(),
     dropShadowBlurRadius: validators.numberMin(0),
-    showIconColors: validators.boolean(),
-    showIconShapes: validators.boolean(),
-    showIconPlaceholders: validators.boolean(),
-    iconSize: validators.numberMin(0).orEqual(AUTO),
-    iconSpacerSize: validators.numberMin(0),
-    iconBorderSize: validators.numberMin(0),
-    // svgColor, not the cssColor above: the series icons are svg even inside the html tooltip.
-    iconBorderColor: validators.svgColor(),
-    iconBorderOpacity: validators.opacity(),
-    iconFilteredColor: validators.svgColor(),
-    iconUnfilteredColor: validators.svgColor(),
+    ...getSeriesIconValidators(),
     showFilteringOnLabels: validators.boolean(),
     adjustForFiltering: validators.boolean(),
     adjustSizeForFiltering: validators.boolean(),

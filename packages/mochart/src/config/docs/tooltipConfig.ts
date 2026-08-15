@@ -1,5 +1,6 @@
 import { spacing } from './shared';
 import type { NestedDescription } from './shared';
+import { getDescriptions as getSeriesIconDescriptions } from './seriesIconConfig';
 
 // Not the shared style prose: the tooltip is html, so an opacity is composited into its color rather
 // than written as a separate svg attribute.
@@ -40,16 +41,7 @@ export default function getDescriptions() {
     dropShadowOffsetX: 'the x offset (in pixels) of the drop shadow effect used for the tooltip',
     dropShadowOffsetY: 'the y offset (in pixels) of the drop shadow effect used for the tooltip',
     dropShadowBlurRadius: 'the blur radius (in pixels) of the drop shadow effect used for the tooltip',
-    showIconColors: 'whether to show series colors next to series titles in the tooltip',
-    showIconShapes: 'whether to show series marker shape next to series titles in the tooltip',
-    showIconPlaceholders: 'whether to show placeholder icons next to the series titles in the tooltip',
-    iconSize: 'the width and height (in pixels) of the series icons, or "auto" to match the inherited font size',
-    iconSpacerSize: 'the horizontal space (in pixels) to show between series icons and titles',
-    iconBorderSize: 'the width (in pixels) of the border drawn around series icons',
-    iconBorderColor: 'the color of the border drawn around series icons',
-    iconBorderOpacity: 'the opacity (0 - 1) of the border drawn around series icons',
-    iconFilteredColor: 'the color to use for the series icon when the corresponding series is filtered',
-    iconUnfilteredColor: 'the color to use for the placeholder series icons when the corresponding series is not filtered',
+    ...getSeriesIconDescriptions('tooltip', 'the inherited font size'),
     showFilteringOnLabels: 'whether to strike through the label text of filtered series',
     adjustForFiltering: 'whether to adjust the series values when series filtering changes',
     adjustSizeForFiltering: 'whether to adjust the width of the tooltip when the series values change due to filtering changes',

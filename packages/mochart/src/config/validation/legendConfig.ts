@@ -1,5 +1,6 @@
 import validators from './validators';
-import { ALIGNS, AUTO, POSITIONS } from '../core/constants';
+import getSeriesIconValidators from './seriesIconConfig';
+import { ALIGNS, POSITIONS } from '../core/constants';
 
 export default function getValidators() {
   return {
@@ -16,17 +17,7 @@ export default function getValidators() {
     itemPadding: validators.padding(),
     itemBackgroundStyle: validators.style(),
     itemTextStyle: validators.style(),
-    showIconColors: validators.boolean(),
-    showIconShapes: validators.boolean(),
-    showIconPlaceholders: validators.boolean(),
-    iconSize: validators.numberMin(0).orEqual(AUTO),
-    iconSpacerSize: validators.numberMin(0),
-    iconBorderSize: validators.numberMin(0),
-    // svgColor, not color: the icons are svg, so 'currentColor' and 'none' are valid here.
-    iconBorderColor: validators.svgColor(),
-    iconBorderOpacity: validators.opacity(),
-    iconFilteredColor: validators.svgColor(),
-    iconUnfilteredColor: validators.svgColor(),
+    ...getSeriesIconValidators(),
     showFilteringOnLabels: validators.boolean(),
     focusOnMouseOver: validators.boolean(),
     focusOnClick: validators.boolean(),

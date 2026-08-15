@@ -1,6 +1,7 @@
-import { AUTO, NONE, POSITION_BOTTOM, ALIGN_CENTER, ELLIPSIS, COLOR_CURRENT } from '../core/constants';
+import { NONE, POSITION_BOTTOM, ALIGN_CENTER, ELLIPSIS, COLOR_CURRENT } from '../core/constants';
 import { deepMerge } from '../core/deepMerge';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import { getRegularDefaults as getSeriesIconRegularDefaults } from './seriesIconConfig';
 import type { DeepPartial, LegendConfig } from '../../types/config';
 
 export default function getDefaults(config: DeepPartial<LegendConfig> = {}, seriesCount: number): Partial<LegendConfig> {
@@ -26,17 +27,7 @@ export function getRegularDefaults() {
     itemBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
     // 'none' rather than null: stroke="none" firewalls a host-css stroke inheriting onto the text.
     itemTextStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },
-    showIconColors: true,
-    showIconShapes: true,
-    showIconPlaceholders: true,
-    iconSize: AUTO,
-    iconSpacerSize: 4,
-    iconBorderSize: 1,
-    // The other two stay literal: they carry their own alpha, which 'currentColor' cannot.
-    iconBorderColor: COLOR_CURRENT,
-    iconBorderOpacity: 0.65,
-    iconFilteredColor: 'rgba(255,255,255,0)',
-    iconUnfilteredColor: 'rgba(0,0,0,0.5)',
+    ...getSeriesIconRegularDefaults(),
     showFilteringOnLabels: false,
     focusOnMouseOver: true,
     focusOnClick: false,

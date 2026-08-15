@@ -1,6 +1,7 @@
-import { AUTO, NONE, COLOR_CURRENT } from '../core/constants';
+import { NONE } from '../core/constants';
 import { deepMerge } from '../core/deepMerge';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import { getRegularDefaults as getSeriesIconRegularDefaults } from './seriesIconConfig';
 
 import type { DeepPartial, TooltipConfig } from '../../types/config';
 
@@ -36,17 +37,8 @@ export function getRegularDefaults() {
     dropShadowOffsetX: 0,
     dropShadowOffsetY: 5,
     dropShadowBlurRadius: 10,
-    showIconColors: true,
-    showIconShapes: true,
-    showIconPlaceholders: true,
-    iconSize: AUTO,
-    iconSpacerSize: 4,
-    iconBorderSize: 1,
-    // The series icons are svg even inside the html tooltip, so they take the legend icon colors.
-    iconBorderColor: COLOR_CURRENT,
-    iconBorderOpacity: 0.65,
-    iconFilteredColor: 'rgba(255,255,255,0)',
-    iconUnfilteredColor: 'rgba(0,0,0,0.5)',
+    // The series icons are svg even inside the html tooltip, so they take the legend icon defaults.
+    ...getSeriesIconRegularDefaults(),
     showFilteringOnLabels: false,
     adjustForFiltering: true,
     adjustSizeForFiltering: false,

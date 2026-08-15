@@ -1,4 +1,5 @@
 import { style, spacing } from './shared';
+import { getDescriptions as getSeriesIconDescriptions } from './seriesIconConfig';
 
 export default function getDescriptions() {
   return {
@@ -15,16 +16,7 @@ export default function getDescriptions() {
     itemPadding: spacing('the padding (in pixels) for the top, right, bottom and left sides of the legend items'),
     itemBackgroundStyle: style('the styles to apply to the legend item backgrounds (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
     itemTextStyle: style('the styles to apply to the legend item text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)'),
-    showIconColors: 'whether to show series colors next to series titles in the legend',
-    showIconShapes: 'whether to show series marker shape next to series titles in the legend',
-    showIconPlaceholders: 'whether to show placeholder icons next to the series titles in the legend',
-    iconSize: 'the width and height (in pixels) of the series icons, or "auto" to match the legend text font size',
-    iconSpacerSize: 'the horizontal space (in pixels) to show between series icons and titles',
-    iconBorderSize: 'the width (in pixels) of the border drawn around series icons',
-    iconBorderColor: 'the color of the border drawn around series icons',
-    iconBorderOpacity: 'the opacity (0 - 1) of the border drawn around series icons',
-    iconFilteredColor: 'the color to use for the series icon when the corresponding series is filtered',
-    iconUnfilteredColor: 'the color to use for the placeholder series icons when the corresponding series is not filtered',
+    ...getSeriesIconDescriptions('legend', 'the legend text font size'),
     showFilteringOnLabels: 'whether to strike through the item text of filtered series',
     focusOnMouseOver: 'whether to focus a series when the mouse is moved over the series icon or title',
     focusOnClick: 'whether to focus a series when the series icon or title is clicked',
