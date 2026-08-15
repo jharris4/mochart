@@ -11,8 +11,8 @@ const modules = (import.meta as unknown as {
   glob: (pattern: string, options: { eager: boolean }) => Record<string, { default?: () => Record<string, DescriptionEntry> }>;
 }).glob('../../src/config/docs/*.ts', { eager: true });
 
-// Shared prose and types rather than a section's descriptions: no getDescriptions() thunk.
-const helperModules = new Set(['shared.ts']);
+// Shared prose and types rather than a section's descriptions: no default getDescriptions() thunk.
+const helperModules = new Set(['shared.ts', 'seriesIconConfig.ts']);
 
 function collectDescriptions(entry: DescriptionEntry, path: string, into: [string, unknown][]) {
   if (typeof entry === 'string') {
