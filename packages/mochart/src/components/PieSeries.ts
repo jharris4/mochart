@@ -147,7 +147,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     else if (seriesConfig.gradient !== NONE) {
       fillColor = getGradientReference(gradientIdMap[seriesConfig.gradient]);
     }
-    const { strokeWidth, strokeOpacity, fillOpacity } = getFocusStyle(seriesFocusPercentage, seriesConfig.shapeStyle);
+    const { strokeWidth, strokeDashArray, strokeOpacity, fillOpacity } = getFocusStyle(seriesFocusPercentage, seriesConfig.shapeStyle);
 
     const arcGenerator = arc()
       .innerRadius(radialLayoutInfo.innerRadius)
@@ -184,7 +184,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     this.shape.set('slice', () => svgEl('path'))!.set({
       d: arcGenerator({ startAngle, endAngle }), className: mochartCssClasses['seriesSlice'],
       onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick,
-      stroke: strokeColor, strokeWidth, strokeOpacity,
+      stroke: strokeColor, strokeWidth, strokeDasharray: strokeDashArray, strokeOpacity,
       fill: fillColor, fillOpacity });
 
     if (pieConfig.showLabels && !hideLabels && labelFraction >= pieConfig.labelMinFraction) {

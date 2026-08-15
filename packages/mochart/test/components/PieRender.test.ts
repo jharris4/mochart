@@ -123,6 +123,15 @@ describe('pie chart rendering', () => {
     expect(roots[1]!.getAttribute('cursor')).toBeNull();
   });
 
+  it('applies the shape style stroke dash array to a slice', () => {
+    const { config, data } = pieChartProps(ITEMS);
+    (config.series as Array<Record<string, unknown>>)[0]!.shapeStyle = { normal: { strokeDashArray: '4 2' } };
+    const { container } = mountChart(config, data);
+    const paths = slicePaths(container);
+    expect(paths[0]!.getAttribute('stroke-dasharray')).toBe('4 2');
+    expect(paths[1]!.getAttribute('stroke-dasharray')).toBeNull();
+  });
+
   it('renders a donut with a different arc path than a pie', () => {
     const pie = mountChart(...Object.values(pieChartProps(ITEMS)) as [MochartInputConfig, readonly unknown[]]);
     const { config, data } = pieChartProps(ITEMS, { donut: true });
