@@ -102,22 +102,15 @@ export function getTitleLayoutInfo(mochartConfig: EnhancedMochartConfig, chartTe
     textRawWidth = 0;
   }
   else {
-    const textAllWidth = fixedWidth + spacingWidth + textSpacingWidth + textRawWidth;
-    if (alignedToAxes && textAllWidth <= seriesLayoutInfo.width) {
-      titleOffset = seriesLayoutInfo.x;
+    // textRawWidth already carries the text margin/padding; this is the title's full outer width
+    const textAllWidth = fixedWidth + spacingWidth + textRawWidth;
+    const alignToAxes = alignedToAxes && textAllWidth <= seriesLayoutInfo.width;
+    if (alignToAxes || textAllWidth <= width) {
+      const { x: availableX, width: availableWidth } = alignToAxes ? seriesLayoutInfo : contentBounds;
+      titleOffset = availableX;
       if (align !== ALIGN_LEFT) {
-        const extraWidth = seriesLayoutInfo.width - spacingWidth - textAllWidth;
-        titleOffset = Math.floor(titleOffset + (align === ALIGN_CENTER ? (extraWidth / 2.0) : extraWidth));
-      }
-      textWidth = textRawWidth;
-      titleWidth = textAllWidth;
-    }
-    else if (textAllWidth <= marginWidth) {
-      if (align !== ALIGN_LEFT) {
-        const extraWidth = marginWidth - textAllWidth;
-        if (extraWidth > 0) {
-          titleOffset = Math.floor(x + (align === ALIGN_CENTER ? (extraWidth / 2.0) : extraWidth));
-        }
+        const extraWidth = availableWidth - textAllWidth;
+        titleOffset = Math.floor(availableX + (align === ALIGN_CENTER ? (extraWidth / 2.0) : extraWidth));
       }
       textWidth = textRawWidth;
       titleWidth = textAllWidth;
