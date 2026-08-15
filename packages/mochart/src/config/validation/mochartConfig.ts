@@ -2,7 +2,7 @@ import validators from './validators';
 import { getMessage, getPropertyMessage, getMessages, addWarningMessages, DEFAULT } from './messages';
 import type { LocatedValidationMessage } from './messages';
 import { CHART_TYPE_PIE, NONE, CONFIG_VERSION } from '../core/constants';
-import { configWithAll, filterConfig, filterConfigs, getRawIndices } from '../core/configUtils';
+import { configWithAll, filterConfigs, getRawIndices } from '../core/configUtils';
 import { getConfigWithDefaults, sectionKeyAllMap } from '../core/mochartConfig';
 import { getDefaults } from '../defaults/mochartConfig';
 
@@ -358,18 +358,17 @@ function safeIndex(array: unknown, i: number): unknown {
   return Array.isArray(array) ? array[i] : undefined;
 }
 
+function getRawSections(configWithoutDefaults: ConfigRecord, sectionKey: string): unknown[] {
+  const rawSections = configWithoutDefaults[sectionKey];
+  return Array.isArray(rawSections) ? rawSections : [rawSections];
+}
+
 function validateConfigSections(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, sectionKey: string, allKey: string | undefined, sectionValidators: (section: ConfigRecord, config?: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, allExcludedKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[]): void {
   const sections = config[sectionKey] as unknown[];
-  const rawSections = Array.isArray(configWithoutDefaults[sectionKey]) ? configWithoutDefaults[sectionKey] : [configWithoutDefaults[sectionKey]];
+  const rawSections = getRawSections(configWithoutDefaults, sectionKey);
+  const rawIndices = getRawIndices(rawSections);
   const sectionDefaults = configDefaults[sectionKey];
   const all = allKey ? config[allKey] : null;
-  // built sections drop ignored/non-object raw entries, so pair by filtered raw index
-  const rawIndices: number[] = [];
-  for (let i = 0; i < rawSections.length; i++) {
-    if (filterConfig(rawSections[i])) {
-      rawIndices.push(i);
-    }
-  }
   let rawIndex: number | undefined;
   for (let i = 0; i < sections.length; i++) {
     rawIndex = rawIndices[i];
@@ -408,13 +407,7 @@ function validateUnique(config: ConfigRecord, configWithoutDefaults: ConfigRecor
   if (!Array.isArray(sections)) {
     return;
   }
-  const rawSections = Array.isArray(configWithoutDefaults[sectionKey]) ? configWithoutDefaults[sectionKey] as unknown[] : [configWithoutDefaults[sectionKey]];
-  const rawIndices: number[] = [];
-  for (let i = 0; i < rawSections.length; i++) {
-    if (filterConfig(rawSections[i])) {
-      rawIndices.push(i);
-    }
-  }
+  const rawIndices = getRawIndices(getRawSections(configWithoutDefaults, sectionKey));
   const seen: Record<string, boolean> = Object.create(null); // null proto: ids like "constructor" must not hit Object.prototype
   for (const section of sections) {
     if (isConfigRecord(section) && section[property] !== undefined) {
@@ -544,14 +537,7 @@ function validateCommonReferences(config: ConfigRecord, configWithoutDefaults: C
       sourceProperties[String(sourceSection[sourceProperty])] = sourceSection[commonProperty];
     }
   }
-  // built sections drop ignored/non-object raw entries, so pair by filtered raw index
-  const rawSections = Array.isArray(configWithoutDefaults[targetSectionKey]) ? configWithoutDefaults[targetSectionKey] as unknown[] : [configWithoutDefaults[targetSectionKey]];
-  const rawIndices: number[] = [];
-  for (let i = 0; i < rawSections.length; i++) {
-    if (filterConfig(rawSections[i])) {
-      rawIndices.push(i);
-    }
-  }
+  const rawIndices = getRawIndices(getRawSections(configWithoutDefaults, targetSectionKey));
   for (let i = 0; i < targetSections.length; i++) {
     const target = targetSections[i];
     if (isConfigRecord(target) && target[targetProperty] !== undefined && target[commonProperty] !== undefined &&

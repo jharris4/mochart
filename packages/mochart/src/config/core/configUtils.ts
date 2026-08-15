@@ -15,6 +15,8 @@ export function filterConfig(config: unknown): config is ConfigRecord {
 }
 
 /** Built list sections drop ignored/non-object raw entries, so errors report at the filtered raw index. */
+export function getRawIndices(sections: unknown[]): number[];
+export function getRawIndices(sections: unknown): number[] | null;
 export function getRawIndices(sections: unknown): number[] | null {
   if (!Array.isArray(sections)) {
     return null;
