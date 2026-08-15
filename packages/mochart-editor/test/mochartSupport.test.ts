@@ -47,7 +47,7 @@ function viewFor(source: string) {
 }
 
 /** Run the completion source at the marker and accept `label` through its apply. */
-async function acceptCompletion(markedSource: string, label: string): Promise<string> {
+async function acceptCompletionIn(markedSource: string, label: string): Promise<EditorView> {
   const { source, position, state } = markedState(markedSource);
   const result = await Promise.resolve(
     mochartSupportTesting.completionSource(new CompletionContext(state, position, true))
@@ -60,7 +60,11 @@ async function acceptCompletion(markedSource: string, label: string): Promise<st
   expect(typeof option!.apply).toBe('function');
   (option!.apply as (view: EditorView, completion: Completion, from: number, to: number) => void)(
     view, option!, result!.from, position);
-  return view.state.doc.toString();
+  return view;
+}
+
+async function acceptCompletion(markedSource: string, label: string): Promise<string> {
+  return (await acceptCompletionIn(markedSource, label)).state.doc.toString();
 }
 
 describe('Mochart support completions', () => {
@@ -110,6 +114,25 @@ describe('Mochart support completions', () => {
     expect(doc).toBe('{"chart":{"type":"pie"}}');
   });
 
+  // Regression: an eager popup after a trailing comma swallowed the Enter
+  // meant to insert a newline, applying a suggestion instead.
+  it('stays closed until a quote or word character is typed', () => {
+    for (const marked of ['{"version": "1.0.0",|}', '{"version": "1.0.0", |}', '{"chart": {|}}']) {
+      const { state, position } = markedState(marked);
+      expect(mochartSupportTesting.completionSource(new CompletionContext(state, position, false))).toBeNull();
+    }
+  });
+
+  it('opens implicitly once a key is being typed', () => {
+    for (const marked of ['{"|"}', '{"ti|"}']) {
+      const { state, position } = markedState(marked);
+      const result = mochartSupportTesting.completionSource(
+        new CompletionContext(state, position, false)) as CompletionResult | null;
+      expect(result).not.toBeNull();
+      expect(labels(result!.options)).toContain('title');
+    }
+  });
+
   it('suggests configured ids and filters common references', async () => {
     const options = await completionOptions(`{
       "version": "1.0.0",
@@ -120,6 +143,48 @@ describe('Mochart support completions', () => {
     }`);
     expect(labels(options)).toContain('"stack-a"');
     expect(labels(options)).not.toContain('"stack-b"');
+  });
+});
+
+describe('property insertion layout', () => {
+  it('puts a property accepted after a trailing comma on its own line', async () => {
+    const doc = await acceptCompletion('{\n  "version": "1.0.0",|\n}', 'chart');
+    expect(doc).toBe('{\n  "version": "1.0.0",\n  "chart": {}\n}');
+  });
+
+  it('mimics the indentation of existing members', async () => {
+    const doc = await acceptCompletion('{\n    "version": "1.0.0",|\n}', 'chart');
+    expect(doc).toBe('{\n    "version": "1.0.0",\n    "chart": {}\n}');
+  });
+
+  it('adds the separating comma when a member follows on a later line', async () => {
+    const doc = await acceptCompletion('{\n  "version": "1.0.0",\n  |\n  "chart": {}\n}', 'title');
+    expect(doc).toBe('{\n  "version": "1.0.0",\n  "title": {},\n  "chart": {}\n}');
+  });
+
+  it('moves a member that follows on the same line onto its own line', async () => {
+    const doc = await acceptCompletion('{\n  |"version": "1.0.0"\n}', 'title');
+    expect(doc).toBe('{\n  "title": {},\n  "version": "1.0.0"\n}');
+  });
+
+  it('keeps single-line objects on one line', async () => {
+    const doc = await acceptCompletion('{"version": "1.0.0", "ti|"}', 'title');
+    expect(doc).toBe('{"version": "1.0.0", "title": {}}');
+  });
+
+  it('selects the placeholder value so typing replaces it', async () => {
+    const view = await acceptCompletionIn('{"chart": {"ty|"}}', 'type');
+    const doc = view.state.doc.toString();
+    expect(doc).toBe('{"chart": {"type": "xy"}}');
+    expect(view.state.selection.main.from).toBe(doc.indexOf('"xy"'));
+    expect(view.state.selection.main.to).toBe(doc.indexOf('"xy"') + 4);
+  });
+
+  it('parks the cursor inside an empty object default', async () => {
+    const view = await acceptCompletionIn('{"ti|"}', 'title');
+    expect(view.state.doc.toString()).toBe('{"title": {}}');
+    expect(view.state.selection.main.empty).toBe(true);
+    expect(view.state.selection.main.head).toBe('{"title": {'.length);
   });
 });
 

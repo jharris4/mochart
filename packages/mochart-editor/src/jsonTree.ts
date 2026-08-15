@@ -1,4 +1,4 @@
-import { syntaxTree } from '@codemirror/language';
+import { getIndentation, indentString, syntaxTree } from '@codemirror/language';
 import type { EditorState } from '@codemirror/state';
 import type { SyntaxNode } from '@lezer/common';
 import type { JsonPath } from './types.js';
@@ -93,6 +93,18 @@ export function isPropertyPosition(state: EditorState, position: number, object:
     else if (char === ':') colon = i;
   }
   return colon < comma || colon === -1;
+}
+
+/** The indentation for a member of `object`: an existing own-line member's, else the language's. */
+export function memberIndentation(state: EditorState, object: SyntaxNode): string {
+  for (let child = object.firstChild; child; child = child.nextSibling) {
+    if (child.name !== 'Property') continue;
+    const line = state.doc.lineAt(child.from);
+    const indent = line.text.slice(0, child.from - line.from);
+    if (!/\S/.test(indent)) return indent;
+  }
+  const columns = getIndentation(state, Math.min(object.from + 1, state.doc.length));
+  return columns === null ? '' : indentString(state, columns);
 }
 
 function nodeForPath(state: EditorState, path: JsonPath): SyntaxNode | null {

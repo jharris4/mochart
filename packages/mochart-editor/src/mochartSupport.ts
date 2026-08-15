@@ -1,10 +1,10 @@
-import { autocompletion, pickedCompletion, type Completion, type CompletionContext } from '@codemirror/autocomplete';
-import { hoverTooltip, type EditorView } from '@codemirror/view';
+import { acceptCompletion, autocompletion, pickedCompletion, type Completion, type CompletionContext } from '@codemirror/autocomplete';
+import { hoverTooltip, keymap, type EditorView } from '@codemirror/view';
 import { getDefaults, getVersionString, validateConfigDetailed } from '@mochart/core';
 import type { Diagnostic } from '@codemirror/lint';
 import model from './mochartConfigModel.generated.js';
 import type { EditorPropertyModel, EditorSectionModel, EditorValueModel } from './model.js';
-import { containingObject, existingObjectKeys, isPropertyPosition, keyRangeForPath, objectPath, pathAt, rangeForPath } from './jsonTree.js';
+import { containingObject, existingObjectKeys, isPropertyPosition, keyRangeForPath, memberIndentation, objectPath, pathAt, rangeForPath } from './jsonTree.js';
 import { defineSupport } from './support.js';
 import type { JsonPath } from './types.js';
 
@@ -177,6 +177,48 @@ function applyJsonText(text: string) {
   };
 }
 
+// Property insertions keep the one-member-per-line layout of a formatted
+// config: a break + indent when the line already has content, a separating
+// comma when a member follows, and the selection over the placeholder value.
+function applyProperty(key: string, value: string) {
+  return (view: EditorView, completion: Completion, from: number, to: number) => {
+    const { state } = view;
+    const start = state.sliceDoc(from - 1, from) === '"' ? from - 1 : from;
+    // a closing quote is only swallowed when a typed opening quote pairs with it
+    const tail = (start < from ? /^[\w-]*"?/ : /^[\w-]*/).exec(state.sliceDoc(to, to + 80))?.[0] ?? '';
+    let end = to + tail.length;
+
+    const object = containingObject(state, from);
+    const multiline = object !== null &&
+      state.doc.lineAt(object.from).number !== state.doc.lineAt(object.to).number;
+    const indent = object ? memberIndentation(state, object) : '';
+    const line = state.doc.lineAt(start);
+    const prefix = multiline && /\S/.test(state.sliceDoc(line.from, start)) ? state.lineBreak + indent : '';
+
+    let suffix = '';
+    const sameLineMember = /^[ \t]*"/.exec(state.sliceDoc(end, end + 80));
+    if (sameLineMember && multiline) {
+      end += sameLineMember[0].length - 1;
+      suffix = ',' + state.lineBreak + indent;
+    }
+    else if (/^\s*"/.test(state.sliceDoc(end, end + 80))) {
+      suffix = ',';
+    }
+
+    const keyText = JSON.stringify(key);
+    const valueStart = start + prefix.length + keyText.length + 2;
+    const selection = value === '{}' || value === '[]' || value === '""'
+      ? { anchor: valueStart + 1 }
+      : { anchor: valueStart, head: valueStart + value.length };
+    view.dispatch({
+      changes: { from: start, to: end, insert: prefix + keyText + ': ' + value + suffix },
+      selection,
+      userEvent: 'input.complete',
+      annotations: pickedCompletion.of(completion)
+    });
+  };
+}
+
 function valueOptions(property: EditorPropertyModel, document: unknown, path: JsonPath): Completion[] {
   const values = [...(property.editor.enum ?? []), ...referencedValues(document, property, path)]
     .filter(value => value !== undefined);
@@ -196,6 +238,9 @@ function completionSource(context: CompletionContext) {
   if (!object) return null;
   const containerPath = objectPath(context.state, object);
   const word = context.matchBefore(/"?[\w-]*/);
+  // stay closed until a quote or word character is typed (or Ctrl-Space):
+  // an eager popup swallows the Enter after a trailing comma
+  if (!context.explicit && !word?.text) return null;
   // the match span starts after any typed quote so it filters against the bare
   // labels; applyJsonText re-swallows the quote when inserting
   const from = word ? word.from + (word.text.startsWith('"') ? 1 : 0) : context.pos;
@@ -206,7 +251,7 @@ function completionSource(context: CompletionContext) {
       from,
       options: properties.filter(property => !existing.has(property.key)).map(property => ({
         label: property.key,
-        apply: applyJsonText(JSON.stringify(property.key) + ': ' + defaultText(property)),
+        apply: applyProperty(property.key, defaultText(property)),
         type: 'property',
         detail: property.editor.types.join(' | '),
         info: propertyInfo(property)
@@ -332,6 +377,7 @@ export function createMochartConfigSupport() {
   return defineSupport('mochart-config', {
     extensions: [
       autocompletion({ override: [completionSource] }),
+      keymap.of([{ key: 'Tab', run: acceptCompletion }]),
       hoverTooltip(hoverSource, { hoverTime: 300 })
     ],
     diagnostics: semanticDiagnostics
