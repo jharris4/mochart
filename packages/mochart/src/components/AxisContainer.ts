@@ -1,13 +1,12 @@
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
-import { getAggregateSeriesFocusPercentage } from '../utils/FocusValue';
+import { getValueAxisFocusContexts } from '../utils/FocusValue';
 import { accessibilityActive } from '../utils/utils';
 import { NONE } from '../config/core/constants';
 
 import CategoryAxis from './CategoryAxis';
 import ValueAxis from './ValueAxis';
-import type { EnhancedValueAxisConfig } from '../types/enhanced';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { AxisData, CategoryAxisData, ValueAxisData, SeriesData } from '../types/data';
 import type { FocusData } from '../types/animation';
@@ -41,8 +40,7 @@ export default class AxisContainer extends Renderer<AxisContainerProps> {
     const { front, mochartConfig, categoryAxisLayoutInfo, valueAxisLayoutInfos, plotLayoutInfo,
       seriesData, focusData, axisData, categoryAxisTitleClipPathUniqueId,
       categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, onFocus } = this.props;
-    const { categoryFocusDomainPercentages = [], valueAxisComputedFocusDomainPercentages = {},
-      valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
+    const { categoryFocusDomainPercentages = [], valueAxisComputedFocusDomainPercentages = {} } = focusData;
     const { category: categoryAxisData, value: valueAxisData } = axisData;
 
     const { categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs, accessibility: accessibilityConfig } = mochartConfig;
@@ -57,12 +55,9 @@ export default class AxisContainer extends Renderer<AxisContainerProps> {
       plotLayoutInfo, accessibility,
       accessibleLabel: getAxisAccessibleLabel(categoryAxisConfig.title, accessibilityConfig.categoryAxisLabel) });
 
-    this.valueAxes.sync(valueAxisConfigs.map((axisConfig: EnhancedValueAxisConfig) => {
-      const { id, seriesConfigs, useSeriesFocus } = axisConfig;
-      const axisFocusPercentage = valueAxisFocusPercentages[id];
-      const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs ?? [], seriesFocusPercentages) : null;
+    this.valueAxes.sync(getValueAxisFocusContexts(valueAxisConfigs, focusData).map(({ axisConfig, id, key, axisFocusPercentage, seriesFocusPercentage }) => {
       return {
-        key: 'value-axis-' + id,
+        key,
         ctor: ValueAxis,
         props: { front, valueAxisConfig: axisConfig,
           valueAxisLayoutInfo: valueAxisLayoutInfos[id], seriesCount: seriesData.axisSeriesCounts[id],

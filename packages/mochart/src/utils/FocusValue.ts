@@ -1,7 +1,7 @@
 import { COLOR_SAME } from '../config/core/constants';
-import type { FocusPercentage, FocusPercentageMap } from '../types/animation';
+import type { FocusData, FocusPercentage, FocusPercentageMap } from '../types/animation';
 import type { Style, StrokeStyleStates, StyleStates } from '../types/config';
-import type { EnhancedSeriesConfig } from '../types/enhanced';
+import type { EnhancedSeriesConfig, EnhancedValueAxisConfig } from '../types/enhanced';
 
 export function getFocusValue(focusPercentage: FocusPercentage, normalValue: number, focusedValue: number, defocusedValue: number): number {
   // piecewise linear interpolation through (-1, defocused), (0, normal), (1, focused) — exact for any value ordering
@@ -56,6 +56,27 @@ export function getAggregateSeriesFocusPercentage(seriesConfigs: EnhancedSeriesC
     }
   }
   return maxPercentage;
+}
+
+export interface ValueAxisFocusContext {
+  axisConfig: EnhancedValueAxisConfig;
+  id: string;
+  key: string;
+  axisFocusPercentage: FocusPercentage;
+  seriesFocusPercentage: FocusPercentage;
+}
+
+// per-value-axis focus inputs shared by the axis, grid, base line and threshold containers
+export function getValueAxisFocusContexts(valueAxisConfigs: EnhancedValueAxisConfig[], focusData: FocusData): ValueAxisFocusContext[] {
+  const { valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
+  return valueAxisConfigs.map((axisConfig: EnhancedValueAxisConfig) => {
+    const { id, seriesConfigs, useSeriesFocus } = axisConfig;
+    return {
+      axisConfig, id, key: 'value-axis-' + id,
+      axisFocusPercentage: valueAxisFocusPercentages[id],
+      seriesFocusPercentage: useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs ?? [], seriesFocusPercentages) : null
+    };
+  });
 }
 
 export function getFocusedDefocused(focusPercentage: FocusPercentage): { focused: boolean; defocused: boolean } {

@@ -1,7 +1,7 @@
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
-import { getAggregateSeriesFocusPercentage } from '../utils/FocusValue';
+import { getValueAxisFocusContexts } from '../utils/FocusValue';
 
 import CategoryAxisGrid from './CategoryAxisGrid';
 import ValueAxisGrid from './ValueAxisGrid';
@@ -30,7 +30,6 @@ export default class AxisGridContainer extends Renderer<AxisGridContainerProps> 
 
   sync() {
     const { front, mochartConfig, seriesLayoutInfo, seriesData, focusData, axisData } = this.props;
-    const { valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
     const { category: categoryAxisData, value: valueAxisData } = axisData;
     const { plot: plotConfig, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
     const { gridLineFront } = categoryAxisConfig;
@@ -44,23 +43,15 @@ export default class AxisGridContainer extends Renderer<AxisGridContainerProps> 
       this.categoryGrid.set(CategoryAxisGrid, { plotConfig, categoryAxisConfig, seriesLayoutInfo, categoryAxisData });
     }
 
-    const items = [];
-    for (const axisConfig of valueAxisConfigs) {
-      const { id, seriesConfigs, useSeriesFocus, gridLineFront } = axisConfig;
-      if (gridLineFront !== front) {
-        continue;
-      }
-      const axisFocusPercentage = valueAxisFocusPercentages[id];
-      const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs ?? [], seriesFocusPercentages) : 0;
-      items.push({
-        key: 'value-axis-' + id,
+    this.seriesGrids.sync(getValueAxisFocusContexts(valueAxisConfigs, focusData)
+      .filter(({ axisConfig }) => axisConfig.gridLineFront === front)
+      .map(({ axisConfig, id, key, axisFocusPercentage, seriesFocusPercentage }) => ({
+        key,
         ctor: ValueAxisGrid,
         props: { plotConfig, valueAxisConfig: axisConfig,
           seriesCount: seriesData.axisSeriesCounts[id],
           axisFocusPercentage, seriesFocusPercentage,
           seriesLayoutInfo, valueAxisData }
-      });
-    }
-    this.seriesGrids.sync(items);
+      })));
   }
 }
