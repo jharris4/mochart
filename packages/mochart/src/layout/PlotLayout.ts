@@ -10,7 +10,7 @@ import { createInvertedSpacingLayoutInfo, getSpacingWidth, getSpacingHeight, get
 import type { Bounds, Size, TextBounds } from '../types/geometry';
 import type { AxisConfigBase, CategoryAxisConfig, PlotConfig } from '../types/config';
 import type { EnhancedMochartConfig, EnhancedValueAxisConfig } from '../types/enhanced';
-import type { AxisLayoutInfo, AxisTickInfo, AxisTickInfos, ChartDataForLayout, ChartTextBoundsData, PlotLayoutResult } from '../types/layout';
+import type { AxisLayoutInfo, AxisTickInfo, AxisTickInfos, BeforeAfter, ChartDataForLayout, ChartTextBoundsData, PlotLayoutResult } from '../types/layout';
 
 export function getRotatedTickBounds(axisConfig: AxisConfigBase, tickBounds: TextBounds, axisTickInfo: AxisTickInfo): Bounds {
   const rotatedTickBounds = axisConfig.tickLabelRotation !== 0
@@ -291,24 +291,30 @@ function getTickLabelAnchor(axisConfig: AxisConfigBase, vertical: boolean, tickL
   }
 }
 
-export function getPlotWidthAndX(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, contentBounds: Bounds): { x: number; width: number } {
+interface AxisMetrics {
+  axisTickInfos: AxisTickInfos;
+  categoryAxisRotatedTickBounds: Bounds;
+  valueAxisRotatedTickBounds: Record<string, Bounds>;
+  valueAxisSizes: Record<string, number>;
+  categoryAxisSize: number;
+  valueAxisVisibleSeriesCounts: Record<string, number>;
+  categoryAxesOffset: BeforeAfter;
+  valueAxesOffset: BeforeAfter;
+  categoryInnerExtent: number;
+  valueInnerExtent: number;
+}
+
+// Shared by the width pre-pass and the full layout pass; extents are the plot spacing box along each axis.
+function getAxisMetrics(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, categoryExtent: number, seriesExtent: number): AxisMetrics {
   const { plot: plotConfig, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
   const { categoryAxisTitleBounds, valueAxisTitleBounds } = chartTextBoundsData;
+  const { inverted } = plotConfig;
   const valueAxisVisibleSeriesCounts = chartData ? chartData.seriesData.axisSeriesCounts : {};
-  const { x: contentX, width: contentWidth } = contentBounds;
-  const { inverted, margin, padding } = plotConfig;
-  const spacingLeft = getSpacingLeft(margin, padding);
-  const plotSpacingWidth = contentWidth - getSpacingWidth(margin, padding);
-  const plotSpacingX = contentX + spacingLeft;
-  const categoryExtent = inverted ? 0 : plotSpacingWidth;
-  const seriesExtent = inverted ? plotSpacingWidth : 0;
-  const categoryY = inverted ? 0 : plotSpacingX;
-  const valueY = inverted ? plotSpacingX : 0;
 
   const axisTickInfos = getAxisTickInfos(plotConfig, categoryAxisConfig, valueAxisConfigs);
 
   const categoryAxisRotatedTickBounds = getCategoryAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos);
-  const valueAxisRotatedTickBounds = getValueAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos)
+  const valueAxisRotatedTickBounds = getValueAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos);
 
   const categoryAxisSize = getCategoryAxisSize(categoryAxisConfig, categoryAxisRotatedTickBounds, categoryAxisTitleBounds, inverted);
   const valueAxisSizes = getValueAxisSizes(valueAxisConfigs, valueAxisVisibleSeriesCounts, valueAxisRotatedTickBounds, valueAxisTitleBounds, !inverted);
@@ -318,6 +324,33 @@ export function getPlotWidthAndX(mochartConfig: EnhancedMochartConfig, chartText
 
   const categoryInnerExtent = Math.max(categoryExtent - categoryAxesOffset.before - categoryAxesOffset.after, 1);
   const valueInnerExtent = Math.max(seriesExtent - valueAxesOffset.before - valueAxesOffset.after, 1);
+
+  return {
+    axisTickInfos,
+    categoryAxisRotatedTickBounds,
+    valueAxisRotatedTickBounds,
+    valueAxisSizes,
+    categoryAxisSize,
+    valueAxisVisibleSeriesCounts,
+    categoryAxesOffset,
+    valueAxesOffset,
+    categoryInnerExtent,
+    valueInnerExtent
+  };
+}
+
+export function getPlotWidthAndX(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, contentBounds: Bounds): { x: number; width: number } {
+  const { x: contentX, width: contentWidth } = contentBounds;
+  const { inverted, margin, padding } = mochartConfig.plot;
+  const spacingLeft = getSpacingLeft(margin, padding);
+  const plotSpacingWidth = contentWidth - getSpacingWidth(margin, padding);
+  const plotSpacingX = contentX + spacingLeft;
+  const categoryExtent = inverted ? 0 : plotSpacingWidth;
+  const seriesExtent = inverted ? plotSpacingWidth : 0;
+  const categoryY = inverted ? 0 : plotSpacingX;
+  const valueY = inverted ? plotSpacingX : 0;
+
+  const { categoryAxesOffset, valueAxesOffset, categoryInnerExtent, valueInnerExtent } = getAxisMetrics(mochartConfig, chartTextBoundsData, chartData, categoryExtent, seriesExtent);
 
   const x = inverted ? valueY + valueAxesOffset.before : categoryY + categoryAxesOffset.before;
   const width = inverted ? valueInnerExtent : categoryInnerExtent;
@@ -329,11 +362,8 @@ export function getPlotWidthAndX(mochartConfig: EnhancedMochartConfig, chartText
 }
 
 export function getPlotLayoutInfo(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, contentBounds: Bounds, plotHeight: number, plotY: number): PlotLayoutResult {
-  const { plot: plotConfig, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
-  const { categoryAxisTitleBounds, valueAxisTitleBounds } = chartTextBoundsData;
-  const valueAxisVisibleSeriesCounts = chartData ? chartData.seriesData.axisSeriesCounts : {};
   const { x, width } = contentBounds;
-  const { inverted, margin, padding } = plotConfig;
+  const { inverted, margin, padding } = mochartConfig.plot;
   const spacingTop = getSpacingTop(margin, padding);
   const spacingLeft = getSpacingLeft(margin, padding);
   const plotSpacingHeight = plotHeight - getSpacingHeight(margin, padding);
@@ -345,20 +375,12 @@ export function getPlotLayoutInfo(mochartConfig: EnhancedMochartConfig, chartTex
   const categoryY = inverted ? plotSpacingY : plotSpacingX;
   const valueY = inverted ? plotSpacingX : plotSpacingY;
 
-  const axisTickInfos = getAxisTickInfos(plotConfig, categoryAxisConfig, valueAxisConfigs);
+  const {
+    axisTickInfos, categoryAxisRotatedTickBounds, valueAxisRotatedTickBounds, valueAxisSizes, categoryAxisSize,
+    valueAxisVisibleSeriesCounts, categoryAxesOffset, valueAxesOffset, categoryInnerExtent, valueInnerExtent
+  } = getAxisMetrics(mochartConfig, chartTextBoundsData, chartData, categoryExtent, seriesExtent);
 
-  const categoryAxisRotatedTickBounds = getCategoryAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos);
-  const valueAxisRotatedTickBounds = getValueAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos)
-
-  const categoryAxisSize = getCategoryAxisSize(categoryAxisConfig, categoryAxisRotatedTickBounds, categoryAxisTitleBounds, inverted);
-  const valueAxisSizes = getValueAxisSizes(valueAxisConfigs, valueAxisVisibleSeriesCounts, valueAxisRotatedTickBounds, valueAxisTitleBounds, !inverted);
-
-  const valueAxesOffset = getCategoryAxisBeforeAfter(categoryAxisConfig, categoryAxisSize);
-  const categoryAxesOffset = getValueAxisBeforeAfter(valueAxisConfigs, valueAxisSizes);
-
-  const valueAxesCollapsedAfter = getCollapsedAfterSizeConsumption(valueAxisConfigs, valueAxisSizes);
-  const categoryInnerExtent = Math.max(categoryExtent - categoryAxesOffset.before - categoryAxesOffset.after, 1);
-  const valueInnerExtent = Math.max(seriesExtent - valueAxesOffset.before - valueAxesOffset.after , 1);
+  const valueAxesCollapsedAfter = getCollapsedAfterSizeConsumption(mochartConfig.valueAxes, valueAxisSizes);
 
   const seriesLayoutInfo = createLayoutInfo(categoryY + categoryAxesOffset.before,
     valueY + valueAxesOffset.before, categoryInnerExtent, valueInnerExtent, inverted);
