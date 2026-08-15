@@ -18,7 +18,7 @@ import type { MochartInputConfig, DataProvider } from '../../src';
 import { getCssSelector, getIdCssSelector, mochartVersionAttribute } from '../../src/utils/ChartDom';
 import { installTextMetrics } from './textMetrics';
 
-interface Demo { id: string; config: string; data: string; goldenCategoryShift?: number }
+interface Demo { id: string; config: string; data: string; random?: string; generator?: string; goldenCategoryShift?: number }
 /** Rows are decoded from arbitrary demo JSON, so values are intentionally loose. */
 type Row = Record<string, any>;
 
@@ -53,6 +53,7 @@ function indexJsonFilesByBasename(dir: string, map: Record<string, string> = {})
 const demosJson = JSON.parse(fs.readFileSync(path.join(demosDir, 'demos.json'), 'utf8'));
 const configPaths = indexJsonFilesByBasename(path.join(demosDir, 'config'));
 const dataPaths = indexJsonFilesByBasename(path.join(demosDir, 'data'));
+const randomPaths = indexJsonFilesByBasename(path.join(demosDir, 'random'));
 const allDemos: Demo[] = [...demosJson.demos, ...demosJson.testDemos];
 
 function loadJson(filePath: string): any {
@@ -64,6 +65,7 @@ function loadJson(filePath: string): any {
 // ---------------------------------------------------------------------------
 
 let mochart: typeof import('../../src');
+let generateDemoDataProvider: typeof import('../../../mochart-demo-common/src/chartTypeGenerators').generateDemoDataProvider;
 
 beforeAll(async () => {
   // jsdom has no font or layout engine; install the deterministic synthetic
@@ -82,6 +84,8 @@ beforeAll(async () => {
     ]
   });
   mochart = await import('../../src');
+  // imports @mochart/core, so it must also load after the fake timers
+  ({ generateDemoDataProvider } = await import('../../../mochart-demo-common/src/chartTypeGenerators'));
 });
 
 afterEach(() => {
@@ -162,6 +166,16 @@ function getSeriesProperties(mochartConfig: EnhancedMochartConfig): string[] {
 
 function makeProvider(rows: Row[]): DataProvider {
   return new mochart.ArrayOfObjectsDataProvider(rows);
+}
+
+/**
+ * The app's random-mode data for a generator demo at `randomId` — its only
+ * data changes re-run the core chart helper, so every step is a valid chart
+ * of its type. The per-property transforms below would corrupt these demos'
+ * structural range/color properties.
+ */
+function generatorProvider(demo: Demo, mochartConfig: EnhancedMochartConfig, randomId: number): DataProvider {
+  return generateDemoDataProvider(demo.generator, mochartConfig, loadJson(randomPaths[demo.random!]), randomId);
 }
 
 /** Deterministic stand-in for the demo app's "randomize values" button. */
@@ -260,25 +274,45 @@ describe.each(allDemos)('demo: $id', (demo) => {
     runFrames();
     await expectSnapshot(container, demo.id, 'initial');
 
-    // deterministic value change: snapshot mid-tween and settled
-    const changedRows = transformValues(mochartConfig, originalRows);
-    chart.update({ dataProvider: makeProvider(changedRows) });
-    advanceFrames(3);
-    await expectSnapshot(container, demo.id, 'values-mid-tween');
-    runFrames();
-    await expectSnapshot(container, demo.id, 'values-settled');
+    if (demo.generator) {
+      // generator demos: step the app's random mode; successive steps change
+      // values and churn categories (dropped columns/steps, day counts)
+      chart.update({ dataProvider: generatorProvider(demo, mochartConfig, 1) });
+      runFrames();
+      await expectSnapshot(container, demo.id, 'random-1');
 
-    // category addition, run to completion
-    const addedRows = addCategoryRow(mochartConfig, changedRows);
-    chart.update({ dataProvider: makeProvider(addedRows) });
-    runFrames();
-    await expectSnapshot(container, demo.id, 'category-added');
+      // the 1 → 2 transition is app-reachable, so snapshot it mid-tween too
+      chart.update({ dataProvider: generatorProvider(demo, mochartConfig, 2) });
+      advanceFrames(3);
+      await expectSnapshot(container, demo.id, 'random-2-mid-tween');
+      runFrames();
+      await expectSnapshot(container, demo.id, 'random-2');
 
-    // category removal, run to completion
-    const removedRows = removeCategoryRow(addedRows);
-    chart.update({ dataProvider: makeProvider(removedRows) });
-    runFrames();
-    await expectSnapshot(container, demo.id, 'category-removed');
+      chart.update({ dataProvider: generatorProvider(demo, mochartConfig, 3) });
+      runFrames();
+      await expectSnapshot(container, demo.id, 'random-3');
+    }
+    else {
+      // deterministic value change: snapshot mid-tween and settled
+      const changedRows = transformValues(mochartConfig, originalRows);
+      chart.update({ dataProvider: makeProvider(changedRows) });
+      advanceFrames(3);
+      await expectSnapshot(container, demo.id, 'values-mid-tween');
+      runFrames();
+      await expectSnapshot(container, demo.id, 'values-settled');
+
+      // category addition, run to completion
+      const addedRows = addCategoryRow(mochartConfig, changedRows);
+      chart.update({ dataProvider: makeProvider(addedRows) });
+      runFrames();
+      await expectSnapshot(container, demo.id, 'category-added');
+
+      // category removal, run to completion
+      const removedRows = removeCategoryRow(addedRows);
+      chart.update({ dataProvider: makeProvider(removedRows) });
+      runFrames();
+      await expectSnapshot(container, demo.id, 'category-removed');
+    }
 
     chart.destroy();
     expect(container.innerHTML).toBe('');
@@ -298,7 +332,11 @@ describe.each(allDemos)('demo: $id', (demo) => {
     runFrames();
     await expectSnapshot(container, demo.id, 'static');
 
-    chart.update({ dataProvider: makeProvider(transformValues(mochartConfig, originalRows)) });
+    chart.update({
+      dataProvider: demo.generator
+        ? generatorProvider(demo, mochartConfig, 1)
+        : makeProvider(transformValues(mochartConfig, originalRows))
+    });
     runFrames();
     await expectSnapshot(container, demo.id, 'static-updated');
 

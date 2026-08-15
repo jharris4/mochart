@@ -11,7 +11,8 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**'],
       // Type-only and generated modules carry no runtime behaviour to exercise.
-      exclude: ['src/types/**', 'src/**/*.d.ts'],
+      // The golden test pulls in demo-common's generators; they are not core code.
+      exclude: ['src/types/**', 'src/**/*.d.ts', '**/mochart-demo-common/**'],
       reporter: ['text', 'html'],
       // a whisker under the current numbers: real erosion fails, an incidental refactor does not
       thresholds: { statements: 97, branches: 90, functions: 97, lines: 97 }
