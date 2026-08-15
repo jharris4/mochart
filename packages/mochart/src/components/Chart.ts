@@ -946,10 +946,11 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   private pendingAnnouncement: string | null = null;
   private lastAnnouncement = '';
 
-  /** the live region lives inside ChartBody, so the reference has to go when the body does */
+  /** the live region and message live inside ChartBody, so the references have to go when the body does */
   private clearBody(): void {
     this.body.set(null);
     this.liveRegionNode = null;
+    this.messageRef = null;
     this.cancelAnnouncement();
   }
 
@@ -1120,6 +1121,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     } = this.props;
     const style = withDefaultChartStyle(styleProp);
     const error = propsError != null ? propsError : dataProvider && !isDataProviderValid(dataProvider) ? dataProvider.getError?.() : undefined;
+    // read before the branches below can unmount whatever holds focus
+    const focusedNode = this.getFocusedChartNode();
 
     // negative and non-finite sizes would reach the svg as invalid width/height
     const hasSize = width > 0 && height > 0;
@@ -1134,12 +1137,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       else {
         errorComponent = false;
       }
-      this.setPresent(true);
-      this.chartRef = null;
-      this.root.set({ className: mochartCssClasses['chartError'], style, [mochartVersionAttribute]: getVersionString(),
-        'aria-hidden': mochartConfig?.accessibility.hidden ? 'true' : null });
-      this.clearBody();
-      this.setSimpleContent(errorComponent);
+      this.syncMessage(mochartCssClasses['chartError'], style, errorComponent, focusedNode);
       return;
     }
 
@@ -1147,18 +1145,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
     if (!mochartConfig) {
       if (isErrorActive(error)) {
-        this.setPresent(true);
-        this.chartRef = null;
-        this.root.set({ className: mochartCssClasses['chartError'], style, [mochartVersionAttribute]: getVersionString() });
-        this.clearBody();
-        this.setSimpleContent(errorFactory(this.factoryContext(width, height, error)));
+        this.syncMessage(mochartCssClasses['chartError'], style, errorFactory(this.factoryContext(width, height, error)), focusedNode);
       }
       else if (loading) {
-        this.setPresent(true);
-        this.chartRef = null;
-        this.root.set({ className: mochartCssClasses['loading'], style, [mochartVersionAttribute]: getVersionString() });
-        this.clearBody();
-        this.setSimpleContent(loadingFactory(this.factoryContext(width, height, error)));
+        this.syncMessage(mochartCssClasses['loading'], style, loadingFactory(this.factoryContext(width, height, error)), focusedNode);
       }
       else {
         this.chartRef = null;
@@ -1187,6 +1177,22 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     this.chartRef = this.root.node;
     this.setSimpleContent(false);
     this.body.set(ChartBody, { chart: this, mochartConfig, chartProps: this.props, chartState: this.state, error, loading });
+  }
+
+  /** Replace the chart body with a message state (no size, invalid config, no-config error/loading); the root becomes the message container. */
+  private syncMessage(className: string, style: ChartProps['style'], content: FactoryContent, focusedNode: Element | null): void {
+    const { mochartConfig } = this.props;
+    // no config means nothing can switch accessibility off
+    const accessibility = mochartConfig ? accessibilityActive(mochartConfig.accessibility) : true;
+    this.setPresent(true);
+    this.chartRef = null;
+    // -1: never a tab stop, but focusable for the teardown restore below, which reads out the message
+    this.root.set({ className, style, [mochartVersionAttribute]: getVersionString(),
+      'aria-hidden': mochartConfig?.accessibility.hidden ? 'true' : null, tabindex: accessibility ? '-1' : null });
+    this.clearBody();
+    this.setSimpleContent(content);
+    this.messageRef = accessibility ? this.root.node as HTMLElement : null;
+    this.restoreTornDownFocus(focusedNode);
   }
 
   /** Insert factory-produced content into the simple-content region of the root div. */

@@ -5,7 +5,9 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { mountContainer, trackHandle, lastHandle } from './helpers';
-import { createDefaultChart } from '../../src/createChart';
+import { createChart, createDefaultChart } from '../../src/createChart';
+import { enhanceConfig } from '../../src/config/helper';
+import { ArrayOfObjectsDataProvider } from '../../src/data/DataProvider';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector } from '../../src/utils/ChartDom';
 import { focusRestoredAttribute } from '../../src/utils/utils';
@@ -287,6 +289,57 @@ describe('plot keyboard semantics', () => {
 
     handle.update({ data: [] });
     expect(container.querySelector(getCssSelector('noData'))!.getAttribute('tabindex')).toBeNull();
+  });
+
+  // Regression: the body-replacing states (config gone, config invalid, no size) tore the plot down without a restore
+  it('hands focus to the root message when the config goes away while loading', () => {
+    const container = mountContainer();
+    const handle = trackHandle(createChart(container, {
+      mochartConfig: enhanceConfig(makeConfig()), dataProvider: new ArrayOfObjectsDataProvider(rows), width: 800, height: 600
+    }));
+    const rect = plotRect(container);
+    rect.focus();
+
+    handle.update({ mochartConfig: null, dataProvider: null, loading: true });
+    expect(rect.isConnected).toBe(false);
+    const root = container.querySelector<HTMLElement>(getCssSelector('loading'))!;
+    expect(root.getAttribute('tabindex')).toBe('-1');
+    expect(document.activeElement).toBe(root);
+    expect(root.hasAttribute(focusRestoredAttribute)).toBe(true);
+
+    // the tab stop comes back with the chart, and the root stops being a focus target
+    handle.update({ mochartConfig: enhanceConfig(makeConfig()), dataProvider: new ArrayOfObjectsDataProvider(rows), loading: false });
+    expect(plotRect(container).isConnected).toBe(true);
+    expect(container.querySelector(getCssSelector('chart'))!.getAttribute('tabindex')).toBeNull();
+  });
+
+  it('hands focus to the root message when the config turns invalid', () => {
+    const container = mountChart(makeConfig());
+    const handle = lastHandle();
+    plotRect(container).focus();
+
+    handle.update({ config: makeConfig({ series: [{ id: 'S0', property: 'sales', renderer: 'nope' }] }) });
+    const root = container.querySelector<HTMLElement>(getCssSelector('chartError'))!;
+    expect(root.getAttribute('tabindex')).toBe('-1');
+    expect(document.activeElement).toBe(root);
+  });
+
+  it('hands focus to the root message when the size collapses', () => {
+    const container = mountChart(makeConfig());
+    const handle = lastHandle();
+    plotRect(container).focus();
+
+    handle.update({ width: 0, height: 0 });
+    const root = container.querySelector<HTMLElement>(getCssSelector('chartError'))!;
+    expect(document.activeElement).toBe(root);
+  });
+
+  it('leaves the root message unfocusable with accessibility disabled', () => {
+    const container = mountChart(makeConfig({ accessibility: { enabled: false } }));
+    const handle = lastHandle();
+
+    handle.update({ width: 0, height: 0 });
+    expect(container.querySelector(getCssSelector('chartError'))!.getAttribute('tabindex')).toBeNull();
   });
 
   it('opens on arrows when closed and reopens at the last shown category', () => {
