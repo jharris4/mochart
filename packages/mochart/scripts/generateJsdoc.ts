@@ -391,7 +391,11 @@ interface Edit {
 
 export function buildDocumentedTypesSource(source: string): { output: string; warnings: string[] } {
   const { model, integrityErrors } = buildConfigReference();
-  const warnings = [...integrityErrors];
+  // an out-of-sync model has holes (e.g. undefined descriptions) the doc builders cannot render
+  if (integrityErrors.length > 0) {
+    throw new Error('Cannot generate JSDoc, config docs sources are out of sync:\n  - ' + integrityErrors.join('\n  - '));
+  }
+  const warnings: string[] = [];
   const interfaceDocs = buildInterfaceDocs(model.sections, warnings);
 
   const sourceFile = ts.createSourceFile('config.ts', source, ts.ScriptTarget.Latest, true);
