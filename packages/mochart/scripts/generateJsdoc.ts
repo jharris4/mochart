@@ -250,10 +250,17 @@ function buildInterfaceDocs(sections: SectionDoc[], warnings: string[]): Map<str
     bySection.set(section.id, new Map(section.properties.map(property => [property.key, property])));
   }
 
+  for (const sectionId of bySection.keys()) {
+    if (sectionInterfaceMap[sectionId] === undefined) {
+      warnings.push(sectionId + ': config section has no interface in sectionInterfaceMap');
+    }
+  }
+
   const interfaceDocs = new Map<string, Map<string, MemberDoc>>();
   for (const [sectionId, interfaceName] of Object.entries(sectionInterfaceMap)) {
     const properties = bySection.get(sectionId);
     if (!properties) {
+      warnings.push(interfaceName + ': mapped from ' + sectionId + ', which is not a config section');
       continue;
     }
     const memberDocs = new Map<string, MemberDoc>();

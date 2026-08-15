@@ -5,7 +5,7 @@ import ts from 'typescript';
 import type { MochartInputConfig } from '../../src';
 import validateConfig, { configWithoutAllValidators } from '../../src/config/validation/mochartConfig';
 import { getDefaults } from '../../src/config/defaults/mochartConfig';
-import { buildConfigReference } from '../../scripts/configReferenceModel';
+import { buildConfigReference, getRuntimeSectionIds } from '../../scripts/configReferenceModel';
 import { sectionInterfaceMap, typesPath } from '../../scripts/generateJsdoc';
 
 const V = '1.0.0';
@@ -247,7 +247,7 @@ describe('types agree with the validators', () => {
   }
 
   it('checks every config section', () => {
-    expect(checkedSections).toEqual(Object.keys(sectionInterfaceMap));
+    expect([...checkedSections].sort()).toEqual(getRuntimeSectionIds());
   });
 
   it('finds no property whose type and validator disagree', () => {

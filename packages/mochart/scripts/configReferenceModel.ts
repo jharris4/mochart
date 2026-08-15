@@ -839,14 +839,38 @@ function buildTopLevel(sectionIds: Set<string>): TopLevelKeyDoc[] {
   });
 }
 
+/** Top-level keys the runtime validates as config sections (per-property validator maps), as opposed to scalar keys like `version`. */
+export function getRuntimeSectionIds(): string[] {
+  return Object.keys(mochartConfigSectionValidators).filter(key => mochartConfigSectionValidators[key].validators !== undefined).sort();
+}
+
+// Every runtime section must have a docs source and vice versa, or the section falls out of every docs surface silently.
+function checkSectionCoverage(sources: SectionSource[], errors: string[]) {
+  const sourceIds = new Set(sources.map(source => source.id));
+  const runtimeIds = new Set(getRuntimeSectionIds());
+  for (const id of runtimeIds) {
+    if (!sourceIds.has(id)) {
+      errors.push(id + ': config section is registered in the section validators but has no docs source');
+    }
+  }
+  for (const id of sourceIds) {
+    if (!runtimeIds.has(id)) {
+      errors.push(id + ': docs source has no config section registered in the section validators');
+    }
+  }
+}
+
 export function buildConfigReference(): ConfigReferenceResult {
   const integrityErrors: string[] = [];
   const sources = getSectionSources();
   const sectionValidators = mochartConfigSectionValidators as SectionValidatorMap;
+  checkSectionCoverage(sources, integrityErrors);
   for (const source of sources) {
     checkKeyIntegrity(source, integrityErrors);
   }
-  const sections = sources.map(source => buildSectionDoc(source, sectionValidators));
+  const sections = sources
+    .filter(source => sectionValidators[source.id] !== undefined)
+    .map(source => buildSectionDoc(source, sectionValidators));
   const topLevel = buildTopLevel(new Set(sections.map(section => section.id)));
   return {
     model: { topLevel, sections },
