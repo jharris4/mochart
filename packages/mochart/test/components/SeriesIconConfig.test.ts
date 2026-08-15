@@ -41,6 +41,13 @@ function tooltipIcons(container: Element): SVGElement[] {
   return [...container.querySelectorAll<SVGElement>(inside + 'rect, ' + inside + 'path')];
 }
 
+/** The [offset, color] stops of the open tooltip's icon gradient. */
+function gradientStops(container: Element): [string | null, string | null][] {
+  const gradient = container.querySelector(getCssSelector('tooltip') + ' defs linearGradient');
+  expect(gradient).not.toBeNull();
+  return [...gradient!.querySelectorAll('stop')].map((stop) => [stop.getAttribute('offset'), stop.getAttribute('stop-color')]);
+}
+
 function openTooltip(container: Element): void {
   const rect = container.querySelector(getCssSelector('seriesBackground') + ' rect');
   expect(rect).not.toBeNull();
@@ -193,6 +200,17 @@ describe('tooltip icon gradients', () => {
     const icons = tooltipIcons(container);
 
     expect(icons[0].getAttribute('fill')).toMatch(/^url\(#.+\)$/);
-    expect(container.querySelector(getCssSelector('tooltip') + ' defs linearGradient')).not.toBeNull();
+    expect(gradientStops(container)).toEqual([['0%', '#eee'], ['100%', '#036']]);
+  });
+
+  it('splits a base-value gradient at the midline', () => {
+    const container = mountChart({
+      series: [{ id: 'S0', property: 'sales', renderer: 'bar', colorProperty: 'sales', colorScale: {
+        base: { value: 15, belowMin: '#a00', belowMax: '#f00', aboveMin: '#0f0', aboveMax: '#0a0' }
+      } }]
+    });
+    openTooltip(container);
+
+    expect(gradientStops(container)).toEqual([['0%', '#a00'], ['50%', '#f00'], ['50%', '#0f0'], ['100%', '#0a0']]);
   });
 });
