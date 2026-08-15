@@ -642,6 +642,61 @@ describe('RendererList (via Renderer.rendererList)', () => {
     expect(events).toEqual(['a dispose']);
     r.destroy();
   });
+
+  it('reorders and mid-inserts pass-through renderers whose DOM lives in a self-anchored slot', () => {
+    class Leaf extends Renderer<{ label: string }> {
+      root = htmlEl('p');
+      text = textEl();
+      create() {
+        this.root.append(this.text);
+        return this.root.node;
+      }
+      sync() {
+        this.text.set(this.props.label);
+      }
+    }
+    class PassThrough extends Renderer<{ label: string }> {
+      leaf!: ReturnType<Renderer<object>['slot']>;
+      create() {
+        this.leaf = this.slot();
+        return null;
+      }
+      sync() {
+        this.leaf.set(Leaf, { label: this.props.label });
+      }
+    }
+    class ListHost extends Renderer<{ rows: Row[] }> {
+      root = htmlEl('div');
+      list!: ReturnType<Renderer<object>['rendererList']>;
+      create() {
+        this.list = this.rendererList(this.root);
+        return this.root.node;
+      }
+      sync() {
+        this.list.sync(this.props.rows.map((row) => ({ key: row.id, ctor: PassThrough, props: { label: row.label } })));
+      }
+    }
+
+    const parent = host();
+    const r = new ListHost();
+    r.mount(parent, null, { rows: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }] });
+    expect(markup(parent)).toBe('<div><p>A</p><p>B</p></div>');
+    const [pA, pB] = Array.from(parent.querySelectorAll('p'));
+
+    r.update({ rows: [{ id: 'b', label: 'B' }, { id: 'a', label: 'A' }] });
+    expect(markup(parent)).toBe('<div><p>B</p><p>A</p></div>');
+    expect(Array.from(parent.querySelectorAll('p'))).toEqual([pB, pA]);
+
+    r.update({ rows: [{ id: 'b', label: 'B' }, { id: 'c', label: 'C' }, { id: 'a', label: 'A' }] });
+    expect(markup(parent)).toBe('<div><p>B</p><p>C</p><p>A</p></div>');
+
+    r.update({ rows: [{ id: 'a', label: 'A' }, { id: 'c', label: 'C' }] });
+    expect(markup(parent)).toBe('<div><p>A</p><p>C</p></div>');
+    expect(parent.querySelector('p')).toBe(pA);
+
+    r.destroy();
+    expect(parent.innerHTML).toBe('');
+  });
 });
 
 describe('Slot', () => {

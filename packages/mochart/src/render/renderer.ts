@@ -37,6 +37,8 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
   _unmounted = false;
   _stateCallbacks: (() => void)[] = [];
   private regions: ChildRegion[] = [];
+  /** marks the start of this renderer's span once self-anchored regions put DOM before the element/anchor */
+  private spanStart: Comment | null = null;
 
   constructor() {
     this.state = {} as S;
@@ -206,16 +208,23 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
     this.present = present;
   }
 
-  /** Reposition this renderer (element + anchor) before a reference node. Used by RendererList reordering. */
+  /** Reposition this renderer's whole span (self-anchored regions, element, anchor) before a reference node. Used by RendererList reordering. */
   moveBefore(ref: Node | null): void {
-    if (this.element !== null && this.present) {
-      this.parentDom.insertBefore(this.element, ref);
+    const nodes: Node[] = [];
+    for (let node: Node | null = this.firstNode; node !== null && node !== this.anchor; node = node.nextSibling) {
+      nodes.push(node);
     }
-    this.parentDom.insertBefore(this.anchor, ref);
+    nodes.push(this.anchor);
+    for (const node of nodes) {
+      this.parentDom.insertBefore(node, ref);
+    }
   }
 
   /** First DOM node owned by this renderer (for list reordering cursors). */
   get firstNode(): Node {
+    if (this.spanStart !== null) {
+      return this.spanStart;
+    }
     return this.element !== null && this.present ? this.element : this.anchor;
   }
 
@@ -223,11 +232,21 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
   // child region factories — registered so destroy() cascades automatically
   // ---------------------------------------------------------------------
 
+  /** Marks the span start before creating a self-anchored region, whose DOM lands ahead of the element/anchor. */
+  private ownRegionAnchor(): Comment {
+    if (this.spanStart === null) {
+      const spanStart = document.createComment('');
+      this.parentDom.insertBefore(spanStart, this.firstNode);
+      this.spanStart = spanStart;
+    }
+    return this.anchor;
+  }
+
   /** A single dynamic child renderer, anchored inside `host` (or in this renderer's own region when omitted). */
   protected slot(host?: El | Node): Slot {
     const created = host !== undefined
       ? new Slot(host instanceof El ? host.node : host, null)
-      : new Slot(this.parentDom, this.anchor);
+      : new Slot(this.parentDom, this.ownRegionAnchor());
     this.regions.push(created);
     return created;
   }
@@ -236,7 +255,7 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
   protected elSlot(host?: El | Node): ElSlot {
     const created = host !== undefined
       ? new ElSlot(host instanceof El ? host.node : host, null)
-      : new ElSlot(this.parentDom, this.anchor);
+      : new ElSlot(this.parentDom, this.ownRegionAnchor());
     this.regions.push(created);
     return created;
   }
@@ -245,7 +264,7 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
   protected elList<T, H extends ElBlock = ElBlock>(host?: El | Node): ElList<T, H> {
     const created = host !== undefined
       ? new ElList<T, H>(host instanceof El ? host.node : host, null)
-      : new ElList<T, H>(this.parentDom, this.anchor);
+      : new ElList<T, H>(this.parentDom, this.ownRegionAnchor());
     this.regions.push(created);
     return created;
   }
@@ -254,7 +273,7 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
   protected rendererList(host?: El | Node): RendererList {
     const created = host !== undefined
       ? new RendererList(host instanceof El ? host.node : host, null)
-      : new RendererList(this.parentDom, this.anchor);
+      : new RendererList(this.parentDom, this.ownRegionAnchor());
     this.regions.push(created);
     return created;
   }
@@ -290,6 +309,9 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
         }
         if (this.anchor.parentNode) {
           this.anchor.parentNode.removeChild(this.anchor);
+        }
+        if (this.spanStart !== null && this.spanStart.parentNode) {
+          this.spanStart.parentNode.removeChild(this.spanStart);
         }
       }
     }

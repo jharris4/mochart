@@ -169,9 +169,9 @@ interface RendererEntry {
 
 /**
  * A keyed list of child renderers (components with lifecycle). Matched by
- * key + class like the old keyed vdom reconciler; renderers must have a root
- * element (pass-through renderers are not reorderable). Each renderer
- * occupies [element?, anchor] in the host.
+ * key + class like the old keyed vdom reconciler. Each renderer occupies a
+ * contiguous span [firstNode .. anchor] in the host, so pass-through
+ * renderers with self-anchored regions reorder like rooted ones.
  */
 export class RendererList extends KeyedList<RendererItem, RendererEntry> {
   protected readonly label = 'renderer list';
