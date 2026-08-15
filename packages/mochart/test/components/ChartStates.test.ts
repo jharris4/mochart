@@ -1,9 +1,6 @@
 /**
- * Arbitration of the chart's error/loading/no-data states: the error state
- * wins over the loading overlay, and the documented contract is "a provided
- * error (including '' or 0) is the error state; null/undefined are not".
- * Charts are mounted through the public createDefaultChart() API with
- * animation disabled so everything runs synchronously in jsdom.
+ * Arbitration of the chart's error/loading/no-data states: error wins over the loading overlay, and
+ * "a provided error (including '' or 0) is the error state; null/undefined are not".
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';

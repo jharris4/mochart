@@ -112,7 +112,7 @@ export default function getDescriptions() {
     tickMarkMargin: 'the margin (in pixels) to show between the inside of the axis and the axis tick mark lines',
     tickMarkStyle: styleStates('the style of the axis tick mark lines', strokeMembers),
 
-    title: 'the title text to be shown along side to the axis (use null for no title)',
+    title: 'the title text to be shown alongside the axis (use null for no title)',
     titleFront: 'whether the axis title should be shown in front (true) or behind (false) the series shapes',
     titleBackgroundStyle: style('the styles to apply to the axis title background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
     titleTruncationEnabled: 'whether to apply text truncation to the contents of the axis title when it would overflow the axis bounds',

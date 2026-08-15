@@ -1,9 +1,5 @@
-/**
- * The single deep-merge used by every config layering step (defaults under `*Defaults` sections under the
- * user's config). `undefined` means "not specified" and is dropped from the result; `null` is a real
- * value that overrides a default, because it is how a config says "omit this svg attribute", which is
- * what keeps a shape hit-testable. Plain objects merge recursively; everything else replaces.
- */
+// The single deep-merge behind every config layering step: plain objects merge recursively, everything else replaces.
+// `undefined` means "not specified" and is dropped; `null` is a real value that overrides (a config's way to omit an svg attribute, keeping shapes hit-testable).
 
 type MergeRecord = Record<string, unknown>;
 

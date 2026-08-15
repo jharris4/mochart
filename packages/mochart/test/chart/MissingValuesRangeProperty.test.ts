@@ -1,14 +1,9 @@
 /**
  * partialRangeIsMissing: a ranged bar series treats a category missing either of
- * property/rangeProperty as missing, so missingValues 'connect' drops it instead of
- * collapsing it to a zero-extent bar at the defined value. The waterfall
- * helper relies on this — every row carries the shared `start` range
- * property but a value for only one direction series, and without the
- * option the two off-direction series kept invisible zero-extent bars at
- * `start` (visible as stray bar lines during filtering animations).
- *
- * The default (false) intentionally keeps the collapse behavior, so ranged
- * shapes stay connected through half-defined categories.
+ * property/rangeProperty as missing, so 'connect' drops it instead of collapsing to a zero-extent
+ * bar. The waterfall helper relies on this: off-direction series kept invisible bars at `start`,
+ * visible as stray lines mid-filtering. The default (false) keeps the collapse so ranged shapes
+ * stay connected through half-defined categories.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 import { getCssSelector } from '../../src/utils/ChartDom';

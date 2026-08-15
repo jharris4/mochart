@@ -35,10 +35,8 @@ export interface ExternalFocusInput {
 }
 
 /**
- * Focus and series-filter state machine for a managed chart (was
- * ManagedChart): tracks the focused category/series/axis and the filtered
- * series, remaps or resets them when the config structure or data provider
- * changes, and reports changes through the host callbacks.
+ * Focus and series-filter state machine for a managed chart (was ManagedChart): tracks the focused
+ * category/series/axis and the filtered series, remapping or resetting them on config/provider changes.
  */
 export class FocusController {
   focusedCategoryIndex = -1;
@@ -59,14 +57,11 @@ export class FocusController {
   }
 
   /**
-   * Reconcile focus/filter state with a config or data-provider change:
-   * a structural config change resets everything, a followSeries change
-   * re-derives follower filtering, a data change remaps the focused category
-   * by value (dropping it when the category disappeared).
-   * `renderedCategoryValues` is the ordering the chart last committed — the
-   * old provider can't be re-read for it, since a refresh() may already have
-   * mutated it in place. Returns what changed; no callbacks fire here, so
-   * the caller can commit its own state first and notify re-entrancy-safely.
+   * Reconcile focus/filter state with a config or provider change: structural resets everything, a
+   * followSeries change re-derives follower filtering, a data change remaps the focused category by
+   * value (dropped when gone). `renderedCategoryValues` is the last committed ordering — the old
+   * provider can't be re-read after an in-place refresh(). Fires no callbacks: the caller commits
+   * first, then notifies re-entrancy-safely from the returned changes.
    */
   reconcile(prev: FocusControllerInput, next: FocusControllerInput,
     renderedCategoryValues: readonly CategoryValue[] | null): FocusReconcileResult {
@@ -120,10 +115,8 @@ export class FocusController {
   }
 
   /**
-   * Re-derive filtered states after a non-structural `followSeries` change:
-   * a series that gained a leader takes the leader's filtered state, an
-   * ex-follower unfilters. Filtering baked in the old grouping at legend-click
-   * time, so without this an unlinked follower could stay filtered forever.
+   * Re-derive filtered states after a non-structural `followSeries` change: a new follower takes its
+   * leader's filtered state, an ex-follower unfilters (else it could stay filtered forever).
    */
   private reconcileFollowerFilters(oldMochartConfig: MochartConfig, mochartConfig: MochartConfig): void {
     let filteredSeriesIds: Record<string, boolean> | null = null;
@@ -157,9 +150,8 @@ export class FocusController {
   }
 
   /**
-   * Apply the host's controlled focus/filter props. Each field set (not
-   * undefined) overrides the internal state; undefined fields stay
-   * chart-managed. No callbacks fire — the values came from the host.
+   * Apply the host's controlled focus/filter props: set fields override internal state, undefined
+   * fields stay chart-managed. No callbacks fire — the values came from the host.
    */
   applyExternal(input: ExternalFocusInput): void {
     const { focusedCategoryIndex, focusedValueAxisId, focusedSeriesId, filteredSeriesIds } = input;
@@ -192,10 +184,7 @@ export class FocusController {
     return this.focus();
   }
 
-  /**
-   * Toggle a series in/out of the filtered set, along with any follower
-   * series (`followSeries` pointing at it), which take the same state.
-   */
+  /** Toggle a series in/out of the filtered set; follower series (`followSeries`) take the same state. */
   toggleSeriesFilter(seriesId: string, followerSeriesIds: readonly string[] = []): ChartSeriesFilter {
     // copy before mutating so snapshots handed to host callbacks stay frozen
     // null proto: an id of __proto__ must land as an own key, not hit the prototype setter

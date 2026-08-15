@@ -20,9 +20,7 @@ function hasFollowSeriesChange(previous: EnhancedMochartConfig, next: EnhancedMo
 
 /**
  * The animation pipeline (was AnimatedChart): owns the tween manager, drives
- * chartData/focusData through data and focus tweens, and calls `emit` on
- * every tween frame so the owner can push the new output into the Chart
- * renderer.
+ * chartData/focusData through data/focus tweens, and calls `emit` per frame.
  */
 export class AnimatedDataSource implements ChartDataSource {
   readonly animated = true;
@@ -129,13 +127,8 @@ export class AnimatedDataSource implements ChartDataSource {
         }
       }
       else if (focusChanged || categoriesChanged || focusConfigChanged) {
-        // The category target always derives from the input, mapped into the
-        // tween's index space while a data tween is in flight. Series/axis-only
-        // changes must not read it from this.focusData: a focus tween starts
-        // after a small cancel-window delay, so focusData can still hold the
-        // category from BEFORE a just-created (and now canceled) tween — e.g.
-        // a tooltip row hover landing right after the click that pinned the
-        // category — and the stale index would drop the pin from the target.
+        // The category target always derives from the input (mapped into the running tween's index
+        // space), never this.focusData — the cancel-window delay can leave it holding a stale pre-pin index.
         if (focusedCategoryIndex >= 0 && this.dataTweening && !this.valuesTweened) {
           if (this.valuesTweening) {
             this.startFocusTween(mochartConfig, input, mergedIndexForNewIndex(this.chartAnimationData!.categoryDeltaData, focusedCategoryIndex));

@@ -402,9 +402,8 @@ function validateSection(sectionKey: string, allKey: string | undefined, section
 }
 
 function validateUnique(config: ConfigRecord, configWithoutDefaults: ConfigRecord, _configDefaults: ConfigRecord, sectionKey: string, _allKey: string | undefined, property: string, errors: string[], errorDetails: LocatedValidationMessage[]): void {
-  // Uniqueness holds on the built entries (raw and defaulted values merged);
-  // checking raw and defaults separately misses cross collisions, e.g. an
-  // explicit id equal to another entry's defaulted id.
+  // Uniqueness holds on the built entries (raw and defaulted values merged); checking them
+  // separately misses cross collisions, e.g. an explicit id equal to another entry's defaulted id.
   const sections = config[sectionKey];
   if (!Array.isArray(sections)) {
     return;
@@ -532,9 +531,8 @@ function validateFollowSeries(config: ConfigRecord, configWithoutDefaults: Confi
 }
 
 function validateCommonReferences(config: ConfigRecord, configWithoutDefaults: ConfigRecord, _configDefaults: ConfigRecord, targetSectionKey: string, _targetAllKey: string | undefined, targetProperty: string, sourceSectionKey: string, sourceProperty: string, commonProperty: string, errors: string[], errorDetails: LocatedValidationMessage[]): void {
-  // The common invariant holds on the built entries (raw, defaulted and
-  // all-section values merged); checking raw and defaults separately misses
-  // cross pairings, e.g. an explicit axis combined with a defaulted stack.
+  // The common invariant holds on the built entries (raw, defaulted and all-section values merged);
+  // checking them separately misses cross pairings, e.g. an explicit axis with a defaulted stack.
   const sourceSections = config[sourceSectionKey];
   const targetSections = config[targetSectionKey];
   if (!Array.isArray(sourceSections) || !Array.isArray(targetSections)) {

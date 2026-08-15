@@ -218,9 +218,8 @@ describe('getSeriesLabelFormat', () => {
     expect(fmt(8.6)).toBe('9');
   });
 
-  // Regression: auto reused the series value format wholesale, which dragged the
-  // prefix/suffix along. Labels render labelProperty — potentially a different
-  // quantity than the series value those affixes describe.
+  // Regression: auto reused the series value format wholesale, dragging the prefix/suffix along —
+  // labels render labelProperty, potentially a different quantity than those affixes describe.
   it('leaves the tooltip prefix and suffix off labels in auto mode', () => {
     const fmt = getSeriesLabelFormat(
       series({ labelFormat: 'auto', valueFormat: '.0f', valuePrefix: '$', valueSuffix: ' USD' }),

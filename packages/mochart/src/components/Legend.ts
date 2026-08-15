@@ -176,7 +176,7 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
         .filter(seriesConfig => seriesConfig.showInLegend && itemIsInteractive(seriesConfig))
         .map(seriesConfig => seriesConfig.id);
       const { rovingSeriesId } = this.state;
-      // the remembered roving item keeps the tab stop while it exists; when it is gone its nearest
+      // the remembered roving item keeps the tab stop while it exists; when gone, the nearest
       // following config-order neighbour inherits it, else the last item; with no memory, the first
       let effectiveRovingId: string | null;
       if (rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1) {

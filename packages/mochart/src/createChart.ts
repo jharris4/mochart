@@ -6,30 +6,22 @@ import type { DataProvider } from './types/data';
 /** Handle returned by `createChart`/`createDefaultChart` for a mounted chart. */
 export interface ChartHandle<TProps extends object = ManagedChartProps> {
   /**
-   * Merge new props into the chart. Change detection is by object identity:
-   * a config, data, or provider change is only seen when a new reference is
-   * passed — mutating the previous object in place is not detected (use
-   * `refresh` for that). Config and data changes animate through the staged
-   * animation phases when animation is enabled, except structural config
-   * changes, which rebuild the chart and replay its initial animation;
-   * width/height changes re-layout the chart instantly.
+   * Merge new props into the chart. Change detection is by object identity — in-place mutation is
+   * not seen (use `refresh` for that). Changes animate when animation is enabled, except structural
+   * config changes (rebuild + initial animation replay); width/height re-layout instantly.
    */
   update(nextProps: Partial<TProps>): void;
   /**
-   * Replace the props wholesale: a key absent from `nextProps` is unset and
-   * returns to chart-managed behavior, where `update` would keep its previous
-   * value. Change detection is by object identity, as with `update`. For
-   * hosts that pass the complete prop set on every render.
+   * Replace the props wholesale: a key absent from `nextProps` is unset and returns to
+   * chart-managed behavior, where `update` would keep its previous value. Identity-detected like
+   * `update`. For hosts that pass the complete prop set on every render.
    */
   replace(nextProps: TProps): void;
   /**
-   * Re-read the current data without a new reference: a default chart
-   * rebuilds its provider over the `data` array; a managed chart first calls
-   * the provider's optional `refresh()` hook and then re-reads it. The chart
-   * animates to whatever they now return — the escape hatch for hosts that
-   * mutate data in place. The built-in providers are stateless, so for them
-   * the re-read alone picks up every in-place change; a custom provider that
-   * caches anything should implement `refresh()` to invalidate its cache.
+   * Re-read the current data without a new reference — the escape hatch for in-place mutation: a
+   * default chart rebuilds its provider over `data`; a managed chart calls the provider's optional
+   * `refresh()` hook, then re-reads it (the built-in providers are stateless, so the re-read alone
+   * suffices; a caching custom provider should implement `refresh()` to invalidate).
    */
   refresh(): void;
   /** Cancel running tweens and remove the chart's DOM from the container. */
@@ -51,10 +43,9 @@ function withFreshIdentity(dataProvider: DataProvider): DataProvider {
 }
 
 /**
- * Imperative entry point: mount a managed chart into a DOM element.
- * Takes an enhanced config (`mochartConfig`) and a data provider. The chart
- * renders with the retained-mode renderer — updates write only the DOM
- * attributes that actually changed; there is no vdom.
+ * Imperative entry point: mount a managed chart into a DOM element from an enhanced config
+ * (`mochartConfig`) and a data provider. Retained-mode rendering — updates write only changed
+ * DOM attributes; there is no vdom.
  */
 export function createChart(container: Element, props: ManagedChartProps): ChartHandle<ManagedChartProps> {
   // props keep the host's own provider (what the state factories get); the pipeline
@@ -106,9 +97,8 @@ function wrapForReads(dataProvider: DataProvider | null | undefined): DataProvid
 }
 
 /**
- * Convenience entry point for plain-JavaScript hosts: takes a raw `config`
- * (enhanced internally) and a plain `data` dataset — an array of objects or
- * an object of arrays.
+ * Convenience entry point for plain-JavaScript hosts: takes a raw `config` (enhanced internally)
+ * and a plain `data` dataset — an array of objects or an object of arrays.
  */
 export function createDefaultChart(container: Element, props: DefaultChartProps): ChartHandle<DefaultChartProps> {
   let currentProps = { ...props };

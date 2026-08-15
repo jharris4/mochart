@@ -24,13 +24,8 @@ interface PieCenterProps {
   accessibility: boolean;
 }
 
-/**
- * The pie center content: an optional text label and/or the live total of the
- * unfiltered slice values (which counts along with the value tweens). The
- * label and total text are styled by `centerLabelTextStyle` and
- * `centerTotalTextStyle` (and can be further restyled via the
- * mochart-pie-center classes).
- */
+/** The pie center content: an optional text label and/or the live total of the unfiltered slice
+ * values (counting along with value tweens); styled by centerLabelTextStyle/centerTotalTextStyle. */
 export default class PieCenter extends Renderer<PieCenterProps> {
   root = svgEl('g');
   label = this.elSlot(this.root);

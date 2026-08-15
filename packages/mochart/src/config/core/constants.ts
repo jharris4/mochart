@@ -88,9 +88,7 @@ export const PIE_LABEL_TYPE_PERCENT_VALUE = 'percentValue';
 export const PIE_LABEL_TYPE_TITLE_VALUE = 'titleValue';
 export const PIE_LABEL_TYPE_TITLE_PERCENT = 'titlePercent';
 
-// The tooltip types are the label types minus the title-bearing ones: a
-// tooltip row already renders the series title as its label, so a title in
-// the value would just repeat it.
+// The label types minus the title-bearing ones: a tooltip row already renders the series title as its label.
 export const PIE_TOOLTIP_LABEL_TYPES: PieTooltipLabelType[] = [
   PIE_LABEL_TYPE_VALUE, PIE_LABEL_TYPE_PERCENT, PIE_LABEL_TYPE_VALUE_PERCENT, PIE_LABEL_TYPE_PERCENT_VALUE
 ];
@@ -162,10 +160,8 @@ export const COLOR_SAME = 'same';
 export const COLOR_SERIES_INDEX = 'seriesIndex';
 export const COLOR_CATEGORY_INDEX ='categoryIndex';
 
-// Not a palette resolution mode like the ones above: the others are resolved to
-// a concrete color by utils/SeriesColors, this one is the svg/css keyword and is
-// written to the dom attribute as is, so the browser resolves it against the
-// host page's css color. It is deliberately not part of the ColorMode union.
+// Deliberately not in the ColorMode union: unlike the modes above (resolved by utils/SeriesColors), this is
+// the svg/css keyword, written to the dom as is so the browser resolves it against the host page's css color.
 export const COLOR_CURRENT = 'currentColor';
 
 

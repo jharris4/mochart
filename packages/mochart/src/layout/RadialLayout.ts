@@ -19,10 +19,9 @@ interface UnitBounds {
 }
 
 /**
- * The bounding box (in units of the outer radius) of the pie's configured
- * span: the center point, the span's two edge points on the outer circle, and
- * every cardinal extreme (top/right/bottom/left) the span crosses. A full
- * circle yields [-1, 1] on both axes.
+ * The bounding box (in outer-radius units) of the pie's configured span: the
+ * center, the span's two edge points, and every cardinal extreme it crosses.
+ * A full circle yields [-1, 1] on both axes.
  */
 function getSpanUnitBounds(startAngle: number, endAngle: number): UnitBounds {
   const from = Math.min(startAngle, endAngle);
@@ -54,12 +53,10 @@ function getSpanUnitBounds(startAngle: number, endAngle: number): UnitBounds {
 }
 
 /**
- * Fits the pie's configured span into the series rect: the span's bounding
- * box (a full square for a full circle, the top half for a -90..90 gauge) is
- * scaled to fill the rect and centered, so partial pies use the space their
+ * Fits the pie's configured span into the series rect: the span's bounding box
+ * is scaled to fill the rect and centered, so partial pies use the space their
  * missing slices would waste. The span comes from the config — never the
- * current slice angles — so the layout holds still while values (or the
- * initial sweep) animate.
+ * current slice angles — so the layout holds still while values animate.
  */
 export function getRadialLayoutInfo(seriesLayoutInfo: LayoutInfo, pieConfig: PieConfig): RadialLayoutInfo {
   const { width, height } = seriesLayoutInfo;

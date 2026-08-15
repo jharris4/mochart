@@ -12,11 +12,8 @@ import type { ColorPaletteConfig, SeriesColor } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { NumericValues, SeriesDomainObject, SeriesValueObject } from '../types/data';
 
-// A colour resolves along two axes: `'series'` hops the element axis (a marker
-// defers to the shape) and `'same'` hops the focus axis (focused defers to
-// normal); both end at the shape's normal colour, so a chain is at most two hops.
-// Each element's styleKey (the series config style it reads) and paletteKey (the
-// colorPaletteConfig entry its palette keywords index into) must stay in lockstep.
+// 'series' hops the element axis (marker → shape), 'same' hops the focus axis (focused → normal);
+// chains are at most two hops. Each element's styleKey and paletteKey must stay in lockstep.
 const elementKeys = {
   series: { styleKey: 'shapeStyle', paletteKey: 'series' },
   marker: { styleKey: 'markerStyle', paletteKey: 'marker' },
@@ -77,12 +74,8 @@ function getColor(fillOrStrokeKey: FillOrStrokeKey, mapKey: ColorMapKey, colorPa
   }
 }
 
-/**
- * A fill-rendered series drawn as an outline only — transparent fill with a
- * visible stroke, e.g. a hollow candlestick body. The legend/tooltip color
- * icons fall back to the stroke color and opacities for these, since the fill
- * ones would produce an invisible icon.
- */
+// A fill-rendered series drawn as an outline only (e.g. hollow candlestick body):
+// legend/tooltip icons fall back to the stroke color/opacity or they'd be invisible.
 function isHollowShape(seriesConfig: EnhancedSeriesConfig): boolean {
   const { fillOpacity, strokeWidth } = seriesConfig.shapeStyle.normal;
   return fillOpacity === 0 && strokeWidth! > 0;
@@ -190,10 +183,9 @@ function buildScale(colorRange: readonly (string | null)[], colorDomain: readonl
 }
 
 /**
- * Per-datum colors for a `colorProperty` series. A row without a color value
- * (and every row when none has one, i.e. a `[null, null]` domain) gets the
- * scale's `missing` color; with `missing: null` the generator returns `null`
- * and the caller falls back to the series' own colors.
+ * Per-datum colors for a `colorProperty` series. Rows without a color value (all rows when the
+ * domain is `[null, null]`) get the scale's `missing` color; `missing: null` returns `null` and
+ * the caller falls back to the series' own colors.
  */
 export function getSeriesColorGenerator(seriesConfig: EnhancedSeriesConfig, _focusPercentage: FocusPercentage, rawDomains: SeriesDomainObject, filteredValues: SeriesValueObject): (index: number) => string | null {
   const colorValues = filteredValues.color as NumericValues;

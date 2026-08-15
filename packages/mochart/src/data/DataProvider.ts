@@ -1,10 +1,7 @@
 import type { DataProvider, DataObject, DataValue, ObjectOfArraysData } from '../types/data';
 
-/**
- * Stateless per-property reads over an array of objects. Objects added,
- * removed, or edited in place are seen whenever the chart re-reads; the chart
- * handle's `refresh` triggers that re-read.
- */
+/** Stateless per-property reads over an array of objects. Objects added, removed, or
+ * edited in place are seen whenever the chart re-reads; the chart handle's `refresh` triggers that. */
 export class ArrayOfObjectsDataProvider<TObject extends DataObject = DataObject> implements DataProvider {
   constructor(private readonly data: readonly TObject[]) {
   }
@@ -18,11 +15,8 @@ export class ArrayOfObjectsDataProvider<TObject extends DataObject = DataObject>
   }
 }
 
-/**
- * Stateless zero-copy reads over an object holding one array per property.
- * In-place mutations and reassigned arrays alike are seen whenever the chart
- * re-reads; the chart handle's `refresh` triggers that re-read.
- */
+/** Stateless zero-copy reads over an object holding one array per property. Mutated and
+ * reassigned arrays alike are seen whenever the chart re-reads; the chart handle's `refresh` triggers that. */
 export class ObjectOfArraysDataProvider<TData extends ObjectOfArraysData = ObjectOfArraysData> implements DataProvider {
   constructor(private readonly data: TData) {
   }

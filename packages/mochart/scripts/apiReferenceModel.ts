@@ -1,14 +1,7 @@
-// Builds the structured api-reference model consumed by the docs site's prop
-// and callback pages. Where the config reference is assembled from the
-// validators, this one is read straight from the prop interfaces in
-// src/types/chart.ts — the JSDoc on those members is the single source for
-// the shipped .d.ts, editor hovers, and the reference pages, so the three
-// cannot disagree.
-//
-// Every exported interface in that file must either belong to a page group
-// below or be listed in `internalInterfaces`, and every member must carry a
-// JSDoc description — both are reported as integrity errors, which fail the
-// generator (and so the docs build).
+// Builds the api-reference model for the docs prop/callback pages straight from the prop
+// interfaces in src/types/chart.ts, whose JSDoc also feeds the shipped .d.ts and hovers.
+// Every exported interface needs a page group or an internalInterfaces entry, and every
+// member a JSDoc description — violations are integrity errors that fail the generator.
 
 import path from 'path';
 import { fileURLToPath } from 'url';

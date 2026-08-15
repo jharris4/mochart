@@ -2,9 +2,8 @@ import { describe, it, expect } from 'vitest';
 
 import { cssStyleColor, styleToAttributes } from '../../src/utils/style';
 
-// cssStyleColor is the html half of the style contract: the tooltip is a div,
-// so it has no fill-opacity/stroke-opacity attribute to write an opacity into
-// and the two have to be composited into one css color instead.
+// cssStyleColor is the html half of the style contract: a div has no fill-opacity/stroke-opacity
+// attribute, so color and opacity must be composited into one css color.
 describe('cssStyleColor', () => {
   it('returns the color untouched when the opacity is null', () => {
     expect(cssStyleColor('rgba(255,255,255,0.9)', null)).toBe('rgba(255,255,255,0.9)');

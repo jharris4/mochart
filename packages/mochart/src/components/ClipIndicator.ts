@@ -72,9 +72,8 @@ export default class ClipIndicator extends Renderer<ClipIndicatorProps, ClipIndi
     this.setPresent(true);
     this.root.set({ className: mochartCssClasses['clipIndicator'] });
 
-    // The only <title> in the library, which otherwise names things with aria-label. It is used
-    // here because one string has to serve as both the accessible name and the text a hidden
-    // label falls back to — aria-label would win for AT and leave the two able to drift apart.
+    // The library's only <title>: one string serves as both the accessible name and the hidden
+    // label's fallback text — aria-label would win for AT and let the two drift apart.
     const label = clipIndicatorConfig.label;
     if (label !== NONE) {
       this.root.append(this.title);

@@ -369,10 +369,8 @@ export function getLegendBounds(mochartConfig: EnhancedMochartConfig, domAccesso
   return legendBounds;
 }
 
-// The DOM only holds legend items for showInLegend series, so the expected
-// list must be filtered the same way — a full seriesConfigs list would never
-// match the element count and every item would fall back to default bounds,
-// leaving phantom legend slots for the hidden series.
+// The DOM only holds legend items for showInLegend series, so the expected list must match — a full
+// seriesConfigs list would never match the element count, defaulting every bound (phantom slots).
 export function getLegendSeriesConfigs(mochartConfig: EnhancedMochartConfig) {
   return mochartConfig.series.filter(seriesConfig => seriesConfig.showInLegend);
 }

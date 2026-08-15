@@ -1,9 +1,5 @@
-/**
- * markerProperty size interpolation: sizes come from a clamped scale over the
- * marker value domain — sqrt by default (marker area tracks the value),
- * linear opt-in via markerSizeScale — so fractional-extent domains span the
- * full configured size range and constant marker values land mid-range.
- */
+// markerProperty size interpolation: a clamped scale over the marker value domain — sqrt by default (area tracks
+// the value), linear via markerSizeScale — so fractional domains span the full size range, constants land mid-range.
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

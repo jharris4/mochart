@@ -1,12 +1,5 @@
-/**
- * Bar slot geometry tests: barWidthFraction narrows bars within their layout
- * slot (centered on the full-width bars of a sibling series by default),
- * barAlignFraction moves the narrowed bar within the slot and barMinExtent
- * keeps zero-extent range bars visible as tick marks — the geometry behind
- * candlestick wicks, bullet-chart overlays and OHLC open/close ticks. Charts
- * are mounted through createDefaultChart in jsdom, and assertions parse the
- * rendered bar paths (uncapped bars are rects: `M{x},{y}h{w}v{h}h{-w}Z`).
- */
+// Bar slot geometry: barWidthFraction narrows bars in their slot, barAlignFraction moves them, barMinExtent
+// keeps zero-extent range bars visible (candlestick wicks, OHLC ticks); asserts parse bar paths `M{x},{y}h{w}v{h}h{-w}Z`.
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

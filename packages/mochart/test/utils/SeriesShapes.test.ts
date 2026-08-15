@@ -3,9 +3,8 @@ import { getColumnGenerator } from '../../src/utils/SeriesShapes';
 import type { EnhancedSeriesConfig } from '../../src/types/enhanced';
 import type { SeriesPositionData, StackData } from '../../src/types/data';
 
-// Regression: the stack outer-cap test indexed the raw-category-indexed outer
-// series ids with the compacted position index, so once a category was skipped
-// (missingValues 'connect') caps landed on the wrong segments.
+// Regression: the stack outer-cap test indexed raw-category-indexed outer series ids with the
+// compacted position index, so once a category was skipped ('connect') caps landed on the wrong segments.
 describe('stacked bar outer caps with skipped categories', () => {
   const seriesConfig = {
     id: 'B', stack: 'st', capType: 'point', capSize: 4, capExpand: false,

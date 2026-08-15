@@ -82,9 +82,8 @@ const DEFAULT_TITLES: Record<WaterfallDirection, string> = {
   total: 'Total'
 };
 
-// Teal-green/red/blue rather than a pure green/red: green↔red is the classic
-// red-green-blindness collision, and shifting the green toward teal keeps every pair
-// distinguishable (and ≥3:1 against both light and dark chart surfaces).
+// Teal-green/red/blue, not pure green/red: teal dodges the classic red-green-blindness
+// collision and keeps every pair ≥3:1 against both light and dark chart surfaces.
 const DEFAULT_COLORS: Record<WaterfallDirection, string> = {
   increase: '#1baf7a',
   decrease: '#e34948',
@@ -131,16 +130,10 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
     scale: 'ordinal'
   };
 
-  // One series per direction, all floating from the shared `start` property;
-  // each category carries a value for exactly one of them, so the bars render
-  // full-width in their slot (group/stack null keeps them out of any
-  // configured grouping) and the legend names the three directions.
-  // partialRangeIsMissing matters because `start` exists on every row: without it
-  // the two off-direction series would keep zero-extent bars at `start`
-  // instead of skipping the category.
-  // The shape's strokeColor matches its fill: bars grow a 1px outline when
-  // focused, and the default strokeColor is the palette color for the series
-  // *index*, which would rim the bar in an unrelated color.
+  // One full-width series per direction (group/stack null), all floating from the shared `start`;
+  // each category carries a value for exactly one of them and the legend names the three directions.
+  // partialRangeIsMissing matters because `start` exists on every row: without it the two
+  // off-direction series would keep zero-extent bars at `start` instead of skipping the category.
   const seriesConfigs = DIRECTIONS.map((direction) => {
     const color = options.colors?.[direction] ?? DEFAULT_COLORS[direction];
     return {
@@ -153,6 +146,8 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
       group: null,
       stack: null,
       title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
+      // strokeColor matches the fill: focused bars grow a 1px outline, and the default strokeColor
+      // is the palette color for the series *index*, which would rim the bar in an unrelated color.
       shapeStyle: { normal: { strokeColor: color, fillColor: color } }
     } as DeepPartial<SeriesConfig>;
   });

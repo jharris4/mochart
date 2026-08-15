@@ -1,12 +1,7 @@
-// CLI for the config reference docs. Builds the structured model (see
-// configReferenceModel.ts), writes it to generated/config-reference.json for
-// downstream consumers (the docs site), and renders the legacy standalone
-// mochart-docs.html. Exits non-zero when the config docs sources (defaults /
-// validators / descriptions / details) have mismatched keys.
-//
-// Usage: tsx scripts/generator.ts [htmlPath] [jsonPath]
-// Paths default to <package>/mochart-docs.html and
-// <package>/generated/config-reference.json regardless of cwd.
+// CLI for the config reference docs: builds the model (configReferenceModel.ts), writes
+// generated/config-reference.json for the docs site, and renders the legacy mochart-docs.html.
+// Exits non-zero when the config docs sources have mismatched keys.
+// Usage: tsx scripts/generator.ts [htmlPath] [jsonPath] [apiJsonPath] — paths default into <package> regardless of cwd.
 
 import {
   buildConfigReference,

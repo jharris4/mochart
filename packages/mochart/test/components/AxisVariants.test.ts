@@ -1,10 +1,5 @@
-/**
- * Category-axis variant tests: date and number axes (linear and ordinal scales),
- * tick label formatting (auto and explicit, prefix/suffix), explicit min/max
- * domains beyond the data, tick count overrides, and rotated (non-parallel)
- * tick labels. Charts are mounted through createDefaultChart in jsdom, and
- * assertions read the rendered category-axis tick labels.
- */
+// Category-axis variants: date/number axes on linear and ordinal scales, tick label
+// formatting (auto/explicit, prefix/suffix), explicit min/max, tick counts, rotated labels
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

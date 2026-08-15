@@ -143,10 +143,8 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   axisLayoutInfo.tickTextX = tickTextX;
   axisLayoutInfo.tickTextY = tickTextY;
 
-  // both boxes are offset across the axis (x when vertical, y when horizontal)
-  // and always span its full length along it. The outer side comes first in the
-  // axis' local coordinates, so the title leads for a notAfter axis and the tick
-  // labels lead otherwise - matching tickOffset/titleOffset for the text itself.
+  // Both boxes offset across the axis and span its full length; the outer side
+  // comes first locally, so the title leads for a notAfter axis (matching tickOffset/titleOffset).
   const titleBoxOffset = notAfter ? 0 : totalTickLabelSize;
   const tickLabelBoxOffset = notAfter ? totalTitleSize : 0;
 
@@ -378,25 +376,5 @@ export function getPlotLayoutInfo(mochartConfig: EnhancedMochartConfig, chartTex
   };
 }
 
-// TODO - possibly split into the following:
-/*
-axisTickMarkLayout: {
-  vertical, x1, x2, y1, y2
-}
-
-axisTickLabelLayout: {
-  vertical, anchor, x, y
-}
-
-axisTitleLayout: {
-  x, y, angle
-}
-
-axisLineLayout: {
-  x1, x2, y1, y2
-}
-
-axisTitleClipLayout {
-  x, y, width, height
-}
-*/
+// TODO - possibly split setExtraAxisInfo's output into per-part layouts:
+// tick marks, tick labels, title, axis line, title clip.

@@ -138,8 +138,7 @@ describe('binValues', () => {
   });
 
   it('ends a cumulative density curve at 1, not at 1 / bin width', () => {
-    // density divides by the bin width, so summing those values topped out at 1/width; a
-    // cumulative density has to integrate, which is what makes it a probability curve
+    // summing density values tops out at 1/width; a cumulative density has to integrate
     const bins = binValues([1, 2, 3, 4], { binWidth: 2, cumulative: true, normalize: 'density' });
     expect(bins[bins.length - 1].value).toBeCloseTo(1);
     for (let i = 1; i < bins.length; i++) {
@@ -202,10 +201,8 @@ describe('createHistogram', () => {
   });
 });
 
-// Regression: the bin index came from the raw float quotient while the bins
-// report rounded edges, so a value exactly on a non-representable edge
-// ((0.3-0)/0.1 = 2.999...) was counted one bin low, contradicting the
-// documented half-open [start, end) semantics.
+// Regression: the bin index came from the raw float quotient while bins report rounded edges, so a
+// value on a non-representable edge ((0.3-0)/0.1 = 2.999...) was counted one bin low vs [start, end).
 describe('bin membership on floating-point edges', () => {
   it('counts an edge value into the bin whose reported edges contain it', () => {
     const bins = binValues([0, 0.3, 1], { binWidth: 0.1 });

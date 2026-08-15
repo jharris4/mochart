@@ -192,7 +192,7 @@ function createOrdinalTickObject(scaleTickValue: number, categoryValues: readonl
 export function getCategoryAxisTickData(axisConfig: CategoryAxisConfig, axisLayoutInfo: CategoryAxisLayoutInfo, axisScale: AxisScale, axisDomain: CategoryAxisDomain, categoryValues: readonly CategoryValue[], categoryPositions: number[]): AxisTick[] {
   let ticks: AxisTick[] = [];
   // magnitude: a reversed axis has a descending range, and tick counting needs a positive extent
-  const categoryAxisRangeExtent = Math.abs(axisScale.range()[1] - axisScale.range()[0]); // different because of bar offset??
+  const categoryAxisRangeExtent = Math.abs(axisScale.range()[1] - axisScale.range()[0]);
   const categoryAxisDomainExtent = +axisScale.domain()[1] - +axisScale.domain()[0];
 
   if (categoryValues.length > 0) {

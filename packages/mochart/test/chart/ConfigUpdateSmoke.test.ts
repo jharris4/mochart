@@ -1,10 +1,7 @@
 /**
- * Smoke tests for config changes on an already-mounted chart.
- *
- * The main oracle is convergence: after A -> B settles, the retained chart DOM
- * must match a fresh mount of B. This catches stale derived data, layout,
- * retained list items, and animation state without duplicating the detailed
- * feature assertions owned by the component/data unit tests.
+ * Smoke tests for config changes on a mounted chart. Oracle is convergence: after A -> B settles,
+ * the retained DOM must match a fresh mount of B — catching stale derived data, layout, retained
+ * list items, and animation state.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { installSvgMeasurementShims } from '../components/svgShims';

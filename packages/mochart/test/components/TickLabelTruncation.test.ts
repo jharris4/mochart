@@ -1,8 +1,5 @@
-/**
- * Regression test for the axis tick-label truncation bookkeeping: the measured
- * truncation state must survive unrelated prop updates instead of being wiped
- * and re-measured (with one untruncated frame) on every update.
- */
+// Regression: measured tick-label truncation state must survive unrelated prop
+// updates instead of being wiped and re-measured (with one untruncated frame).
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
@@ -72,7 +69,6 @@ describe('tick-label truncation state across updates', () => {
     const labelTexts = () => [...container.querySelectorAll(getDescendantCssSelector('categoryAxis', 'axisTickLabel') + ' text')]
       .map(label => label.textContent ?? '');
 
-    // one update flushes any tail of the mount-time measurement passes
     // a real prop change flushes the tail of the mount-time measurement passes
     handle.update({ focusedCategoryIndex: 0 } as Partial<DefaultChartProps>);
     const truncated = labelTexts();

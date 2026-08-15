@@ -64,17 +64,13 @@ export interface ChartDomAccessors {
 /** The argument every state factory receives; all six members are always present. */
 export interface ChartFactoryContext {
   /**
-   * Width in pixels of the box the returned content fills: the chart for the
-   * no-size, config-error and no-config loading/error states, the plot area for
-   * the no-series, no-data, loading and error content inside a laid-out chart.
+   * Width in pixels of the box the content fills: the whole chart for the
+   * no-size/config-error/no-config states, the plot area for the rest.
    */
   width: number;
   /** Height in pixels of the same box `width` measures. */
   height: number;
-  /**
-   * The enhanced config as supplied — including the invalid one in the
-   * config-error state; null when the host has not supplied a config yet.
-   */
+  /** The enhanced config as supplied (even the invalid one in the config-error state); null when none yet. */
   mochartConfig: MochartConfig | null;
   /** The current data provider, or null when there is none. */
   dataProvider: DataProvider | null;
@@ -108,15 +104,11 @@ export interface ChartSeriesClickPayload {
 export interface ChartCallbacks {
   /** The plot area was clicked. */
   onChartClick?: (event: ChartEventPayload) => void;
-  /**
-   * A slice of a pie-type chart was clicked. Unlike `onFocus` (which pointer
-   * hover also drives), this fires only on click, so it can anchor selection.
-   */
+  /** A pie-type slice was clicked; fires only on click (unlike hover-driven `onFocus`), so it can anchor selection. */
   onSliceClick?: (payload: ChartSliceClickPayload) => void;
   /**
-   * A cartesian series shape (bar, marker, label, line/area path) was
-   * clicked. Fires independently of the `focusOnClick` config, and only on
-   * click, so it can anchor selection.
+   * A cartesian series shape (bar, marker, label, line/area path) was clicked.
+   * Independent of `focusOnClick`; fires only on click, so it can anchor selection.
    */
   onSeriesClick?: (payload: ChartSeriesClickPayload) => void;
   /** The pointer entered the plot area. */
@@ -142,10 +134,8 @@ export interface ChartCallbacks {
 }
 
 /**
- * Factories customizing what renders in each non-chart state. Each is called
- * with the same {@link ChartFactoryContext} members and returns a DOM node or
- * string; only `width`/`height` differ between the states, per the box the
- * content fills.
+ * Factories customizing what renders in each non-chart state; each receives a
+ * {@link ChartFactoryContext} (only `width`/`height` differ between the states).
  */
 export interface ChartFactories {
   /** Rendered while the `loading` prop is true. */
@@ -169,15 +159,10 @@ export interface BaseChartProps extends ChartCallbacks, ChartFactories {
   /** Chart height in pixels (the framework bindings can derive it from the container). */
   height: number;
   /**
-   * Inline style applied to the chart's root element, layered over the default
-   * `position: relative`. The tooltip and the screen-reader live region are
-   * positioned against that root, so override `position` only with another
-   * non-`static` value (`absolute`, `fixed` and `sticky` all work).
-   *
-   * Object keys are camelCase CSS property names (`minWidth`, not
-   * `'min-width'`), and bare numbers get a `px` suffix except on unitless
-   * properties such as `opacity`, `zIndex` and `flex`. The string form is
-   * regular CSS text and uses kebab-case as usual.
+   * Inline style on the chart's root element, over the default `position: relative`
+   * (the tooltip and live region anchor to the root — keep `position` non-`static`).
+   * Object keys are camelCase and bare numbers get `px` (unitless properties
+   * excepted); the string form is regular kebab-case CSS text.
    */
   style?: string | Record<string, string | number | null | undefined>;
   /** Switches the chart into its loading state (see `getLoadingComponent`). */
@@ -185,10 +170,8 @@ export interface BaseChartProps extends ChartCallbacks, ChartFactories {
   /** Switches the chart into its error state when set to anything but null/undefined — `''` and `0` count (see `getErrorComponent`). */
   error?: unknown;
   /**
-   * Externally-controlled focused category index (-1 = none). When set (not
-   * undefined) it overrides the chart's internal focus state on every update;
-   * pass back the value reported by `onFocus` to keep several charts in sync.
-   * Leave undefined to let the chart manage focus internally.
+   * Externally-controlled focused category index (-1 = none; undefined = chart manages focus).
+   * When set it overrides internal focus on every update; pass back `onFocus` values to sync charts.
    */
   focusedCategoryIndex?: number;
   /** Externally-controlled focused value-axis id (null = none). See `focusedCategoryIndex`. */
@@ -196,9 +179,8 @@ export interface BaseChartProps extends ChartCallbacks, ChartFactories {
   /** Externally-controlled focused series id (null = none). See `focusedCategoryIndex`. */
   focusedSeriesId?: string | null;
   /**
-   * Externally-controlled filter map (series id → true = filtered out).
-   * When set it overrides the chart's internal filter state on every update;
-   * pass back the map reported by `onSeriesFilter` to sync legend filtering.
+   * Externally-controlled filter map (series id → true = filtered out). When set it
+   * overrides internal filter state on every update; pass back `onSeriesFilter` maps to sync.
    */
   filteredSeriesIds?: Record<string, boolean>;
 }
@@ -216,9 +198,8 @@ export interface DefaultChartProps extends BaseChartProps {
   /** The raw config; validated and enhanced internally on every change. */
   config: MochartInputConfig;
   /**
-   * The dataset, in either built-in shape: an array of objects (one per
-   * category) or an object of arrays (one per property); wrapped in the
-   * matching data provider by shape.
+   * The dataset in either built-in shape — array of objects (one per category)
+   * or object of arrays (one per property); wrapped in the matching provider.
    */
   data: ArrayOfObjectsData | ObjectOfArraysData;
 }

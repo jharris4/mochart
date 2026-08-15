@@ -1,10 +1,6 @@
-// Builds the structured config-reference model consumed by every docs
-// surface: the generated JSON artifact (used by the docs site), the legacy
-// mochart-docs.html renderer, and (later) JSDoc codegen. The model is
-// assembled from the same three per-section sources the runtime uses —
-// descriptions (config/docs), validators (config/validation), and defaults
-// including conditional defaults (config/defaults) — and cross-checks that
-// their keys stay in sync.
+// Builds the config-reference model for every docs surface (generated JSON, legacy
+// mochart-docs.html, JSDoc codegen) from the same per-section sources the runtime uses —
+// descriptions, validators, and (conditional) defaults — and cross-checks their keys stay in sync.
 
 import {
   configWithoutAllValidators as mochartConfigSectionValidators,
@@ -297,10 +293,8 @@ function getSectionSources(): SectionSource[] {
 /** Why a property has no default: a value must be supplied, or it is left unset and nothing fills it in. */
 type MissingDefault = 'required' | 'optional';
 
-// Properties that intentionally have no default. Keyed by path within the
-// section, so a nested member is named `parent.member` and a member of an
-// array element `parent[].member`. The 'required' entries also drive the
-// reference pages, which name them as the properties a config must supply.
+// Properties that intentionally have no default, keyed by path within the section
+// (`parent.member`, `parent[].member`); 'required' entries also drive the reference pages' required lists.
 const missingDefaultWhitelist: Record<string, Record<string, MissingDefault>> = {
   categoryAxis: {
     property: 'required',
@@ -640,9 +634,8 @@ function editorTypesForValidator(validator: Validator): EditorValueType[] {
 
 function buildEditorValue(validator: Validator): EditorValueDoc {
   const allowed = (validator.allowedValues ?? []).filter(value => value !== undefined);
-  // Extensions such as numberMin(0).orEqual("auto") retain the base
-  // validator's name, so include the literal alternatives in the editor type
-  // union as well as exposing them as enum completions.
+  // Extensions like numberMin(0).orEqual("auto") keep the base validator's name,
+  // so the literal alternatives join the type union as well as the enum completions.
   const literalTypes = allowed
     .filter(value => value !== null)
     .map(editorTypeForValue);

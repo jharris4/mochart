@@ -15,9 +15,8 @@ const copyKeyLabel = 'labelCopyKey';
 const copyKeyColor = 'colorCopyKey';
 const copyKeyTooltip = 'tooltipCopyKey';
 
-// PositionKey is no longer just plain/range: errorLow/errorHigh ride along so error
-// bounds get filtered copies, domain contribution and value tweening for free. Code
-// iterating positionKeys must not assume the key participates in shape positions.
+// PositionKey includes errorLow/errorHigh so error bounds get filtered copies, domain
+// contribution and value tweening for free; not every position key is a shape position.
 export type PositionKey = typeof keyPlain | typeof keyRange | typeof keyErrorLow | typeof keyErrorHigh;
 export type PositionOrComputedKey = PositionKey | typeof keyStack | typeof keyPrior;
 export type ExtraKey = typeof keyMarker | typeof keyLabel | typeof keyColor | typeof keyTooltip;

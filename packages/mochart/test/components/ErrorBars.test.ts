@@ -1,11 +1,5 @@
-/**
- * Error bar rendering tests: errorLowProperty/errorHighProperty draw a
- * whisker per point from the low bound to the high bound with horizontal
- * caps, centered on the bar layout slot (including grouped sub-slots) or on
- * the point for line series. Charts are mounted through createDefaultChart in
- * jsdom, assertions parse the rendered whisker paths — vertical whiskers are
- * `M{cx},{low}V{high}` followed by one `M{x},{y}H{x2}` cap per defined bound.
- */
+// errorLowProperty/errorHighProperty whiskers, centered on the bar slot (grouped sub-slots included) or line point;
+// asserts parse whisker paths: `M{cx},{low}V{high}` plus one `M{x},{y}H{x2}` cap per defined bound.
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

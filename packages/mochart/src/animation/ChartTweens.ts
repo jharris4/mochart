@@ -197,9 +197,8 @@ function initMochartTween(): TweenEngine {
       return tween;
     }
 
-    // Always cascades into chained tweens, even after this tween has already
-    // completed — stopping the head of a chain must halt whichever step is
-    // currently running.
+    // Always cascades into chained tweens, even after this tween completed —
+    // stopping the head of a chain must halt whichever step is currently running.
     const stop = function(): Tween {
       if (isPlaying) {
         remove(tween);

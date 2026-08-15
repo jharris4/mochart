@@ -1,9 +1,6 @@
 /**
- * Screen-reader semantics of the chart root: the svg is a labeled group
- * (named from the title config) announced as a chart, and the decorative
- * geometry — axes/grid, series shapes, crosshair — is aria-hidden so
- * assistive tech lands on the meaningful stops (plot button, legend,
- * tooltip) instead of unlabeled shapes.
+ * Screen-reader semantics of the chart root: the svg is a labeled group named from the title, and the
+ * decorative geometry is aria-hidden so assistive tech lands on the meaningful stops, not unlabeled shapes.
  */
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';

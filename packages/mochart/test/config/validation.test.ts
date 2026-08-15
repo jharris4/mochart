@@ -391,10 +391,8 @@ describe('pie chart config validation', () => {
   });
 });
 
-// Regression: list-section validation paired the built (filtered) entries with
-// the raw user array by position, so an ignore:true entry shifted every later
-// entry onto the wrong index — garbage passed unvalidated and ignored entries
-// produced false errors.
+// Regression: list-section validation paired built (filtered) entries with the raw array by position,
+// so an ignore:true entry shifted later entries onto the wrong index — garbage passed, ignored entries errored.
 describe('list-section validation with ignored entries', () => {
   it('validates entries after an ignored entry at their raw index', () => {
     const errors = errorsFor({
@@ -537,9 +535,8 @@ describe('ordinal-scale thresholds validation', () => {
   });
 });
 
-// Regression: margin/padding (and categoryPaddingFraction) demanded all their
-// keys at once, though nested configs deep-merge over their defaults and the
-// DeepPartial input type promises partial objects.
+// Regression: margin/padding (and categoryPaddingFraction) demanded all their keys at once, though
+// nested configs deep-merge over their defaults and the DeepPartial input type promises partial objects.
 describe('partial spacing validation', () => {
   const base = { version: V, categoryAxis: { property: 'p' }, series: [{ property: 'v' }] };
 
@@ -575,10 +572,8 @@ describe('partial spacing validation', () => {
   });
 });
 
-// The null contract: plain styles accept null members (leave the svg
-// attribute unset), while style states keep colors and opacities concrete so
-// host css cannot bleed through and focus animation can interpolate. Widths
-// and dash arrays are nullable in both.
+// The null contract: plain styles accept null members (leave the svg attribute unset), while style
+// states keep colors/opacities concrete (no css bleed-through, interpolable focus); widths and dash arrays stay nullable.
 describe('style null semantics', () => {
   const base = { version: V, categoryAxis: { property: 'p' } };
 
@@ -609,9 +604,8 @@ describe('style null semantics', () => {
   });
 });
 
-// Regression: curve was the only nested config validated with the exact-shape
-// validator, so { param } alone (type comes from the default) was rejected and
-// unknown members were hard errors instead of the single unknown-key warning.
+// Regression: curve alone used the exact-shape validator, so { param } (type from the default) was
+// rejected and unknown members were hard errors instead of the single unknown-key warning.
 describe('series curve validation', () => {
   it('accepts a curve with only param, relying on the type default', () => {
     const errors = errorsFor({
@@ -680,9 +674,8 @@ describe('followSeries depth validation', () => {
   });
 });
 
-// Regression: uniqueness was checked on the raw config and the defaults
-// separately, so an explicit id colliding with another entry's defaulted id
-// passed and collapsed the id-lookup maps.
+// Regression: uniqueness was checked on the raw config and the defaults separately, so an explicit
+// id colliding with another entry's defaulted id passed and collapsed the id-lookup maps.
 describe('merged unique-key validation', () => {
   it('flags an explicit id colliding with a defaulted id', () => {
     const errors = errorsFor({

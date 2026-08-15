@@ -410,11 +410,8 @@ describe('getChartDataForValueDelta (range channel with an undefined hole)', () 
   it('tweens the plain channel while holding the vanishing range point', () => {
     const mid = getChartDataForValueDelta(rangeConfig, cad, 0.5).seriesData.raw.values[rangeSeriesId];
     const end = getChartDataForValueDelta(rangeConfig, cad, 1).seriesData.raw.values[rangeSeriesId];
-    // plain animates on both categories; range animates on category 0 but the missing
-    // category-1 range has a zero delta and holds at its start value. The ranged
-    // series' plain/range keys share one duration (each key at proportional
-    // speed) so the shape's edges arrive together — hence range is at half its
-    // journey at the midpoint, like plain, rather than ahead of it.
+    // the missing category-1 range has zero delta and holds at start; ranged plain/range keys
+    // share one duration, so range is at half its journey at the midpoint like plain
     expect(mid.plain).toEqual([5, 10]);
     expect(mid.range).toEqual([7.5, 0]);
     expect(end.plain).toEqual([10, 20]);
@@ -474,9 +471,8 @@ describe('category index maps with Date category values', () => {
   });
 });
 
-// Regression: filteredSeriesDomainDeltas was omitted from the overall phase
-// delta max, so a filtered-series transition paced its per-series domain
-// tween at a fraction of the phase and snapped on the final frame.
+// Regression: filteredSeriesDomainDeltas was omitted from the overall phase delta max, so a
+// filtered-series transition underpaced its domain tween and snapped on the final frame.
 describe('filtered series-domain deltas drive the phase pacing', () => {
   it('includes the filtered map in the overall delta and keeps factors >= 1', () => {
     const filteredConfig = makeConfig({
@@ -501,10 +497,8 @@ describe('filtered series-domain deltas drive the phase pacing', () => {
   });
 });
 
-// Regression: getMaxDeltaPercentage omitted the tooltip key, so tooltip-value
-// changes never counted toward the phase pacing -- a tooltip-only transition
-// degraded to a 0-duration jump and mixed transitions under-interpolated the
-// hovered values before snapping on the final frame.
+// Regression: getMaxDeltaPercentage omitted the tooltip key — a tooltip-only transition degraded
+// to a 0-duration jump and mixed transitions under-interpolated before snapping.
 describe('tooltip value deltas drive the phase pacing', () => {
   it('counts a tooltip-only change and keeps its factor >= 1', () => {
     const tooltipConfig = makeConfig({
@@ -526,12 +520,8 @@ describe('tooltip value deltas drive the phase pacing', () => {
   });
 });
 
-// Regression: a series being unfiltered carries a filtered-domain delta (null
-// -> full extent) that paced a dead axis-expansion phase ahead of the value
-// phase, so restoring a series via the legend lagged while filtering it was
-// instant. Hidden series render nothing, so they must not stretch phase
-// durations -- but their deltas stay in the map so end/final domains still
-// cover them (the value phase renders the returning series against them).
+// Regression: unfiltering a series paced a dead axis-expansion phase (null -> full extent domain
+// delta); hidden series must not stretch durations, but their deltas stay for end/final domains.
 describe('hidden series are excluded from axis phase pacing', () => {
   const pacingConfig = makeConfig({
     categoryAxis: { property: 'c', type: 'number', scale: 'ordinal' },

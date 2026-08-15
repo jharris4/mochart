@@ -1,10 +1,6 @@
 /**
- * Hot-path regression tests for data tweens. A value-only data update (same
- * categories, same domains) must not remeasure text from the DOM on every tween
- * frame — rendered text only changes when the config or axisData changes.
- *
- * Unlike the other suites these shims return non-zero sizes, so measured
- * bounds are real (hasDefault false) and the remeasure-retry path stays quiet.
+ * Data-tween hot path: a value-only update (same categories/domains) must not remeasure DOM text per frame.
+ * Unlike other suites the shims return non-zero sizes, so bounds are real and the remeasure-retry path stays quiet.
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import type { ChartHandle } from '../../src/createChart';

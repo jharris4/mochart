@@ -1,7 +1,6 @@
 /**
- * Value axis explicit `ticks`: replaces the generated ticks with configured
- * { value, label } entries — labels fall back to the formatted value, and
- * ticks outside the current axis domain are hidden.
+ * Value axis explicit `ticks`: replaces generated ticks with configured { value, label } entries —
+ * labels fall back to the formatted value, ticks outside the current axis domain are hidden.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 

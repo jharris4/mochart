@@ -1,12 +1,5 @@
-/**
- * Keyboard accessibility of cartesian series: interactive series (focusOnClick
- * or an onSeriesClick handler) are buttons with a roving tab stop — arrows move
- * between series in config order (the DOM is focus-ordered, so it cannot drive
- * navigation), Enter/Space clicks the whole series (categoryIndex -1, like a
- * line/area path click), and follower series stay pointer-only. Non-interactive
- * series stay aria-hidden. Activation does not touch the tooltip: the plot rect one
- * Tab earlier is the chart's category cursor, and only Escape crosses between them.
- */
+// Cartesian series keyboard a11y: interactive series (focusOnClick or onSeriesClick) are buttons with a roving tab stop —
+// arrows move in config order, Enter/Space clicks the whole series (categoryIndex -1), followers stay pointer-only, others aria-hidden; the plot rect owns the tooltip, only Escape crosses over.
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

@@ -1,12 +1,7 @@
-// Generates JSDoc comments on the config interfaces in src/types/config.ts
-// from the config-reference model (descriptions, details, defaults), so IDE
-// hovers and the shipped .d.ts document every config property from the same
-// source as the generated reference docs. Existing JSDoc on covered
-// properties is replaced; properties without a model entry (back-references,
-// internal fields) are left untouched.
-//
-// Usage: tsx scripts/generateJsdoc.ts [--check]
-// --check exits 1 when src/types/config.ts differs from the generated output
+// Regenerates JSDoc on the config interfaces in src/types/config.ts from the config-reference
+// model, so hovers, the shipped .d.ts, and the reference docs share one source. Covered
+// properties' JSDoc is replaced; properties without a model entry are left untouched.
+// Usage: tsx scripts/generateJsdoc.ts [--check] — --check exits 1 on drift
 // (the same ratchet is enforced by test/config/jsdocSync.test.ts).
 
 import ts from 'typescript';
@@ -60,11 +55,8 @@ const sectionInterfaceMap: Record<string, string> = {
   tooltip: 'TooltipConfig'
 };
 
-/**
- * Interfaces that are the value of nested config properties (a style, a palette entry) rather than a
- * section of their own, documented from one representative use of the shape. Defaults are left off:
- * the shape is used with different defaults at every site, so each using property documents its own.
- */
+/** Interfaces that are the value of nested config properties rather than a section, documented from
+ * one representative use of the shape. Defaults are left off: each using property documents its own. */
 interface SharedInterfaceSource {
   interfaceName: string;
   sectionId: string;
@@ -91,10 +83,8 @@ const sharedInterfaceSources: SharedInterfaceSource[] = [
   { interfaceName: 'GradientStop', sectionId: 'linearGradients', propertyKey: 'stops', includeDefaults: true }
 ];
 
-/**
- * Interfaces that several config sections extend, documented from those sections: the prose comes
- * from the first, and any section that words it differently has its wording documented alongside.
- */
+/** Interfaces several config sections extend, documented from those sections: the first supplies
+ * the prose, and any section wording it differently has its wording documented alongside. */
 interface SharedSectionInterface {
   interfaceName: string;
   /** The sections that extend it, in the order their prose is documented. */

@@ -1,8 +1,5 @@
-/**
- * Pointer handlers on cartesian series shapes: which focus a series, a
- * category, both or neither is decided by focusOnMouseOver and
- * focusCategoryOnMouseOver, and the shapes carry the resulting handlers.
- */
+// Pointer handlers on cartesian series shapes: focusOnMouseOver and focusCategoryOnMouseOver decide whether
+// hovering focuses the series, the category, both or neither, and the shapes carry the resulting handlers.
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

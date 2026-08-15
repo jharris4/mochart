@@ -34,9 +34,8 @@ describe('createCandlestick', () => {
     ]);
   });
 
-  // A doji opens and closes at the same price, so its body has zero height. A filled body draws
-  // nothing at all there; a hollow one still shows its 2px outline, which is why only the filled
-  // bodies get a floor.
+  // A doji's zero-height body draws nothing when filled but still shows its 2px outline when
+  // hollow, which is why only the filled bodies get a floor.
   it('gives filled bodies a minimum height so a doji still draws', () => {
     const { series } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const bodies = series.filter((seriesConfig) => seriesConfig.id === 'up' || seriesConfig.id === 'down');

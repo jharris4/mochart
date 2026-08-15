@@ -17,22 +17,12 @@ interface ChildRegion {
 }
 
 /**
- * Base class for retained-mode chart components.
- *
- * `create()` builds the static DOM once, `sync()` writes the dynamic parts
- * directly from props/state. Subtrees whose props and state are shallow-equal
- * are skipped. No vnode allocation, no tree diffing.
- *
- * Optional hooks around that core:
- * - `derive(props, state, prevProps)` computes derived state before a sync;
- *   it returns a state delta instead of calling setState.
- * - `measure(prevProps, prevState)` runs post-commit, once the DOM is fully
- *   written, for code that reads layout (text measurement, truncation).
- * - `dispose()` releases externally owned resources on destroy.
- *
- * Every renderer owns a comment anchor in its parent so it can detach and
- * re-attach its root element (see setPresent) without losing its position
- * among siblings.
+ * Base class for retained-mode chart components. `create()` builds the static
+ * DOM once; `sync()` writes the dynamic parts from props/state, skipped when
+ * both are shallow-equal (no vnodes, no tree diffing). Optional hooks: see
+ * `derive`, `measure` and `dispose` below. Every renderer owns a comment
+ * anchor in its parent so it can detach and re-attach its root element
+ * (setPresent) without losing its position among siblings.
  */
 export abstract class Renderer<P extends object, S extends object = Record<string, never>> {
   props!: P;

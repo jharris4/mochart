@@ -4,9 +4,8 @@ import { getChartAnimationData } from '../../src/animation/ChartAnimationData';
 import { getInitialValueChangeData } from '../../src/animation/SeriesAnimationData';
 import { makeConfig, ArrayOfObjectsDataProvider } from '../data/fixtures';
 
-// Regression: filtered series shared one module-level null value object, so a
-// stack-prior write for one filtered series leaked into every other filtered
-// series (and later charts), crashing the initial delta computation.
+// Regression: filtered series shared one module-level null value object, so a stack-prior write
+// leaked into every other filtered series and crashed the initial delta computation.
 describe('getInitialValueChangeData with filtered series', () => {
   const rows = [
     { g: 0, a: 5, b: 3, c: 2 },

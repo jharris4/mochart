@@ -90,17 +90,9 @@ export function getAreaGenerator(seriesConfig: EnhancedSeriesConfig, seriesPosit
 const minColumnSize = 1;
 const minFlatForRounded = 4;
 
-/*
- * x1 - the outer x (cap when capped)
- * y1 - the top y
- * x2 - the inner x (base when capped)
- * yExtent - the height
- *
- * x - the base x for the cap
- * y - the top y for the cap
- * yOffset - the height of the base of the cap
- */
-const getXYOffsetInverted: OffsetInvertedCalculator = (x1, y1, x2, yExtent, offsetSign, offset, expand, size) => {
+// in: x1 outer x (cap end), y1 top y, x2 inner x (base), yExtent height
+// out: x/y the cap's base x and top y, yOffset the cap-base height
+const getXYOffsetInverted: OffsetInvertedCalculator =(x1, y1, x2, yExtent, offsetSign, offset, expand, size) => {
   let x = x2;
   let y = y1;
   let yOffset = yExtent;
@@ -114,17 +106,9 @@ const getXYOffsetInverted: OffsetInvertedCalculator = (x1, y1, x2, yExtent, offs
   return { x, y, yOffset };
 };
 
-/*
- * y1 - the outer y (cap when capped)
- * y2 - the inner y (base when capped)
- * x1 - the left x
- * xExtent - the width
- *
- * x - the left x for the cap
- * y - the base y for the cap
- * xOffset - the width of the base of the cap
- */
-const getXYOffset: OffsetCalculator = (x1, y1, y2, xExtent, offsetSign, offset, expand, size) => {
+// in: y1 outer y (cap end), y2 inner y (base), x1 left x, xExtent width
+// out: x/y the cap's left x and base y, xOffset the cap-base width
+const getXYOffset: OffsetCalculator =(x1, y1, y2, xExtent, offsetSign, offset, expand, size) => {
   let x = x1;
   let y = y2;
   let xOffset = xExtent;
@@ -320,9 +304,8 @@ export function getColumnGenerator(seriesConfig: EnhancedSeriesConfig, seriesPos
       barCapSizeSign = -1;
     }
     if (barMinExtent > 0 && Math.abs(seriesCurrentPosition - seriesPriorPosition) < barMinExtent) {
-      // Expand the bar to the minimum extent, centered between its two ends,
-      // so zero-extent range bars (equal property/rangeProperty values) stay
-      // visible as tick marks.
+      // expand to the minimum extent, centered between the ends, so zero-extent
+      // range bars (equal property/rangeProperty values) stay visible as tick marks
       tempPosition = (seriesCurrentPosition + seriesPriorPosition) / 2;
       const halfExtentSign = seriesCurrentPosition <= seriesPriorPosition ? -1 : 1;
       seriesCurrentPosition = tempPosition + halfExtentSign * barMinExtent / 2;

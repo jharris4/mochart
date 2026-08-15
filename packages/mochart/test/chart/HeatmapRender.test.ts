@@ -1,6 +1,6 @@
 /**
- * End-to-end render of the createHeatmap helper output: a grid with a missing
- * cell must draw one colored bar per cell on the hidden pinned value axis.
+ * End-to-end render of the createHeatmap helper output: a grid with a missing cell must draw one
+ * colored bar per cell on the hidden pinned value axis.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 

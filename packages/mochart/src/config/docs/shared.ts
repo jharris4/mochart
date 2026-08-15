@@ -1,6 +1,5 @@
-// Description shapes and shared prose for config properties whose value is a nested object. The docs
-// generator walks the nested validator shape and requires a description at every level, so a nested
-// member cannot ship undocumented.
+// Description shapes and shared prose for nested-object config properties. The docs generator
+// requires a description at every level of the nested shape, so no member can ship undocumented.
 
 /** Prose for one config property. */
 export type DescriptionEntry = string | NestedDescription;

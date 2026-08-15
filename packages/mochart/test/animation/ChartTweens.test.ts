@@ -1,11 +1,6 @@
 import type { EnhancedMochartConfig } from '../../src/types/enhanced';
-/**
- * Unit tests for the tween engine and ChartTweenManager: phase sequencing,
- * event identity, duration scaling, delays and cancellation. The data/focus
- * interpolators are mocked (their math is covered by ChartAnimation.test.ts
- * and FocusAnimation.test.ts), so fixtures only need the fields the tween
- * builder itself reads. Tweens run deterministically on a fake clock.
- */
+// Tween engine + ChartTweenManager tests (sequencing, events, durations, cancellation) on a fake
+// clock; the data/focus interpolators are mocked — their math is covered by their own test files.
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import {
   getChartTweenManager,
@@ -341,11 +336,8 @@ describe('tweenFocus', () => {
     expect(completeCallback).not.toHaveBeenCalled();
   });
 
-  // Regression: the final frame's updateCallback runs before the manager wrapper
-  // clears its slot, so a tween started from inside that emit (a host updating
-  // the chart from an emit-driven callback) was clobbered by the completing
-  // tween's wrapper — orphaned beyond cancelFocusTween — while the replaced
-  // tween wrongly reported complete. Completion is identity-guarded now.
+  // Regression: a tween started from the final frame's updateCallback was clobbered by the
+  // completing tween's wrapper and the replaced tween reported complete; now identity-guarded.
   it('keeps a tween started from the final frame cancelable, without completing the replaced tween', () => {
     const manager = makeManager();
     const first = makeFocusData();

@@ -130,12 +130,9 @@ const seriesPatternIdPrefix = 'series__pattern__';
 const seriesColorGradientIdPrefix = 'seriescolor__gradient__';
 let chartInstanceCounter = 1;
 
-// The getXxxComponent factory props return a DOM Node (or string). The
-// defaults below build plain DOM; custom factories from the host app must do
-// the same. The shared builder fills the plot area, flex-centers its message
-// (table-cell centering silently failed when a dimension was 0), and quiets
-// whatever renders behind it — bars keep drawing under a loading overlay —
-// with a color-agnostic blur + faint currentColor tint.
+// Shared body for the getXxxComponent factory defaults (they return a DOM Node or string): fills the box,
+// flex-centers the message (table-cell centering silently failed at 0-size), and quiets content drawing
+// behind it with a color-agnostic blur + faint currentColor tint.
 function buildMessageDiv(width: number, height: number, message: string): Node {
   const el = htmlEl('div');
   el.set({ style: {
@@ -234,10 +231,8 @@ const getInitialTooltipState = (): Pick<ChartState, 'tooltipVisible' | 'tooltipC
 });
 
 /**
- * The body of a valid chart: the svg (defs, background, title, plot, legend)
- * plus the html overlay containers and the tooltip. A pass-through renderer
- * so the pieces sit directly under the chart's root div, exactly like the
- * old JSX did.
+ * The body of a valid chart: the svg (defs, background, title, plot, legend) plus the html overlay
+ * containers and the tooltip. A pass-through renderer so the pieces sit directly under the chart's root div.
  */
 interface ChartBodyProps {
   chart: Chart;
@@ -412,17 +407,13 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     return { x, y, withinPlot: x > 0 && y > 0 && x < width && y < height };
   }
 
-  /**
-   * Finalize a state delta that carries a new layoutInfo: reuse unchanged
-   * layout identities, notify onSeriesLayoutBoundsChange when the series area
-   * moved, and refresh the tooltip layout. Returns the delta for the caller
-   * to merge (derive) or setState (post-commit).
-   */
   /** Non-null whenever chartRef, the chart body or a computed layout exist — sync() and init() gate all three on a valid config. */
   private renderedConfig(): EnhancedMochartConfig {
     return this.props.mochartConfig!;
   }
 
+  /** Finalize a state delta carrying a new layoutInfo: reuse unchanged layout identities, queue
+   * onSeriesLayoutBoundsChange when the series area moved, and refresh the tooltip layout. */
   applyLayoutInfo(mochartConfig: EnhancedMochartConfig, state: ChartStateUpdate & { layoutInfo: ChartLayoutInfo | null }): ChartStateUpdate {
     if (state.layoutInfo !== null) {
       state.layoutInfo = getChartLayoutInfoWithMutations(this.state.layoutInfo, state.layoutInfo);
@@ -646,8 +637,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           prevProps.chartData.seriesData.raw.renderAxisDomains !== chartData.seriesData.raw.renderAxisDomains ||
           prevProps.chartData.seriesData.filtered.renderAxisDomains !== chartData.seriesData.filtered.renderAxisDomains;
         // TODO - what about if seriesData.axisSeriesCounts changes? how should that be handled?
-        // layout reads chartData only through seriesData.axisSeriesCounts (ChartDataForLayout),
-        // so value-tween frames that keep that identity can keep the current layout
+        // layout reads chartData only through seriesData.axisSeriesCounts, so value-tween frames keeping that identity keep the layout
         const layoutInputsChanged = mochartConfigChanged || sizeChanged || this.state.layoutInfo === null ||
           chartData === null || prevProps.chartData === null ||
           chartData.seriesData.axisSeriesCounts !== prevProps.chartData.seriesData.axisSeriesCounts;
@@ -746,10 +736,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           const sizeChanged = width !== this.props.width || height !== this.props.height;
           const mochartConfigChanged = mochartConfig !== newMochartConfig;
           const axisDataChanged = oldAxisData !== axisData;
-          // rendered chart text comes from the config (titles, legend) and from
-          // axisData (tick labels); a data change that keeps both identities cannot
-          // change any measured text, so value-tween frames skip the DOM remeasure.
-          // hasDefault keeps retrying bounds that could not be measured yet.
+          // rendered text comes from the config (titles, legend) and axisData (tick labels): a data change keeping
+          // both identities cannot change measured text, so tween frames skip the DOM remeasure; hasDefault retries unmeasured bounds
           const textMayHaveChanged = axisDataChanged || this.state.chartTextBoundsData.hasDefault === true;
 
           if (mochartConfigChanged || sizeChanged || (dataChanged && textMayHaveChanged)) {
@@ -1363,8 +1351,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       const { category: categoryAxisData } = axisData!;
       const { valueData: categoryValueData } = categoryAxisData!;
 
-      // keyboard tab stop on the series-area rect: Enter/Space toggles the
-      // tooltip, arrows step categories, Escape closes
+      // keyboard tab stop on the series-area rect: Enter/Space toggles the tooltip, arrows step, Escape closes;
       // kept during loading — dropping tabindex would dump keyboard focus to <body>
       const plotA11yProps = accessibility && (mochartConfig.tooltip.visible || mochartConfig.crosshair.visible) ? {
         ariaLabel: accessibilityConfig.plotLabel,

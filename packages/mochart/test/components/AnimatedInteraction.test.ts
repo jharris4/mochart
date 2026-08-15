@@ -1,7 +1,6 @@
 /**
- * Interaction tests against the animated chart (animate: true): tooltip focus
- * tweens and data tweens driven deterministically on a fake clock (same
- * technique as the golden suite).
+ * Interactions on the animated chart (animate: true): tooltip focus tweens and data tweens
+ * driven deterministically on a fake clock (same technique as the golden suite).
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';

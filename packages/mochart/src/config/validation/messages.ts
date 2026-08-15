@@ -68,11 +68,8 @@ export function getMessage(prefix: string, message: string): string {
   return prefixMessage(prefix) + message;
 }
 
-/**
- * Report the failure of one (possibly nested) config value, drilling into the members that actually
- * failed so a path reaches `['axisConfig', 'backgroundStyle', 'fillColor']` rather than stopping at the
- * object. The aggregate message is only used when no single member accounts for the failure.
- */
+// Report one (possibly nested) failed config value, drilling into the failing members so a path reaches
+// e.g. ['axisConfig', 'backgroundStyle', 'fillColor']; the aggregate message is the no-single-member fallback.
 function addErrorMessageForKey(prefix: string, properties: string[], value: unknown, validator: Validator, errorMessages: string[], errorDetails: LocatedValidationMessage[], i: number | undefined): void {
   if (validator(value)) {
     return;

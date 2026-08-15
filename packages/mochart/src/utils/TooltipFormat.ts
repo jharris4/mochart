@@ -70,10 +70,9 @@ function getValueText(tooltipConfig: TooltipConfig, seriesConfig: EnhancedSeries
 }
 
 /**
- * What a pie slice's tooltip value needs beyond its value: the content type,
- * the percent formatter and the slice's fraction. The caller picks the fraction
- * from the filtered or raw values (see TooltipContent), so the value and the
- * percentage in a combined value always come from the same snapshot.
+ * What a pie slice's tooltip value needs beyond its value: content type, percent formatter, slice
+ * fraction. The caller picks the fraction from the filtered or raw values (see TooltipContent),
+ * so a combined value's value and percentage always come from the same snapshot.
  */
 export interface PieTooltipValues {
   tooltipValues: PieTooltipLabelType;
@@ -82,11 +81,8 @@ export interface PieTooltipValues {
   fraction: number;
   /** The slice's fraction of the full total, sizing a filtered placeholder. */
   rawFraction: number;
-  /**
-   * Whether the slice is filtered. A percentage is derived rather than stored
-   * per value key, so this comes from the row's filtered flag instead of the
-   * null filtered value getValueText tests.
-   */
+  /** Whether the slice is filtered — from the row's filtered flag, since a percentage
+   * is derived rather than stored per value key like the values getValueText tests. */
   filtered: boolean;
 }
 
@@ -130,14 +126,9 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Enhanc
     return { labelText, valueText: getPieValueText(tooltipConfig, seriesConfig, adjustForFiltering, valueFormat, series, pieValues) };
   }
 
-  // Mirror the shape's skip semantics (see getSeriesPositionData): with
-  // partialRangeIsMissing a ranged category missing either value is wholly missing,
-  // and missingValues "connect" omits missing categories from the shape — and from the
-  // tooltip, instead of a dangling "value – N/A" row. This is the
-  // direction-split idiom (waterfall, candlestick, OHLC), where the missing
-  // side means "not this series' direction", not "no data". A plain follower
-  // series (followSeries — e.g. a direction-split volume bar) is part of the
-  // same idiom, so its missing categories hide the same way.
+  // Mirror the shape's skip semantics (see getSeriesPositionData): under connect+partialRangeIsMissing
+  // the direction-split idiom (waterfall, candlestick, OHLC) means "not this direction", not "no data",
+  // so those rows (and plain followSeries rows, e.g. direction-split volume) hide instead of "value – N/A".
   if (seriesConfig.missingValues === MISSING_VALUES_CONNECT && seriesConfig.stack === NONE) {
     const rawValueObject = series.raw.values[seriesConfig.id];
     if (seriesConfig.rangeProperty !== NONE && seriesConfig.partialRangeIsMissing &&
@@ -191,10 +182,9 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Enhanc
 }
 
 /**
- * The tooltip's content as one plain sentence for the keyboard aria-live
- * announcer — "Jan: Sales: 42, Costs: 17" — mirroring TooltipContent's rows:
- * the category line (showCategory), then every showInTooltip series whose row
- * has a value, with pie percent values normalized like the slice labels.
+ * The tooltip's content as one plain sentence for the keyboard aria-live announcer — "Jan: Sales:
+ * 42, Costs: 17" — mirroring TooltipContent's rows (category line, then every showInTooltip series
+ * whose row has a value), with pie percent values normalized like the slice labels.
  */
 export function getTooltipAnnouncement(mochartConfig: EnhancedMochartConfig, tooltipValueObject: ChartCategorySeriesValueObject): string {
   const { chart: chartConfig, pie: pieConfig, tooltip: tooltipConfig, categoryAxis: categoryAxisConfig,

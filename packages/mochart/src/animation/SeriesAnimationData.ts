@@ -39,11 +39,7 @@ import type { ExtraCopyKey, ExtraKey, PositionKey, PositionOrComputedKey, ValueK
 type AxisExtents = Record<string, number>;
 type ValueDeltaObject = Record<ValueKey, NumericValuesDelta> & { deltaPercentage: number; deltaCopied?: boolean };
 
-/**
- *
- * Various constants
- *
- **/
+// Various constants
 
 const nullValueObject: SeriesValueObject = {
   plain: null, range: null, errorLow: null, errorHigh: null, stack: null, prior: null, marker: null, label: null, color: null, tooltip: null,
@@ -192,11 +188,7 @@ function enhanceValueObject(valueObject: SeriesValueObject): void {
   }
 }
 
-/**
- *
- * getValueDeltaData functions
- *
- **/
+// getValueDeltaData functions
 
 function getInitialSeriesValueObjects(seriesConfigs: EnhancedSeriesConfig[], seriesDomains: SeriesDomainObjects, rawSeriesValueObjects: SeriesValueObjects, _seriesPriorIndices: number[] | undefined, axisBases: Record<string, number | null>): SeriesValueObjects {
   const valueObjects = mapMap(rawSeriesValueObjects, () => ({} as SeriesValueObject));
@@ -611,12 +603,8 @@ function createRawValueDeltaData(mochartConfig: EnhancedMochartConfig, startValu
   };
 }
 
-// A ranged series (rangeProperty, unstacked) draws one shape between its
-// plain and range values, so the two keys share a duration — the max of the
-// pair, mirroring what adjustDeltaPercentagesForStackedCategories does for
-// stacks. With independent durations each edge travels at the global speed
-// and the nearer one arrives first, so a bar collapsing to the base holds
-// its full extent while it slides and only snaps shut at the end.
+// A ranged series (rangeProperty, unstacked) draws one shape between plain and range, so the
+// two keys share a duration (like stacks do) — otherwise the nearer edge arrives first.
 function adjustDeltaPercentagesForRangedSeries(seriesConfigs: EnhancedSeriesConfig[], deltaObjects: Record<string, ValueDeltaObject>): void {
   for (const seriesConfig of seriesConfigs) {
     if (seriesConfig.rangeProperty !== NONE && seriesConfig.stack === NONE) {
@@ -634,11 +622,8 @@ function adjustDeltaPercentagesForRangedSeries(seriesConfigs: EnhancedSeriesConf
   }
 }
 
-// An error-bar series draws its whisker anchored to the shape drawn from the
-// plain/range values, so all of its animated keys share a duration for the
-// same reason ranged series do: with independent durations the whisker's ends
-// arrive before or after the bar edge they're anchored to and the bar slides
-// out from under its whisker mid-tween.
+// An error-bar series anchors its whisker to the plain/range shape, so all animated keys share
+// a duration — otherwise the bar slides out from under its whisker mid-tween.
 function adjustDeltaPercentagesForErrorBarSeries(seriesConfigs: EnhancedSeriesConfig[], deltaObjects: Record<string, ValueDeltaObject>): void {
   const syncKeys = ['plain', 'range', 'errorLow', 'errorHigh'] as const;
   for (const seriesConfig of seriesConfigs) {
@@ -665,15 +650,8 @@ function adjustDeltaPercentagesForErrorBarSeries(seriesConfigs: EnhancedSeriesCo
   }
 }
 
-// A followSeries group — a leader plus its followers, e.g. a hollow
-// candlestick body with its wick segments — renders one visual mark from
-// several series, so the group shares a duration the same way a stack does:
-// every member's plain/range keys take the group's max delta percentage.
-// With independent durations, edges that coincide across members (a wick
-// segment ends exactly where the body starts) travel at different speeds and
-// the segments slide into or away from the body mid-animation; with a shared
-// duration the coincident edges interpolate with the same progress and stay
-// coincident through every frame.
+// A followSeries group (leader + followers, e.g. hollow candle body + wick segments) renders one
+// visual mark, so the group shares a duration like a stack — coincident edges stay glued each frame.
 function adjustDeltaPercentagesForFollowerCategories(seriesConfigs: EnhancedSeriesConfig[], deltaObjects: Record<string, ValueDeltaObject>): void {
   let followerCategories: Record<string, EnhancedSeriesConfig[]> | null = null;
   for (const seriesConfig of seriesConfigs) {

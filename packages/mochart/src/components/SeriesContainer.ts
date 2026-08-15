@@ -133,9 +133,8 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
       filteredValues[id].plain !== null;
     const interactiveIds = mochartConfig.series.map(sc => sc.id).filter(seriesIsInteractive);
     const { rovingSeriesId } = this.state;
-    // the remembered roving series keeps the tab stop while it exists; when it is
-    // gone (filtered out) its nearest following config-order neighbor inherits
-    // it, else the nearest preceding one; with no memory the first series takes it
+    // the remembered roving series keeps the tab stop while it exists; when filtered out,
+    // the nearest following (else preceding) config-order neighbor inherits it; no memory → first series
     let effectiveRovingId: string | null;
     if (rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1) {
       effectiveRovingId = rovingSeriesId;

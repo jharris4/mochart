@@ -34,11 +34,8 @@ interface PieSeriesProps {
   seriesLayoutInfo: LayoutInfo;
   radialLayoutInfo: RadialLayoutInfo;
   sliceAngles: PieSliceAngles | undefined;
-  /**
-   * The fraction driving the label content and min-angle threshold: the
-   * slice's share of the unfiltered total, or of the full raw total when
-   * adjustLabelsForFiltering is off.
-   */
+  /** The label/min-angle fraction: the slice's share of the unfiltered total
+   * (or of the full raw total when adjustLabelsForFiltering is off). */
   labelFraction: number;
   focusData: FocusData | null;
   gradientIdMap: Record<string, string>;
@@ -118,10 +115,8 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     const { key } = event as KeyboardEvent;
     if (key === 'Enter' || key === ' ') {
       event.preventDefault();
-      // the slice half only (focus toggle / selection); the container forwards
-      // the same keydown to the plot handler for the tooltip half — a synthesized
-      // click's coordinates can land outside the chart rect on an exploded edge
-      // slice and get swallowed there
+      // the slice half only (focus toggle / selection); the container forwards the keydown to the
+      // plot handler for the tooltip half — a synthesized click can miss the chart rect on exploded edge slices
       this.state.onSeriesClick();
     }
   }

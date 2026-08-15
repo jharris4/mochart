@@ -10,9 +10,8 @@ import {
 import type { PieLabelType } from '../config/core/constants';
 import type { PieConfig } from '../types/config';
 
-// Auto formats: whole percents for slice labels and SI-abbreviated values (pie
-// slices rarely have room for more digits), one decimal for tooltip percents,
-// which have the room and are read for comparison.
+// Auto formats: whole percents and SI-abbreviated values for slice labels (little room there),
+// one decimal for tooltip percents, which have the room and are read for comparison.
 const AUTO_LABEL_VALUE_FORMAT = '~s';
 const AUTO_LABEL_PERCENT_FORMAT = '.0%';
 const AUTO_TOOLTIP_PERCENT_FORMAT = '.1%';

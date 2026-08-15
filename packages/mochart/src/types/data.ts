@@ -166,33 +166,23 @@ export interface CategoryValueObject {
 }
 
 /**
- * Any value a data cell may legally hold: numbers for series properties,
- * string | number | Date for category and display properties, and
- * null/undefined for a missing value (the chart reads both as missing).
- * Anything else is a data error.
+ * Any value a data cell may hold: numbers for series properties, string/number/Date
+ * for category and display properties, null/undefined for missing; anything else is a data error.
  */
 export type DataValue = number | string | Date | null | undefined;
 
 /**
- * The interface charts read data through. `ArrayOfObjectsDataProvider` and
- * `ObjectOfArraysDataProvider` cover the common dataset shapes; implement
- * this to read straight from an existing store without copying.
- *
- * A provider is a read-only property-values lookup over one dataset: any
- * property the config names — `categoryAxis.property` and `displayProperty`
- * included — is answered the same way, as all of that property's values.
- * `getPropertyValues` is the one required member; the optional members each
- * buy a single behaviour.
+ * The interface charts read data through: a read-only property-values lookup over
+ * one dataset, answering every property the config names the same way.
+ * `ArrayOfObjectsDataProvider`/`ObjectOfArraysDataProvider` cover the common shapes;
+ * implement it to read straight from an existing store without copying.
  */
 export interface DataProvider {
   /**
-   * All values of one named data property, index-aligned with every other
-   * property's values; `undefined` when the property isn't in the data.
-   * The config's category property defines the category count — every other
-   * property's values must match its length, and `getDataErrors` flags one
-   * that doesn't.
-   * Called whenever the chart recomputes its data, so it should stay a plain
-   * lookup; the chart snapshots what it needs and never mutates the array.
+   * All values of one named property, index-aligned with every other property's
+   * values (the category property defines the length); `undefined` when absent.
+   * Called on every data recompute, so keep it a plain lookup; the chart
+   * snapshots what it needs and never mutates the array.
    */
   getPropertyValues(property: string): readonly DataValue[] | undefined;
   /** When it returns anything but null/undefined, the chart shows its error state — `''` and `0` count. */

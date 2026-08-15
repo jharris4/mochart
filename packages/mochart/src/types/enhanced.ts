@@ -4,11 +4,9 @@ import type {
 } from './config';
 
 /**
- * Internal enhanced views of the public config types. buildMochartConfig
- * assigns cross-references and lookup maps while it builds the config; they
- * are deliberately absent from the public types (and so from autocomplete and
- * the input config), and the core casts to these types at its entry points.
- * Never exported from the package index.
+ * Internal enhanced views of the public config types: buildMochartConfig adds
+ * cross-references and lookup maps, deliberately absent from the public types;
+ * the core casts to these at its entry points. Never exported from the package index.
  */
 
 export interface EnhancedValueAxisConfig extends ValueAxisConfig {

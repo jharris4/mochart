@@ -1,13 +1,6 @@
-/**
- * Axis title / tick label / focus range box placement for start ("outer left")
- * and after ("outer right") value axes, and for the category axis.
- *
- * These boxes are drawn inside the axis group (translated by the axis bounds)
- * and are offset only across the axis - a vertical axis' boxes always start at
- * y = 0 and span its full height, a horizontal axis' boxes always start at
- * x = 0 and span its full width - so a titled axis on either side must place
- * its focus range at the same position as an untitled one.
- */
+// Axis title / tick label / focus range box placement for start- and end-side value axes and the category axis.
+// The boxes are offset only across the axis (a vertical axis' boxes start at y=0 and span its full height),
+// so a titled axis on either side must place its focus range where an untitled one would.
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

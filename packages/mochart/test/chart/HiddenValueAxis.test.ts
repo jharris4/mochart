@@ -1,8 +1,6 @@
 /**
- * Regression test: series plotted against a hidden (visible: false) series
- * axis must still get a usable value scale. The axis used to map to plain
- * zero bounds without a seriesExtent, so every series position came out NaN
- * (the sparkline preset hides all axes and hit this).
+ * Regression: series on a hidden (visible: false) axis must still get a usable value scale — the
+ * axis used to map to zero bounds without a seriesExtent, so every position was NaN (sparklines hit this).
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 

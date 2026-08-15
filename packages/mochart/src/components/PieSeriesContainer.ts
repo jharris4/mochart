@@ -117,9 +117,8 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     const { pie: pieConfig, colorPalette: colorPaletteConfig, seriesIndicesById: seriesConfigIndicesById } = mochartConfig;
     const { values: filteredValues } = seriesData.filtered;
 
-    // Angles come from the config-order slice map (focus reordering must not
-    // move geometry); recomputing every sync is what animates them, since the
-    // filtered values are the tweened values mid-animation.
+    // Angles come from the config-order slice map (focus reordering must not move geometry);
+    // recomputing every sync is what animates them — filtered values are tweened mid-animation.
     let sliceAngles = getPieSliceAngles(mochartConfig.series, filteredValues, pieConfig);
     const radialLayoutInfo = getRadialLayoutInfo(seriesLayoutInfo, pieConfig);
 
@@ -147,9 +146,8 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
       (sliceAngles[id]?.fraction ?? 0) > 0;
     const interactiveIds = mochartConfig.series.map(sc => sc.id).filter(sliceIsInteractive);
     const { rovingSeriesId } = this.state;
-    // the remembered roving slice keeps the tab stop while it exists; when it is
-    // gone (filtered out) its nearest following config-order neighbor inherits
-    // it, else the nearest preceding one; with no memory the first slice takes it
+    // the remembered roving slice keeps the tab stop while it exists; when gone (filtered out) the
+    // nearest following config-order neighbor inherits it, else the preceding one; with no memory, the first
     let effectiveRovingId: string | null;
     if (rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1) {
       effectiveRovingId = rovingSeriesId;
@@ -208,9 +206,8 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
       }
     }
 
-    // The center total sums the current (possibly mid-tween) values, so it
-    // counts along with value changes — and with filtering, unless
-    // adjustCenterTotalForFiltering turns that off.
+    // The center total sums the current (possibly mid-tween) values, counting along with value
+    // changes — and with filtering, unless adjustCenterTotalForFiltering turns that off.
     const totalAngles = pieConfig.adjustCenterTotalForFiltering ? sliceAngles : rawSliceAngles!;
     let total = 0;
     for (const id of Object.keys(totalAngles)) {

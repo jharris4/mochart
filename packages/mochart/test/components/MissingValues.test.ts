@@ -1,9 +1,5 @@
-/**
- * Regression tests for the missingValues 'connect' index-mapping cluster: position
- * compaction only happens for missingValues 'connect' without missingValues 'base', and the
- * compacted->raw remap (skipCategoryIndexMap) must stay in sync with the data and
- * feed every raw-indexed lookup (focus, colors, labels, marker sizes).
- */
+// missingValues 'connect' index-mapping regressions: positions compact only for 'connect', and the compacted->raw
+// remap (skipCategoryIndexMap) must track the data and feed every raw-indexed lookup (focus, colors, labels, marker sizes).
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

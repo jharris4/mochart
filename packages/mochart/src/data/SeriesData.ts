@@ -67,11 +67,7 @@ export function getSeriesDataWithDomains(seriesData: SeriesData, domains: Series
   return Object.assign({}, seriesData, { raw, filtered });
 }
 
-/**
- *
- * series data functions
- *
- **/
+// series data functions
 function getRawSeriesBundle(valueAxisConfigs: EnhancedValueAxisConfig[], seriesConfigs: EnhancedSeriesConfig[], seriesStackConfigs: EnhancedSeriesStackConfig[], rawCategoryValues: readonly CategoryValue[], dataProvider: DataProvider): SeriesBundle {
   const valueObjects = createEmptySeriesValueObjects(seriesConfigs);
   setPlainSeriesValues(seriesConfigs, rawCategoryValues, dataProvider, valueObjects);

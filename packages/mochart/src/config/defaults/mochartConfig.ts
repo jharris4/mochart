@@ -128,7 +128,7 @@ function getValueAxisListOrSingleDefaults(config: MochartInputConfig, singleDefa
   const stackMap: Record<string, boolean> = {};
   for (const stackConfig of stackConfigs) {
     const { axis } = stackConfig;
-    // Make sure the stackConfig.axis is never undefined. Use the first seriesConfig if necessary
+    // a stack with no axis marks the first value axis (by its id, or its default id) as stacked
     if (axis === undefined) {
       stackMap[String(configs[0]?.id ?? 'VA0')] = true;
     }

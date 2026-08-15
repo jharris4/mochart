@@ -66,9 +66,8 @@ export function getFocusData(mochartConfig: EnhancedMochartConfig, chartData: Ch
   if (isFocused(focusedSeriesId)) {
     seriesFocusPercentages = arrayToMap(seriesConfigs, idAccessor, () => -1);
     seriesFocusPercentages[focusedSeriesId] = 1;
-    // follower series (followSeries) share their leader's focus, matching the
-    // legend filtering behavior — e.g. a candlestick wick lighting up with its
-    // body
+    // followSeries followers share their leader's focus, matching legend filtering
+    // (e.g. a candlestick wick lighting up with its body)
     for (const seriesConfig of seriesConfigs) {
       if (seriesConfig.followSeries === focusedSeriesId) {
         seriesFocusPercentages[seriesConfig.id] = 1;
@@ -302,9 +301,8 @@ function getSeriesFocusDomainPercentages(mochartConfig: EnhancedMochartConfig, s
       const axisBase = axisBases[axis];
 
       const { values } = filtered;
-      // the focused series plus its same-axis followers (followSeries), so a
-      // composite mark like a candlestick highlights its full extent (wick
-      // low/high included, not just the body)
+      // the focused series plus its same-axis followSeries followers, so a composite
+      // mark like a candlestick highlights its full extent (wick included)
       const focusedSeriesConfigs = [seriesConfig,
         ...mochartConfig.series.filter(config => config.followSeries === id && config.axis === axis)];
 

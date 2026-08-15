@@ -1,9 +1,7 @@
 /**
- * Regression test: a missingValues 'connect' bar series with a colorProperty must color
- * each bar from its raw category index. The bar renderer used the compacted
- * position index to look up color (and focus) values, so once a gap was
- * skipped every later bar read the wrong category's color value — the heatmap
- * helper's grids with missing cells hit this.
+ * Regression: a missingValues 'connect' bar series with a colorProperty must color each bar from its
+ * raw category index — the renderer used the compacted position index, so after a skipped gap every
+ * later bar read the wrong category's color (heatmap grids with missing cells hit this).
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 import { getCssSelector } from '../../src/utils/ChartDom';

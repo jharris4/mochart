@@ -1,7 +1,4 @@
-/**
- * The fraction guards that hide series labels which would not fit: by position
- * within the value domain, and by the extent of the value itself.
- */
+// The fraction guards that hide series labels which would not fit: by position within the value domain, and by the extent of the value itself.
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

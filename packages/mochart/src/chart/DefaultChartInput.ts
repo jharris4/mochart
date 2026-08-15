@@ -32,10 +32,9 @@ function createRawDataProvider(data: unknown): DataProvider | null {
 }
 
 /**
- * Input adapter for createDefaultChart (was the DefaultChart component):
- * enhances the raw `config` and wraps the plain `data` — an array of objects
- * or an object of arrays, dispatched by shape — in a validated data provider,
- * producing the enhanced config + provider pair the ChartController consumes.
+ * Input adapter for createDefaultChart (was the DefaultChart component): enhances the raw `config`
+ * and wraps the plain `data` (array of objects or object of arrays, dispatched by shape) in a
+ * validated provider for the ChartController.
  */
 export class DefaultChartInput {
   mochartConfig: EnhancedMochartConfig | null = null;

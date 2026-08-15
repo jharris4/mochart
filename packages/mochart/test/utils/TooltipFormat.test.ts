@@ -268,9 +268,8 @@ describe('getSeriesText', () => {
   });
 
   describe('pie tooltip values', () => {
-    // TooltipContent picks the fraction from the filtered or raw slice shares
-    // (see getPieSliceFractionMap) and passes it in with the row's filtering
-    // flag, since a percentage is derived rather than stored per value key.
+    // TooltipContent picks the fraction from the filtered or raw slice shares (getPieSliceFractionMap)
+    // and passes it with the row's filtered flag; a percentage is derived, not stored per value key.
     const pieValues = (over: Partial<PieTooltipValues> = {}): PieTooltipValues => ({
       tooltipValues: 'percent',
       percentFormat: (fraction: number) => (fraction * 100).toFixed(1) + '%',

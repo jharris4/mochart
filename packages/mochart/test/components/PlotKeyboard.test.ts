@@ -1,8 +1,6 @@
 /**
- * Keyboard accessibility of the plot area: the series-area rect is a tab stop
- * exposed as a button — Enter/Space toggles the tooltip (aria-expanded tracks
- * it), arrows step the shown category, Home/End jump to the ends, and Escape
- * closes. Reopening returns to the last shown category.
+ * Plot-area keyboard accessibility: the series-area rect is a button tab stop — Enter/Space toggles the
+ * tooltip (aria-expanded tracks it), arrows/Home/End step categories, Escape closes, reopening resumes.
  */
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';

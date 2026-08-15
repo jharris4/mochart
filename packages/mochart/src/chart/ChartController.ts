@@ -11,12 +11,10 @@ import type { CategoryValue, DataProvider } from '../types/data';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 
 /**
- * Composes the pieces of a managed chart around the Chart renderer: the
- * FocusController holds focus/filter state, the data source (static or
- * animated) turns config + data + focus into chartData/focusData, and this
- * controller pushes the combined result into the mounted Chart. Focus events
- * raised inside the chart flow back through here (remapped by the source when
- * a tween is running) and out to the host callbacks.
+ * Composes a managed chart: FocusController holds focus/filter state, the data source (static or
+ * animated) turns config + data + focus into chartData/focusData, and this controller pushes the
+ * result into the mounted Chart. In-chart focus events flow back through here (source-remapped
+ * mid-tween) and out to the host callbacks.
  */
 export class ChartController {
   private chart = new Chart();

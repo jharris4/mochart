@@ -20,10 +20,10 @@ interface ElListEntry<H> {
 }
 
 /**
- * A keyed list of retained element subtrees (no component lifecycle) —
- * the enter/update/exit half of the old keyed vdom reconciler. Blocks are
- * matched by key, updated in place, created/removed as needed, then
- * reordered with minimal moves. All nodes live before the comment anchor.
+ * A keyed list of retained element subtrees (no component lifecycle) — the
+ * old keyed vdom reconciler's enter/update/exit. Blocks are matched by key,
+ * updated in place, created/removed as needed, then reordered with minimal
+ * moves. All nodes live before the comment anchor.
  */
 export class ElList<T, H extends ElBlock = ElBlock> {
   readonly hostNode: Node;

@@ -141,10 +141,8 @@ export const DEFAULT_TITLES: Record<CandlestickDirection, string> = {
   down: 'Down'
 };
 
-// Teal-green/red rather than a pure green/red: green↔red is the classic
-// red-green-blindness collision, and shifting the green toward teal keeps the pair
-// distinguishable (and ≥3:1 against both light and dark chart surfaces). Matches the
-// waterfall helper's increase/decrease colors.
+// Teal-green/red, not pure green/red: teal dodges the classic red-green-blindness collision and
+// keeps ≥3:1 contrast on light and dark chart surfaces. Matches the waterfall helper's colors.
 export const DEFAULT_COLORS: Record<CandlestickDirection, string> = {
   up: '#1baf7a',
   down: '#e34948'
@@ -212,12 +210,9 @@ export function getVolumeOptions(volume: boolean | CandlestickVolumeOptions | un
   };
 }
 
-// The pane split is pure domain margins, so it adapts to every data update:
-// the volume axis pins its minimum at 0 and inflates its maximum until the
-// bars only reach `heightFraction` of the plot, while the price axis pads its
-// minimum until the price data sits above the volume band and the gap.
-// Margins are relative to the pre-margin extent, so a band fraction `f`
-// needs a margin of (1 - f) / f.
+// The pane split is pure domain margins, adapting to every data update: volume pins its min at 0 and
+// inflates its max until bars fill `heightFraction`; price pads its min clear of the band + gap.
+// Margins are relative to the pre-margin extent, so a band fraction `f` needs a margin of (1 - f) / f.
 export function buildVolumeValueAxisConfigs(volumeOptions: Required<CandlestickVolumeOptions>): Partial<ValueAxisConfig>[] {
   const { heightFraction, gapFraction } = volumeOptions;
   const priceHeightFraction = 1 - heightFraction - gapFraction;
@@ -235,10 +230,8 @@ export function buildVolumeValueAxisConfigs(volumeOptions: Required<CandlestickV
   ];
 }
 
-// One volume bar series per direction, mirroring the price series' split:
-// out of the legend but following their direction series, so filtering and
-// focusing a direction takes its volume bars along, and the tooltip shows a
-// single volume row per category.
+// One volume bar series per direction, out of the legend but following its direction series, so
+// filtering/focusing a direction takes its volume bars along; one tooltip volume row per category.
 export function buildVolumeSeriesConfigs(volumeOptions: Required<CandlestickVolumeOptions>, colors: Partial<Record<CandlestickDirection, string>> | undefined): DeepPartial<SeriesConfig>[] {
   return DIRECTIONS.map((direction) => {
     const color = colors?.[direction] ?? DEFAULT_COLORS[direction];
@@ -276,9 +269,8 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
     down: candle.direction === 'down' ? candle.close : undefined,
     upHigh: candle.direction === 'up' ? candle.high : undefined,
     downHigh: candle.direction === 'down' ? candle.high : undefined,
-    // The below-body wick segment of a hollow up candle spans low→open, and
-    // needs the open under an up-only property (the shared `open` property is
-    // defined on every row, so it can't gate the segment by direction).
+    // The hollow up candle's below-body wick segment spans low→open and needs the open under an
+    // up-only property (the shared `open` exists on every row, so it can't gate by direction).
     ...(hollow ? { upOpen: candle.direction === 'up' ? candle.open : undefined } : {}),
     ...(volumeOptions !== null ? {
       volume: candle.volume,
@@ -297,19 +289,11 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
     scale: 'ordinal'
   };
 
-  // Two bar series per direction, each defined for exactly one direction per
-  // category (missingValues 'connect' + partialRangeIsMissing skip the other, as in the waterfall
-  // helper): a thin low→high wick and a full-width open→close body painted
-  // over it. Fills are opaque so the body fully covers the wick where they
-  // overlap. Wicks stay out of the legend (they'd duplicate the body entries)
-  // but follow their body's legend filtering via followSeries, and label
-  // their tooltip row with the shared range title, so each category shows one
-  // body row (open – close) and one range row (low – high).
-  //
-  // In hollow mode the wick can't run behind the body (it would show through
-  // the see-through up bodies), so this series stops rendering — keeping only
-  // its tooltip range row and interaction targets — and per-direction segment
-  // series draw the wick above and below the body instead.
+  // Two bar series per direction, gated to one direction per category (missingValues 'connect' + partialRangeIsMissing,
+  // as in the waterfall helper): a thin low→high wick under an opaque full-width open→close body. Wicks skip the legend
+  // but follow their body via followSeries, carrying the range title as their tooltip row (low – high).
+  // In hollow mode the wick would show through the see-through up body, so this series turns shapeless
+  // (tooltip row and interaction only) and the segment series below draw the visible wick instead.
   const wickConfigs = DIRECTIONS.map((direction) => {
     const color = options.colors?.[direction] ?? DEFAULT_COLORS[direction];
     return {
@@ -326,23 +310,17 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       showInLegend: false,
       followSeries: direction,
       valueLabel: rangeTitle,
-      // the shape's strokeColor matches its fill: focused bars grow a 1px
-      // outline, and the default strokeColor is the palette color for the
-      // series *index*, which would rim the wick in an unrelated color.
+      // strokeColor matches the fill: focused bars grow a 1px outline, and the default strokeColor
+      // is the palette color for the series *index*, which would rim the wick in an unrelated color.
       shapeStyle: { normal: { strokeColor: color, fillColor: color, fillOpacity: 1 } },
-      // markerShape null overrides the renderer-none default (circle
-      // markers), and the label fill color/opacity color the tooltip icon,
-      // which falls back to them for shapeless series.
+      // markerShape null overrides the renderer-none default (circle markers); the label fill
+      // color/opacity color the tooltip icon, which falls back to them for shapeless series.
       ...(hollow ? { markerShape: null, labelTextStyle: { normal: { fillColor: color, fillOpacity: 1 } } } : {})
     } as DeepPartial<SeriesConfig>;
   });
 
-  // The visible wick in hollow mode: a segment above the body (body top →
-  // high) and one below (low → body bottom), gated to one direction per row
-  // by partialRangeIsMissing — an up body's top/bottom are the close (`up`) and
-  // the open (`upOpen`), a down body's the open and the close (`down`).
-  // Segments stay out of the tooltip; the shapeless wick series above carries
-  // the single low – high range row.
+  // The visible hollow-mode wick: direction-gated segments above (body top → high) and below (low →
+  // body bottom) the body; tooltip rows stay on the shapeless wick series above (one low – high row).
   const wickSegmentConfigs = hollow ? DIRECTIONS.flatMap((direction) => {
     const shared = {
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
@@ -387,9 +365,8 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       group: null,
       stack: null,
       title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
-      // Outline only for a hollow body: the fill stays transparent in every
-      // focus state, and focus thickens the outline instead of the default bar
-      // behavior of thinning it back to 1px.
+      // Outline-only hollow body: the fill stays transparent in every focus state, and focus
+      // thickens the outline instead of the default bar behavior of thinning it back to 1px.
       shapeStyle: hollowBody ? {
         normal: { strokeColor: color, strokeOpacity: 1, strokeWidth: 2, fillColor: color, fillOpacity: 0 },
         focused: { strokeWidth: 3, fillOpacity: 0 },

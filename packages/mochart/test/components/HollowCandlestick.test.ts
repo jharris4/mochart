@@ -1,11 +1,5 @@
-/**
- * Hollow candlestick rendering tests: createCandlestick's `hollow` option
- * outlines up bodies (transparent fill, stroked rect), replaces the full
- * low→high wick with segments that stop at the body edges (so nothing shows
- * through the hollow interior), and keeps the shapeless wick series out of
- * the DOM. Charts are mounted through createDefaultChart in jsdom, and
- * assertions parse the rendered bar paths (`M{x},{y}h{w}v{h}h{-w}Z`).
- */
+// createCandlestick hollow option: up bodies outlined (transparent fill), wick split into segments stopping at the
+// body edges, shapeless wick series absent from the DOM; asserts parse bar paths (`M{x},{y}h{w}v{h}h{-w}Z`).
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

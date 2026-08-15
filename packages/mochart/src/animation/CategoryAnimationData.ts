@@ -388,10 +388,8 @@ function getCategoryValuesMergedOrdered(
   const oldNewIndices = getMappedIndicesForValues(oldCategoryValueToNewIndexMap, categoryValuesOld, getMapKey);
 
   const categoryValuesMerged: CategoryValue[] = [];
-  // loop through the new indices of category values forwards, and then backwards, so we can find the closest non-removed
-  // old-category value index for each category value that was removed.
-  // If the closest non-removed index is before, add 0.5 from its index so the removed category will appear after it.
-  // If the closest non-removed index is after, subtract 0.5 from its index so the removed category will appear before it.
+  // forward then backward pass finds each removed value's nearest kept neighbour; ±0.5 places the
+  // removed value after a preceding neighbour or before a following one
   const oldTargetIndices: number[] = [];
   let foundIndex = -1;
   const oldLength = oldNewIndices.length;
@@ -418,13 +416,8 @@ function getCategoryValuesMergedOrdered(
     }
   }
 
-  // for all old & removed category values we now have the index where they should be inserted in the merged list
-  // such that they will remain as close as possible to (non removed) category values that they were adjacent to in the
-  // old category value list.
-
-  // now build up the merged list category value by category value, using the (pre-sorted) new category list and old removed list
-  // at each step, check whether there is an old removed category value that should be inserted, otherwise insert a new category value.
-  // The use of the +/- 0.5 on the old insert indices helps us keep things nicely sorted by occurrence order
+  // merge the new list with the removed values at their insert indices, keeping each removed value
+  // next to the kept values it was adjacent to (the ±0.5 keeps occurrence order stable)
   let oldIndex = 0;
   let newIndex = 0;
   const mergedLength = categoryValuesRemoved.length + categoryValuesNew.length;

@@ -8,7 +8,7 @@ export function numericValue(value: DomainValue): number {
   return value instanceof Date ? value.getTime() : value;
 }
 
-export function getCategoryDomainForValues<T extends DomainValue>(values: readonly T[]): NullableDomain<T> { // since category values are never undefined, we don't need to check for that...
+export function getCategoryDomainForValues<T extends DomainValue>(values: readonly T[]): NullableDomain<T> { // category values are never undefined
   let min: T | null = null;
   let max: T | null = null;
   let value: T;

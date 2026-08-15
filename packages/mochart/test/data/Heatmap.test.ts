@@ -89,8 +89,7 @@ describe('createHeatmap', () => {
   });
 
   it('rejects a cellPadding that leaves no cell to draw', () => {
-    // at 0.5 the gap eats the whole cell in both directions, so nothing renders at all; the
-    // arithmetic cannot be salvaged, so the value is refused rather than quietly clamped
+    // at 0.5 the gap eats the whole cell, so the value is refused rather than quietly clamped
     expect(() => createHeatmap(rows(), { cellPadding: 0.5 })).toThrow(/cellPadding must be at least 0 and below 0.5/);
     expect(() => createHeatmap(rows(), { cellPadding: 0.7 })).toThrow(/cellPadding/);
     expect(() => createHeatmap(rows(), { cellPadding: -0.1 })).toThrow(/cellPadding/);
@@ -131,9 +130,8 @@ describe('createHeatmap', () => {
     }
   });
 
-  // Regression: an explicit domain narrower than the data sampled the row's
-  // endpoint colors from the clamped ramp while the core spanned the raw
-  // extent, so the same value colored differently in different rows.
+  // Regression: an explicit narrower domain sampled row endpoint colors from the clamped ramp
+  // while the core spanned the raw extent, coloring the same value differently across rows.
   it('reproduces the global scale under an explicit narrower domain', () => {
     const heatmap = createHeatmap([
       { label: 'A', values: [0, 5, 20] },
@@ -210,9 +208,8 @@ describe('createHeatmapColorScale', () => {
   });
 
   it('rejects a backwards domain instead of painting every cell one colour', () => {
-    // a backwards domain used to make the extent negative, so every value landed on the ramp
-    // midpoint and the whole heatmap came out a single colour with no warning. Reversing the
-    // ramp already has its own way to be asked for: swap colorMin and colorMax.
+    // a backwards domain used to land every value on the ramp midpoint, painting the whole heatmap
+    // one colour with no warning; reversing the ramp is asked for by swapping colorMin and colorMax
     expect(() => createHeatmapColorScale([10, 0])).toThrow(/invalid domain \[10, 0\]/);
     expect(() => createHeatmapColorScale([Number.NaN, 10])).toThrow(/invalid domain/);
   });

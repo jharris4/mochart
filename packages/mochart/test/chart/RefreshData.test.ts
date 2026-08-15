@@ -1,8 +1,6 @@
 /**
- * ChartHandle.refresh(): the escape hatch for hosts that mutate data in
- * place — update() detects changes by object identity only, so a mutated
- * array or a custom provider returning new values needs refresh() to be
- * re-read and re-rendered.
+ * ChartHandle.refresh(): the escape hatch for in-place data mutation — update() detects changes by
+ * object identity only, so mutated arrays/providers need refresh() to be re-read and re-rendered.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 

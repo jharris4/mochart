@@ -1,14 +1,6 @@
-/**
- * Legend item measurement with showInLegend: false series: the DOM only holds
- * legend items for the visible series, so the measured bounds must line up
- * with those elements. Regression test — the expected list used to be every
- * series, so the element count never matched and each item silently fell back
- * to default 20px bounds, mis-sizing (and mis-centering) the legend.
- *
- * The bounds are keyed by series id rather than legend position, so that a set
- * measured one frame ago cannot describe a different series after showInLegend
- * flips.
- */
+// Regression: with showInLegend:false series, the expected list used to be every series, so the
+// element count never matched and each item fell back to default 20px bounds, mis-sizing the
+// legend. Bounds are keyed by series id so a frame-old set can't describe a different series.
 import { describe, it, expect } from 'vitest';
 import { getLegendItemBoundsList, getLegendItemTextRawBounds, getSvgMaxWidthAndHeight } from '../../src/utils/TextMeasurement';
 import { enhanceConfig } from '../../src';

@@ -120,10 +120,8 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
         dataErrors.push('category values must be unique, duplicates: ' + duplicates.join(', '));
       }
     }
-    // Only line/area paths zigzag on out-of-order data; bar/none charts render
-    // position-correct regardless, so they are deliberately not flagged. Nor are
-    // displayProperty configs: display values position the chart there, and may
-    // legitimately fold back (the DST repeated-hour idiom).
+    // Only line/area paths zigzag on out-of-order data, so bar/none charts are not flagged.
+    // Nor are displayProperty configs: display values may legitimately fold back (DST repeated hour).
     if (dataErrors.length === 0 && categoryAxisConfig.scale === SCALE_LINEAR
       && categoryAxisConfig.displayProperty === NONE
       && seriesConfigs.some(({ renderer }) => renderer === RENDERER_LINE || renderer === RENDERER_AREA)) {

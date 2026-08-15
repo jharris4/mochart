@@ -1,11 +1,5 @@
-/**
- * Volume pane rendering tests: createCandlestick's `volume` option puts
- * direction-split volume bars on a hidden second axis whose domain margins
- * confine them to the bottom band of the plot, while the price axis's
- * enlarged minimum margin lifts the candles above them. Charts are mounted
- * through createDefaultChart in jsdom, and assertions parse the rendered bar
- * paths (`M{x},{y}h{w}v{h}h{-w}Z`) against the plot background rect.
- */
+// createCandlestick volume pane: direction-split volume bars on a hidden second axis confined to the bottom band,
+// price candles lifted above them; asserts parse bar paths (`M{x},{y}h{w}v{h}h{-w}Z`).
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';

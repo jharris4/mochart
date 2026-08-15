@@ -21,11 +21,7 @@ import type {
   NumericDomain, SeriesDomainDelta, SeriesDomainDeltaMap
 } from '../types/animation';
 
-/**
- *
- * Various constants
- *
- **/
+// Various constants
 
 // factories, not shared singletons: setDeltaFactor stamps deltaFactor onto whatever these hand back
 function emptyCategoryAxisDomainDelta(): DomainDelta {
@@ -48,11 +44,7 @@ export const emptyAxisDeltaData = {
   end: null
 };
 
-/**
- *
- * Various utility functions
- *
- **/
+// Various utility functions
 
 // a barely-overlapping domain change (union far taller than either endpoint) is a translation: it skips the expand/contract "pump" and interpolates its render domain during the value phase
 export const TRANSLATION_UNION_RATIO = 1.5;
@@ -259,11 +251,7 @@ function copySeriesDomain(seriesDomainObject: SeriesDomainObject): SeriesDomainO
   return domainObject;
 }
 
-/**
- *
- * Main axis/domain animation functions
- *
- **/
+// Main axis/domain animation functions
 
 // the animation interpolates render domains only; the semantic domains (which clip detection reads) ride along unchanged
 export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartConfig, prevChartData: ChartData, newChartData: ChartData, categoryDeltaData: CategoryDeltaData): AxisDeltaData {
@@ -520,11 +508,7 @@ function adjustFilteredAxisDomainDeltas(valueAxisConfigs: EnhancedValueAxisConfi
   }
 }
 
-/**
- *
- * getAxisDeltaData functions
- *
- **/
+// getAxisDeltaData functions
 function getValueAxisDomainDeltas(fromValueAxisDomains: AxisDomains, toValueAxisDomains: AxisDomains, fromValueAxisDomainExtents: Record<string, number>): DomainDeltaMap {
   let deltaPercentage = 0;
   const deltas: Record<string, DomainDelta> = Object.create(null);

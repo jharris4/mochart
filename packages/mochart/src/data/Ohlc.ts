@@ -139,17 +139,10 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     scale: 'ordinal'
   };
 
-  // Three bar series per direction, each defined for exactly one direction per
-  // category (missingValues 'connect' + partialRangeIsMissing skip the other, as in the
-  // candlestick helper): a thin centered low→high line, plus zero-extent range
-  // bars (property and rangeProperty read the same value) that barMinExtent
-  // expands into tick marks — the open tick in the left half of the slot
-  // (barAlignFraction 0) and the close tick in the right half (barAlignFraction
-  // 1), each reaching the center line. The lines carry the legend entries;
-  // the ticks stay out of the legend but follow their line's filtering and
-  // focus via followSeries, so the whole bar acts as one mark. Tooltip rows
-  // per category : the range (low – high) then the open and close ticks, whose
-  // equal-ended ranges collapse to single values.
+  // Three bar series per direction, direction-gated as in the candlestick helper: a thin centered low→high
+  // line (the legend entry), plus zero-extent open/close range bars that barMinExtent + barAlignFraction 0/1
+  // expand into half-slot tick marks, following their line via followSeries so the whole bar acts as one mark.
+  // Tooltip rows per category: the range (low – high), then the ticks' equal-ended ranges as single values.
   const lineConfigs = DIRECTIONS.map((direction) => ({
     id: direction,
     property: direction + 'High',
@@ -163,9 +156,8 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     stack: null,
     title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
     valueLabel: rangeTitle,
-    // the shape's strokeColor matches its fill: focused bars grow a 1px
-    // outline, and the default strokeColor is the palette color for the series
-    // *index*, which would rim the bar in an unrelated color.
+    // strokeColor matches the fill: focused bars grow a 1px outline, and the default strokeColor
+    // is the palette color for the series *index*, which would rim the bar in an unrelated color.
     shapeStyle: {
       normal: {
         strokeColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],

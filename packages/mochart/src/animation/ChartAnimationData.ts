@@ -18,11 +18,7 @@ import type {
   ValueChangeData
 } from '../types/animation';
 
-/**
- *
- * Main animation logic functions
- *
- **/
+// Main animation logic functions
 
 export function getChartAnimationData(
   mochartConfig: EnhancedMochartConfig,

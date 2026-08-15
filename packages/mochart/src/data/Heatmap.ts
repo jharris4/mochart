@@ -189,9 +189,8 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
     categoryPaddingFraction: { inner: cellPadding * 2, outer: cellPadding }
   };
 
-  // Pinned to exactly the stacked row bands, with one explicit tick per row
-  // labelling its band center (auto numeric ticks would land on band edges
-  // and mislabel the rows).
+  // Pinned to exactly the stacked row bands, with one explicit tick per row at its band center
+  // (auto numeric ticks would land on band edges and mislabel the rows).
   const valueAxisConfig: Partial<ValueAxisConfig> = {
     min: 0,
     max: Math.max(rowCount, 1),

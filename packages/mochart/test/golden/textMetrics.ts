@@ -56,10 +56,8 @@ function getTextContent(element: Element): string {
 }
 
 /**
- * Install the metrics on every measurement entry point the chart uses:
- * `getComputedTextLength` (text truncation), `getBBox` (all measured text
- * bounds) and the `fontSize` of computed styles (legend icon sizing and empty
- * clip-indicator bands). All three report the same model, so the library never
+ * Install the metrics on every measurement entry point the chart uses — `getComputedTextLength`,
+ * `getBBox`, and computed-style `fontSize` — all reporting the same model, so the library never
  * sees a width that disagrees with a font size.
  */
 export function installTextMetrics(): void {

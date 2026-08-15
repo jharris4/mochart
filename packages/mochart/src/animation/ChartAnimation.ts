@@ -43,11 +43,7 @@ function requireAxisDeltaData(axisDeltaData: ChartAnimationData['axisExpansionDa
   return axisDeltaData as AxisDeltaData;
 }
 
-/**
- *
- * getChartData for delta percentage functions
- *
- **/
+// getChartData for delta percentage functions
 export function getChartDataForAxisDelta(
   mochartConfig: EnhancedMochartConfig,
   chartAnimationData: ChartAnimationData,

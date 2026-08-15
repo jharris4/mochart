@@ -1,12 +1,5 @@
-/**
- * followSeries animation-sync tests: a leader and its followers — a hollow
- * candlestick body and its wick segments — render one visual mark, so their
- * value animations share a duration and the segments stay glued to the body
- * edges through every frame, the same way stacked series stay gapless. Both
- * delta paths are covered: a legend filtering (filtered) and a data update
- * (raw). Uses the golden suite's fake-clock harness: timers are faked before
- * the library import and frames are driven manually.
- */
+// followSeries animation sync: a leader and its followers (hollow candle body + wick segments) share durations so the
+// segments stay glued to the body every frame, for both filtering and data-update deltas; fake-clock harness, manual frames.
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 import { getCssClass, getIdCssClass, getIdCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
 
@@ -199,9 +192,8 @@ describe('followSeries animation sync (hollow candlestick)', () => {
     const { container, chart } = mountHollowCandlestick(ITEMS);
     runFrames();
 
-    // move every candle value by a different amount so the body and segment
-    // edges travel different distances — the case that desynchronizes
-    // unsynced constant-speed animations
+    // move every candle value by a different amount so body and segment edges travel
+    // different distances — the case that desynchronizes unsynced constant-speed animations
     const changed = mochart.createCandlestick([
       { label: 'Mon', open: 1.5, high: 6, low: 1, close: 4 },
       { label: 'Tue', open: 3, high: 5, low: 0.5, close: 2 }

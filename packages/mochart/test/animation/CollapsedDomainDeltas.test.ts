@@ -54,9 +54,8 @@ describe('value deltas on a degenerate value-axis domain', () => {
   });
 });
 
-// The weight is how far values move as a fraction of the axis height, and it paces the animation.
-// A value ending outside an explicit min/max is clipped, so it cannot move more than one axis
-// height on screen; an uncapped weight multiplied the configured duration by that overshoot.
+// The pacing weight is movement as a fraction of the axis extent; clipping bounds on-screen travel
+// to one extent, and an uncapped weight multiplied the configured duration by the overshoot.
 describe('values outside an explicit axis range', () => {
   it('caps the weight at one axis extent', () => {
     const percentage = deltaPercentageFor({ min: 0, max: 200 },

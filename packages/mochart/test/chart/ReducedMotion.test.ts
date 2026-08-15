@@ -1,7 +1,6 @@
 /**
- * accessibility.respectReducedMotion: when the OS-level prefers-reduced-motion
- * setting is on, the managed chart swaps to the static (instant) data source
- * — unless the config opts out — and follows live preference changes.
+ * accessibility.respectReducedMotion: with OS prefers-reduced-motion on, the managed chart swaps to
+ * the static (instant) data source — unless the config opts out — and follows live preference changes.
  */
 import { describe, it, beforeAll, beforeEach, afterEach, expect, vi } from 'vitest';
 

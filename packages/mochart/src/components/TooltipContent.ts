@@ -335,9 +335,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     this.setState({ mode });
   }
 
-  // the category row's hover-focus stays opt-in (focusCategoryOnMouseOver):
-  // its mouseleave clears the category focus, which would silently break the
-  // applyFocus pin whenever the pointer crosses the open tooltip
+  // the category row's hover-focus stays opt-in (focusCategoryOnMouseOver): its mouseleave
+  // clears the category focus, which would break the applyFocus pin as the pointer crosses the tooltip
   onCategoryMouseEnter = (_event: Event) => {
     const { mochartConfig, tooltipCategoryIndex, onFocus } = this.props;
     const { mode } = this.state;
@@ -456,12 +455,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     // render domains: tickFormat precision needs a real extent, which a collapsed domain lacks
     const { renderAxisDomains } = raw;
 
-    // Percent tooltip values are derived from the slice shares, normalized the
-    // same way the slices and their labels are (see getPieSliceFractions), so
-    // the numbers cannot drift apart. The maps are built once per tooltip, not
-    // once per row. Filtering follows tooltipConfig.adjustForFiltering: on
-    // (the default) the percentages renormalize against the unfiltered slices
-    // like the slice labels do, off freezes them at the full-total shares.
+    // Percent values come from the same normalized slice fractions as the labels (getPieSliceFractions),
+    // built once per tooltip; tooltipConfig.adjustForFiltering picks renormalized vs full-total shares.
     const pieTooltipValues = pieConfig.tooltipValues;
     let piePercentFormat: ((fraction: number) => string) | null = null;
     let rawFractions: Record<string, number> = Object.create(null);
@@ -474,9 +469,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     }
 
     const accessibility = accessibilityActive(mochartConfig.accessibility);
-    // a row is a tab stop only when clicking it would do something (the same
-    // conditions the click handlers apply), and only on the shown copy — the
-    // hidden sizer copy must not carry tab stops
+    // a row is a tab stop only when clicking it would do something (the click handlers'
+    // conditions), and only on the shown copy — the hidden sizer must not carry tab stops
     const a11yRows = accessibility && visible;
     const categoryRowInteractive = a11yRows && (tooltipConfig.showControls ? mode === MODE_FOCUS : tooltipConfig.focusCategoryOnClick);
     const seriesRowFocuses = tooltipConfig.showControls ? mode === MODE_FOCUS : tooltipConfig.focusSeriesOnClick;

@@ -1,10 +1,7 @@
 /**
- * Regression: focus tweens start after a small cancel-window delay, so a
- * series-only focus change landing right after a category focus change (a
- * tooltip row hover firing just after the click that pinned the category)
- * found this.focusData still holding the PRE-pin category index. The series
- * tween's target was built from that stale index, silently dropping the
- * category pin. The target must always derive from the input focus.
+ * Regression: a series-only focus change landing inside the focus tween's cancel-window delay built
+ * its target from focusData's stale pre-pin category index, silently dropping the category pin.
+ * The tween target must always derive from the input focus.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 import { getIdCssSelector } from '../../src/utils/ChartDom';

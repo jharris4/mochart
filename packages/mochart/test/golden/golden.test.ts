@@ -1,14 +1,9 @@
 import type { EnhancedMochartConfig } from '../../src/types/enhanced';
 /**
- * Golden DOM snapshot tests for the full chart rendering pipeline.
- *
- * Every demo config from packages/mochart-demo-data/src is rendered through the
- * public createChart() API in jsdom. Animations are driven deterministically
- * on a fake clock (requestAnimationFrame + performance.now). The resulting
- * DOM is normalized and compared against the golden files in ./__snapshots__.
- *
- * The goldens were captured from the mochart-vdom implementation and act as
- * the equivalence oracle for the retained-mode (vdom-free) renderer.
+ * Golden DOM snapshots of the full rendering pipeline: every demo config from
+ * packages/mochart-demo-data/src renders through createChart() in jsdom on a fake clock, and the
+ * normalized DOM is compared against ./__snapshots__. The goldens were captured from the
+ * mochart-vdom implementation and act as the equivalence oracle for the retained-mode renderer.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 import fs from 'node:fs';
@@ -122,10 +117,8 @@ const UNIQUE_ID_PREFIXES = [
 const uniqueIdPattern = new RegExp('(' + UNIQUE_ID_PREFIXES.join('|') + ')(\\d+)', 'g');
 
 /**
- * Normalize markup so snapshots are stable across runs and implementations:
- * per-instance unique id counters, version stamps, and comment placeholder
- * nodes (the vdom renders empty children as comment nodes; the retained
- * renderer uses comments as internal anchors — neither affects rendering).
+ * Normalize markup for stable snapshots: per-instance id counters, version stamps, and comment
+ * nodes (vdom empty-child placeholders vs retained-renderer anchors — neither affects rendering).
  */
 function normalizeHtml(html: string) {
   return html
@@ -169,10 +162,9 @@ function makeProvider(rows: Row[]): DataProvider {
 }
 
 /**
- * The app's random-mode data for a generator demo at `randomId` — its only
- * data changes re-run the core chart helper, so every step is a valid chart
- * of its type. The per-property transforms below would corrupt these demos'
- * structural range/color properties.
+ * The app's random-mode data for a generator demo at `randomId`: every step re-runs the core chart
+ * helper, so it stays a valid chart of its type — the per-property transforms below would corrupt
+ * these demos' structural range/color properties.
  */
 function generatorProvider(demo: Demo, mochartConfig: EnhancedMochartConfig, randomId: number): DataProvider {
   return generateDemoDataProvider(demo.generator, mochartConfig, loadJson(randomPaths[demo.random!]), randomId);
@@ -374,16 +366,10 @@ describe.each(allDemos)('demo: $id', (demo) => {
 });
 
 // ---------------------------------------------------------------------------
-// series filtering via legend click — the per-demo suites never filter a
-// series, and the tween's resting value (the axis base) only shows up
-// mid-filtering: a wrong base strands the shrink partway so the shape pops
-// out at animation end while still visibly large. The tween moves at constant
-// axis-relative speed, so a wrong resting value doesn't change the trajectory,
-// only where it stops — a fixed-frame snapshot can miss it. The oracle is the
-// LAST frame the filtered series is still in the DOM: correct code shows a
-// vanishing sliver there, a wrong base shows the stranded shape. The radial
-// demos cover the pie-mode base-0 default; grouped is the xy control (bars
-// correctly collapse onto the axis base line).
+// Series filtering via legend click — the per-demo suites never filter. A wrong tween resting value
+// (the axis base) strands the shrink partway, and a fixed-frame snapshot can miss it, so the oracle
+// is the LAST frame the filtered series is still in the DOM: correct code shows a vanishing sliver,
+// a wrong base a stranded shape. Radial demos cover the pie-mode base-0 default; grouped is the xy control.
 // ---------------------------------------------------------------------------
 
 const FILTERING_DEMO_IDS = ['pie', 'donut', 'gauge', 'grouped'];
@@ -441,9 +427,8 @@ describe.each(filteringDemos)('filtering: $id', (demo) => {
 });
 
 // ---------------------------------------------------------------------------
-// config updates on a live chart — exercises Chart.derive's incremental vs
-// full-rebuild branches and ChartController's animate-toggle source swap,
-// which the per-demo suites above never reach (they only update data)
+// Config updates on a live chart — exercises Chart.derive's incremental vs full-rebuild branches
+// and ChartController's animate-toggle source swap, which the data-only per-demo suites never reach.
 // ---------------------------------------------------------------------------
 
 describe('config updates on a mounted chart', () => {

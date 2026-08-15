@@ -38,9 +38,8 @@ export function getTitleHeight(mochartConfig: EnhancedMochartConfig, chartTextBo
   const { titleTextRawBounds, titlePrefixBounds, titleSuffixBounds } = chartTextBoundsData;
   let titleHeight = 0;
   if (titleConfig.text !== NONE) {
-    // `prefix`/`suffix` are not TitleConfig properties (the config keys are `titlePrefix`/
-    // `titleSuffix`), so both are always undefined and both branches below always run;
-    // preserved as-is while adding types.
+    // `prefix`/`suffix` were treated as absent from TitleConfig when types were
+    // added (hence the cast); preserved as-is.
     const { margin, padding, textMargin, textPadding, prefix, suffix, prefixMargin, prefixPadding, suffixMargin, suffixPadding } =
       titleConfig as TitleConfig & { prefix?: string | null; suffix?: string | null };
 

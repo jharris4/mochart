@@ -51,9 +51,8 @@ export function createValueAxisLayoutInfos(mochartConfig: EnhancedMochartConfig,
   return arrayToMap<EnhancedValueAxisConfig, AxisLayoutInfo>(valueAxisConfigs, idAccessor, valueAxisConfig => {
     const { id, side, collapsed, marginInner, marginOuter, paddingInner, paddingOuter } = valueAxisConfig;
     const before = side === SIDE_START;
-    // Hidden/filtered axes still get a full layout info — their size is
-    // already 0 (getValueAxisSizes) so they consume no space, but the scales
-    // for their series need the seriesExtent set by setExtraAxisInfo.
+    // Hidden/filtered axes still get a full layout info — their size is already
+    // 0 (getValueAxisSizes), but their series scales need setExtraAxisInfo.
     let valueAxisOffset = categoryY;
     if (collapsed) {
       valueAxisOffset += categoryAxesOffset.before + (before ? currentSeriesCollapsedOffsetBefore : currentSeriesCollapsedOffsetAfter + categoryInnerExtent - valueAxesCollapsedAfter);

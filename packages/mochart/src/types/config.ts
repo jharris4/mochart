@@ -2009,7 +2009,7 @@ export interface AxisConfigBase {
   tickMarkStyle: StrokeStyleStates;
 
   /**
-   * The title text to be shown along side to the axis (use null for no title).
+   * The title text to be shown alongside the axis (use null for no title).
    *
    * @default null
    */

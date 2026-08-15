@@ -1,9 +1,6 @@
 /**
- * Controlled focus/filter props on createChart: when the host passes
- * focusedCategoryIndex / focusedValueAxisId / focusedSeriesId /
- * filteredSeriesIds, they override the chart's internal focus state on every
- * update (the controlled-chart contract, used by the demos to
- * sync focus across several charts). Undefined leaves the chart uncontrolled.
+ * Controlled focus/filter props on createChart: set props override internal focus state on every
+ * update (the controlled-chart contract, used to sync focus across charts); undefined = uncontrolled.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 import { getIdCssClass, getCssSelector } from '../../src/utils/ChartDom';

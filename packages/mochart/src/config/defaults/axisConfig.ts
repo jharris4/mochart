@@ -38,9 +38,7 @@ export default function getDefaults() {
 
     showGridLines: false,
     gridLineFront: false,
-    // The old '#e5e5e5' at 0.75 over white is about '#ececec'; currentColor at
-    // 0.13 sits between matching that on a light page and matching a dark
-    // page's grid, so one value reads as a grid line in either theme.
+    // currentColor at 0.13 approximates the old '#e5e5e5' grid on a light page and still reads as a grid line on a dark one.
     gridLineStyle: {
       normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.13, strokeWidth: 1, strokeDashArray: '5, 5' },
       focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.17, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },

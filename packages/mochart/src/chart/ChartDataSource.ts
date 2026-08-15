@@ -17,20 +17,15 @@ export interface ChartDataSourceInput {
 }
 
 /**
- * Turns chart input (config, data provider, focus/filter state) into the
- * chartData/focusData the Chart renderer consumes. The static source computes
- * them directly; the animated source owns the tween pipeline and re-emits on
- * every tween frame.
+ * Turns chart input (config, data provider, focus/filter state) into the chartData/focusData the
+ * Chart renderer consumes: static computes directly, animated re-emits on every tween frame.
  */
 export interface ChartDataSource {
   readonly animated: boolean;
   /** Current output; the animated source advances these on tween frames. */
   readonly chartData: ChartData | null;
   readonly focusData: FocusData | null;
-  /**
-   * 0..1 while the initial data animation's value tween is running (drives
-   * chart-type-specific entrance effects like the pie sweep-in), else null.
-   */
+  /** 0..1 while the initial value tween runs (drives entrance effects like the pie sweep-in), else null. */
   readonly initialAnimationPercentage: number | null;
   /** Initialize from scratch (also used when the animate flag flips). */
   start(input: ChartDataSourceInput): void;

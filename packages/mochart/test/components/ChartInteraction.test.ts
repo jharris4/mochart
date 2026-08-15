@@ -1,8 +1,6 @@
 /**
- * Interaction tests for the pointer-driven chart pipeline: mouse events on
- * the chart drive the tooltip, tooltip controls, crosshair, and focus/event
- * callbacks. Charts are mounted through the public createDefaultChart() API
- * with animation disabled so everything runs synchronously in jsdom.
+ * Pointer-driven chart pipeline: mouse events drive the tooltip, tooltip controls, crosshair, and
+ * focus/event callbacks. Mounted via the public createDefaultChart() API, animation off, synchronous in jsdom.
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
