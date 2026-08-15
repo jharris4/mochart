@@ -1,13 +1,12 @@
 // the config interfaces and the validators are two halves of one contract; the per-row tests pin known drift cases and the ratchet walks every section interface against its validators
 import { describe, it, expect } from 'vitest';
 import ts from 'typescript';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import type { MochartInputConfig } from '../../src';
 import validateConfig, { configWithoutAllValidators } from '../../src/config/validation/mochartConfig';
 import { getDefaults } from '../../src/config/defaults/mochartConfig';
 import { buildConfigReference } from '../../scripts/configReferenceModel';
+import { sectionInterfaceMap, typesPath } from '../../scripts/generateJsdoc';
 
 const V = '1.0.0';
 
@@ -135,30 +134,6 @@ describe('gradient stops have no default and are required by validation', () => 
 });
 
 // --- the general ratchet -----------------------------------------------------
-
-const typesPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'types', 'config.ts');
-
-const sectionInterfaceMap: Record<string, string> = {
-  accessibility: 'AccessibilityConfig',
-  animation: 'AnimationConfig',
-  chart: 'ChartConfig',
-  colorPalette: 'ColorPaletteConfig',
-  clipIndicator: 'ClipIndicatorConfig',
-  crosshair: 'CrosshairConfig',
-  categoryAxis: 'CategoryAxisConfig',
-  legend: 'LegendConfig',
-  linearGradients: 'LinearGradientConfig',
-  patterns: 'PatternConfig',
-  pie: 'PieConfig',
-  plot: 'PlotConfig',
-  radialGradients: 'RadialGradientConfig',
-  valueAxes: 'ValueAxisConfig',
-  series: 'SeriesConfig',
-  seriesGroups: 'SeriesGroupConfig',
-  seriesStacks: 'SeriesStackConfig',
-  title: 'TitleConfig',
-  tooltip: 'TooltipConfig'
-};
 
 // The category axis validators are conditional on type/scale, so they are evaluated under every
 // combination: a value the type allows only has to be accepted by one of the branches.
