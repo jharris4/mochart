@@ -41,14 +41,15 @@ export default class AxisBaseLine extends Renderer<AxisBaseLineProps> {
         valueAxisConfig.useSeriesFocus, valueAxisConfig.baseLineStyle));
 
       const vertical = !inverted;
+      const positionPercentage = valueAxisConfig.reversed ? 1 - basePercentage : basePercentage;
 
       let baseX = 0;
       let baseY = 0;
       if (vertical) {
-        baseY = (1 - basePercentage) * seriesLayoutInfo.height;
+        baseY = (1 - positionPercentage) * seriesLayoutInfo.height;
       }
       else {
-        baseX = basePercentage * seriesLayoutInfo.width;
+        baseX = positionPercentage * seriesLayoutInfo.width;
       }
 
       this.setPresent(true);

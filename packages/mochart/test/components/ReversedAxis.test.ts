@@ -57,6 +57,14 @@ function tickLabels(container: Element, axis: 'value' | 'category') {
   });
 }
 
+/** Plot-local translate of the value axis base line. */
+function baseLinePosition(container: Element) {
+  const transform = container.querySelector(getCssSelector('axisBaseLine'))!.getAttribute('transform') ?? '';
+  const match = /translate\((-?[\d.]+)[ ,]\s*(-?[\d.]+)\)/.exec(transform);
+  expect(match, `unexpected base line transform: ${transform}`).not.toBeNull();
+  return { x: Number(match![1]), y: Number(match![2]) };
+}
+
 beforeAll(() => {
   installSvgMeasurementShims();
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
@@ -107,6 +115,25 @@ describe('value axis reversed', () => {
     const byPosition = (ticks: { label: string | null; y: number }[]) =>
       [...ticks].sort((a, b) => a.y - b.y).map((tick) => tick.label);
     expect(byPosition(reversed)).toEqual(byPosition(normal).reverse());
+  });
+
+  it('keeps the base line where the bars pivot', () => {
+    const mixed = [{ c: 'a', v: -2 }, { c: 'b', v: 8 }];
+    const axis = { min: -5, max: 10, base: 0 };
+    const normalContainer = mount({ valueAxes: [axis] }, mixed);
+    const reversedContainer = mount({ valueAxes: [{ ...axis, reversed: true }] }, mixed);
+    const normal = baseLinePosition(normalContainer);
+    const reversed = baseLinePosition(reversedContainer);
+
+    // base 0 sits a third of the way up the -5..10 domain: two thirds down normally, one third reversed
+    expect(normal.y / reversed.y).toBeCloseTo(2, 5);
+
+    // either way every bar has an edge on the line (bar edges round to whole pixels)
+    for (const [container, position] of [[normalContainer, normal], [reversedContainer, reversed]] as const) {
+      for (const bar of bars(container)) {
+        expect(Math.min(Math.abs(bar.top - position.y), Math.abs(bar.bottom - position.y))).toBeLessThanOrEqual(1);
+      }
+    }
   });
 
   it('leaves an unreversed axis untouched', () => {
