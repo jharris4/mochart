@@ -21,8 +21,9 @@ new ObjectOfArraysDataProvider(
 Neither takes anything but the dataset: which property holds the category
 values is the config's knowledge
 ([`categoryAxis.property`](/reference/categoryAxis#categoryAxis.property)),
-and the provider is never told. `createDefaultChart` wraps its `data` array in
-an `ArrayOfObjectsDataProvider` automatically. The lower-level `createChart`
+and the provider is never told. `createDefaultChart` wraps its `data` in the
+matching built-in provider automatically, dispatched by shape. The
+lower-level `createChart`
 accepts any object implementing the `DataProvider` interface, so a custom
 provider can read straight from an existing store without copying — see
 [when the data changes](#when-the-data-changes) for how to tell the chart

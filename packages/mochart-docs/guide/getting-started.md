@@ -72,6 +72,23 @@ const chart = createDefaultChart(document.getElementById('chart'), {
 });
 ```
 
+You can also use an alternate shape for the data — one array per property —
+and pass it the same way:
+
+```js
+const data = {
+  month: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+  revenue: [12, 18, 15, 24, 21, 28]
+};
+
+const chart = createDefaultChart(document.getElementById('chart'), {
+  config,
+  data,
+  width: 640,
+  height: 400
+});
+```
+
 Three things to notice:
 
 - `categoryAxis.property` and each series' `property` name the dataset
