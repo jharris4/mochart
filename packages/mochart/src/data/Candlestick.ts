@@ -251,6 +251,42 @@ export function buildVolumeSeriesConfigs(volumeOptions: Required<CandlestickVolu
   });
 }
 
+// One chart row per candle: the shared price fields plus the close/high (and, per openDirections and
+// the volume option, the open/volume) under direction-gated properties so each direction's series
+// only draws its own candles.
+export function buildDirectionRows(
+  candles: readonly Candlestick[],
+  openDirections: readonly CandlestickDirection[],
+  volumeOptions: Required<CandlestickVolumeOptions> | null
+): Record<string, number | string | undefined>[] {
+  return candles.map((candle) => {
+    const gated = (direction: CandlestickDirection, value: number | undefined) => candle.direction === direction ? value : undefined;
+    const openProperties: Record<string, number | undefined> = {};
+    for (const direction of openDirections) {
+      openProperties[direction + 'Open'] = gated(direction, candle.open);
+    }
+    return {
+      [CATEGORY_PROPERTY]: candle.label,
+      open: candle.open,
+      high: candle.high,
+      low: candle.low,
+      close: candle.close,
+      up: gated('up', candle.close),
+      down: gated('down', candle.close),
+      upHigh: gated('up', candle.high),
+      downHigh: gated('down', candle.high),
+      ...openProperties,
+      ...(volumeOptions !== null ? {
+        volume: candle.volume,
+        upVolume: gated('up', candle.volume),
+        downVolume: gated('down', candle.volume)
+      } : {}),
+      change: candle.change,
+      direction: candle.direction
+    };
+  });
+}
+
 export function createCandlestick(items: readonly CandlestickItem[], options: CreateCandlestickOptions = {}): CandlestickData {
   const candles = computeCandlesticks(items);
   const wickWidthFraction = options.wickWidthFraction ?? DEFAULT_WICK_WIDTH_FRACTION;
@@ -259,27 +295,9 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
   const hollow = options.hollow ?? false;
   const volumeOptions = getVolumeOptions(options.volume);
 
-  const data = candles.map((candle) => ({
-    [CATEGORY_PROPERTY]: candle.label,
-    open: candle.open,
-    high: candle.high,
-    low: candle.low,
-    close: candle.close,
-    up: candle.direction === 'up' ? candle.close : undefined,
-    down: candle.direction === 'down' ? candle.close : undefined,
-    upHigh: candle.direction === 'up' ? candle.high : undefined,
-    downHigh: candle.direction === 'down' ? candle.high : undefined,
-    // The hollow up candle's below-body wick segment spans low→open and needs the open under an
-    // up-only property (the shared `open` exists on every row, so it can't gate by direction).
-    ...(hollow ? { upOpen: candle.direction === 'up' ? candle.open : undefined } : {}),
-    ...(volumeOptions !== null ? {
-      volume: candle.volume,
-      upVolume: candle.direction === 'up' ? candle.volume : undefined,
-      downVolume: candle.direction === 'down' ? candle.volume : undefined
-    } : {}),
-    change: candle.change,
-    direction: candle.direction
-  }));
+  // The hollow up candle's below-body wick segment spans low→open and needs the open under an
+  // up-only property (the shared `open` exists on every row, so it can't gate by direction).
+  const data = buildDirectionRows(candles, hollow ? ['up'] : [], volumeOptions);
 
   // An ordinal scale so the candles keep even spacing when labels are dates
   // with gaps (weekends, holidays) — a linear/time scale would leave holes.

@@ -1,6 +1,6 @@
 import {
   computeCandlesticks, DIRECTIONS, DEFAULT_TITLES, DEFAULT_COLORS, CATEGORY_PROPERTY, DEFAULT_RANGE_TITLE,
-  PRICE_AXIS_ID, getVolumeOptions, buildVolumeValueAxisConfigs, buildVolumeSeriesConfigs
+  PRICE_AXIS_ID, getVolumeOptions, buildVolumeValueAxisConfigs, buildVolumeSeriesConfigs, buildDirectionRows
 } from './Candlestick';
 import type { Candlestick, CandlestickDirection, CandlestickItem, CandlestickVolumeOptions } from './Candlestick';
 import type { DeepPartial, CategoryAxisConfig, ValueAxisConfig, SeriesConfig } from '../types/config';
@@ -110,26 +110,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
   const closeTitle = options.closeTitle ?? DEFAULT_CLOSE_TITLE;
   const volumeOptions = getVolumeOptions(options.volume);
 
-  const data = candles.map((candle) => ({
-    [CATEGORY_PROPERTY]: candle.label,
-    open: candle.open,
-    high: candle.high,
-    low: candle.low,
-    close: candle.close,
-    up: candle.direction === 'up' ? candle.close : undefined,
-    down: candle.direction === 'down' ? candle.close : undefined,
-    upHigh: candle.direction === 'up' ? candle.high : undefined,
-    downHigh: candle.direction === 'down' ? candle.high : undefined,
-    upOpen: candle.direction === 'up' ? candle.open : undefined,
-    downOpen: candle.direction === 'down' ? candle.open : undefined,
-    ...(volumeOptions !== null ? {
-      volume: candle.volume,
-      upVolume: candle.direction === 'up' ? candle.volume : undefined,
-      downVolume: candle.direction === 'down' ? candle.volume : undefined
-    } : {}),
-    change: candle.change,
-    direction: candle.direction
-  }));
+  const data = buildDirectionRows(candles, DIRECTIONS, volumeOptions);
 
   // An ordinal scale so the bars keep even spacing when labels are dates with
   // gaps (weekends, holidays) — a linear/time scale would leave holes.
