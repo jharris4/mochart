@@ -23,9 +23,17 @@ export function depSourcemaps() {
           + 'so dependency sourcemaps will be dropped from this build');
         return;
       }
-      transform.handler = function (this: unknown, ...args: never[]) {
+      transform.handler = async function (this: unknown, ...args: never[]) {
         const id = args[1] as unknown as string;
-        return mapped.has(id) ? null : inner.apply(this, args);
+        if (mapped.has(id)) {
+          return null;
+        }
+        const result = await inner.apply(this, args) as { code?: string; map?: unknown } | null | undefined;
+        // Angular fesm code comes back with no map at all (SOURCEMAP_BROKEN per module); give it the empty map it uses elsewhere.
+        if (result && typeof result === 'object' && result.map === undefined && typeof result.code === 'string') {
+          return { ...result, map: { mappings: '' } };
+        }
+        return result;
       };
     },
     // Must be `load`: rollup drops a `transform`-supplied map as a mere link back to the dist file (vite 5, i.e. the docs site).
