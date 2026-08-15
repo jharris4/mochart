@@ -164,8 +164,9 @@ export function getCategoryIndexTitle({ mochartConfig }: MochartDemoConfig, rows
 /**
  * The series-values editor's JSON text for one category/series cell: the
  * position value under `p`, plus a key per optional property the series config
- * actually declares (`r`ange, `m`arker, `l`abel, `c`olor). Empty when the config
- * has no series. Each port's `applySeriesChanges` reads the same keys back.
+ * actually declares (`r`ange, `m`arker, `l`abel, `c`olor, `t`ooltip, `el`/`eh`
+ * error bounds). Empty when the config has no series. Each port's
+ * `applySeriesChanges` reads the same keys back.
  */
 export function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, rows: DataObject[], categoryIndex: number, seriesIndex: number): string {
   const { series: seriesConfigs } = mochartConfig;
@@ -173,7 +174,7 @@ export function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, rows: 
     return '';
   }
   const row = rows[categoryIndex];
-  const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfigs[seriesIndex];
+  const { property, rangeProperty, markerProperty, labelProperty, colorProperty, tooltipProperty, errorLowProperty, errorHighProperty } = seriesConfigs[seriesIndex];
   const values: Record<string, unknown> = {};
   values['p'] = row[property!];
   if (rangeProperty !== NONE) {
@@ -187,6 +188,15 @@ export function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, rows: 
   }
   if (colorProperty !== NONE) {
     values['c'] = row[colorProperty];
+  }
+  if (tooltipProperty !== NONE) {
+    values['t'] = row[tooltipProperty];
+  }
+  if (errorLowProperty !== NONE) {
+    values['el'] = row[errorLowProperty];
+  }
+  if (errorHighProperty !== NONE) {
+    values['eh'] = row[errorHighProperty];
   }
   return JSON.stringify(values);
 }

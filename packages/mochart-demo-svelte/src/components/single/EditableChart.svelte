@@ -576,7 +576,7 @@
       try {
         const dataObject = JSON.parse(seriesValuesText);
         const seriesConfig = seriesConfigs[seriesIndex];
-        const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
+        const { property, rangeProperty, markerProperty, labelProperty, colorProperty, tooltipProperty, errorLowProperty, errorHighProperty } = seriesConfig;
         filteredDataObject[property!] = dataObject['p'];
         if (rangeProperty !== NONE) {
           filteredDataObject[rangeProperty] = dataObject['r'];
@@ -589,6 +589,15 @@
         }
         if (colorProperty !== NONE) {
           filteredDataObject[colorProperty] = dataObject['c'];
+        }
+        if (tooltipProperty !== NONE) {
+          filteredDataObject[tooltipProperty] = dataObject['t'];
+        }
+        if (errorLowProperty !== NONE) {
+          filteredDataObject[errorLowProperty] = dataObject['el'];
+        }
+        if (errorHighProperty !== NONE) {
+          filteredDataObject[errorHighProperty] = dataObject['eh'];
         }
         updateFilteredDataState({}, filteredData, removedData, false);
       }
@@ -613,7 +622,7 @@
         }
       }
       const seriesConfig = seriesConfigs[seriesIndex];
-      const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
+      const { property, rangeProperty, markerProperty, labelProperty, colorProperty, tooltipProperty, errorLowProperty, errorHighProperty } = seriesConfig;
       filteredDataObject[property!] = dataObject![property!];
       if (rangeProperty !== NONE) {
         filteredDataObject[rangeProperty] = dataObject![rangeProperty];
@@ -626,6 +635,15 @@
       }
       if (colorProperty !== NONE) {
         filteredDataObject[colorProperty] = dataObject![colorProperty];
+      }
+      if (tooltipProperty !== NONE) {
+        filteredDataObject[tooltipProperty] = dataObject![tooltipProperty];
+      }
+      if (errorLowProperty !== NONE) {
+        filteredDataObject[errorLowProperty] = dataObject![errorLowProperty];
+      }
+      if (errorHighProperty !== NONE) {
+        filteredDataObject[errorHighProperty] = dataObject![errorHighProperty];
       }
       updateFilteredDataState({ seriesValuesText: getSeriesValuesText(mochartDemoConfig, filteredData, categoryIndex, seriesIndex) }, filteredData, removedData, false);
     }

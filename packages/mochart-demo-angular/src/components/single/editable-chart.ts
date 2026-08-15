@@ -1005,7 +1005,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
       try {
         const dataObject = JSON.parse(this.seriesValuesText());
         const seriesConfig = seriesConfigs[this.seriesIndex()];
-        const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
+        const { property, rangeProperty, markerProperty, labelProperty, colorProperty, tooltipProperty, errorLowProperty, errorHighProperty } = seriesConfig;
         filteredDataObject[property!] = dataObject['p'];
         if (rangeProperty !== NONE) {
           filteredDataObject[rangeProperty] = dataObject['r'];
@@ -1018,6 +1018,15 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
         }
         if (colorProperty !== NONE) {
           filteredDataObject[colorProperty] = dataObject['c'];
+        }
+        if (tooltipProperty !== NONE) {
+          filteredDataObject[tooltipProperty] = dataObject['t'];
+        }
+        if (errorLowProperty !== NONE) {
+          filteredDataObject[errorLowProperty] = dataObject['el'];
+        }
+        if (errorHighProperty !== NONE) {
+          filteredDataObject[errorHighProperty] = dataObject['eh'];
         }
         this.updateFilteredDataState({}, this.filteredData, this.removedData, false);
       }
@@ -1042,7 +1051,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
         }
       }
       const seriesConfig = seriesConfigs[this.seriesIndex()];
-      const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
+      const { property, rangeProperty, markerProperty, labelProperty, colorProperty, tooltipProperty, errorLowProperty, errorHighProperty } = seriesConfig;
       filteredDataObject[property!] = dataObject![property!];
       if (rangeProperty !== NONE) {
         filteredDataObject[rangeProperty] = dataObject![rangeProperty];
@@ -1055,6 +1064,15 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
       }
       if (colorProperty !== NONE) {
         filteredDataObject[colorProperty] = dataObject![colorProperty];
+      }
+      if (tooltipProperty !== NONE) {
+        filteredDataObject[tooltipProperty] = dataObject![tooltipProperty];
+      }
+      if (errorLowProperty !== NONE) {
+        filteredDataObject[errorLowProperty] = dataObject![errorLowProperty];
+      }
+      if (errorHighProperty !== NONE) {
+        filteredDataObject[errorHighProperty] = dataObject![errorHighProperty];
       }
       this.updateFilteredDataState({ seriesValuesText: getSeriesValuesText(this.mochartDemoConfig, this.filteredData, this.categoryIndex(), this.seriesIndex()) }, this.filteredData, this.removedData, false);
     }
