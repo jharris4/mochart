@@ -110,6 +110,7 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
     labelProperty: validators.propertyOptional(),
     tooltipProperty: validators.propertyOptional(),
     colorProperty: validators.propertyOptional(),
+    allowAbsentDataProperties: validators.boolean(),
     ignore: validators.boolean(),
     renderer: validators.oneOf(RENDERERS),
     missingValues: validators.oneOf(MISSING_VALUES),

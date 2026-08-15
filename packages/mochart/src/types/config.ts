@@ -2610,6 +2610,21 @@ export interface SeriesConfig {
    */
   colorProperty: string | null;
   /**
+   * Whether a series data property absent from the data provider is read as
+   * all-missing values instead of a data error.
+   *
+   * Covers every data property the series names — `property`, `rangeProperty`,
+   * `errorLowProperty`, `errorHighProperty`, `markerProperty`, `labelProperty`,
+   * `tooltipProperty` and `colorProperty`. Kept `false` by default so a
+   * misspelled property name is still reported by `getDataErrors`; enable it
+   * for a series that may genuinely have no data behind it, which then draws
+   * nothing but keeps its legend and tooltip entries. A property that is
+   * present but has the wrong number of values is still an error.
+   *
+   * @default false
+   */
+  allowAbsentDataProperties: boolean;
+  /**
    * The color ramp the series color values are mapped through.
    *
    * @default { interpolation: null, min: null, max: null, missing: null, base: { … } }

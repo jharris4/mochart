@@ -93,6 +93,34 @@ describe('getDataErrors', () => {
     expect(getDataErrors(config, provider)).toEqual(['no values found for property: sales']);
   });
 
+  it('allows an absent series property when the series sets allowAbsentDataProperties', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'sales', rangeProperty: 'high', labelProperty: 'lbl', allowAbsentDataProperties: true }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { month: 'Jan' },
+        { month: 'Feb' }
+      ]);
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
+  it('keeps flagging other series and present-but-misaligned properties under allowAbsentDataProperties', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [
+        { property: 'sales', allowAbsentDataProperties: true },
+        { property: 'cost' }
+      ]
+    });
+    const provider = new ObjectOfArraysDataProvider({ month: ['Jan', 'Feb', 'Mar'], sales: [10, 20] });
+    expect(getDataErrors(config, provider)).toEqual([
+      'property sales has 2 values but there are 3 categories',
+      'no values found for property: cost'
+    ]);
+  });
+
   it('flags a series property whose length does not match the category values', () => {
     const config = stringConfig();
     const provider = new ObjectOfArraysDataProvider({ month: ['Jan', 'Feb', 'Mar'], sales: [10, 20] });

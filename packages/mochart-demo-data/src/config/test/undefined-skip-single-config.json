@@ -74,7 +74,8 @@
       "axis": "VA0",
       "group": null,
       "stack": null,
-      "property": "value1"
+      "property": "value1",
+      "allowAbsentDataProperties": true
     },
     {
       "renderer": "area",
@@ -83,7 +84,8 @@
       "axis": "VA0",
       "group": null,
       "stack": null,
-      "property": "value2"
+      "property": "value2",
+      "allowAbsentDataProperties": true
     },
     {
       "renderer": "line",
@@ -92,7 +94,8 @@
       "axis": "VA1",
       "group": null,
       "stack": null,
-      "property": "value3"
+      "property": "value3",
+      "allowAbsentDataProperties": true
     },
     {
       "renderer": "bar",
@@ -101,7 +104,8 @@
       "axis": "VA1",
       "group": "SG0",
       "stack": null,
-      "property": "value4"
+      "property": "value4",
+      "allowAbsentDataProperties": true
     },
     {
       "renderer": "bar",
@@ -110,7 +114,8 @@
       "axis": "VA1",
       "group": "SG0",
       "stack": null,
-      "property": "value5"
+      "property": "value5",
+      "allowAbsentDataProperties": true
     },
     {
       "renderer": "area",
@@ -119,7 +124,8 @@
       "axis": "VA1",
       "group": null,
       "stack": "SS1",
-      "property": "value6"
+      "property": "value6",
+      "allowAbsentDataProperties": true
     },
     {
       "renderer": "area",
@@ -128,7 +134,8 @@
       "axis": "VA1",
       "group": null,
       "stack": "SS1",
-      "property": "value7"
+      "property": "value7",
+      "allowAbsentDataProperties": true
     },
     {
       "renderer": "area",
@@ -137,7 +144,8 @@
       "axis": "VA1",
       "group": null,
       "stack": "SS1",
-      "property": "value8"
+      "property": "value8",
+      "allowAbsentDataProperties": true
     }
   ]
 }

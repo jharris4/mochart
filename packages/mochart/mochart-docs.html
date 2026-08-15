@@ -3508,6 +3508,10 @@ table thead td { border-bottom-width: 2px; }
 <th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
 </tr>
 </thead>
+<tr id="series.allowAbsentDataProperties">
+<td><a href="#series.allowAbsentDataProperties">allowAbsentDataProperties</a></td><td>whether a series data property absent from the data provider is read as all-missing values instead of a data error<br/><br/>Covers every data property the series names — `property`, `rangeProperty`, `errorLowProperty`, `errorHighProperty`, `markerProperty`, `labelProperty`, `tooltipProperty` and `colorProperty`. Kept `false` by default so a misspelled property name is still reported by `getDataErrors`; enable it for a series that may genuinely have no data behind it, which then draws nothing but keeps its legend and tooltip entries. A property that is present but has the wrong number of values is still an error.</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
 <tr id="series.animateBaseFromAdjacent">
 <td><a href="#series.animateBaseFromAdjacent">animateBaseFromAdjacent</a></td><td>whether to animate leading/trailing series position values from their adjacent values (true) or from the base value (false)</td><td>should be a boolean</td><td><div>false (when renderer is bar)</div>
 <div>true (when renderer is line)</div>

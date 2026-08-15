@@ -158,7 +158,10 @@ readable messages:
   nothing else is checkable without it
 - a *series* property absent from the data is reported as
   `no values found for property: …` — distinct from a property full of
-  legitimate missing values, which is valid
+  legitimate missing values, which is valid; a series that may genuinely
+  have no data behind it can set
+  [`allowAbsentDataProperties`](/reference/series#series.allowAbsentDataProperties)
+  to read an absent property as all-missing values instead
 - a property whose value count doesn't match the category property's is
   reported with both counts
 - non-numeric series values, category values that don't match the

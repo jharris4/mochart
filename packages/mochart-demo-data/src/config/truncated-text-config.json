@@ -205,12 +205,14 @@
     {
       "property": "value3",
       "title": "This one is Third",
-      "renderer": "line"
+      "renderer": "line",
+      "allowAbsentDataProperties": true
     },
     {
       "property": "value4",
       "title": "Fourth may be the last for now",
-      "renderer": "line"
+      "renderer": "line",
+      "allowAbsentDataProperties": true
     }
   ]
 }

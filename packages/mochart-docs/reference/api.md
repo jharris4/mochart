@@ -181,10 +181,11 @@ while still collecting its warnings, which is what a live-preview editor wants.
   without reaching into a mounted chart.
 - `getDataErrors` checks a dataset against an enhanced config —
   non-numeric series values, category values that don't match the configured
-  type, duplicate category values. A series property absent from every row
-  is not an error: it reads as all-`undefined` (missing values). A category
-  property that matches nothing is reported by the built-in providers'
-  `getError()` instead, which `getDataErrors` defers to.
+  type, duplicate category values. A property the provider reports as absent
+  (`getPropertyValues` returns `undefined`) is an error too — a lone one for
+  the category property, since nothing else is checkable without it — unless
+  the series sets `allowAbsentDataProperties`, which reads an absent series
+  property as all-missing values.
 
 ## Chart helpers
 

@@ -31,6 +31,7 @@ export function getRegularDefaults() {
     labelProperty: NONE,
     tooltipProperty: NONE,
     colorProperty: NONE,
+    allowAbsentDataProperties: false,
     stack: NONE,
     group: NONE,
     gradient: NONE,

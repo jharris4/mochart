@@ -55,8 +55,11 @@ function checkPropertyValues(dataErrors: string[], values: readonly DataValue[] 
 }
 
 /** Series values must be numeric; null and undefined both read as missing. categoryAxis.displayProperty is checked against the axis type instead. */
-function checkSeriesProperty(dataErrors: string[], dataProvider: DataProvider, categoryCount: number, property: string): void {
+function checkSeriesProperty(dataErrors: string[], dataProvider: DataProvider, categoryCount: number, property: string, allowAbsentDataProperties: boolean): void {
   const values = dataProvider.getPropertyValues(property);
+  if (values === undefined && allowAbsentDataProperties) {
+    return; // the series reads as all-missing values
+  }
   if (checkPropertyValues(dataErrors, values, categoryCount, property)) {
     const numberValidator = validators.number().orEqual(undefined).orEqual(null);
     if (values.some(value => !numberValidator(value))) {
@@ -131,27 +134,28 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
       }
     }
     for (const seriesConfig of seriesConfigs) {
-      checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.property!);
+      const { allowAbsentDataProperties } = seriesConfig;
+      checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.property!, allowAbsentDataProperties);
       if (seriesConfig.rangeProperty !== NONE) {
-        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.rangeProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.rangeProperty, allowAbsentDataProperties);
       }
       if (seriesConfig.errorLowProperty !== NONE) {
-        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.errorLowProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.errorLowProperty, allowAbsentDataProperties);
       }
       if (seriesConfig.errorHighProperty !== NONE) {
-        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.errorHighProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.errorHighProperty, allowAbsentDataProperties);
       }
       if (seriesConfig.markerProperty !== NONE) {
-        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.markerProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.markerProperty, allowAbsentDataProperties);
       }
       if (seriesConfig.colorProperty !== NONE) {
-        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.colorProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.colorProperty, allowAbsentDataProperties);
       }
       if (seriesConfig.labelProperty !== NONE) {
-        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.labelProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.labelProperty, allowAbsentDataProperties);
       }
       if (seriesConfig.tooltipProperty !== NONE) {
-        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.tooltipProperty);
+        checkSeriesProperty(dataErrors, dataProvider, categoryCount, seriesConfig.tooltipProperty, allowAbsentDataProperties);
       }
     }
   }

@@ -45,6 +45,7 @@ export default function getDescriptions() {
     labelProperty: 'the property to retrieve from the data provider for the series label values (use null for none)',
     tooltipProperty: 'the property to retrieve from the data provider for the values shown for the series in the tooltip in place of the series values (use null for none)',
     colorProperty: 'the property to retrieve from the data provider for the series color values (use null for none, to color by style instead)',
+    allowAbsentDataProperties: 'whether a series data property absent from the data provider is read as all-missing values instead of a data error',
     colorScale: {
       description: 'the color ramp the series color values are mapped through',
       properties: {
@@ -144,6 +145,7 @@ export function getDetails() {
     group: 'Series sharing the same group id (an `id` from `seriesGroups`) are laid out side by side within each category slot — grouped/clustered bars. Defaults to the sole group id when exactly one series group is configured; use `null` to opt a series out.',
     curve: 'Only affects the `line` and `area` renderers. `type` selects the d3-shape curve (`linear`, `monotoneX`, `natural`, `step`, `cardinal`, `catmullRom`, …) and `param` is passed to the curve’s tension/alpha configurator for the curve types that take one.',
     missingValues: 'With `"connect"`, lines and areas bridge missing categories directly between the neighbouring defined values; with `"base"` the point is drawn at the value axis base value; the default `"break"` leaves a gap in the shape. For a series with a `rangeProperty`, a category counts as missing only when both properties are undefined — see `partialRangeIsMissing`.',
+    allowAbsentDataProperties: 'Covers every data property the series names — `property`, `rangeProperty`, `errorLowProperty`, `errorHighProperty`, `markerProperty`, `labelProperty`, `tooltipProperty` and `colorProperty`. Kept `false` by default so a misspelled property name is still reported by `getDataErrors`; enable it for a series that may genuinely have no data behind it, which then draws nothing but keeps its legend and tooltip entries. A property that is present but has the wrong number of values is still an error.',
     partialRangeIsMissing: 'Only affects series with a `rangeProperty` (stacked series are unaffected). By default a category with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such categories count as missing instead, following the configured `missingValues` treatment.',
     valueFormat: 'A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the value axis `tickLabelFormat` when that is set.',
     capType: 'Draws a decorative cap on the value end of each bar in the series; `capSize` controls its extent. To cap only the outside of a stacked bar, see `capOnlyStackOuter` and `seriesStacks[].outerCapType`.',
