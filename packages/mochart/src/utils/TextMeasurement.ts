@@ -73,20 +73,25 @@ function hasDefault(v: unknown): boolean {
   return false;
 }
 
-function getBounds<T>(domAccessors: ChartDomAccessors | null | undefined, getDomElementKey: AccessorSpec, fallbackBounds: TextBounds, getBoundsFunction: (element: T) => Size): TextBounds {
+// a 0-extent box means unmeasurable (hidden container, not yet laid out) unless the text itself is empty
+function isMeasured(bounds: TextBounds | null | undefined): bounds is TextBounds {
+  return !!bounds && (bounds.empty === true || (bounds.width !== 0 && bounds.height !== 0));
+}
+
+function getBounds<T>(domAccessors: ChartDomAccessors | null | undefined, getDomElementKey: AccessorSpec, fallbackBounds: TextBounds, getBoundsFunction: (element: T) => TextBounds): TextBounds {
   if (domAccessors) {
     const accessors = domAccessors as unknown as Record<keyof ChartDomAccessors, DomAccessor>;
     const element = Array.isArray(getDomElementKey) ?
       accessors[getDomElementKey[0]](getDomElementKey[1]) : accessors[getDomElementKey]();
     const bounds = getBoundsFunction(element as T);
-    return (!bounds || bounds.width === 0 || bounds.height === 0) ? fallbackBounds : bounds;
+    return isMeasured(bounds) ? bounds : fallbackBounds;
   }
   else {
     return fallbackBounds;
   }
 }
 
-function getAllBounds<T>(domAccessors: ChartDomAccessors | null | undefined, getDomElementKey: AccessorSpec, fallbackBounds: TextBounds, getBoundsFunction: (element: T) => Size, list: readonly unknown[]): TextBounds[] {
+function getAllBounds<T>(domAccessors: ChartDomAccessors | null | undefined, getDomElementKey: AccessorSpec, fallbackBounds: TextBounds, getBoundsFunction: (element: T) => TextBounds, list: readonly unknown[]): TextBounds[] {
   if (domAccessors) {
     const accessors = domAccessors as unknown as Record<keyof ChartDomAccessors, DomAccessor>;
     const elements = (Array.isArray(getDomElementKey) ?
@@ -97,7 +102,7 @@ function getAllBounds<T>(domAccessors: ChartDomAccessors | null | undefined, get
       let bounds;
       for (let i=0; i<count; i++) {
         bounds = getBoundsFunction(elements[i]);
-        allBounds.push((!bounds || bounds.width === 0 || bounds.height === 0) ? fallbackBounds : bounds);
+        allBounds.push(isMeasured(bounds) ? bounds : fallbackBounds);
       }
       return allBounds;
     }
@@ -159,15 +164,25 @@ function getSvgWidth(domElement: SVGGraphicsElement, boundingBox: { width: numbe
   return typeof textElement.getComputedTextLength === 'function' ? textElement.getComputedTextLength() : boundingBox.width;
 }
 
-export function getSvgMaxWidthAndHeight(domElements: ArrayLike<SVGGraphicsElement>): Size {
+// empty text legitimately measures 0x0; flagged so it is not mistaken for an unmeasurable element and retried forever
+function hasEmptyText(domElement: SVGGraphicsElement): boolean {
+  const { textContent } = domElement;
+  return typeof textContent === 'string' && textContent.trim() === '';
+}
+
+export function getSvgMaxWidthAndHeight(domElements: ArrayLike<SVGGraphicsElement>): TextBounds {
   // 0 seeds, never Number.MIN_VALUE: all-zero bboxes (hidden container) must
   // measure 0x0 so the default-bounds fallback marks them for re-measure
   let maxWidth = 0;
   let maxHeight = 0;
   let boundingBox;
   let width;
+  let allEmpty = true;
   const count = domElements.length;
   for (let i = 0; i < count; i++) {
+    if (allEmpty && !hasEmptyText(domElements[i])) {
+      allEmpty = false;
+    }
     // the box is still read for the height, which has no advance-based equivalent
     boundingBox = domElements[i].getBBox();
     width = getSvgWidth(domElements[i], boundingBox);
@@ -178,16 +193,23 @@ export function getSvgMaxWidthAndHeight(domElements: ArrayLike<SVGGraphicsElemen
       maxHeight = boundingBox.height;
     }
   }
-  return {
+  const bounds: TextBounds = {
     width: Math.ceil(maxWidth),
     height: Math.ceil(maxHeight)
   };
+  if (count > 0 && allEmpty) {
+    bounds.empty = true;
+  }
+  return bounds;
 }
 
-export function getSvgWidthAndHeight(domElement: SVGGraphicsElement | null): Size {
+export function getSvgWidthAndHeight(domElement: SVGGraphicsElement | null): TextBounds {
   let width = 0;
   let height = 0;
   if (domElement !== null) {
+    if (hasEmptyText(domElement)) {
+      return { width, height, empty: true };
+    }
     // the box is still read for the height, which has no advance-based equivalent
     const boundingBox = domElement.getBBox();
     // ceil, never floor: a reserved width below the fitted width truncates text that exactly fits
@@ -296,7 +318,7 @@ function getThresholdTitleBoundsByIndex(domAccessors: ChartDomAccessors | null |
       const text = element.querySelector<SVGGraphicsElement>('text');
       if (match !== null && text !== null) {
         const bounds = getSvgWidthAndHeight(text);
-        if (bounds && bounds.width !== 0 && bounds.height !== 0) {
+        if (isMeasured(bounds)) {
           measured[Number(match[1])] = bounds;
         }
       }

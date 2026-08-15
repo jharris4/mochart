@@ -2,7 +2,7 @@
 // element count never matched and each item fell back to default 20px bounds, mis-sizing the
 // legend. Bounds are keyed by series id so a frame-old set can't describe a different series.
 import { describe, it, expect } from 'vitest';
-import { getLegendItemBoundsList, getLegendItemTextRawBounds, getSvgMaxWidthAndHeight } from '../../src/utils/TextMeasurement';
+import { getChartTextBoundsData, getLegendItemBoundsList, getLegendItemTextRawBounds, getSvgMaxWidthAndHeight, getSvgWidthAndHeight, getTitleTextBounds } from '../../src/utils/TextMeasurement';
 import { enhanceConfig } from '../../src';
 import type { ChartDomAccessors } from '../../src/types/chart';
 import type { EnhancedMochartConfig } from '../../src/types/enhanced';
@@ -99,5 +99,60 @@ describe('getSvgMaxWidthAndHeight', () => {
 
   it('measures an empty list as 0x0', () => {
     expect(getSvgMaxWidthAndHeight([])).toEqual({ width: 0, height: 0 });
+  });
+});
+
+// Regression: an element whose text is '' measures 0x0 forever, which used to read as unmeasurable
+// (default bounds) — layout reserved a phantom 20x20 and hasDefault re-measured the DOM every render.
+describe('empty rendered text', () => {
+  const textElement = (textContent: string, width: number, height: number): SVGGraphicsElement =>
+    ({ textContent, getBBox: () => ({ x: 0, y: 0, width, height }) } as unknown as SVGGraphicsElement);
+
+  it('measures an empty text element as empty rather than unmeasured', () => {
+    expect(getSvgWidthAndHeight(textElement('', 0, 0))).toEqual({ width: 0, height: 0, empty: true });
+    expect(getSvgWidthAndHeight(textElement('  ', 0, 0))).toEqual({ width: 0, height: 0, empty: true });
+    expect(getSvgWidthAndHeight(textElement('abc', 30, 10))).toEqual({ width: 30, height: 10 });
+  });
+
+  it('measures all-empty tick labels as empty, but keeps a hidden non-empty label unmeasured', () => {
+    expect(getSvgMaxWidthAndHeight([textElement('', 0, 0), textElement('', 0, 0)])).toEqual({ width: 0, height: 0, empty: true });
+    // a display:none container reports 0x0 for text that does exist: still a retry
+    expect(getSvgMaxWidthAndHeight([textElement('', 0, 0), textElement('abc', 0, 0)])).toEqual({ width: 0, height: 0 });
+  });
+
+  it('does not pin hasDefault or reserve default title space for title.text \'\'', () => {
+    const mochartConfig = enhanceConfig({
+      version: '1.0.0',
+      title: { text: '' },
+      categoryAxis: { property: 'label', visible: false },
+      legend: { visible: false },
+      series: [{ property: 'p0' }]
+    } as never) as EnhancedMochartConfig;
+    const domAccessors = {
+      getTitleTextDomElement: () => textElement('', 0, 0),
+      getTitleTextRawDomElement: () => textElement('', 0, 0),
+      getValueAxisTicksDomElementsForId: () => [textElement('1', 8, 10)],
+      getValueAxisThresholdTitleDomElementsForId: () => []
+    } as unknown as ChartDomAccessors;
+    expect(getTitleTextBounds(mochartConfig, domAccessors)).toEqual({ width: 0, height: 0, empty: true });
+    expect(getChartTextBoundsData(mochartConfig, domAccessors).hasDefault).toBe(false);
+  });
+
+  it('still falls back to default bounds for a non-empty title that cannot be measured yet', () => {
+    const mochartConfig = enhanceConfig({
+      version: '1.0.0',
+      title: { text: 'Title' },
+      categoryAxis: { property: 'label', visible: false },
+      legend: { visible: false },
+      series: [{ property: 'p0' }]
+    } as never) as EnhancedMochartConfig;
+    const domAccessors = {
+      getTitleTextDomElement: () => textElement('Title', 0, 0),
+      getTitleTextRawDomElement: () => textElement('Title', 0, 0),
+      getValueAxisTicksDomElementsForId: () => [textElement('1', 8, 10)],
+      getValueAxisThresholdTitleDomElementsForId: () => []
+    } as unknown as ChartDomAccessors;
+    expect(getTitleTextBounds(mochartConfig, domAccessors)).toEqual({ width: 20, height: 20, default: true });
+    expect(getChartTextBoundsData(mochartConfig, domAccessors).hasDefault).toBe(true);
   });
 });
