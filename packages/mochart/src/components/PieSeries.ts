@@ -6,6 +6,7 @@ import { degreesToRadians } from '../data/PieData';
 import { getSeriesFillColor, getSeriesStrokeColor, getSeriesLabelFillColor, getSeriesLabelStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { getSeriesTitle } from '../utils/SeriesTitle';
+import { sliceIsInteractive } from '../utils/RovingFocus';
 import { getFocusValue, getFocusStrokeWidth } from '../utils/FocusValue';
 import { getGradientReference, getPatternReference } from '../utils/svgUtils';
 import { mochartCssClasses } from '../utils/ChartDom';
@@ -170,9 +171,8 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     }
 
     this.setPresent(true);
-    // clicking does something (focus or selection), so the slice is keyboard-reachable;
     // keyboard focus shows only the ring — mirroring hover would reorder the DOM under the focused node
-    const interactive = accessibility && (seriesConfig.focusOnClick || onSliceClick !== undefined);
+    const interactive = sliceIsInteractive(accessibility, seriesConfig, onSliceClick);
     const { percentFormat } = getPieLabelFormats(pieConfig);
     this.root.set({ className: mochartCssClasses['series'] + seriesConfig.id,
       cursor: seriesConfig.showPointer ? 'pointer' : null,

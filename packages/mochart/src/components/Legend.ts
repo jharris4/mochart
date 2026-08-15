@@ -5,7 +5,8 @@ import { mochartCssClasses } from '../utils/ChartDom';
 import { layoutInfoExtentChanged } from '../layout/LayoutInfo';
 import { resolveLegendIconSize, legendItemClickable } from '../layout/LegendLayout';
 import { prepareTruncation, getTruncatedText, updateTruncation } from '../utils/TextTruncation';
-import { accessibilityActive, focusRestored, translate, translateObject, centerTextY } from '../utils/utils';
+import { accessibilityActive, translate, translateObject, centerTextY } from '../utils/utils';
+import { moveRovingFocus, resolveRovingId, focusedSeriesNode, restoreSeriesFocus } from '../utils/RovingFocus';
 import { getClipPathReference } from '../utils/svgUtils';
 import { getSeriesTitle } from '../utils/SeriesTitle';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
@@ -95,32 +96,7 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
   }
 
   legendKeyDown = (event: Event) => {
-    const { key } = event as KeyboardEvent;
-    const itemNodes = this.interactiveItemNodes();
-    const index = itemNodes.indexOf(event.target as SVGElement);
-    if (index === -1) {
-      return;
-    }
-    let nextIndex: number;
-    if (key === 'ArrowRight' || key === 'ArrowDown') {
-      nextIndex = Math.min(index + 1, itemNodes.length - 1);
-    }
-    else if (key === 'ArrowLeft' || key === 'ArrowUp') {
-      nextIndex = Math.max(index - 1, 0);
-    }
-    else if (key === 'Home') {
-      nextIndex = 0;
-    }
-    else if (key === 'End') {
-      nextIndex = itemNodes.length - 1;
-    }
-    else {
-      return;
-    }
-    event.preventDefault();
-    if (nextIndex !== index) {
-      itemNodes[nextIndex].focus();
-    }
+    moveRovingFocus(event, this.interactiveItemNodes());
   }
 
   legendItemMouseEnter = (seriesId: string) => {
@@ -175,21 +151,7 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
       const interactiveIds = seriesConfigs
         .filter(seriesConfig => seriesConfig.showInLegend && itemIsInteractive(seriesConfig))
         .map(seriesConfig => seriesConfig.id);
-      const { rovingSeriesId } = this.state;
-      // the remembered roving item keeps the tab stop while it exists; when gone, the nearest
-      // following config-order neighbour inherits it, else the last item; with no memory, the first
-      let effectiveRovingId: string | null;
-      if (rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1) {
-        effectiveRovingId = rovingSeriesId;
-      }
-      else if (rovingSeriesId !== null && interactiveIds.length > 0) {
-        const removedIndex = seriesConfigIndicesById[rovingSeriesId] ?? -1;
-        effectiveRovingId = interactiveIds.find(id => seriesConfigIndicesById[id] > removedIndex) ??
-          interactiveIds[interactiveIds.length - 1];
-      }
-      else {
-        effectiveRovingId = interactiveIds[0] ?? null;
-      }
+      const effectiveRovingId = resolveRovingId(this.state.rovingSeriesId, interactiveIds, seriesConfigIndicesById);
       const anyInteractive = interactiveIds.length > 0;
 
       this.setPresent(true);
@@ -230,27 +192,10 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
           });
         }
       });
-      const activeElement = document.activeElement;
-      const focusedItem = activeElement !== null && this.root.node.contains(activeElement) &&
-        activeElement.getAttribute('data-series-id') !== null ? activeElement as SVGElement : null;
-
+      // syncing may move or drop the focused item's node; a gone item hands focus to the tab stop
+      const focusedItem = focusedSeriesNode(this.root.node);
       this.items.sync(items);
-
-      if (focusedItem !== null && document.activeElement !== focusedItem) {
-        if (focusedItem.isConnected) {
-          focusRestored(focusedItem);
-        }
-        else if (effectiveRovingId !== null) {
-          // the focused item is gone: keep keyboard focus in the legend, on the item that
-          // inherited the tab stop, rather than dropping it to the page body
-          for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
-            if (node.getAttribute('data-series-id') === effectiveRovingId) {
-              focusRestored(node);
-              break;
-            }
-          }
-        }
-      }
+      restoreSeriesFocus(this.root.node, focusedItem, effectiveRovingId);
     }
     else {
       this.setPresent(false);

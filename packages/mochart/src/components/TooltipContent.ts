@@ -7,6 +7,7 @@ import type { PieTooltipValues } from '../utils/TooltipFormat';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { mochartCssClasses } from '../utils/ChartDom';
 import { accessibilityActive, focusRestored } from '../utils/utils';
+import { moveRovingFocus } from '../utils/RovingFocus';
 import { getPieSliceFractionMap } from '../data/PieData';
 import { getPieTooltipPercentFormat, pieLabelTypeUsesPercent } from '../data/PieLabel';
 import { NONE, CHART_TYPE_PIE } from '../config/core/constants';
@@ -280,32 +281,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
   }
 
   linesKeyDown = (event: Event) => {
-    const { key } = event as KeyboardEvent;
-    const rowNodes = this.interactiveRowNodes();
-    const index = rowNodes.indexOf(event.target as HTMLElement);
-    if (index === -1) {
-      return;
-    }
-    let nextIndex: number;
-    if (key === 'ArrowRight' || key === 'ArrowDown') {
-      nextIndex = Math.min(index + 1, rowNodes.length - 1);
-    }
-    else if (key === 'ArrowLeft' || key === 'ArrowUp') {
-      nextIndex = Math.max(index - 1, 0);
-    }
-    else if (key === 'Home') {
-      nextIndex = 0;
-    }
-    else if (key === 'End') {
-      nextIndex = rowNodes.length - 1;
-    }
-    else {
-      return;
-    }
-    event.preventDefault();
-    if (nextIndex !== index) {
-      rowNodes[nextIndex].focus();
-    }
+    moveRovingFocus(event, this.interactiveRowNodes());
   }
 
   onRootKeyDown = (event: Event) => {

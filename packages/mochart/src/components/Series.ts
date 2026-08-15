@@ -5,6 +5,7 @@ import { getLineGenerator, getRangeLineGenerator, getAreaGenerator, getColumnGen
 import { getSeriesColorGenerator } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { getSeriesTitle } from '../utils/SeriesTitle';
+import { seriesIsInteractive } from '../utils/RovingFocus';
 import { mochartCssClasses } from '../utils/ChartDom';
 import { areArraysAndEqual, translateObject } from '../utils/utils';
 import { NONE, RENDERER_AREA, RENDERER_LINE, RENDERER_BAR } from '../config/core/constants';
@@ -361,10 +362,8 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       }
 
       this.setPresent(true);
-      // clicking does something (focus or onSeriesClick), so the series is keyboard-
-      // reachable, like a pie slice; followers stay pointer-only — their clicks route to the leader
-      const interactive = this.props.accessibility && seriesConfig.followSeries === NONE &&
-        (seriesConfig.focusOnClick || this.props.onSeriesShapeClick !== null);
+      // followers stay pointer-only — their clicks route to the leader
+      const interactive = seriesIsInteractive(this.props.accessibility, seriesConfig, this.props.onSeriesShapeClick);
       this.root.set({ className: mochartCssClasses['series'] + seriesId,
         ariaHidden: this.props.accessibility && !interactive ? 'true' : null,
         dataSeriesId: interactive ? seriesId : null,

@@ -2,9 +2,9 @@ import { Renderer, svgEl } from '../render';
 
 import { getSeriesConfigsOrderedByFocus } from '../data/FocusData';
 import { mochartCssClasses } from '../utils/ChartDom';
-import { accessibilityActive, focusRestored } from '../utils/utils';
+import { accessibilityActive } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
-import { NONE } from '../config/core/constants';
+import { moveRovingFocus, seriesNodesInConfigOrder, resolveRovingId, focusedSeriesNode, restoreSeriesFocus, seriesIsInteractive } from '../utils/RovingFocus';
 
 import SeriesBackground from './SeriesBackground';
 import type { SeriesShapeA11yProps } from './SeriesBackground';
@@ -43,22 +43,6 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
     this.state = { rovingSeriesId: null };
   }
 
-  /** interactive series nodes in config order (the DOM is focus-ordered, so it cannot drive navigation) */
-  private orderedSeriesNodes(): SVGElement[] {
-    const nodeById = new Map<string, SVGElement>();
-    for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
-      nodeById.set(node.getAttribute('data-series-id')!, node);
-    }
-    const nodes: SVGElement[] = [];
-    for (const seriesConfig of this.props.mochartConfig.series) {
-      const node = nodeById.get(seriesConfig.id);
-      if (node !== undefined) {
-        nodes.push(node);
-      }
-    }
-    return nodes;
-  }
-
   /** any focus landing on a series (Tab, arrows, mouse) makes it the roving tab stop */
   seriesFocusIn = (event: Event) => {
     const seriesId = (event.target as Element).getAttribute?.('data-series-id');
@@ -83,31 +67,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
       // there is no category for it to open the tooltip at — the plot rect owns that
       return;
     }
-    const nodes = this.orderedSeriesNodes();
-    const index = nodes.indexOf(target as SVGElement);
-    if (index === -1) {
-      return;
-    }
-    let nextIndex: number;
-    if (key === 'ArrowRight' || key === 'ArrowDown') {
-      nextIndex = Math.min(index + 1, nodes.length - 1);
-    }
-    else if (key === 'ArrowLeft' || key === 'ArrowUp') {
-      nextIndex = Math.max(index - 1, 0);
-    }
-    else if (key === 'Home') {
-      nextIndex = 0;
-    }
-    else if (key === 'End') {
-      nextIndex = nodes.length - 1;
-    }
-    else {
-      return;
-    }
-    event.preventDefault();
-    if (nextIndex !== index) {
-      nodes[nextIndex].focus();
-    }
+    moveRovingFocus(event, seriesNodesInConfigOrder(this.root.node, this.props.mochartConfig.series));
   }
 
   create() {
@@ -126,27 +86,11 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
     const orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
 
     const accessibility = accessibilityActive(mochartConfig.accessibility);
-    const seriesIsInteractive = (id: string): boolean =>
-      accessibility &&
-      mochartConfig.seriesById[id].followSeries === NONE &&
-      (mochartConfig.seriesById[id].focusOnClick || onSeriesShapeClick !== null) &&
-      filteredValues[id].plain !== null;
-    const interactiveIds = mochartConfig.series.map(sc => sc.id).filter(seriesIsInteractive);
-    const { rovingSeriesId } = this.state;
-    // the remembered roving series keeps the tab stop while it exists; when filtered out,
-    // the nearest following (else preceding) config-order neighbor inherits it; no memory → first series
-    let effectiveRovingId: string | null;
-    if (rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1) {
-      effectiveRovingId = rovingSeriesId;
-    }
-    else if (rovingSeriesId !== null && interactiveIds.length > 0) {
-      const removedIndex = seriesConfigIndicesById[rovingSeriesId] ?? -1;
-      effectiveRovingId = interactiveIds.find(id => seriesConfigIndicesById[id] > removedIndex) ??
-        interactiveIds[interactiveIds.length - 1];
-    }
-    else {
-      effectiveRovingId = interactiveIds[0] ?? null;
-    }
+    // filtered-out series render nothing (see Series.sync), so they hold no tab stop
+    const interactiveIds = mochartConfig.series
+      .filter(sc => seriesIsInteractive(accessibility, sc, onSeriesShapeClick) && filteredValues[sc.id].plain !== null)
+      .map(sc => sc.id);
+    const effectiveRovingId = resolveRovingId(this.state.rovingSeriesId, interactiveIds, seriesConfigIndicesById);
 
     // the roving series are one group, named like the legend's
     const anyInteractive = interactiveIds.length > 0;
@@ -161,9 +105,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
     this.background.set(SeriesBackground, { seriesLayoutInfo, shapeRef, a11yProps });
 
     // reordering below moves the focused series' node, which drops DOM focus
-    const activeElement = document.activeElement;
-    const focusedSeries = activeElement !== null && this.root.node.contains(activeElement) &&
-      activeElement.getAttribute('data-series-id') !== null ? activeElement as SVGElement : null;
+    const focusedSeries = focusedSeriesNode(this.root.node);
 
     this.series.sync(orderedSeriesConfigs.map(seriesConfig => {
       const { id, axis } = seriesConfig;
@@ -183,20 +125,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
       };
     }));
 
-    if (focusedSeries !== null && document.activeElement !== focusedSeries) {
-      if (focusedSeries.isConnected) {
-        focusRestored(focusedSeries);
-      }
-      else if (effectiveRovingId !== null) {
-        // the focused series was filtered out: keep keyboard focus in the plot,
-        // on the series that inherited the tab stop
-        for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
-          if (node.getAttribute('data-series-id') === effectiveRovingId) {
-            focusRestored(node);
-            break;
-          }
-        }
-      }
-    }
+    // a filtered-out focused series hands focus to the one that inherited the tab stop
+    restoreSeriesFocus(this.root.node, focusedSeries, effectiveRovingId);
   }
 }

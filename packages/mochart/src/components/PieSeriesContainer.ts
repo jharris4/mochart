@@ -5,7 +5,8 @@ import { getPieSliceAngles, sweepPieSliceAngles } from '../data/PieData';
 import type { PieSliceAngles } from '../data/PieData';
 import { getRadialLayoutInfo } from '../layout/RadialLayout';
 import { mochartCssClasses } from '../utils/ChartDom';
-import { accessibilityActive, focusRestored } from '../utils/utils';
+import { accessibilityActive } from '../utils/utils';
+import { moveRovingFocus, seriesNodesInConfigOrder, resolveRovingId, focusedSeriesNode, restoreSeriesFocus, sliceIsInteractive } from '../utils/RovingFocus';
 
 import SeriesBackground from './SeriesBackground';
 import type { SeriesShapeA11yProps } from './SeriesBackground';
@@ -44,22 +45,6 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     this.state = { rovingSeriesId: null };
   }
 
-  /** interactive slice nodes in config order (the DOM is focus-ordered, so it cannot drive navigation) */
-  private orderedSliceNodes(): SVGElement[] {
-    const nodeById = new Map<string, SVGElement>();
-    for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
-      nodeById.set(node.getAttribute('data-series-id')!, node);
-    }
-    const nodes: SVGElement[] = [];
-    for (const seriesConfig of this.props.mochartConfig.series) {
-      const node = nodeById.get(seriesConfig.id);
-      if (node !== undefined) {
-        nodes.push(node);
-      }
-    }
-    return nodes;
-  }
-
   /** any focus landing on a slice (Tab, arrows, mouse) makes it the roving tab stop */
   sliceFocusIn = (event: Event) => {
     const seriesId = (event.target as Element).getAttribute?.('data-series-id');
@@ -81,31 +66,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
       this.props.a11yProps?.onKeyDown(event);
       return;
     }
-    const nodes = this.orderedSliceNodes();
-    const index = nodes.indexOf(target as SVGElement);
-    if (index === -1) {
-      return;
-    }
-    let nextIndex: number;
-    if (key === 'ArrowRight' || key === 'ArrowDown') {
-      nextIndex = Math.min(index + 1, nodes.length - 1);
-    }
-    else if (key === 'ArrowLeft' || key === 'ArrowUp') {
-      nextIndex = Math.max(index - 1, 0);
-    }
-    else if (key === 'Home') {
-      nextIndex = 0;
-    }
-    else if (key === 'End') {
-      nextIndex = nodes.length - 1;
-    }
-    else {
-      return;
-    }
-    event.preventDefault();
-    if (nextIndex !== index) {
-      nodes[nextIndex].focus();
-    }
+    moveRovingFocus(event, seriesNodesInConfigOrder(this.root.node, this.props.mochartConfig.series));
   }
 
   create() {
@@ -140,26 +101,11 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     const orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
 
     const accessibility = accessibilityActive(mochartConfig.accessibility);
-    const sliceIsInteractive = (id: string): boolean =>
-      accessibility &&
-      (mochartConfig.seriesById[id].focusOnClick || onSliceClick !== undefined) &&
-      (sliceAngles[id]?.fraction ?? 0) > 0;
-    const interactiveIds = mochartConfig.series.map(sc => sc.id).filter(sliceIsInteractive);
-    const { rovingSeriesId } = this.state;
-    // the remembered roving slice keeps the tab stop while it exists; when gone (filtered out) the
-    // nearest following config-order neighbor inherits it, else the preceding one; with no memory, the first
-    let effectiveRovingId: string | null;
-    if (rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1) {
-      effectiveRovingId = rovingSeriesId;
-    }
-    else if (rovingSeriesId !== null && interactiveIds.length > 0) {
-      const removedIndex = seriesConfigIndicesById[rovingSeriesId] ?? -1;
-      effectiveRovingId = interactiveIds.find(id => seriesConfigIndicesById[id] > removedIndex) ??
-        interactiveIds[interactiveIds.length - 1];
-    }
-    else {
-      effectiveRovingId = interactiveIds[0] ?? null;
-    }
+    // zero-fraction slices render nothing (see PieSeries.sync), so they hold no tab stop
+    const interactiveIds = mochartConfig.series
+      .filter(sc => sliceIsInteractive(accessibility, sc, onSliceClick) && (sliceAngles[sc.id]?.fraction ?? 0) > 0)
+      .map(sc => sc.id);
+    const effectiveRovingId = resolveRovingId(this.state.rovingSeriesId, interactiveIds, seriesConfigIndicesById);
 
     // the roving slices are one group, named like the legend's
     const anyInteractive = interactiveIds.length > 0;
@@ -172,9 +118,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     this.background.set(SeriesBackground, { seriesLayoutInfo, shapeRef, a11yProps });
 
     // reordering below moves the focused slice's node, which drops DOM focus
-    const activeElement = document.activeElement;
-    const focusedSlice = activeElement !== null && this.root.node.contains(activeElement) &&
-      activeElement.getAttribute('data-series-id') !== null ? activeElement as SVGElement : null;
+    const focusedSlice = focusedSeriesNode(this.root.node);
 
     this.series.sync(orderedSeriesConfigs.map(seriesConfig => ({
       key: 'series-' + seriesConfig.id,
@@ -190,21 +134,8 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
         accessibility, tabStop: seriesConfig.id === effectiveRovingId }
     })));
 
-    if (focusedSlice !== null && document.activeElement !== focusedSlice) {
-      if (focusedSlice.isConnected) {
-        focusRestored(focusedSlice);
-      }
-      else if (effectiveRovingId !== null) {
-        // the focused slice was filtered out: keep keyboard focus in the pie,
-        // on the slice that inherited the tab stop
-        for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
-          if (node.getAttribute('data-series-id') === effectiveRovingId) {
-            focusRestored(node);
-            break;
-          }
-        }
-      }
-    }
+    // a filtered-out focused slice hands focus to the one that inherited the tab stop
+    restoreSeriesFocus(this.root.node, focusedSlice, effectiveRovingId);
 
     // The center total sums the current (possibly mid-tween) values, counting along with value
     // changes — and with filtering, unless adjustCenterTotalForFiltering turns that off.
