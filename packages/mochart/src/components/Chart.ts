@@ -111,7 +111,7 @@ type ChartStateUpdate = Partial<ChartState>;
 type ChartPointCallback = (chartX: number, chartY: number) => void;
 type ChartPointerEvent = MouseEvent | TouchEvent;
 type FactoryContent = ChartFactoryContent | El;
-type FactoryEl = El & { _factoryContent?: FactoryContent };
+type FactoryEl = El & { _factory?: ChartContentFactory | null; _factoryContext?: ChartFactoryContext | null };
 
 const emptyFilteredFlags = {};
 
@@ -205,17 +205,29 @@ function factoryContentToNode(content: FactoryContent): Node | null {
   return content;
 }
 
-/** Replace a container's children with factory-produced content. */
-function setFactoryContent(containerEl: FactoryEl, content: FactoryContent): void {
-  if (containerEl._factoryContent === content) {
+/** True when a state factory would see the same inputs: same factory, same six context members. */
+function sameFactoryInputs(
+  lastFactory: ChartContentFactory | null | undefined, lastContext: ChartFactoryContext | null | undefined,
+  factory: ChartContentFactory | null, context: ChartFactoryContext
+): boolean {
+  return lastFactory === factory && lastContext != null
+    && lastContext.width === context.width && lastContext.height === context.height
+    && lastContext.mochartConfig === context.mochartConfig && lastContext.dataProvider === context.dataProvider
+    && lastContext.error === context.error && lastContext.hasData === context.hasData;
+}
+
+/** Replace a container's children with a factory's content; runs the factory only when its inputs changed. */
+function syncFactoryContent(containerEl: FactoryEl, factory: ChartContentFactory, context: ChartFactoryContext): void {
+  if (sameFactoryInputs(containerEl._factory, containerEl._factoryContext, factory, context)) {
     return;
   }
-  containerEl._factoryContent = content;
+  containerEl._factory = factory;
+  containerEl._factoryContext = context;
   const containerNode = containerEl.node;
   while (containerNode.firstChild) {
     containerNode.removeChild(containerNode.firstChild);
   }
-  const node = factoryContentToNode(content);
+  const node = factoryContentToNode(factory(context));
   if (node) {
     containerNode.appendChild(node);
   }
@@ -343,7 +355,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   messageRef: HTMLElement | null = null;
   isMouseWithinChart = false;
   chartEventHandler: Record<string, (event: ChartPointerEvent) => void>;
-  _simpleNodeContent: FactoryContent = null;
+  _simpleFactory: ChartContentFactory | null = null;
+  _simpleFactoryContext: ChartFactoryContext | null = null;
   _simpleNode: Node | null = null;
 
   constructor() {
@@ -1127,17 +1140,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     // negative and non-finite sizes would reach the svg as invalid width/height
     const hasSize = width > 0 && height > 0;
     if (!hasSize || (mochartConfig && !mochartConfig.validation.valid)) {
-      let errorComponent: FactoryContent = false;
-      if (!hasSize) {
-        errorComponent = noSizeFactory(this.factoryContext(width, height, error));
-      }
-      else if (mochartConfig) {
-        errorComponent = configErrorFactory(this.factoryContext(width, height, error));
-      }
-      else {
-        errorComponent = false;
-      }
-      this.syncMessage(mochartCssClasses['chartError'], style, errorComponent, focusedNode);
+      const messageFactory = !hasSize ? noSizeFactory : configErrorFactory;
+      this.syncMessage(mochartCssClasses['chartError'], style, messageFactory, this.factoryContext(width, height, error), focusedNode);
       return;
     }
 
@@ -1145,10 +1149,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
     if (!mochartConfig) {
       if (isErrorActive(error)) {
-        this.syncMessage(mochartCssClasses['chartError'], style, errorFactory(this.factoryContext(width, height, error)), focusedNode);
+        this.syncMessage(mochartCssClasses['chartError'], style, errorFactory, this.factoryContext(width, height, error), focusedNode);
       }
       else if (loading) {
-        this.syncMessage(mochartCssClasses['loading'], style, loadingFactory(this.factoryContext(width, height, error)), focusedNode);
+        this.syncMessage(mochartCssClasses['loading'], style, loadingFactory, this.factoryContext(width, height, error), focusedNode);
       }
       else {
         this.chartRef = null;
@@ -1175,12 +1179,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     this.root.set({ className: rootClassName, ...chartEventHandler, style, [mochartVersionAttribute]: getVersionString(),
       'aria-hidden': mochartConfig.accessibility.hidden ? 'true' : null });
     this.chartRef = this.root.node;
-    this.setSimpleContent(false);
+    this.setSimpleContent(null, null);
     this.body.set(ChartBody, { chart: this, mochartConfig, chartProps: this.props, chartState: this.state, error, loading });
   }
 
   /** Replace the chart body with a message state (no size, invalid config, no-config error/loading); the root becomes the message container. */
-  private syncMessage(className: string, style: ChartProps['style'], content: FactoryContent, focusedNode: Element | null): void {
+  private syncMessage(className: string, style: ChartProps['style'], factory: ChartContentFactory, context: ChartFactoryContext, focusedNode: Element | null): void {
     const { mochartConfig } = this.props;
     // no config means nothing can switch accessibility off
     const accessibility = mochartConfig ? accessibilityActive(mochartConfig.accessibility) : true;
@@ -1190,22 +1194,23 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     this.root.set({ className, style, [mochartVersionAttribute]: getVersionString(),
       'aria-hidden': mochartConfig?.accessibility.hidden ? 'true' : null, tabindex: accessibility ? '-1' : null });
     this.clearBody();
-    this.setSimpleContent(content);
+    this.setSimpleContent(factory, context);
     this.messageRef = accessibility ? this.root.node as HTMLElement : null;
     this.restoreTornDownFocus(focusedNode);
   }
 
-  /** Insert factory-produced content into the simple-content region of the root div. */
-  setSimpleContent(content: FactoryContent): void {
-    if (this._simpleNodeContent === content) {
+  /** Fill the simple-content region of the root div from a factory (null clears it); runs the factory only when its inputs changed. */
+  setSimpleContent(factory: ChartContentFactory | null, context: ChartFactoryContext | null): void {
+    if (factory === null ? this._simpleFactory === null : sameFactoryInputs(this._simpleFactory, this._simpleFactoryContext, factory, context!)) {
       return;
     }
-    this._simpleNodeContent = content;
+    this._simpleFactory = factory;
+    this._simpleFactoryContext = context;
     if (this._simpleNode && this._simpleNode.parentNode) {
       this._simpleNode.parentNode.removeChild(this._simpleNode);
     }
     this._simpleNode = null;
-    const node = factoryContentToNode(content);
+    const node = factory ? factoryContentToNode(factory(context!)) : null;
     if (node) {
       this.root.node.insertBefore(node, this.simpleContent.anchor);
       this._simpleNode = node;
@@ -1428,7 +1433,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
         const noSeriesEl = body.noSeriesSlot.set('div', () => htmlEl('div'));
         noSeriesEl!.set({ className: mochartCssClasses['noSeries'], style: noSeriesStyle });
-        setFactoryContent(noSeriesEl!, noSeriesFactory(this.factoryContext(width, height, error)));
+        syncFactoryContent(noSeriesEl!, noSeriesFactory, this.factoryContext(width, height, error));
       }
       else {
         body.noSeriesSlot.set(null);
@@ -1458,21 +1463,14 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         maxWidth: width
       };
 
-      let noDataContent: FactoryContent = false;
-      if (isErrorActive(error)) {
-        noDataContent = errorFactory(this.factoryContext(width, height, error));
-      }
-      else if (!loading && hasChartData && categoryCount === 0) {
-        noDataContent = noDataFactory(this.factoryContext(width, height, error));
-      }
-      else {
-        noDataContent = loadingFactory(this.factoryContext(width, height, error));
-      }
+      const noDataContentFactory = isErrorActive(error) ? errorFactory
+        : !loading && hasChartData && categoryCount === 0 ? noDataFactory
+        : loadingFactory;
 
       const noDataEl = body.noDataSlot.set('div', () => htmlEl('div'));
       // -1: never a tab stop, but focusable for the teardown restore below, which reads out the message
       noDataEl!.set({ className: mochartCssClasses['noData'], style: noDataStyle, tabindex: accessibility ? '-1' : null });
-      setFactoryContent(noDataEl!, noDataContent);
+      syncFactoryContent(noDataEl!, noDataContentFactory, this.factoryContext(width, height, error));
       this.messageRef = accessibility ? noDataEl!.node as HTMLElement : null;
     }
 
@@ -1495,7 +1493,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
       const loadingEl = body.loadingSlot.set('div', () => htmlEl('div'));
       loadingEl!.set({ className: mochartCssClasses['loading'], style: loadingStyle });
-      setFactoryContent(loadingEl!, loadingFactory(this.factoryContext(width, height, error)));
+      syncFactoryContent(loadingEl!, loadingFactory, this.factoryContext(width, height, error));
     }
     else {
       body.loadingSlot.set(null);

@@ -270,3 +270,72 @@ describe('the state factory context', () => {
     expect(seen[0].hasData).toBe(false);
   });
 });
+
+// Regression: the overlays deduped on the factory's returned node, which the defaults mint fresh per call, so every
+// pointer-driven setState tore the message down and rebuilt it; factories now run only when their inputs change
+describe('state factory re-invocation', () => {
+  function counting(text: string) {
+    const calls: ChartFactoryContext[] = [];
+    const factory = (context: ChartFactoryContext) => {
+      calls.push(context);
+      return marker(text)();
+    };
+    return { calls, factory };
+  }
+
+  function mouse(target: Element, type: string, clientX: number, clientY: number): void {
+    target.dispatchEvent(new MouseEvent(type, { clientX, clientY, bubbles: true }));
+  }
+
+  it('keeps the loading overlay content across pointer-driven state changes', () => {
+    const { calls, factory } = counting('custom loading');
+    const container = mountChart({ loading: true, getLoadingComponent: factory }, makeConfig({ tooltip: { followPointer: true } }));
+    const root = container.querySelector(getCssSelector('chart'))!;
+    const before = container.querySelector('.factory-marker')!;
+    expect(calls.length).toBe(1);
+
+    // pointer tracking stays live while loading, so each followPointer move is a setState → syncBody
+    mouse(root, 'mouseenter', 100, 100);
+    mouse(root, 'mousemove', 200, 100);
+    mouse(root, 'mousemove', 300, 100);
+    expect(calls.length).toBe(1);
+    expect(container.querySelector('.factory-marker')).toBe(before);
+  });
+
+  it('keeps the overlay content across a re-sync with unchanged inputs, and reruns the factory on resize', () => {
+    const { calls, factory } = counting('custom loading');
+    const container = mountContainer();
+    const props = { config: makeConfig(), data: rows, width: WIDTH, height: HEIGHT, loading: true, getLoadingComponent: factory } as DefaultChartProps;
+    const handle = trackHandle(createDefaultChart(container, props));
+    const before = container.querySelector('.factory-marker')!;
+    expect(calls.length).toBe(1);
+
+    // a fresh callback identity re-syncs the chart, as a host re-render with inline arrows does
+    handle.update({ ...props, onChartMouseMove: () => {} });
+    expect(calls.length).toBe(1);
+    expect(container.querySelector('.factory-marker')).toBe(before);
+
+    handle.update({ ...props, width: WIDTH - 100 });
+    expect(calls.length).toBe(2);
+    expect(calls[1].width).toBeLessThan(calls[0].width);
+    expect(container.querySelector('.factory-marker')).not.toBe(before);
+  });
+
+  it('keeps the no-config loading message across a re-sync with unchanged inputs, and reruns the factory on resize', () => {
+    const { calls, factory } = counting('custom loading');
+    const container = mountContainer();
+    const props = { mochartConfig: null, dataProvider: null, width: WIDTH, height: HEIGHT, loading: true, getLoadingComponent: factory } as unknown as ManagedChartProps;
+    const handle = trackHandle(createChart(container, props) as unknown as ChartHandle<DefaultChartProps>);
+    const before = container.querySelector('.factory-marker')!;
+    expect(calls.length).toBe(1);
+
+    (handle as unknown as ChartHandle<ManagedChartProps>).update({ ...props, onChartMouseMove: () => {} });
+    expect(calls.length).toBe(1);
+    expect(container.querySelector('.factory-marker')).toBe(before);
+
+    (handle as unknown as ChartHandle<ManagedChartProps>).update({ ...props, width: WIDTH - 100 });
+    expect(calls.length).toBe(2);
+    expect(calls[1].width).toBe(WIDTH - 100);
+    expect(container.querySelector('.factory-marker')).not.toBe(before);
+  });
+});
