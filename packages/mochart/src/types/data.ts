@@ -203,4 +203,10 @@ export interface DataProvider {
   refresh?(): void;
 }
 
-export type DataRow = Record<string, unknown>;
+export type DataObject = Record<string, unknown>;
+
+/** The dataset shape `ArrayOfObjectsDataProvider` wraps: one object per category. */
+export type ArrayOfObjectsData = readonly DataObject[];
+
+/** The dataset shape `ObjectOfArraysDataProvider` wraps: one values array per property. */
+export type ObjectOfArraysData = Readonly<Record<string, readonly DataValue[]>>;

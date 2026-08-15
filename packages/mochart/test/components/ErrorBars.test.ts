@@ -12,7 +12,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
-import type { DataRow } from '../../src/types/data';
+import type { DataObject } from '../../src/types/data';
 import { getCssClass, getIdCssClass, getIdCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
@@ -27,7 +27,7 @@ const rows = [
 
 let handles: ChartHandle<DefaultChartProps>[] = [];
 
-function mountChart(config: MochartInputConfig, data: DataRow[] = rows): Element {
+function mountChart(config: MochartInputConfig, data: DataObject[] = rows): Element {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const handle = createDefaultChart(container, {

@@ -3,13 +3,13 @@ import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, contr
 import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer } from '../misc/dom';
 import { overflowMenu } from '../misc/OverflowMenu';
 
-import type { DemoConfig, DataRow } from '../../types';
+import type { DemoConfig, DataObject } from '../../types';
 
 export interface DataTabProps {
   active?: boolean;
   config: DemoConfig;
-  data: DataRow[];
-  onDataChange: (data: DataRow[]) => void;
+  data: DataObject[];
+  onDataChange: (data: DataObject[]) => void;
   onDataError: (errorMessage: string) => void;
   onDataReset: () => void;
 }
@@ -18,7 +18,7 @@ export interface DataTabHandle {
   el: HTMLElement;
   setActive(active: boolean): void;
   setConfig(config: DemoConfig): void;
-  setData(data: DataRow[]): void;
+  setData(data: DataObject[]): void;
   destroy(): void;
 }
 
@@ -205,7 +205,7 @@ export function dataTab(props: DataTabProps): DataTabHandle {
         sync();
       }
     },
-    setData(nextData: DataRow[]) {
+    setData(nextData: DataObject[]) {
       if (nextData !== data) {
         data = nextData;
         fullData = nextData;

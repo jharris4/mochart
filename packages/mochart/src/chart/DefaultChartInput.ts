@@ -3,13 +3,13 @@ import { ArrayOfObjectsDataProvider } from '../data/DataProvider';
 import { getDataErrors } from '../data/DataValidator';
 import type { DefaultChartProps } from '../types/chart';
 import type { EnhancedMochartConfig } from '../types/enhanced';
-import type { DataProvider, DataRow } from '../types/data';
+import type { ArrayOfObjectsData, DataProvider } from '../types/data';
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return v !== null && v !== undefined && typeof v === "object";
 }
 
-function isArrayOfObjects(data: readonly unknown[]): data is readonly DataRow[] {
+function isArrayOfObjects(data: readonly unknown[]): data is ArrayOfObjectsData {
   return Array.isArray(data) && !data.some(v => !isObject(v));
 }
 

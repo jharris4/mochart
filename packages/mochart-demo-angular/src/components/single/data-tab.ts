@@ -11,7 +11,7 @@ import { Icon } from '../misc/icon';
 import { OverflowMenu } from '../misc/overflow-menu';
 import { phoneViewport } from '../misc/phone-viewport';
 
-import type { DemoConfig, DataRow } from '../../types';
+import type { DemoConfig, DataObject } from '../../types';
 
 @Component({
   selector: 'app-data-tab',
@@ -81,8 +81,8 @@ export class DataTab implements OnInit, OnChanges {
   readonly editorPlacement = controlsMenuPlacement;
   readonly getFooterAnchor = (): HTMLElement => this.footerElement.nativeElement;
   @Input({ required: true }) config!: DemoConfig;
-  @Input({ required: true }) data!: DataRow[];
-  @Input({ required: true }) onDataChange!: (data: DataRow[]) => void;
+  @Input({ required: true }) data!: DataObject[];
+  @Input({ required: true }) onDataChange!: (data: DataObject[]) => void;
   @Input({ required: true }) onDataError!: (errorMessage: string) => void;
   @Input({ required: true }) onDataReset!: () => void;
 
@@ -95,7 +95,7 @@ export class DataTab implements OnInit, OnChanges {
   // textarea, viewUsedProperties the used-set its current content was rendered
   // with (null when every property is shown).
   showUnused = signal(false);
-  private fullData: DataRow[] = [];
+  private fullData: DataObject[] = [];
   private usedProperties: Set<string> | null = null;
   private viewUsedProperties: Set<string> | null = null;
 
@@ -123,7 +123,7 @@ export class DataTab implements OnInit, OnChanges {
     }
   }
 
-  private renderView(fullRows: DataRow[]): void {
+  private renderView(fullRows: DataObject[]): void {
     this.fullData = fullRows;
     this.viewUsedProperties = this.showUnused() ? null : this.usedProperties;
     this.dataText.set(formatDataView(fullRows, this.viewUsedProperties));

@@ -15,8 +15,8 @@ import { buildChartTypeDemoSnapshots } from '../src/chartTypeGenerators';
 
 const demoDataDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'mochart-demo-data', 'src');
 
-// Matches the hand-written demo data files: one row object per line.
-function formatDataRows(rows: unknown[]): string {
+// Matches the hand-written demo data files: one data object per line.
+function formatDataObjects(rows: unknown[]): string {
   return '[\n' + rows.map(row => '  ' + JSON.stringify(row)).join(',\n') + '\n]\n';
 }
 
@@ -33,7 +33,7 @@ export function buildChartTypeDemoSnapshotFiles(): SnapshotFile[] {
     },
     {
       path: path.join(demoDataDir, 'data', snapshot.id + '-data.json'),
-      content: formatDataRows(snapshot.data)
+      content: formatDataObjects(snapshot.data)
     }
   ]);
 }

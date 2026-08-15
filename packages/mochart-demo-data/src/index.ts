@@ -1,9 +1,9 @@
 import demosJson from './demos.json';
 
-import type { DataRow, Demo, DemoConfig, DemoData, DemoManifestEntry, DemoRandomConfig } from './types';
+import type { DataObject, Demo, DemoConfig, DemoData, DemoManifestEntry, DemoRandomConfig } from './types';
 
 export type {
-  DataRow, Demo, DemoConfig, DemoData, DemoRandomConfig,
+  DataObject, Demo, DemoConfig, DemoData, DemoRandomConfig,
   ErrorBarsRandomConfig, HeatmapRandomConfig, HistogramRandomConfig, PieRandomConfig,
   RandomConfig, WalkRandomConfig, WaterfallRandomConfig
 } from './types';
@@ -25,7 +25,7 @@ function getModule(modules: ModuleMap, dir: string, file: string): unknown {
 
 const { demos, testDemos } = demosJson as { demos: DemoManifestEntry[]; testDemos: DemoManifestEntry[] };
 
-// deep copies: nested config sections and data rows must never be shared
+// deep copies: nested config sections and data objects must never be shared
 // module-level singletons, or one consumer's in-place edit poisons the rest
 function deepCopy<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -39,7 +39,7 @@ function buildDemo(entry: DemoManifestEntry, configModuleMap: ModuleMap, configD
     description,
     notes,
     config: deepCopy(getModule(configModuleMap, configDir, config) as DemoConfig),
-    data: deepCopy(getModule(dataModules, './data/', data) as DataRow[]),
+    data: deepCopy(getModule(dataModules, './data/', data) as DataObject[]),
     random: deepCopy(getModule(randomModules, './random/', random) as DemoRandomConfig),
     generator
   };

@@ -1,7 +1,7 @@
 import type { MochartInputConfig } from '@mochart/core';
 
 /** A single data row in a demo's data set. */
-export type DataRow = Record<string, unknown>;
+export type DataObject = Record<string, unknown>;
 
 /** A demo's editable chart config (the input config plus arbitrary edits). */
 export type DemoConfig = MochartInputConfig & Record<string, unknown>;
@@ -151,7 +151,7 @@ export interface Demo {
   /** The longer explanation (see DemoManifestEntry.notes). */
   notes?: string;
   config: DemoConfig;
-  data: DataRow[];
+  data: DataObject[];
   random: DemoRandomConfig;
   /** Chart-type random-mode generator id (see DemoManifestEntry.generator). */
   generator?: string;

@@ -6,11 +6,11 @@ import { el, observeSize, setActiveClass, tabContainer } from '../misc/dom';
 import { editableChart } from './EditableChart';
 import type { EditableChartHandle } from './EditableChart';
 
-import type { DemoConfig, DataRow, MochartDemoConfig, FocusData, FilteredSeriesIds } from '../../types';
+import type { DemoConfig, DataObject, MochartDemoConfig, FocusData, FilteredSeriesIds } from '../../types';
 
 export interface ChartTabProps {
   config?: DemoConfig | null;
-  data?: DataRow[] | null;
+  data?: DataObject[] | null;
   dataError?: string | boolean | null;
   active?: boolean;
 }
@@ -18,7 +18,7 @@ export interface ChartTabProps {
 export interface ChartTabHandle {
   el: HTMLElement;
   setActive(active: boolean): void;
-  update(next: { config: DemoConfig | null; data: DataRow[] | null; dataError: string | boolean | null }): void;
+  update(next: { config: DemoConfig | null; data: DataObject[] | null; dataError: string | boolean | null }): void;
   destroy(): void;
 }
 
@@ -170,7 +170,7 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
     // Mirror the framework lifecycle: a config change rebuilds the demo config
     // and resets focus/filter state when the structure changed (or on data
     // errors); a data change remaps the focused category index onto the new data.
-    update(next: { config: DemoConfig | null; data: DataRow[] | null; dataError: string | boolean | null }) {
+    update(next: { config: DemoConfig | null; data: DataObject[] | null; dataError: string | boolean | null }) {
       const nextConfig = next.config;
       const nextData = next.data;
       const nextDataError = next.dataError;

@@ -1,5 +1,5 @@
 export type {
-  DataRow, Demo, DemoConfig, DemoData,
+  DataObject, Demo, DemoConfig, DemoData,
   FilteredSeriesIds, FocusData, TransitionConfig,
   ChartDataProviderLike, DemoDataProvider,
   RandomConfigWithValid, MochartDemoConfig
@@ -22,7 +22,7 @@ export {
 } from './configEditing';
 export type { DemoConfigView } from './configEditing';
 
-export { generateDemoDataProvider, getRandomDataRows } from './chartTypeGenerators';
+export { generateDemoDataProvider, getRandomDataObjects } from './chartTypeGenerators';
 
 export { createErrorDataProvider } from './errorDataProvider';
 

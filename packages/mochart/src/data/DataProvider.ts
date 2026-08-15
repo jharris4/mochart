@@ -1,31 +1,29 @@
-import type { DataProvider, DataRow, DataValue } from '../types/data';
+import type { DataProvider, DataObject, DataValue, ObjectOfArraysData } from '../types/data';
 
 /**
- * Stateless per-property reads over an array of row objects. Rows added,
+ * Stateless per-property reads over an array of objects. Objects added,
  * removed, or edited in place are seen whenever the chart re-reads; the chart
  * handle's `refresh` triggers that re-read.
  */
-export class ArrayOfObjectsDataProvider<TRow extends DataRow = DataRow> implements DataProvider {
-  constructor(private readonly data: readonly TRow[]) {
+export class ArrayOfObjectsDataProvider<TObject extends DataObject = DataObject> implements DataProvider {
+  constructor(private readonly data: readonly TObject[]) {
   }
 
   getPropertyValues(property: string): readonly DataValue[] | undefined {
-    // a property in no row is absent, not N missing values
-    if (this.data.length > 0 && !this.data.some(row => property in row)) {
+    // a property in no object is absent, not N missing values
+    if (this.data.length > 0 && !this.data.some(obj => property in obj)) {
       return undefined;
     }
-    return this.data.map(row => row[property] as DataValue);
+    return this.data.map(obj => obj[property] as DataValue);
   }
 }
-
-type PropertyArrays = Record<string, readonly unknown[]>;
 
 /**
  * Stateless zero-copy reads over an object holding one array per property.
  * In-place mutations and reassigned arrays alike are seen whenever the chart
  * re-reads; the chart handle's `refresh` triggers that re-read.
  */
-export class ObjectOfArraysDataProvider<TData extends PropertyArrays = PropertyArrays> implements DataProvider {
+export class ObjectOfArraysDataProvider<TData extends ObjectOfArraysData = ObjectOfArraysData> implements DataProvider {
   constructor(private readonly data: TData) {
   }
 

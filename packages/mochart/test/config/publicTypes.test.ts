@@ -245,7 +245,7 @@ export type LayoutInternals = [
 ];
 
 // the kept surface, named the way a host implementing the DataProvider extension point has to name it
-const rows: readonly core.DataRow[] = [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }];
+const rows: readonly core.DataObject[] = [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }];
 
 const provider: core.DataProvider = {
   getPropertyValues: (property: string): readonly core.DataValue[] | undefined =>

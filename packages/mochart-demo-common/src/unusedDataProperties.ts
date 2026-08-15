@@ -1,6 +1,6 @@
 import type { MochartConfig } from '@mochart/core';
 
-import type { DataRow } from './types';
+import type { DataObject } from './types';
 
 /**
  * The set of data properties the chart config actually reads, or null when the
@@ -33,9 +33,9 @@ function addProperty(used: Set<string>, property: string | null | undefined): vo
   }
 }
 
-export function filterDataProperties(data: DataRow[], usedProperties: Set<string>): DataRow[] {
+export function filterDataProperties(data: DataObject[], usedProperties: Set<string>): DataObject[] {
   return data.map(row => {
-    const filtered: DataRow = {};
+    const filtered: DataObject = {};
     for (const key of Object.keys(row)) {
       if (usedProperties.has(key)) {
         filtered[key] = row[key];
@@ -52,10 +52,10 @@ export function filterDataProperties(data: DataRow[], usedProperties: Set<string
  * or reordering view rows keeps hidden columns with their row), falling back to
  * the row index (which covers in-place category edits).
  */
-export function restoreHiddenDataProperties(viewRows: DataRow[], fullRows: DataRow[], usedProperties: Set<string>, categoryProperty?: string | null): DataRow[] {
-  let fullRowsByCategory: Map<unknown, DataRow> | null = null;
+export function restoreHiddenDataProperties(viewRows: DataObject[], fullRows: DataObject[], usedProperties: Set<string>, categoryProperty?: string | null): DataObject[] {
+  let fullRowsByCategory: Map<unknown, DataObject> | null = null;
   if (categoryProperty) {
-    const byCategory = new Map<unknown, DataRow>();
+    const byCategory = new Map<unknown, DataObject>();
     let unique = true;
     for (const fullRow of fullRows) {
       const value = fullRow[categoryProperty];
@@ -68,7 +68,7 @@ export function restoreHiddenDataProperties(viewRows: DataRow[], fullRows: DataR
     fullRowsByCategory = unique ? byCategory : null;
   }
   return viewRows.map((row, index) => {
-    let fullRow: DataRow | undefined;
+    let fullRow: DataObject | undefined;
     if (fullRowsByCategory !== null && categoryProperty) {
       const key = row[categoryProperty];
       if (key !== undefined) {
@@ -79,7 +79,7 @@ export function restoreHiddenDataProperties(viewRows: DataRow[], fullRows: DataR
     if (!fullRow) {
       return row;
     }
-    const merged: DataRow = { ...row };
+    const merged: DataObject = { ...row };
     for (const key of Object.keys(fullRow)) {
       if (!usedProperties.has(key) && !(key in merged)) {
         merged[key] = fullRow[key];

@@ -94,7 +94,7 @@ export interface CreateCandlestickOptions {
    * the classic hollow-candle style where a filled body means down. The wicks
    * split into segments above and below each body so they don't show through
    * the hollow interior, the tooltip keeps its single low–high range row, and
-   * the data rows gain an `upOpen` property for the below-body wick segment.
+   * the data objects gain an `upOpen` property for the below-body wick segment.
    *
    * @default false
    */

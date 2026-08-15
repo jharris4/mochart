@@ -7,11 +7,11 @@
 
   import EditableChart from './EditableChart.svelte';
 
-  import type { DemoConfig, DataRow, MochartDemoConfig, FocusData, FilteredSeriesIds } from '../../types';
+  import type { DemoConfig, DataObject, MochartDemoConfig, FocusData, FilteredSeriesIds } from '../../types';
 
   interface Props {
     config?: DemoConfig | null;
-    data?: DataRow[] | null;
+    data?: DataObject[] | null;
     dataError?: string | boolean | null;
     active?: boolean;
   }

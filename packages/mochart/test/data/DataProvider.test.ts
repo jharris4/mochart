@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider } from '../../src/data/DataProvider';
 import { readAlignedValues, readCategoryValues, readNumericValues } from '../../src/data/PropertyData';
-import type { DataProvider } from '../../src/types/data';
+import type { DataProvider, DataValue } from '../../src/types/data';
 
 describe('ArrayOfObjectsDataProvider', () => {
   const rows = [
@@ -88,16 +88,16 @@ describe('ObjectOfArraysDataProvider', () => {
   });
 
   it('returns undefined for a non-array value', () => {
-    const bad: Record<string, readonly unknown[]> = { month: 'Jan' as unknown as readonly unknown[] };
+    const bad: Record<string, readonly DataValue[]> = { month: 'Jan' as unknown as readonly DataValue[] };
     expect(new ObjectOfArraysDataProvider(bad).getPropertyValues('month')).toBeUndefined();
   });
 
   it('is stateless: mutated and reassigned arrays are seen on the next read', () => {
-    const mutable: Record<string, readonly unknown[]> = { month: ['Jan', 'Feb'], sales: [10, 20] };
+    const mutable: Record<string, readonly DataValue[]> = { month: ['Jan', 'Feb'], sales: [10, 20] };
     const provider = new ObjectOfArraysDataProvider(mutable);
 
     mutable.month = ['Jan', 'Feb', 'Mar'];
-    (mutable.sales as unknown[]).push(30);
+    (mutable.sales as DataValue[]).push(30);
     expect(provider.getPropertyValues('month')).toEqual(['Jan', 'Feb', 'Mar']);
     expect(provider.getPropertyValues('sales')).toEqual([10, 20, 30]);
   });
@@ -110,7 +110,7 @@ describe('property-values readers', () => {
     month: ['Jan', 'Feb', 'Mar'],
     sales: [10, null, 30],
     short: [1]
-  } as Record<string, readonly unknown[]>);
+  } as Record<string, readonly DataValue[]>);
 
   it('readCategoryValues reads an absent property as no categories', () => {
     expect(readCategoryValues(provider, 'month')).toEqual(['Jan', 'Feb', 'Mar']);

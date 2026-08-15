@@ -8,7 +8,7 @@ import { buildMochartDemoConfig, getDemoTabPanelAttrs } from '@mochart/demo-comm
 import { EditableChart } from './editable-chart';
 import { createElementSize } from '../misc/element-size';
 
-import type { DemoConfig, DataRow, MochartDemoConfig, FocusData, FilteredSeriesIds } from '../../types';
+import type { DemoConfig, DataObject, MochartDemoConfig, FocusData, FilteredSeriesIds } from '../../types';
 
 const minChartWidthForSecondChart = 480;
 const scrollWidthOffset = 20;
@@ -41,7 +41,7 @@ export class ChartTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   readonly panelAttrs = getDemoTabPanelAttrs('chart');
 
   @Input() config: DemoConfig | null = null;
-  @Input() data: DataRow[] | null = null;
+  @Input() data: DataObject[] | null = null;
   @Input() dataError: string | boolean | null = false;
   @Input() active = false;
 
@@ -103,7 +103,7 @@ export class ChartTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
       this.resetFocusAndFiltered();
     }
     else if (dataChange) {
-      const previousData = dataChange.previousValue as DataRow[] | null;
+      const previousData = dataChange.previousValue as DataObject[] | null;
       const previousDataError = dataErrorChange ? dataErrorChange.previousValue : this.dataError;
       const { configValidation, mochartConfig } = this.mochartDemoConfig() ?? {};
       const valid = configValidation?.valid ?? false;

@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 
 import { getDataErrors } from '@mochart/core';
 
-import { buildMochartDemoConfig, consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, getRandomDataRows, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, getRandomDataObjects, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import RandomMochartChartTab from './RandomChartTab';
@@ -112,7 +112,7 @@ function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: nu
     const generatorConfig = applyReuse ? randomConfig : neutralizeRandomReuse(randomConfig);
     const dataProvider = generateDemoDataProvider(generator, mochartConfig, generatorConfig, randomId);
     const { categoryValues = [], seriesValues = {} } = dataProvider;
-    const data = getRandomDataRows(mochartConfig, categoryValues, seriesValues);
+    const data = getRandomDataObjects(mochartConfig, categoryValues, seriesValues);
     const dataErrors = getDataErrors(mochartConfig, dataProvider);
     if (dataErrors.length > 0) {
       console.error('data errors: ', dataErrors);

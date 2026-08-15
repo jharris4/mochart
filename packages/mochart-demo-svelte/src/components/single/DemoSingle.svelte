@@ -9,7 +9,7 @@
   import ErrorTab from '../misc/ErrorTab.svelte';
   import TopBar from '../misc/TopBar.svelte';
 
-  import type { DemoData, DemoConfig, DataRow } from '../../types';
+  import type { DemoData, DemoConfig, DataObject } from '../../types';
 
   interface Props {
     demoData: DemoData;
@@ -40,16 +40,16 @@
   // svelte-ignore state_referenced_locally
   let demoId = $state(initialDemoId);
   let pendingConfig = $state.raw<DemoConfig | null>(null);
-  let pendingData = $state.raw<DataRow[] | null>(null);
+  let pendingData = $state.raw<DataObject[] | null>(null);
   let pendingDataError = $state.raw<DataError>(false);
   // svelte-ignore state_referenced_locally
   let config = $state.raw<DemoConfig>(sharedState?.config ?? demoData.demoObjectMap[initialDemoId].config);
   // svelte-ignore state_referenced_locally
-  let data = $state.raw<DataRow[]>(sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data);
+  let data = $state.raw<DataObject[]>(sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data);
   // svelte-ignore state_referenced_locally
   let viewingConfig = $state.raw<DemoConfig>(sharedState?.config ?? demoData.demoObjectMap[initialDemoId].config);
   // svelte-ignore state_referenced_locally
-  let viewingData = $state.raw<DataRow[]>(sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data);
+  let viewingData = $state.raw<DataObject[]>(sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data);
   let viewingDataError = $state.raw<DataError>(false);
 
   function chartShown() {
@@ -104,7 +104,7 @@
     config = resetConfig;
   }
 
-  function onDataChange(nextPendingData: DataRow[]) {
+  function onDataChange(nextPendingData: DataObject[]) {
     pendingData = nextPendingData;
     pendingDataError = false;
   }

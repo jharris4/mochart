@@ -1,7 +1,7 @@
 import type { Component } from 'svelte';
 import type {
   Bounds, ChartEventPayload, ChartFocus, ChartSeriesClickPayload, ChartSeriesFilter, ChartSliceClickPayload,
-  DataProvider, DataRow, MochartConfig, MochartInputConfig
+  ArrayOfObjectsData, DataProvider, MochartConfig, MochartInputConfig
 } from '@mochart/core';
 
 /**
@@ -85,5 +85,5 @@ export interface ChartProps extends BaseChartProps {
 /** Props for `DefaultChart`: a raw config plus a plain array-of-objects dataset. */
 export interface DefaultChartProps extends BaseChartProps {
   config: MochartInputConfig;
-  data: readonly DataRow[];
+  data: ArrayOfObjectsData;
 }

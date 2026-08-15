@@ -4,7 +4,7 @@ import buildMochartDemoConfig from './mochartDemoConfig';
 import { demoText } from './demoText';
 import { filterDataProperties, restoreHiddenDataProperties } from './unusedDataProperties';
 
-import type { DataRow, DemoConfig, MochartDemoConfig } from './types';
+import type { DataObject, DemoConfig, MochartDemoConfig } from './types';
 
 /**
  * Compact JSON with a space after each structural comma — built structurally
@@ -38,7 +38,7 @@ export function formatData(dataJSON: unknown): string {
  * Format the data-tab textarea view of fullRows, hiding properties outside
  * viewUsedProperties (null = show every property).
  */
-export function formatDataView(fullRows: DataRow[], viewUsedProperties: Set<string> | null): string {
+export function formatDataView(fullRows: DataObject[], viewUsedProperties: Set<string> | null): string {
   return formatData(viewUsedProperties === null ? fullRows : filterDataProperties(fullRows, viewUsedProperties));
 }
 
@@ -65,14 +65,14 @@ export function getCategoryProperty(config: DemoConfig): string | null {
   return (config as { categoryAxis?: { property?: string } }).categoryAxis?.property ?? null;
 }
 
-export type ParsedFullData = { full: DataRow[] } | { error: 'json' | 'data' };
+export type ParsedFullData = { full: DataObject[] } | { error: 'json' | 'data' };
 
 /**
  * Parse edited data-tab text back to a full dataset. When the text is a
  * filtered (used-properties-only) view, properties the view hid are restored
  * by row index from fullData.
  */
-export function parseFullData(text: string, fullData: DataRow[], viewUsedProperties: Set<string> | null, categoryProperty?: string | null): ParsedFullData {
+export function parseFullData(text: string, fullData: DataObject[], viewUsedProperties: Set<string> | null, categoryProperty?: string | null): ParsedFullData {
   let parsed: unknown;
   try {
     parsed = JSON.parse(text);
@@ -83,12 +83,12 @@ export function parseFullData(text: string, fullData: DataRow[], viewUsedPropert
   if (!isArrayOfObjects(parsed)) {
     return { error: 'data' };
   }
-  const rows = parsed as DataRow[];
+  const rows = parsed as DataObject[];
   return { full: viewUsedProperties === null ? rows : restoreHiddenDataProperties(rows, fullData, viewUsedProperties, categoryProperty) };
 }
 
 /** Validate rows against an already-built valid config: the shared short error message, or false when clean (details go to the console). */
-function getMochartConfigDataError(mochartConfig: MochartDemoConfig['mochartConfig'], rows: DataRow[]): string | false {
+function getMochartConfigDataError(mochartConfig: MochartDemoConfig['mochartConfig'], rows: DataObject[]): string | false {
   // getDataErrors reports every data problem now, wrong category property included
   const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(rows));
   if (dataErrors.length > 0) {
@@ -103,20 +103,20 @@ function getMochartConfigDataError(mochartConfig: MochartDemoConfig['mochartConf
  * config/data edits): the dataError to show, or false when the data is clean —
  * or when the config itself is invalid, which the config error UI reports.
  */
-export function getConfigDataError(config: DemoConfig, data: DataRow[]): string | false {
+export function getConfigDataError(config: DemoConfig, data: DataObject[]): string | false {
   const { mochartConfig } = buildMochartDemoConfig(config);
   return mochartConfig.validation.valid ? getMochartConfigDataError(mochartConfig, data) : false;
 }
 
 export type DataApplyResult =
-  | { ok: true; data: DataRow[] }
+  | { ok: true; data: DataObject[] }
   | { ok: false; errorMessage: string; callbackError: string };
 
 /**
  * Parse and validate a data-tab edit for Apply: the footer error message and
  * the onDataError payload on failure, or the full dataset to apply on success.
  */
-export function applyDataEdit(text: string, fullData: DataRow[], viewUsedProperties: Set<string> | null, config: DemoConfig): DataApplyResult {
+export function applyDataEdit(text: string, fullData: DataObject[], viewUsedProperties: Set<string> | null, config: DemoConfig): DataApplyResult {
   // rows are matched by category value when restoring hidden properties, so
   // structural view edits (delete/reorder) keep hidden columns with their row
   const parsed = parseFullData(text, fullData, viewUsedProperties, getCategoryProperty(config));
@@ -150,7 +150,7 @@ export function applyDataEdit(text: string, fullData: DataRow[], viewUsedPropert
  * display value when the axis has a displayProperty (that is what the chart
  * shows), otherwise its raw category value. Empty when no category is selected.
  */
-export function getCategoryIndexTitle({ mochartConfig }: MochartDemoConfig, rows: DataRow[], categoryIndex: number): string {
+export function getCategoryIndexTitle({ mochartConfig }: MochartDemoConfig, rows: DataObject[], categoryIndex: number): string {
   const row = categoryIndex >= 0 ? rows[categoryIndex] : undefined;
   if (row === undefined) {
     return '';
@@ -167,7 +167,7 @@ export function getCategoryIndexTitle({ mochartConfig }: MochartDemoConfig, rows
  * actually declares (`r`ange, `m`arker, `l`abel, `c`olor). Empty when the config
  * has no series. Each port's `applySeriesChanges` reads the same keys back.
  */
-export function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, rows: DataRow[], categoryIndex: number, seriesIndex: number): string {
+export function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, rows: DataObject[], categoryIndex: number, seriesIndex: number): string {
   const { series: seriesConfigs } = mochartConfig;
   if (seriesConfigs.length === 0) {
     return '';

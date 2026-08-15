@@ -9,7 +9,7 @@ export type {
   NumericValue, NumericValues, AxisDomains,
   SeriesValueObject, SeriesValueObjects, SeriesDomainObject, SeriesDomainObjects,
   SeriesDataSet, SeriesData, CategoryValues, CategoryData, ChartData,
-  DataProvider, DataRow, DataValue
+  DataProvider, DataObject, DataValue, ArrayOfObjectsData, ObjectOfArraysData
 } from './data';
 
 // InternalFocus is published from chart/ChartDataSource, alongside the interface that raises it.

@@ -13,7 +13,7 @@ import { LightElement } from '../misc/LightElement';
 import { ElementSizeController } from '../misc/ElementSizeController';
 import './charts-controls';
 
-import type { Demo, DataRow, FilteredSeriesIds, ChartDataProviderLike, MochartDemoConfig } from '../../types';
+import type { Demo, DataObject, FilteredSeriesIds, ChartDataProviderLike, MochartDemoConfig } from '../../types';
 
 const scrollWidthOffset = 20;
 
@@ -32,7 +32,7 @@ export class ChartsTab extends LightElement {
   @state() private chartCols = defaultChartCols;
   private rate = 2000;
   @state() private mochartDemoConfig!: MochartDemoConfig;
-  @state() private data: DataRow[] = [];
+  @state() private data: DataObject[] = [];
   private dataCount = 0;
   private currentDataCount = 0;
   // Pie mode steps a filtering pattern instead of data prefixes: chart i at

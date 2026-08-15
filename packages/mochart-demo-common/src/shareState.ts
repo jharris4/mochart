@@ -14,12 +14,12 @@ import { deflateSync, inflateSync } from 'fflate';
 
 import { demoText } from './demoText';
 
-import type { DataRow, DemoConfig, DemoRandomConfig } from './types';
+import type { DataObject, DemoConfig, DemoRandomConfig } from './types';
 
 export interface SingleShareState {
   mode: 'single';
   config: DemoConfig;
-  data: DataRow[];
+  data: DataObject[];
 }
 
 export interface MultiShareState {
@@ -106,7 +106,7 @@ export function decodeShareState(encoded: string): ShareState | null {
         if (data.some(row => !isPlainObject(row))) {
           return null;
         }
-        return { mode: 'single', config: config as DemoConfig, data: data as DataRow[] };
+        return { mode: 'single', config: config as DemoConfig, data: data as DataObject[] };
       }
       case 'multi': {
         const { rows, cols, step, interval } = parsed;

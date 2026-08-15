@@ -11,7 +11,7 @@ import { buttonWithTooltip, icon } from '../misc/templates';
 import '../misc/json-editor-content';
 import '../misc/overflow-menu';
 
-import type { DemoConfig, DataRow } from '../../types';
+import type { DemoConfig, DataObject } from '../../types';
 
 const panelAttrs = getDemoTabPanelAttrs('data');
 
@@ -19,8 +19,8 @@ const panelAttrs = getDemoTabPanelAttrs('data');
 export class DataTab extends LightElement {
   @property({ attribute: false }) active = false;
   @property({ attribute: false }) config!: DemoConfig;
-  @property({ attribute: false }) data!: DataRow[];
-  @property({ attribute: false }) onDataChange!: (data: DataRow[]) => void;
+  @property({ attribute: false }) data!: DataObject[];
+  @property({ attribute: false }) onDataChange!: (data: DataObject[]) => void;
   @property({ attribute: false }) onDataError!: (errorMessage: string) => void;
   @property({ attribute: false }) onDataReset!: () => void;
 
@@ -33,7 +33,7 @@ export class DataTab extends LightElement {
   // textarea, viewUsedProperties the used-set its current content was rendered
   // with (null when every property is shown).
   @state() private showUnused = false;
-  private fullData: DataRow[] = [];
+  private fullData: DataObject[] = [];
   private usedProperties: Set<string> | null = null;
   private viewUsedProperties: Set<string> | null = null;
 
@@ -54,7 +54,7 @@ export class DataTab extends LightElement {
     }
   }
 
-  private renderView(fullRows: DataRow[]): void {
+  private renderView(fullRows: DataObject[]): void {
     this.fullData = fullRows;
     this.viewUsedProperties = this.showUnused ? null : this.usedProperties;
     this.dataText = formatDataView(fullRows, this.viewUsedProperties);

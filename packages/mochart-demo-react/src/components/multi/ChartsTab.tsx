@@ -12,7 +12,7 @@ import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 import ExportShareMenu from '../misc/ExportShareMenu';
 import { useElementSize } from '../misc/useElementSize';
 
-import type { Demo, DataRow, MochartDemoConfig, FilteredSeriesIds, ChartDataProviderLike } from '../../types';
+import type { Demo, DataObject, MochartDemoConfig, FilteredSeriesIds, ChartDataProviderLike } from '../../types';
 
 const scrollWidthOffset = 20;
 
@@ -34,7 +34,7 @@ interface ChartsTabState {
   playing: boolean;
   mochartDemoConfig: MochartDemoConfig;
   dataProviders: ChartDataProviderLike[];
-  data: DataRow[];
+  data: DataObject[];
   dataCount: number;
   currentDataCount: number;
   chartRows: number;

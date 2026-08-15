@@ -10,7 +10,7 @@ import type { MultiShareState, ShareState } from '@mochart/demo-common';
 import { ChartsControls } from './charts-controls';
 import { createElementSize } from '../misc/element-size';
 
-import type { Demo, DataRow, FilteredSeriesIds, ChartDataProviderLike, MochartDemoConfig } from '../../types';
+import type { Demo, DataObject, FilteredSeriesIds, ChartDataProviderLike, MochartDemoConfig } from '../../types';
 
 const scrollWidthOffset = 20;
 
@@ -62,7 +62,7 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   chartCols = signal(defaultChartCols);
   rate = signal(defaultRate);
   mochartDemoConfig = signal<MochartDemoConfig | null>(null);
-  data = signal<DataRow[]>([]);
+  data = signal<DataObject[]>([]);
   dataCount = signal(0);
   // Pie mode steps a filtering pattern instead of data prefixes: chart i at
   // step s filters the last (s + i) mod cycle slices, so the grid shows

@@ -122,7 +122,7 @@ template reference variable or `@ViewChild`:
 ```ts
 @ViewChild('chart') chart!: DefaultChart;
 
-addRow(row: DataRow) {
+addRow(row: DataObject) {
   this.data.push(row);
   this.chart.refresh();
 }

@@ -8,13 +8,13 @@ import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 import OverflowMenu from '../misc/OverflowMenu';
 import { usePhoneViewport } from '../misc/usePhoneViewport';
 
-import type { DemoConfig, DataRow } from '../../types';
+import type { DemoConfig, DataObject } from '../../types';
 
 interface Props {
   active?: boolean;
   config?: DemoConfig | null;
-  data?: DataRow[] | null;
-  onDataChange: (data: DataRow[]) => void;
+  data?: DataObject[] | null;
+  onDataChange: (data: DataObject[]) => void;
   onDataError: (errorMessage: string) => void;
   onDataReset: () => void;
 }
@@ -26,10 +26,10 @@ export default function MochartDataTab({ active, config = null, data = null, onD
   // with (null when every property is shown).
   const usedProperties = useMemo(() => collectUsedDataProperties(buildMochartDemoConfig(config ?? {}).mochartConfig), [config]);
   const [showUnused, setShowUnused] = useState(false);
-  const fullDataRef = useRef<DataRow[]>([]);
+  const fullDataRef = useRef<DataObject[]>([]);
   const viewUsedRef = useRef<Set<string> | null>(null);
 
-  const renderView = (fullRows: DataRow[], show: boolean): string => {
+  const renderView = (fullRows: DataObject[], show: boolean): string => {
     const viewUsed = show ? null : usedProperties;
     fullDataRef.current = fullRows;
     viewUsedRef.current = viewUsed;

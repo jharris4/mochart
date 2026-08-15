@@ -7,7 +7,7 @@ import { buildMochartDemoConfig, getDemoTabPanelAttrs } from '@mochart/demo-comm
 import { useElementSize } from '../misc/useElementSize';
 import EditableChart from './EditableChart';
 
-import type { DemoConfig, DataRow, MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
+import type { DemoConfig, DataObject, MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
 const minChartWidthForSecondChart = 480;
 const scrollWidthOffset = 20;
@@ -15,7 +15,7 @@ const defaultChartCount = 1;
 
 interface Props {
   config?: DemoConfig | null;
-  data?: DataRow[] | null;
+  data?: DataObject[] | null;
   dataError?: string | boolean | null;
   active?: boolean;
 }

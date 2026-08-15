@@ -8,7 +8,7 @@ import RandomConfigTab from './RandomConfigTab.vue';
 import RandomDataTab from './RandomDataTab.vue';
 import ErrorTab from '../misc/ErrorTab.vue';
 
-import { consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, getRandomDataRows, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
+import { consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, getRandomDataObjects, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider } from '../../types';
 
@@ -63,7 +63,7 @@ function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
     const generatorConfig = applyReuse.value ? nextRandomConfig : neutralizeRandomReuse(nextRandomConfig);
     const nextDataProvider = generateDemoDataProvider(props.generator, mochartConfig, generatorConfig, props.randomId);
     const { categoryValues = [], seriesValues = {} } = nextDataProvider;
-    const nextData = getRandomDataRows(mochartConfig, categoryValues, seriesValues);
+    const nextData = getRandomDataObjects(mochartConfig, categoryValues, seriesValues);
     const dataErrors = getDataErrors(mochartConfig, nextDataProvider);
     if (dataErrors.length > 0) {
       console.error('data errors: ', dataErrors);

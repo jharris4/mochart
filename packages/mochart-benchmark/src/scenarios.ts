@@ -85,7 +85,7 @@ export function makeData(seriesCount: number, categoryCount: number): any[] {
   return rows;
 }
 
-/** New random values for every series in every row (fresh row objects). */
+/** New random values for every series in every category (fresh data objects). */
 export function randomizeData(data: any[], seriesCount: number): any[] {
   return data.map((row) => {
     const next: any = { ...row };

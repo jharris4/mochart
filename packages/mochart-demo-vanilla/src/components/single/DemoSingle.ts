@@ -12,7 +12,7 @@ import type { ConfigTabHandle } from './ConfigTab';
 import { dataTab } from './DataTab';
 import type { DataTabHandle } from './DataTab';
 
-import type { DemoData, DemoConfig, DataRow } from '../../types';
+import type { DemoData, DemoConfig, DataObject } from '../../types';
 
 export interface DemoSingleProps {
   demoData: DemoData;
@@ -48,12 +48,12 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
   // Chart tab is shown again (so the chart animates one combined change).
   let demoId = initialDemoId;
   let pendingConfig: DemoConfig | null = null;
-  let pendingData: DataRow[] | null = null;
+  let pendingData: DataObject[] | null = null;
   let pendingDataError: DataError = false;
   let config: DemoConfig = sharedState?.config ?? demoData.demoObjectMap[initialDemoId].config;
-  let data: DataRow[] = sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data;
+  let data: DataObject[] = sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data;
   let viewingConfig: DemoConfig = config;
-  let viewingData: DataRow[] = data;
+  let viewingData: DataObject[] = data;
   let viewingDataError: DataError = false;
   // editor-reported error, or the viewing config/data pair failing validation
   let chartDataError: DataError = viewingDataError || getConfigDataError(viewingConfig, viewingData);
@@ -87,7 +87,7 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
     active: activeKey === eventKeyData,
     config: viewingConfig,
     data,
-    onDataChange(nextPendingData: DataRow[]) {
+    onDataChange(nextPendingData: DataObject[]) {
       pendingData = nextPendingData;
       pendingDataError = false;
       sync();

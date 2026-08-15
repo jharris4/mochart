@@ -2,7 +2,7 @@ import type { ConfigValidation, DataProvider, MochartConfig } from '@mochart/cor
 import type { DemoRandomConfig } from '@mochart/demo-data';
 
 export type {
-  DataRow, Demo, DemoConfig, DemoData, DemoRandomConfig,
+  DataObject, Demo, DemoConfig, DemoData, DemoRandomConfig,
   ErrorBarsRandomConfig, HeatmapRandomConfig, HistogramRandomConfig, PieRandomConfig,
   RandomConfig, WalkRandomConfig, WaterfallRandomConfig
 } from '@mochart/demo-data';

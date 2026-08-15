@@ -9,13 +9,13 @@
   import OverflowMenu from '../misc/OverflowMenu.svelte';
   import { createPhoneViewport } from '../misc/phoneViewport.svelte';
 
-  import type { DemoConfig, DataRow } from '../../types';
+  import type { DemoConfig, DataObject } from '../../types';
 
   interface Props {
     active?: boolean;
     config: DemoConfig;
-    data: DataRow[];
-    onDataChange: (data: DataRow[]) => void;
+    data: DataObject[];
+    onDataChange: (data: DataObject[]) => void;
     onDataError: (errorMessage: string) => void;
     onDataReset: () => void;
   }
@@ -35,7 +35,7 @@
   let dataText = $state('');
   let errorMessage = $state<string | null>(null);
 
-  function renderView(fullRows: DataRow[]): void {
+  function renderView(fullRows: DataObject[]): void {
     fullData = fullRows;
     viewUsedProperties = showUnused ? null : usedProperties;
     dataText = formatDataView(fullRows, viewUsedProperties);

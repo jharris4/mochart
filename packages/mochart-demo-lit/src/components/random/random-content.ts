@@ -10,7 +10,7 @@ import './random-config-tab';
 import './random-data-tab';
 import '../misc/error-tab';
 
-import { consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, getRandomDataRows, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
+import { consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, getRandomDataObjects, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider } from '../../types';
 
@@ -56,7 +56,7 @@ export class RandomContent extends LightElement {
       const generatorConfig = this.applyReuse ? nextRandomConfig : neutralizeRandomReuse(nextRandomConfig);
       const nextDataProvider = generateDemoDataProvider(this.generator, mochartConfig, generatorConfig, this.randomId);
       const { categoryValues = [], seriesValues = {} } = nextDataProvider;
-      const nextData = getRandomDataRows(mochartConfig, categoryValues, seriesValues);
+      const nextData = getRandomDataObjects(mochartConfig, categoryValues, seriesValues);
       const dataErrors = getDataErrors(mochartConfig, nextDataProvider);
       if (dataErrors.length > 0) {
         console.error('data errors: ', dataErrors);

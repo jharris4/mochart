@@ -7,7 +7,7 @@ import { getCssClass, getCssSelector, getIdCssSelector, getCssClassMatchSelector
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
-import type { DataRow } from '../../src/types/data';
+import type { DataObject } from '../../src/types/data';
 import type { PieItem, CreatePieOptions } from '../../src/data/Pie';
 
 const WIDTH = 800;
@@ -23,7 +23,7 @@ const ITEMS: PieItem[] = [
 const PLOT_RECT_SELECTOR = getCssSelector('seriesBackground') + ' rect';
 const LIVE_REGION_SELECTOR = '[role="status"]';
 
-function pieConfigAndData(options: CreatePieOptions, configOverrides: Record<string, unknown> = {}): { config: MochartInputConfig; data: readonly DataRow[] } {
+function pieConfigAndData(options: CreatePieOptions, configOverrides: Record<string, unknown> = {}): { config: MochartInputConfig; data: readonly DataObject[] } {
   const pie = createPie(ITEMS, options);
   const config = {
     version: '1.0.0',
@@ -39,7 +39,7 @@ function pieConfigAndData(options: CreatePieOptions, configOverrides: Record<str
 
 let handles: ChartHandle<DefaultChartProps>[] = [];
 
-function mountChart(config: MochartInputConfig, data: readonly DataRow[]): Element {
+function mountChart(config: MochartInputConfig, data: readonly DataObject[]): Element {
   const container = document.createElement('div');
   document.body.appendChild(container);
   handles.push(createDefaultChart(container, { config, data, width: WIDTH, height: HEIGHT }));

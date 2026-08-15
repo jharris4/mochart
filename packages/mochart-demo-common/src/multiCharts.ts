@@ -1,8 +1,8 @@
 import { ArrayOfObjectsDataProvider } from '@mochart/core';
 
-import type { DataRow, ChartDataProviderLike } from './types';
+import type { DataObject, ChartDataProviderLike } from './types';
 
-export function getChartDataCount(data: DataRow[], currentDataCount: number, i: number): number {
+export function getChartDataCount(data: DataObject[], currentDataCount: number, i: number): number {
   const dataCount = data.length;
   let chartDataCount = (dataCount + currentDataCount - i) % dataCount;
   if (chartDataCount === 0) {
@@ -11,7 +11,7 @@ export function getChartDataCount(data: DataRow[], currentDataCount: number, i: 
   return chartDataCount;
 }
 
-export function getDataProvidersForDataCount(data: DataRow[], chartCount: number, currentDataCount: number): ChartDataProviderLike[] {
+export function getDataProvidersForDataCount(data: DataObject[], chartCount: number, currentDataCount: number): ChartDataProviderLike[] {
   const dataProviders: ChartDataProviderLike[] = [];
   let i, chartDataCount;
   for (i = 0; i < chartCount; i++) {

@@ -103,12 +103,12 @@ the current config/data, re-indexing the built-in providers:
 
 ```svelte
 <script lang="ts">
-  import type { DataRow } from '@mochart/core';
+  import type { DataObject } from '@mochart/core';
   import type { ChartRef } from '@mochart/svelte';
 
   let chart: ChartRef | undefined = $state();
 
-  function addRow(row: DataRow) {
+  function addRow(row: DataObject) {
     data.push(row);
     chart?.refresh();
   }

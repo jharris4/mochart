@@ -27,7 +27,7 @@ import type { CandlestickItem, MochartConfig, PieItem } from '@mochart/core';
 import { generateChartDataProvider } from './randomGenerator';
 
 import type {
-  DataRow, DemoConfig, DemoDataProvider, DemoRandomConfig, CategoryValue, RandomConfig,
+  DataObject, DemoConfig, DemoDataProvider, DemoRandomConfig, CategoryValue, RandomConfig,
   ErrorBarsRandomConfig, HeatmapRandomConfig, HistogramRandomConfig, PieRandomConfig,
   WalkRandomConfig, WaterfallRandomConfig
 } from './types';
@@ -86,10 +86,10 @@ export type ChartTypeGenerator = (typeof chartTypeGenerators)[number];
 export interface ChartTypeDemoSnapshot {
   id: ChartTypeGenerator;
   config: DemoConfig;
-  data: DataRow[];
+  data: DataObject[];
 }
 
-function toDemoDataProvider(rows: DataRow[], categoryProperty: string): DemoDataProvider {
+function toDemoDataProvider(rows: DataObject[], categoryProperty: string): DemoDataProvider {
   const categoryValues = rows.map(row => row[categoryProperty] as CategoryValue);
   const seriesValues: Record<string, (number | undefined)[]> = {};
   rows.forEach((row, index) => {
@@ -126,7 +126,7 @@ function normalSamples(count: number, mean: number, stdDev: number, rng: Rng): n
 // Random config: samples = population size range, value = the band the normal
 // distribution wanders in, reuse = pin the distribution parameters globally /
 // morph them smoothly between adjacent steps.
-function histogramRows({ samples, value, reuse }: HistogramRandomConfig, randomId: number): DataRow[] {
+function histogramRows({ samples, value, reuse }: HistogramRandomConfig, randomId: number): DataObject[] {
   const span = Math.max(1, value.max - value.min);
   const count = Math.max(1, Math.round(samples.min + reusedDraw('histogram', 'count', randomId, reuse.global, reuse.step) * (samples.max - samples.min)));
   const stdDev = (0.15 + 0.12 * reusedDraw('histogram', 'stdDev', randomId, reuse.global, reuse.step)) * span;
@@ -188,7 +188,7 @@ const WATERFALL_STEP_POOL: WaterfallStepPoolEntry[] = [
 // Random config: value = the range the pool deltas are remapped into, missing
 // = the optional steps' dropout baseline, reuse = fractions of steps whose
 // state persists globally / across adjacent steps.
-function waterfallRows({ value, missing, reuse }: WaterfallRandomConfig, randomId: number): DataRow[] {
+function waterfallRows({ value, missing, reuse }: WaterfallRandomConfig, randomId: number): DataObject[] {
   const poolValues = WATERFALL_STEP_POOL.filter(step => step.value !== undefined).map(step => step.value!);
   const poolMin = Math.min(...poolValues);
   const poolMax = Math.max(...poolValues);
@@ -259,7 +259,7 @@ const HEATMAP_COLUMNS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
 // chance, reuse = pin cell values globally / morph them smoothly between
 // adjacent steps. Cell values stay on each row's baked color extents, so
 // there is no value range to configure.
-function heatmapRows({ columns, missing, reuse }: HeatmapRandomConfig, randomId: number): DataRow[] {
+function heatmapRows({ columns, missing, reuse }: HeatmapRandomConfig, randomId: number): DataObject[] {
   const maxDropped = Math.min(HEATMAP_COLUMNS.length - 1, Math.max(0, Math.round(columns.maxDropped)));
 
   // Column dropouts churn per step regardless of reuse — they are the category
@@ -414,7 +414,7 @@ function withVolumes(items: CandlestickItem[], rng: Rng): CandlestickItem[] {
 
 // The helper derives `change` from the raw open/close, so it carries float
 // noise (97.13 - 96.54 = 0.589999…); round it for the baked/generated rows.
-function roundCandlestickChanges(rows: DataRow[]): DataRow[] {
+function roundCandlestickChanges(rows: DataObject[]): DataObject[] {
   for (const row of rows) {
     if (typeof row.change === 'number') {
       row.change = round2(row.change);
@@ -423,7 +423,7 @@ function roundCandlestickChanges(rows: DataRow[]): DataRow[] {
   return rows;
 }
 
-function candlestickRows(random: WalkRandomConfig, randomId: number): DataRow[] {
+function candlestickRows(random: WalkRandomConfig, randomId: number): DataObject[] {
   return roundCandlestickChanges(createCandlestick(walkVolumes('candlestick', randomId, walkItems('candlestick', random, randomId)), { volume: true }).data);
 }
 
@@ -454,7 +454,7 @@ function buildCandlestickSnapshot(): ChartTypeDemoSnapshot {
 // only flips the helper's hollow option: outlined up bodies with the wicks
 // split into segments around them.
 
-function candlestickHollowRows(random: WalkRandomConfig, randomId: number): DataRow[] {
+function candlestickHollowRows(random: WalkRandomConfig, randomId: number): DataObject[] {
   return roundCandlestickChanges(createCandlestick(walkItems('candlestick-hollow', random, randomId), { hollow: true }).data);
 }
 
@@ -481,7 +481,7 @@ function buildCandlestickHollowSnapshot(): ChartTypeDemoSnapshot {
 // helper differs: thin low/high lines with open/close ticks instead of
 // wick-and-body candles.
 
-function ohlcRows(random: WalkRandomConfig, randomId: number): DataRow[] {
+function ohlcRows(random: WalkRandomConfig, randomId: number): DataObject[] {
   return roundCandlestickChanges(createOhlc(walkItems('ohlc', random, randomId)).data);
 }
 
@@ -515,7 +515,7 @@ const ERROR_BARS_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug
 
 // The snapshot baseline — sequential draws from one rng so the baked demo
 // JSON stays bit-identical. Keep the formulas in sync with errorBarsRandomRows.
-function errorBarsItems(rng: Rng, monthCount: number): DataRow[] {
+function errorBarsItems(rng: Rng, monthCount: number): DataObject[] {
   return ERROR_BARS_MONTHS.slice(0, monthCount).map((month, m) => {
     // a seasonal curve with per-plant jitter; asymmetric margins per bound
     const seasonal = Math.sin((m / ERROR_BARS_MONTHS.length) * 2 * Math.PI);
@@ -536,7 +536,7 @@ function errorBarsItems(rng: Rng, monthCount: number): DataRow[] {
 // matching the baseline's tighter CI), missing = the chance a plant's point
 // drops out with its bounds, reuse = pin the per-point jitter globally /
 // morph it smoothly between adjacent steps.
-function errorBarsRandomRows({ months, margin, missing, reuse }: ErrorBarsRandomConfig, randomId: number): DataRow[] {
+function errorBarsRandomRows({ months, margin, missing, reuse }: ErrorBarsRandomConfig, randomId: number): DataObject[] {
   const scope = 'error-bars';
   const missingProbability = missing.probability;
 
@@ -550,7 +550,7 @@ function errorBarsRandomRows({ months, margin, missing, reuse }: ErrorBarsRandom
     const missingRng = seedrandom(scope + ':missing:' + randomId + ':' + month);
     const seasonal = Math.sin((m / ERROR_BARS_MONTHS.length) * 2 * Math.PI);
     const target = 52 + 9 * seasonal;
-    const row: DataRow = {
+    const row: DataObject = {
       month,
       target: round2(target),
       targetLow: round2(target - (margin.min + marginSpan * draw('targetLowMargin')) * 0.45),
@@ -649,11 +649,11 @@ function pieItems(pool: PieSlicePoolEntry[], scope: string, { value, missing, re
   });
 }
 
-function pieRows(random: PieRandomConfig, randomId: number): DataRow[] {
+function pieRows(random: PieRandomConfig, randomId: number): DataObject[] {
   return createPie(pieItems(PIE_SLICE_POOL, 'pie', random, randomId), { valueFormat: ',.0f' }).data;
 }
 
-function donutRows(random: PieRandomConfig, randomId: number): DataRow[] {
+function donutRows(random: PieRandomConfig, randomId: number): DataObject[] {
   return createPie(pieItems(DONUT_SLICE_POOL, 'donut', random, randomId)).data;
 }
 
@@ -699,7 +699,7 @@ const GAUGE_SLICE_POOL: PieSlicePoolEntry[] = [
   { label: 'Detractors', value: 180, jitter: 0.4, dropWeight: 1 }
 ];
 
-function gaugeRows(random: PieRandomConfig, randomId: number): DataRow[] {
+function gaugeRows(random: PieRandomConfig, randomId: number): DataObject[] {
   return createPie(pieItems(GAUGE_SLICE_POOL, 'gauge', random, randomId)).data;
 }
 
@@ -755,7 +755,7 @@ export function generateChartTypeDataProvider(
 ): DemoDataProvider {
   // DemoRandomConfig has no discriminant, so each branch asserts the schema
   // its demos.json random file ships.
-  let rows: DataRow[];
+  let rows: DataObject[];
   if (generator === 'histogram') {
     rows = histogramRows(random as HistogramRandomConfig, randomId);
   }
@@ -818,14 +818,14 @@ export function generateDemoDataProvider(
  * `NONE` on the display property means the category value is its own label, so
  * there is no second column to write.
  */
-export function getRandomDataRows(
+export function getRandomDataObjects(
   mochartConfig: MochartConfig,
   categoryValues: CategoryValue[],
   seriesValues: Record<string, (number | undefined)[]>
-): DataRow[] {
+): DataObject[] {
   const { categoryAxis: categoryAxisConfig } = mochartConfig;
   const categoryProperty = categoryAxisConfig.property ?? '';
-  const rows: DataRow[] = categoryValues.map(categoryValue => ({ [categoryProperty]: categoryValue }));
+  const rows: DataObject[] = categoryValues.map(categoryValue => ({ [categoryProperty]: categoryValue }));
   const categoryCount = categoryValues.length;
   if (categoryAxisConfig.displayProperty !== NONE) {
     const displayProperty = categoryAxisConfig.displayProperty;

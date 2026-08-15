@@ -11,7 +11,7 @@ import DataTab from './DataTab.vue';
 import DemoTabs from '../misc/DemoTabs.vue';
 import ErrorTab from '../misc/ErrorTab.vue';
 
-import type { DemoData, DemoConfig, DataRow } from '../../types';
+import type { DemoData, DemoConfig, DataObject } from '../../types';
 
 interface Props {
   demoData: DemoData;
@@ -39,12 +39,12 @@ const sharedState = consumeSingleShareState();
 // Chart tab is shown again (so the chart animates one combined change).
 const demoId = ref(props.initialDemoId);
 const pendingConfig = shallowRef<DemoConfig | null>(null);
-const pendingData = shallowRef<DataRow[] | null>(null);
+const pendingData = shallowRef<DataObject[] | null>(null);
 const pendingDataError = shallowRef<DataError>(false);
 const config = shallowRef<DemoConfig>(sharedState?.config ?? props.demoData.demoObjectMap[props.initialDemoId].config);
-const data = shallowRef<DataRow[]>(sharedState?.data ?? props.demoData.demoObjectMap[props.initialDemoId].data);
+const data = shallowRef<DataObject[]>(sharedState?.data ?? props.demoData.demoObjectMap[props.initialDemoId].data);
 const viewingConfig = shallowRef<DemoConfig>(config.value);
-const viewingData = shallowRef<DataRow[]>(data.value);
+const viewingData = shallowRef<DataObject[]>(data.value);
 const viewingDataError = shallowRef<DataError>(false);
 
 function chartShown() {
@@ -94,7 +94,7 @@ function onConfigReset() {
   config.value = resetConfig;
 }
 
-function onDataChange(nextPendingData: DataRow[]) {
+function onDataChange(nextPendingData: DataObject[]) {
   pendingData.value = nextPendingData;
   pendingDataError.value = false;
 }

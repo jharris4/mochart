@@ -12,7 +12,7 @@ import { TopBar } from '../misc/top-bar';
 
 import type { DemoTab } from '@mochart/demo-common';
 
-import type { DemoData, DemoConfig, DataRow, SwitchableDemoMode } from '../../types';
+import type { DemoData, DemoConfig, DataObject, SwitchableDemoMode } from '../../types';
 
 type DataError = string | boolean | null;
 
@@ -73,13 +73,13 @@ export class DemoSingle implements OnInit, OnChanges {
   // Chart tab is shown again (so the chart animates one combined change).
   demoId = signal('');
   pendingConfig = signal<DemoConfig | null>(null);
-  pendingData = signal<DataRow[] | null>(null);
+  pendingData = signal<DataObject[] | null>(null);
   pendingDataError = signal<DataError>(false);
   config = signal<DemoConfig | null>(null);
-  data = signal<DataRow[] | null>(null);
+  data = signal<DataObject[] | null>(null);
   dataError = signal<DataError>(false);
   viewingConfig = signal<DemoConfig | null>(null);
-  viewingData = signal<DataRow[] | null>(null);
+  viewingData = signal<DataObject[] | null>(null);
   viewingDataError = signal<DataError>(false);
   // editor-reported error, or the viewing config/data pair failing validation
   chartDataError = computed<DataError>(() => {
@@ -164,7 +164,7 @@ export class DemoSingle implements OnInit, OnChanges {
     this.config.set(resetConfig);
   };
 
-  onDataChange = (nextPendingData: DataRow[]): void => {
+  onDataChange = (nextPendingData: DataObject[]): void => {
     this.pendingData.set(nextPendingData);
     this.pendingDataError.set(false);
   };

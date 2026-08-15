@@ -118,7 +118,7 @@ hatch. It re-reads the current config/data (the built-in providers read
 live, so any in-place change is seen):
 
 ```ts
-import type { DataRow } from '@mochart/core';
+import type { DataObject } from '@mochart/core';
 import type { ChartRef } from '@mochart/lit';
 
 private chart: ChartRef | null = null;
@@ -131,7 +131,7 @@ render() {
   })}`;
 }
 
-addRow(row: DataRow) {
+addRow(row: DataObject) {
   this.data.push(row);
   this.chart?.refresh();
 }

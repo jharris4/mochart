@@ -9,13 +9,13 @@ import Icon from '../misc/Icon.vue';
 import OverflowMenu from '../misc/OverflowMenu.vue';
 import { usePhoneViewport } from '../misc/usePhoneViewport';
 
-import type { DemoConfig, DataRow } from '../../types';
+import type { DemoConfig, DataObject } from '../../types';
 
 interface Props {
   active?: boolean;
   config: DemoConfig;
-  data: DataRow[];
-  onDataChange: (data: DataRow[]) => void;
+  data: DataObject[];
+  onDataChange: (data: DataObject[]) => void;
   onDataError: (errorMessage: string) => void;
   onDataReset: () => void;
 }
@@ -30,13 +30,13 @@ const props = withDefaults(defineProps<Props>(), {
 // with (null when every property is shown).
 const usedProperties = computed(() => collectUsedDataProperties(buildMochartDemoConfig(props.config).mochartConfig));
 const showUnused = ref(false);
-let fullData: DataRow[] = props.data;
+let fullData: DataObject[] = props.data;
 let viewUsedProperties: Set<string> | null = null;
 
 const dataText = ref('');
 const errorMessage = ref<string | null>(null);
 
-function renderView(fullRows: DataRow[]): void {
+function renderView(fullRows: DataObject[]): void {
   fullData = fullRows;
   viewUsedProperties = showUnused.value ? null : usedProperties.value;
   dataText.value = formatDataView(fullRows, viewUsedProperties);

@@ -9,7 +9,7 @@ import type { RandomConfigTabHandle } from './RandomConfigTab';
 import { randomDataTab } from './RandomDataTab';
 import type { RandomDataTabHandle } from './RandomDataTab';
 
-import { consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, getRandomDataRows, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
+import { consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, getRandomDataObjects, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider } from '../../types';
 
@@ -78,7 +78,7 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
       const generatorConfig = applyReuse ? nextRandomConfig : neutralizeRandomReuse(nextRandomConfig);
       const nextDataProvider = generateDemoDataProvider(generator, mochartConfig, generatorConfig, randomId);
       const { categoryValues = [], seriesValues = {} } = nextDataProvider;
-      const nextData = getRandomDataRows(mochartConfig, categoryValues, seriesValues);
+      const nextData = getRandomDataObjects(mochartConfig, categoryValues, seriesValues);
       const dataErrors = getDataErrors(mochartConfig, nextDataProvider);
       if (dataErrors.length > 0) {
         console.error('data errors: ', dataErrors);

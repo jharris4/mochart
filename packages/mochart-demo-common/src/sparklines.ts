@@ -8,7 +8,7 @@ import seedrandom from 'seedrandom';
 
 import { createSparklineConfig } from '@mochart/core';
 
-import type { DataRow, DemoConfig } from './types';
+import type { DataObject, DemoConfig } from './types';
 
 type Rng = () => number;
 
@@ -21,9 +21,9 @@ export interface SparklineMetric {
   height: number;
   config: DemoConfig;
   /** The dataset for a randomize step (step 0 is the initial page load). */
-  generate(step: number): DataRow[];
+  generate(step: number): DataObject[];
   /** The "Latest" cell text for a generated dataset (table metrics only). */
-  latestText(rows: DataRow[]): string;
+  latestText(rows: DataObject[]): string;
 }
 
 const POINT_COUNT = 30;

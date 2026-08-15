@@ -11,7 +11,7 @@ import { LightElement } from '../misc/LightElement';
 import { ElementSizeController } from '../misc/ElementSizeController';
 import './editable-chart';
 
-import type { DemoConfig, DataRow, MochartDemoConfig, FocusData, FilteredSeriesIds } from '../../types';
+import type { DemoConfig, DataObject, MochartDemoConfig, FocusData, FilteredSeriesIds } from '../../types';
 
 const minChartWidthForSecondChart = 480;
 const scrollWidthOffset = 20;
@@ -22,7 +22,7 @@ const panelAttrs = getDemoTabPanelAttrs('chart');
 @customElement('chart-tab')
 export class ChartTab extends LightElement {
   @property({ attribute: false }) config: DemoConfig | null = null;
-  @property({ attribute: false }) data: DataRow[] | null = null;
+  @property({ attribute: false }) data: DataObject[] | null = null;
   @property({ attribute: false }) dataError: string | boolean | null = false;
   @property({ attribute: false }) active = false;
 
@@ -55,7 +55,7 @@ export class ChartTab extends LightElement {
       return;
     }
     const previousConfig = changed.has('config') ? (changed.get('config') as DemoConfig | null) : this.config;
-    const previousData = changed.has('data') ? (changed.get('data') as DataRow[] | null) : this.data;
+    const previousData = changed.has('data') ? (changed.get('data') as DataObject[] | null) : this.data;
     const previousDataError = changed.has('dataError') ? (changed.get('dataError') as string | boolean | null) : this.dataError;
     let configChanged = false;
     if (this.config !== previousConfig) {

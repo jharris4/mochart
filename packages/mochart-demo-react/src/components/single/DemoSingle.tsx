@@ -9,7 +9,7 @@ import DemoTabs from '../misc/DemoTabs';
 import ErrorTab from '../misc/ErrorTab';
 import TopBar from '../misc/TopBar';
 
-import type { DemoTabProps, DemoConfig, DataRow } from '../../types';
+import type { DemoTabProps, DemoConfig, DataObject } from '../../types';
 
 const eventKeyChart = 1;
 const eventKeyConfig = 2;
@@ -62,13 +62,13 @@ interface ContentProps {
 interface ContentState {
   demoId: string;
   pendingConfig: DemoConfig | null;
-  pendingData: DataRow[] | null;
+  pendingData: DataObject[] | null;
   pendingDataError: DataError;
   config: DemoConfig;
-  data: DataRow[];
+  data: DataObject[];
   dataError: DataError;
   viewingConfig: DemoConfig;
-  viewingData: DataRow[];
+  viewingData: DataObject[];
   viewingDataError: DataError;
 }
 
@@ -147,7 +147,7 @@ function MochartDemoContent(props: ContentProps) {
     setState(prev => ({ ...prev, pendingConfig: resetConfig, config: resetConfig }));
   };
 
-  const onDataChange = (pendingData: DataRow[]) => setState(prev => ({ ...prev, pendingData, pendingDataError: false }));
+  const onDataChange = (pendingData: DataObject[]) => setState(prev => ({ ...prev, pendingData, pendingDataError: false }));
 
   const onDataError = (errorMessage: string) => setState(prev => ({ ...prev, pendingDataError: errorMessage }));
 

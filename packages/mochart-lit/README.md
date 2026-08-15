@@ -116,7 +116,7 @@ ref, like Lit's own `ref()` directive — receives a `ChartRef` handle whose
 providers:
 
 ```ts
-import type { DataRow } from '@mochart/core';
+import type { DataObject } from '@mochart/core';
 import type { ChartRef } from '@mochart/lit';
 
 private chart: ChartRef | null = null;
@@ -129,7 +129,7 @@ render() {
   })}`;
 }
 
-addRow(row: DataRow) {
+addRow(row: DataObject) {
   this.data.push(row);
   this.chart?.refresh();
 }

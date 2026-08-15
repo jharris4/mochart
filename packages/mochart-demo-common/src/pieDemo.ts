@@ -6,7 +6,7 @@
 
 import type { MochartConfig } from '@mochart/core';
 
-import type { DataRow, FilteredSeriesIds } from './types';
+import type { DataObject, FilteredSeriesIds } from './types';
 
 export interface PieSliceInfo {
   /** The series id — what focus, legend filtering and filtering key on. */
@@ -32,7 +32,7 @@ export function getPieSlices(mochartConfig: MochartConfig): PieSliceInfo[] {
  * current slice values (pieConfig.labelType / tooltipValues), so an edit only
  * has to set the value it edits.
  */
-export function applyPieSliceValue(row: DataRow, property: string, value: number): void {
+export function applyPieSliceValue(row: DataObject, property: string, value: number): void {
   row[property] = value;
 }
 

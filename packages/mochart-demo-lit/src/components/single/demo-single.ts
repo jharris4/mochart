@@ -14,7 +14,7 @@ import './chart-tab';
 import './config-tab';
 import './data-tab';
 
-import type { DemoData, DemoConfig, DataRow } from '../../types';
+import type { DemoData, DemoConfig, DataObject } from '../../types';
 
 type DataError = string | boolean | null;
 
@@ -36,12 +36,12 @@ export class DemoSingle extends LightElement {
   // Chart tab is shown again (so the chart animates one combined change).
   // pendingConfig/pendingData are reactive so the Chart tab badge updates.
   @state() private pendingConfig: DemoConfig | null = null;
-  @state() private pendingData: DataRow[] | null = null;
+  @state() private pendingData: DataObject[] | null = null;
   private pendingDataError: DataError = false;
   @state() private config: DemoConfig | null = null;
-  @state() private data: DataRow[] | null = null;
+  @state() private data: DataObject[] | null = null;
   @state() private viewingConfig: DemoConfig | null = null;
-  @state() private viewingData: DataRow[] | null = null;
+  @state() private viewingData: DataObject[] | null = null;
   @state() private viewingDataError: DataError = false;
   // editor-reported error, or the viewing config/data pair failing validation;
   // recomputed wherever the viewing values change, so a render always follows
@@ -114,7 +114,7 @@ export class DemoSingle extends LightElement {
     this.config = resetConfig;
   };
 
-  private onDataChange = (nextPendingData: DataRow[]): void => {
+  private onDataChange = (nextPendingData: DataObject[]): void => {
     this.pendingData = nextPendingData;
     this.pendingDataError = false;
   };
