@@ -4,7 +4,7 @@ import type { RendererItem } from '../render';
 import { mochartCssClasses } from '../utils/ChartDom';
 import { layoutInfoExtentChanged } from '../layout/LayoutInfo';
 import { resolveLegendIconSize, legendItemClickable } from '../layout/LegendLayout';
-import { prepareTruncation, getTruncatedText, updateTruncation } from '../utils/TextTruncation';
+import { getTruncatedText, TruncationTracker } from '../utils/TextTruncation';
 import { accessibilityActive, translate, translateObject, centerTextY } from '../utils/utils';
 import { moveRovingFocus, resolveRovingId, focusedSeriesNode, restoreSeriesFocus } from '../utils/RovingFocus';
 import { getClipPathReference } from '../utils/svgUtils';
@@ -16,7 +16,7 @@ import SeriesColorIcon from './SeriesColorIcon';
 import type { ColorPaletteConfig, LegendConfig } from '../types/config';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig } from '../types/enhanced';
 import type { SpacingLayoutInfo } from '../types/layout';
-import type { TruncationDataValue } from '../utils/TextTruncation';
+import type { TruncationState } from '../utils/TextTruncation';
 import type { FocusPercentageMap } from '../types/animation';
 
 interface LegendItemUniqueIds {
@@ -67,7 +67,7 @@ interface LegendItemProps {
   onMouseLeave: (seriesId: string) => void;
 }
 
-interface LegendItemState { truncationData: TruncationDataValue }
+type LegendItemState = TruncationState;
 
 interface LegendState { rovingSeriesId: string | null }
 
@@ -214,14 +214,11 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
   textRawGroup = svgEl('g');
   textRaw = svgEl('text');
   textRawValue = textEl();
-  truncationData: TruncationDataValue = null;
-  checkTruncation = false;
+  truncation = new TruncationTracker();
 
   constructor() {
     super();
     this.state = { truncationData: null };
-    this.truncationData = null;
-    this.checkTruncation = false;
   }
 
   onClick = () => {
@@ -268,8 +265,7 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
 
   derive(props: LegendItemProps, _state: LegendItemState, prevProps: LegendItemProps | null): Partial<LegendItemState> | null {
     if (prevProps === null) {
-      this.checkTruncation = props.legendConfig.truncationEnabled;
-      return null;
+      return this.truncation.mount(props.legendConfig.truncationEnabled);
     }
     const { legendConfig, seriesConfig, legendLayoutInfo, legendItemLayoutInfo, legendItemRawLayoutInfo } = props;
     const truncationEnabled = legendConfig.truncationEnabled;
@@ -277,15 +273,7 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
       (layoutInfoExtentChanged(prevProps.legendItemLayoutInfo, legendItemLayoutInfo) || layoutInfoExtentChanged(prevProps.legendItemRawLayoutInfo, legendItemRawLayoutInfo));
     const seriesTitleChanged = prevProps.seriesConfig.title !== seriesConfig.title;
     const truncationFinished = legendItemLayoutInfo.width === legendItemRawLayoutInfo.width && legendLayoutInfo.default !== true;
-    if (seriesTitleChanged || truncationFinished) {
-      this.truncationData = null;
-    }
-    const { checkTruncation, truncationData } = prepareTruncation(truncationEnabled, truncationChanged, this.truncationData);
-    this.truncationData = truncationData;
-    if (this.checkTruncation === false && checkTruncation === true) {
-      this.checkTruncation = true;
-    }
-    return { truncationData };
+    return this.truncation.prepare(truncationEnabled, truncationChanged, seriesTitleChanged || truncationFinished);
   }
 
   create() {
@@ -353,20 +341,14 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
       // truncation is only rechecked after updates; the initial sync renders untruncated
       return;
     }
-    if (this.checkTruncation) {
+    if (this.truncation.check) {
       const domElement = this.root.node.querySelector<SVGTextContentElement>(getLegendItemTextCssSelector());
       const { legendConfig, seriesConfig, legendItemTextLayoutInfo } = this.props;
       const { width } = legendItemTextLayoutInfo;
       const { truncationValue } = legendConfig;
       const title = getSeriesTitle(seriesConfig);
       const maxLength = Math.max(width, 0);
-      const { checkTruncation, truncationData } = updateTruncation(truncationValue, this.state.truncationData, title, maxLength, domElement);
-      // fields must be written before setState: its commit flush runs the next measure pass synchronously
-      this.truncationData = truncationData;
-      this.checkTruncation = checkTruncation;
-      if (checkTruncation) {
-        this.setState({ truncationData });
-      }
+      this.truncation.update(this, truncationValue, title, maxLength, domElement);
     }
   }
 }

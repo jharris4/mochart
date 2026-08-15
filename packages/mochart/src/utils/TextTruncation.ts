@@ -108,6 +108,51 @@ export function updateTruncation(truncationValue: string, oldTruncationData: Tru
   };
 }
 
+export interface TruncationState { truncationData: TruncationDataValue }
+
+interface TruncationHost {
+  state: TruncationState;
+  setState(update: Partial<TruncationState>): void;
+}
+
+/** The truncation state machine every text-truncating renderer runs: field copies of the data
+ * and the check flag, kept ahead of renderer state so nested measure passes see the latest values. */
+export class TruncationTracker {
+  data: TruncationDataValue = null;
+  check = false;
+
+  /** derive() on mount: nothing to prepare yet, just whether measure should check at all */
+  mount(enabled: boolean): null {
+    this.check = enabled;
+    return null;
+  }
+
+  /** derive() on update; `reset` drops the accumulated data first (text changed, or the layout settled) */
+  prepare(enabled: boolean, changed: boolean, reset: boolean, integrityChanged = true, newText?: string | string[]): TruncationState {
+    if (reset) {
+      this.data = null;
+    }
+    const { checkTruncation, truncationData } = prepareTruncation(enabled, changed, this.data, integrityChanged, newText);
+    this.data = truncationData;
+    // latched, never cleared here: a props update landing mid-refinement must not cancel the pending check
+    if (checkTruncation) {
+      this.check = true;
+    }
+    return { truncationData };
+  }
+
+  /** measure(): one refinement step, re-rendering through setState while more are needed */
+  update(host: TruncationHost, truncationValue: string, text: string | string[], maxLength: number, domElement: SVGTextContentElement | ArrayLike<SVGTextContentElement> | null): void {
+    const { checkTruncation, truncationData } = updateTruncation(truncationValue, host.state.truncationData, text, maxLength, domElement);
+    // fields must be written before setState: its commit flush runs the next measure pass synchronously
+    this.data = truncationData;
+    this.check = checkTruncation;
+    if (checkTruncation) {
+      host.setState({ truncationData });
+    }
+  }
+}
+
 // typed locally rather than from lib.esnext.intl, so the package's TS lib target is unaffected
 interface GraphemeSegmenter {
   segment(text: string): Iterable<{ segment: string }>;

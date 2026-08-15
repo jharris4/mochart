@@ -2,7 +2,7 @@ import { Renderer, svgEl, textEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { layoutInfoExtentChanged } from '../layout/LayoutInfo';
-import { prepareTruncation, getTruncatedText, updateTruncation } from '../utils/TextTruncation';
+import { getTruncatedText, TruncationTracker } from '../utils/TextTruncation';
 import { getClipPathReference } from '../utils/svgUtils';
 import { getAxisFocusStyle } from '../utils/FocusValue';
 import { styleToAttributes } from '../utils/style';
@@ -12,7 +12,7 @@ import type { AxisConfigBase } from '../types/config';
 import type { EnhancedValueAxisConfig } from '../types/enhanced';
 import type { AxisLayoutInfo } from '../types/layout';
 import type { FocusPercentage } from '../types/animation';
-import type { TruncationDataValue } from '../utils/TextTruncation';
+import type { TruncationState } from '../utils/TextTruncation';
 
 type AxisTitleConfig = AxisConfigBase & Partial<Pick<EnhancedValueAxisConfig, 'useSeriesFocus'>>;
 
@@ -24,41 +24,28 @@ interface AxisTitleProps {
   seriesFocusPercentage: FocusPercentage;
   ariaHidden: boolean;
 }
-interface AxisTitleState { truncationData: TruncationDataValue }
+type AxisTitleState = TruncationState;
 
 export default class AxisTitle extends Renderer<AxisTitleProps, AxisTitleState> {
   root = svgEl('g');
   background = this.slot(this.root);
   text = svgEl('text');
   textValue = textEl();
-  truncationData: TruncationDataValue = null;
-  checkTruncation = false;
+  truncation = new TruncationTracker();
 
   constructor() {
     super();
     this.state = { truncationData: null };
-    this.truncationData = null;
-    this.checkTruncation = false;
   }
 
   derive(props: AxisTitleProps, _state: AxisTitleState, prevProps: AxisTitleProps | null): Partial<AxisTitleState> | null {
     if (prevProps === null) {
-      this.checkTruncation = props.axisConfig.titleTruncationEnabled;
-      return null;
+      return this.truncation.mount(props.axisConfig.titleTruncationEnabled);
     }
     const { axisConfig, axisLayoutInfo } = props;
     const truncationEnabled = axisConfig.title !== NONE && axisConfig.titleTruncationEnabled;
     const truncationChanged = truncationEnabled && layoutInfoExtentChanged(prevProps.axisLayoutInfo, axisLayoutInfo);
-    if (prevProps.axisConfig.title !== axisConfig.title) {
-      this.truncationData = null;
-    }
-    const { checkTruncation, truncationData } = prepareTruncation(truncationEnabled, truncationChanged, this.truncationData);
-
-    this.truncationData = truncationData;
-    if (this.checkTruncation === false && checkTruncation === true) {
-      this.checkTruncation = true;
-    }
-    return { truncationData };
+    return this.truncation.prepare(truncationEnabled, truncationChanged, prevProps.axisConfig.title !== axisConfig.title);
   }
 
   create() {
@@ -106,18 +93,12 @@ export default class AxisTitle extends Renderer<AxisTitleProps, AxisTitleState> 
       // truncation is only rechecked after updates; the initial sync renders untruncated
       return;
     }
-    if (this.checkTruncation && this.present) {
+    if (this.truncation.check && this.present) {
       const domElement = this.root.node.querySelector<SVGTextContentElement>(getAxisTitleCssSelector());
       const { axisConfig, axisLayoutInfo } = this.props;
       const maxLength = axisLayoutInfo.vertical ? axisLayoutInfo.height : axisLayoutInfo.width;
       const { title, titleTruncationValue } = axisConfig;
-      const { checkTruncation, truncationData } = updateTruncation(titleTruncationValue, this.state.truncationData, title!, maxLength, domElement);
-      // fields must be written before setState: its commit flush runs the next measure pass synchronously
-      this.truncationData = truncationData;
-      this.checkTruncation = checkTruncation;
-      if (checkTruncation) {
-        this.setState({ truncationData });
-      }
+      this.truncation.update(this, titleTruncationValue, title!, maxLength, domElement);
     }
   }
 }

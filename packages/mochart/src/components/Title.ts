@@ -2,7 +2,7 @@ import { Renderer, svgEl, textEl, Slot } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { layoutInfoExtentChanged } from '../layout/LayoutInfo';
-import { prepareTruncation, getTruncatedText, updateTruncation } from '../utils/TextTruncation';
+import { getTruncatedText, TruncationTracker } from '../utils/TextTruncation';
 import { NONE } from '../config/core/constants';
 import { onClickDisabled, centerTextY, translate, translateObject } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
@@ -13,7 +13,7 @@ import type { El, TextEl } from '../render';
 import type { Style } from '../types/config';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { SpacingLayoutInfo } from '../types/layout';
-import type { TruncationDataValue } from '../utils/TextTruncation';
+import type { TruncationState } from '../utils/TextTruncation';
 
 type TitleSectionKey = 'titlePrefix' | 'titleText' | 'titleTextRaw' | 'titleSuffix';
 type TitleBackgroundKey = 'titlePrefixBackground' | 'titleTextBackground' | 'titleSuffixBackground';
@@ -35,21 +35,18 @@ interface TitleProps {
   accessibility: boolean;
   onClick?: () => void;
 }
-interface TitleState { truncationData: TruncationDataValue }
+type TitleState = TruncationState;
 
 export default class Title extends Renderer<TitleProps, TitleState> {
   root = svgEl('g');
   background = this.slot(this.root);
   wrapper = this.elSlot(this.root);
-  truncationData: TruncationDataValue = null;
-  checkTruncation = false;
+  truncation = new TruncationTracker();
   sections: Partial<Record<TitleSectionKey, TitleSection>> = {};
 
   constructor() {
     super();
     this.state = { truncationData: null };
-    this.truncationData = null;
-    this.checkTruncation = false;
     this.sections = {};
   }
 
@@ -70,8 +67,7 @@ export default class Title extends Renderer<TitleProps, TitleState> {
 
   derive(props: TitleProps, _state: TitleState, prevProps: TitleProps | null): Partial<TitleState> | null {
     if (prevProps === null) {
-      this.checkTruncation = props.mochartConfig.title.truncationEnabled;
-      return null;
+      return this.truncation.mount(props.mochartConfig.title.truncationEnabled);
     }
     const { mochartConfig, titleLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo } = props;
     const { title: titleConfig } = mochartConfig;
@@ -80,15 +76,7 @@ export default class Title extends Renderer<TitleProps, TitleState> {
       (layoutInfoExtentChanged(prevProps.titleTextLayoutInfo, titleTextLayoutInfo) || layoutInfoExtentChanged(prevProps.titleTextRawLayoutInfo, titleTextRawLayoutInfo));
     const titleChanged = prevProps.mochartConfig.title.text !== titleConfig.text;
     const truncationFinished = titleTextLayoutInfo.width === titleTextRawLayoutInfo.width && titleLayoutInfo.default !== true;
-    if (titleChanged || truncationFinished) {
-      this.truncationData = null;
-    }
-    const { checkTruncation, truncationData } = prepareTruncation(truncationEnabled, truncationChanged, this.truncationData);
-    this.truncationData = truncationData;
-    if (this.checkTruncation === false && checkTruncation === true) {
-      this.checkTruncation = true;
-    }
-    return { truncationData };
+    return this.truncation.prepare(truncationEnabled, truncationChanged, titleChanged || truncationFinished);
   }
 
   create() {
@@ -205,20 +193,14 @@ export default class Title extends Renderer<TitleProps, TitleState> {
   }
 
   refreshTruncation() {
-    if (this.checkTruncation && this.present) {
+    if (this.truncation.check && this.present) {
       const domElement = this.root.node.querySelector<SVGTextContentElement>(getTitleTextCssSelector());
       const { mochartConfig, titleTextLayoutInfo } = this.props;
       const { title: titleConfig } = mochartConfig;
       const { width } = titleTextLayoutInfo;
       const { text: title, truncationValue, textMargin, textPadding } = titleConfig;
       const maxLength = Math.max(width - getSpacingWidth(textMargin, textPadding), 0);
-      const { checkTruncation, truncationData } = updateTruncation(truncationValue, this.state.truncationData, title!, maxLength, domElement);
-      // fields must be written before setState: its commit flush runs the next measure pass synchronously
-      this.truncationData = truncationData;
-      this.checkTruncation = checkTruncation;
-      if (checkTruncation) {
-        this.setState({ truncationData });
-      }
+      this.truncation.update(this, truncationValue, title!, maxLength, domElement);
     }
   }
 

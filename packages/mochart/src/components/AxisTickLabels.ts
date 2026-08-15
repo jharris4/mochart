@@ -2,7 +2,7 @@ import { Renderer, svgEl, textEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { layoutInfoExtentChanged } from '../layout/LayoutInfo';
-import { prepareTruncation, getTruncatedText, updateTruncation } from '../utils/TextTruncation';
+import { getTruncatedText, TruncationTracker } from '../utils/TextTruncation';
 import { SCALE_ORDINAL } from '../config/core/constants';
 import { translate } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
@@ -15,7 +15,7 @@ import type { EnhancedValueAxisConfig } from '../types/enhanced';
 import type { AxisTick } from '../types/data';
 import type { AxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
 import type { FocusPercentage } from '../types/animation';
-import type { TruncationDataValue } from '../utils/TextTruncation';
+import type { TruncationState } from '../utils/TextTruncation';
 
 const emptyArray: string[] = [];
 
@@ -35,7 +35,7 @@ interface AxisTickLabelsProps {
   seriesFocusPercentage: FocusPercentage;
   accessibility: boolean;
 }
-interface AxisTickLabelsState { truncationData: TruncationDataValue }
+type AxisTickLabelsState = TruncationState;
 type SizeLabelEl = El & { textHandle: El; valueHandle: TextEl };
 interface TickLabelHandle { root: El; text: El; value: TextEl }
 
@@ -69,20 +69,16 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
   tickLabelsGroup = svgEl('g');
   tickLabels = this.elList<AxisTick, TickLabelHandle>(this.tickLabelsGroup);
   sizeTickLabel = this.elSlot(this.tickLabelsGroup);
-  truncationData: TruncationDataValue = null;
-  checkTruncation = false;
+  truncation = new TruncationTracker();
 
   constructor() {
     super();
     this.state = { truncationData: null };
-    this.truncationData = null;
-    this.checkTruncation = false;
   }
 
   derive(props: AxisTickLabelsProps, _state: AxisTickLabelsState, prevProps: AxisTickLabelsProps | null): Partial<AxisTickLabelsState> | null {
     if (prevProps === null) {
-      this.checkTruncation = props.axisConfig.tickLabelTruncationEnabled ?? false;
-      return null;
+      return this.truncation.mount(props.axisConfig.tickLabelTruncationEnabled ?? false);
     }
     const { axisConfig, axisLayoutInfo, plotLayoutInfo, axisTicks, tickSpacing } = props;
 
@@ -98,14 +94,10 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
       const ticksChanged = axisTicks !== prevProps.axisTicks;
       truncationChanged = getTruncationChanged(sizeChanged, ticksChanged, prevProps, props);
       const axisTickCount = axisTicks !== null ? axisTicks.length : 0;
-      integrityChanged = Array.isArray(this.truncationData) && axisTickCount === this.truncationData.length;
+      integrityChanged = Array.isArray(this.truncation.data) && axisTickCount === this.truncation.data.length;
     }
-    const { checkTruncation, truncationData } = prepareTruncation(truncationEnabled, truncationChanged, this.truncationData, integrityChanged,
+    return this.truncation.prepare(truncationEnabled, truncationChanged, false, integrityChanged,
       truncationChanged ? axisTicks.map(tick => String(tick.label)) : undefined);
-
-    this.truncationData = truncationData;
-    this.checkTruncation = checkTruncation;
-    return { truncationData };
   }
 
   create() {
@@ -205,7 +197,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
       // truncation is only rechecked after updates; the initial sync renders untruncated
       return;
     }
-    if (this.checkTruncation) {
+    if (this.truncation.check) {
       const domElements = this.tickLabelsGroup.node.querySelectorAll<SVGTextContentElement>(getAxisTickLabelsCssSelector());
 
       const { axisLayoutInfo, tickSpacing, axisConfig, plotLayoutInfo, axisTicks } = this.props;
@@ -221,13 +213,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
           (axisConfig.tickLabelTruncationMaxFraction ?? 0) * (vertical ? plotLayoutInfo.width : plotLayoutInfo.height));
       }
 
-      const { checkTruncation, truncationData } = updateTruncation(tickLabelTruncationValue, this.state.truncationData, axisTickLabels, maxLength, domElements);
-      // fields must be written before setState: its commit flush runs the next measure pass synchronously
-      this.truncationData = truncationData;
-      this.checkTruncation = checkTruncation;
-      if (checkTruncation) {
-        this.setState({ truncationData });
-      }
+      this.truncation.update(this, tickLabelTruncationValue, axisTickLabels, maxLength, domElements);
     }
   }
 }
