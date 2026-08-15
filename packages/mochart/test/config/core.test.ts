@@ -137,6 +137,28 @@ describe('getConfigWithoutDefaults', () => {
     expect(getConfigWithoutDefaults({ id: 'x', title: { text: 'T' } }, { title: {} }))
       .toEqual({ id: 'x', title: { text: 'T' } });
   });
+
+  // getDefaults builds list defaults from the filtered entries, so ignored/non-object entries must not shift the pairing
+  it('pairs each kept list entry with its own defaults when the raw list has ignored entries', () => {
+    const config = {
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'a', renderer: 'bar' }, { property: 'skip', ignore: true }, 7, { property: 'b', renderer: 'area' }]
+    };
+    const defaults = getDefaults(config);
+    const minimal = getConfigWithoutDefaults(config, defaults);
+    expect(minimal.series).toEqual([{ property: 'a', renderer: 'bar' }, { property: 'b', renderer: 'area' }]);
+    expect(getConfigWithDefaults(minimal, defaults)).toEqual(getConfigWithDefaults(config, defaults));
+  });
+
+  it('leaves an empty valueAxes list out instead of pairing the implicit axis with nothing', () => {
+    const config = {
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'a' }],
+      valueAxes: []
+    };
+    const minimal = getConfigWithoutDefaults(config, getDefaults(config));
+    expect(minimal.valueAxes).toBeUndefined();
+  });
 });
 
 describe('with/without defaults round-trip', () => {

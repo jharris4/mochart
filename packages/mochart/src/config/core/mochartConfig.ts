@@ -249,11 +249,13 @@ export function getConfigWithoutDefaults(config: unknown, defaults: ConfigRecord
         if (defaultsSection !== undefined) {
           if (Array.isArray(configSection)) {
             const defaultSections = Array.isArray(defaultsSection) ? defaultsSection : [];
+            // defaults are built from the filtered list, so pair against it (ignored entries drop, like getConfigWithDefaults)
+            const filteredConfigSection = filterConfigs(configSection);
             const newSections: unknown[] = [];
-            const count = defaultSections.length;
+            const count = filteredConfigSection.length;
             let i, newSection;
             for (i = 0; i < count; i++) {
-              newSection = removeSectionDefaults(defaultSections[i], allSection, configSection[i]);
+              newSection = removeSectionDefaults(defaultSections[i], allSection, filteredConfigSection[i]);
               newSections.push(newSection);
             }
             // defaults-only sections (e.g. seriesStacks: []) stay out, like empty objects below
