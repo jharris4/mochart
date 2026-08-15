@@ -4,10 +4,10 @@
  * Enter/Space toggles like a click, and aria-pressed tracks visibility
  * (pressed = series shown).
  */
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, lastHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector, getIdCssSelector } from '../../src/utils/ChartDom';
@@ -31,12 +31,9 @@ function makeConfig(legend: Record<string, unknown> = {}): MochartInputConfig {
   } as unknown as MochartInputConfig;
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, { config, data: rows, width: 800, height: 600 }));
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, { config, data: rows, width: 800, height: 600 }));
   return container;
 }
 
@@ -55,14 +52,6 @@ beforeAll(() => {
   if (typeof svgProto.focus !== 'function') {
     svgProto.focus = HTMLElement.prototype.focus;
   }
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('legend keyboard semantics', () => {
@@ -114,7 +103,7 @@ describe('legend keyboard semantics', () => {
   it('moves focus to a neighbour when the focused legend item disappears', () => {
     // the focused item's node is unmounted when its series leaves; the browser would drop keyboard focus to the body
     const container = mountChart(makeConfig());
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
     legendItems(container)[1].focus();
 
     const withoutS1 = makeConfig();

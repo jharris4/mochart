@@ -5,11 +5,11 @@
  * navigation), Enter/Space clicks, and the slice keeps DOM focus even when
  * focusing reorders the slice nodes. Non-interactive slices stay aria-hidden.
  */
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, lastHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
-import type { ChartSliceClickPayload, DefaultChartProps } from '../../src/types/chart';
+import type { ChartSliceClickPayload } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
 
@@ -30,12 +30,9 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
   } as unknown as MochartInputConfig;
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig, onSliceClick?: (payload: ChartSliceClickPayload) => void): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, { config, data: rows, width: 800, height: 600, onSliceClick }));
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, { config, data: rows, width: 800, height: 600, onSliceClick }));
   return container;
 }
 
@@ -57,14 +54,6 @@ beforeAll(() => {
   if (typeof svgProto.focus !== 'function') {
     svgProto.focus = HTMLElement.prototype.focus;
   }
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('pie slice keyboard semantics', () => {
@@ -184,7 +173,7 @@ describe('pie slice keyboard semantics', () => {
   // focus-restore skipped disconnected nodes — keyboard focus fell to <body>.
   it('moves focus to a neighbor slice when the focused slice is filtered out', () => {
     const container = mountChart(makeConfig(), () => {});
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
     const items = slices(container);
     items[1].focus();
 

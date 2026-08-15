@@ -2,11 +2,10 @@
  * Screen-reader semantics of the chart root: the svg is a labeled group named from the title, and the
  * decorative geometry is aria-hidden so assistive tech lands on the meaningful stops, not unlabeled shapes.
  */
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
-import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssClass, getCssSelector } from '../../src/utils/ChartDom';
 
@@ -29,25 +28,14 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
   } as unknown as MochartInputConfig;
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig, props: Record<string, unknown> = {}): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, { config, data: rows, width: 800, height: 600, ...props }));
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, { config, data: rows, width: 800, height: 600, ...props }));
   return container;
 }
 
 beforeAll(() => {
   installSvgMeasurementShims();
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('chart aria semantics', () => {

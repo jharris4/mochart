@@ -2,16 +2,14 @@
  * Data-tween hot path: a value-only update (same categories/domains) must not remeasure DOM text per frame.
  * Unlike other suites the shims return non-zero sizes, so bounds are real and the remeasure-retry path stays quiet.
  */
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
-import type { ChartHandle } from '../../src/createChart';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
+import { installFakeFrameClock, runFrames, mockBoundingClientRect, mountContainer, trackHandle } from './helpers';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 
 const VERSION = '1.0.0';
 const WIDTH = 800;
 const HEIGHT = 600;
-const FRAME_MS = 16;
-const MAX_FRAMES = 500;
 
 let textMeasureCalls = 0;
 
@@ -57,56 +55,18 @@ let mochart: typeof import('../../src');
 
 beforeAll(async () => {
   installCountingMeasurementShims();
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-    return {
-      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
-      width: WIDTH, height: HEIGHT, toJSON: () => ({})
-    } as DOMRect;
-  });
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
-    ]
-  });
+  mockBoundingClientRect(WIDTH, HEIGHT);
+  installFakeFrameClock();
   mochart = await import('../../src');
 });
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(data: readonly unknown[] = rows) {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = mochart.createDefaultChart(container, {
+  const container = mountContainer();
+  const handle = trackHandle(mochart.createDefaultChart(container, {
     config: makeConfig(), data, width: WIDTH, height: HEIGHT
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return { container, handle };
 }
-
-/** Advance the fake clock frame by frame until all tweens/timers settle. */
-function runFrames(maxFrames = MAX_FRAMES): number {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < maxFrames) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
-  return frames;
-}
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
-  vi.clearAllTimers();
-});
 
 describe('data tween hot path', () => {
   it('does not remeasure text during a value-only data tween', () => {

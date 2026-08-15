@@ -1,8 +1,8 @@
 // The band marking plot edges that have data hidden behind them: an overlay that never enters the layout pass
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector } from '../../src/utils/ChartDom';
@@ -12,8 +12,6 @@ const HEIGHT = 300;
 
 const overflowing = [{ c: 'a', v: 5 }, { c: 'b', v: 50 }];
 const contained = [{ c: 'a', v: 5 }, { c: 'b', v: 8 }];
-
-let handles: ChartHandle<DefaultChartProps>[] = [];
 
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
@@ -27,9 +25,8 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
 }
 
 function mount(config = makeConfig(), data: readonly unknown[] = overflowing): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, { config, data, width: WIDTH, height: HEIGHT } as DefaultChartProps));
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, { config, data, width: WIDTH, height: HEIGHT } as DefaultChartProps));
   return container;
 }
 
@@ -73,14 +70,6 @@ function plotRect(container: Element) {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('band presence', () => {
@@ -356,12 +345,10 @@ describe('mitred corners', () => {
 
 describe('updates', () => {
   it('appears and disappears as the data moves in and out of range', () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const handle = createDefaultChart(container, {
+    const container = mountContainer();
+    const handle = trackHandle(createDefaultChart(container, {
       config: makeConfig(), data: contained, width: WIDTH, height: HEIGHT
-    } as DefaultChartProps);
-    handles.push(handle);
+    } as DefaultChartProps));
     expect(container.querySelector(getCssSelector('clipIndicator'))).toBeNull();
 
     handle.update({ config: makeConfig(), data: overflowing, width: WIDTH, height: HEIGHT } as DefaultChartProps);

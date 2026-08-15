@@ -2,10 +2,10 @@
  * Pointer-driven chart pipeline: mouse events drive the tooltip, tooltip controls, crosshair, and
  * focus/event callbacks. Mounted via the public createDefaultChart() API, animation off, synchronous in jsdom.
  */
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, lastHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { ChartEventPayload, ChartFocus, ChartSeriesClickPayload, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssClass, getIdCssClass, getCssSelector, getIdCssSelector, getDescendantCssSelector, getCssClassMatchSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
@@ -38,15 +38,11 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
   } as unknown as MochartInputConfig;
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig, callbacks: Partial<DefaultChartProps> = {}, data: readonly unknown[] = rows): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, {
     config, data, width: WIDTH, height: HEIGHT, ...callbacks
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return container;
 }
 
@@ -87,14 +83,6 @@ beforeAll(() => {
       width: WIDTH, height: HEIGHT, toJSON: () => ({})
     } as DOMRect;
   });
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('chart mouse events', () => {
@@ -234,13 +222,11 @@ describe('title layout variants', () => {
   });
 
   it('survives a chart too narrow for the title decorations', () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const handle = createDefaultChart(container, {
+    const container = mountContainer();
+    trackHandle(createDefaultChart(container, {
       config: makeConfig({ title: { text: 'T', prefix: 'P', suffix: 'S' } }),
       data: rows, width: 4, height: 600
-    } as DefaultChartProps);
-    handles.push(handle);
+    } as DefaultChartProps));
     expect(container.querySelector(getChartRootCssSelector())).not.toBeNull();
   });
 });
@@ -782,7 +768,7 @@ describe('tooltip', () => {
 
     // the host filters the hovered series through the controlled prop; the
     // leave must still fire even though the series is filtered by then
-    handles[handles.length - 1].update({ filteredSeriesIds: { S1: true } } as Partial<DefaultChartProps>);
+    lastHandle().update({ filteredSeriesIds: { S1: true } } as Partial<DefaultChartProps>);
     item.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBe(null);
   });
@@ -1038,7 +1024,7 @@ describe('followSeries follower focus', () => {
     const container = mountChart(candleConfig(), {}, candleRows);
     const unfocusedOtherOpacity = Number(barOpacity(container, 'other'));
 
-    handles[handles.length - 1].update({ focusedSeriesId: 'body' } as Partial<DefaultChartProps>);
+    lastHandle().update({ focusedSeriesId: 'body' } as Partial<DefaultChartProps>);
 
     // the wick takes its body's focused opacity while the unrelated series dims
     expect(barOpacity(container, 'wick')).toBe(barOpacity(container, 'body'));
@@ -1194,7 +1180,7 @@ describe('value axis focus on click', () => {
 describe('tooltip on a removed category', () => {
   it('closes fully so the next click opens a tooltip again', () => {
     const container = mountChart(makeConfig());
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
     const root = chartRoot(container);
 
     mouse(root, 'mouseenter', 100, 100);

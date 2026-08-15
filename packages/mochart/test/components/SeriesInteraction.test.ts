@@ -1,9 +1,9 @@
 // Pointer handlers on cartesian series shapes: focusOnMouseOver and focusCategoryOnMouseOver decide whether
 // hovering focuses the series, the category, both or neither, and the shapes carry the resulting handlers.
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, mockBoundingClientRect } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { ChartFocus, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector, getIdCssSelector } from '../../src/utils/ChartDom';
@@ -18,18 +18,15 @@ const rows = [
   { month: 'Mar', sales: 30 }
 ];
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(seriesOverrides: Record<string, unknown>, callbacks: Partial<DefaultChartProps> = {}): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   const config = {
     version: VERSION,
     animation: { animate: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales', renderer: 'bar', ...seriesOverrides }]
   } as unknown as MochartInputConfig;
-  handles.push(createDefaultChart(container, {
+  trackHandle(createDefaultChart(container, {
     config, data: rows, width: WIDTH, height: HEIGHT, ...callbacks
   } as DefaultChartProps));
   return container;
@@ -47,20 +44,7 @@ function mouse(target: Element, type: string): void {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
-    return {
-      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
-      width: WIDTH, height: HEIGHT, toJSON: () => ({})
-    } as DOMRect;
-  });
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
+  mockBoundingClientRect(WIDTH, HEIGHT);
 });
 
 describe('series shape hover focus', () => {

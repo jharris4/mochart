@@ -1,8 +1,8 @@
 // Legend/tooltip icon config that had never been set anywhere: showIconColors, showIconPlaceholders, iconUnfilteredColor, the border/spacer numbers, and the tooltip icon's gradient path.
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector, getIdCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
@@ -16,11 +16,8 @@ const rows = [
   { month: 'Feb', sales: 20, costs: 8 }
 ];
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(overrides: Record<string, unknown> = {}): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   const config = {
     version: VERSION,
     animation: { animate: false },
@@ -29,7 +26,7 @@ function mountChart(overrides: Record<string, unknown> = {}): Element {
     legend: { visible: true, filterOnClick: true },
     ...overrides
   } as unknown as MochartInputConfig;
-  handles.push(createDefaultChart(container, { config, data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps));
+  trackHandle(createDefaultChart(container, { config, data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps));
   return container;
 }
 
@@ -62,14 +59,6 @@ beforeAll(() => {
   if (typeof svgProto.focus !== 'function') {
     svgProto.focus = HTMLElement.prototype.focus;
   }
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('legend icon switches', () => {

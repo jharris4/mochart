@@ -1,12 +1,12 @@
 // followSeries animation sync: a leader and its followers (hollow candle body + wick segments) share durations so the
 // segments stay glued to the body every frame, for both filtering and data-update deltas; fake-clock harness, manual frames.
-import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
-import { getCssClass, getIdCssClass, getIdCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
+import { describe, it, beforeAll, expect } from 'vitest';
+import { installSvgMeasurementShims } from './svgShims';
+import { installFakeFrameClock, runFrames, advanceFrames, mountContainer, barRects } from './helpers';
+import { getIdCssClass, getIdCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
-const FRAME_MS = 16;
-const MAX_FRAMES = 500;
 
 // Mon is an up candle (body open 1 → close 2), Tue a down candle.
 const ITEMS = [
@@ -17,49 +17,10 @@ const ITEMS = [
 let mochart: typeof import('../../src');
 
 beforeAll(async () => {
-  const svgProto = globalThis.SVGElement.prototype as any;
-  if (typeof svgProto.getComputedTextLength !== 'function') {
-    svgProto.getComputedTextLength = () => 0;
-  }
-  if (typeof svgProto.getSubStringLength !== 'function') {
-    svgProto.getSubStringLength = () => 0;
-  }
-  if (typeof svgProto.getBBox !== 'function') {
-    svgProto.getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 });
-  }
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
-    ]
-  });
+  installSvgMeasurementShims();
+  installFakeFrameClock();
   mochart = await import('../../src');
 });
-
-afterEach(() => {
-  document.body.innerHTML = '';
-  vi.clearAllTimers();
-});
-
-function runFrames(maxFrames = MAX_FRAMES) {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < maxFrames) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
-  return frames;
-}
-
-function advanceFrames(count: number) {
-  for (let i = 0; i < count && vi.getTimerCount() > 0; i++) {
-    vi.advanceTimersByTime(FRAME_MS);
-  }
-}
 
 function mountHollowCandlestick(items: typeof ITEMS) {
   const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs } = mochart.createCandlestick(items, { hollow: true });
@@ -70,8 +31,7 @@ function mountHollowCandlestick(items: typeof ITEMS) {
     categoryAxis: categoryAxisConfig,
     series: seriesConfigs
   } as never);
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   const chart = mochart.createChart(container, {
     mochartConfig,
     dataProvider: new mochart.ArrayOfObjectsDataProvider(data) as never,
@@ -79,18 +39,6 @@ function mountHollowCandlestick(items: typeof ITEMS) {
     height: HEIGHT
   });
   return { container, chart, mochartConfig };
-}
-
-interface BarRect { y: number; height: number }
-
-function barRects(container: Element, seriesId: string): BarRect[] {
-  const paths = container.querySelectorAll(getIdCssSelector('series', seriesId) + ' path' + getCssClassMatchSelector(getCssClass('seriesBar')));
-  return Array.from(paths).map((path) => {
-    const d = path.getAttribute('d') ?? '';
-    const match = /^M(-?[\d.]+),(-?[\d.]+)h(-?[\d.]+)v(-?[\d.]+)/.exec(d);
-    expect(match, `unexpected bar path: ${d}`).not.toBeNull();
-    return { y: Number(match![2]), height: Number(match![4]) };
-  });
 }
 
 function barOpacity(container: Element, seriesId: string): string {
@@ -121,8 +69,7 @@ describe('followSeries animation sync (hollow candlestick)', () => {
         { id: 'other', property: 'open', renderer: 'bar' }
       ]
     } as never);
-    const container = document.createElement('div');
-    document.body.appendChild(container);
+    const container = mountContainer();
     const chart = mochart.createChart(container, {
       mochartConfig: makeConfig(false),
       dataProvider: new mochart.ArrayOfObjectsDataProvider(ITEMS) as never,

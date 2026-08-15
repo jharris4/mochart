@@ -2,50 +2,18 @@
  * Controlled focus/filter props on createChart: set props override internal focus state on every
  * update (the controlled-chart contract, used to sync focus across charts); undefined = uncontrolled.
  */
-import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
+import { describe, it, beforeAll, expect, vi } from 'vitest';
+import { installSvgMeasurementShims } from '../components/svgShims';
+import { installFakeFrameClock, runFrames, mountContainer } from '../components/helpers';
 import { getIdCssClass, getCssSelector } from '../../src/utils/ChartDom';
-
-const FRAME_MS = 16;
 
 let mochart: typeof import('../../src');
 
 beforeAll(async () => {
-  const svgProto = globalThis.SVGElement.prototype as any;
-  if (typeof svgProto.getComputedTextLength !== 'function') {
-    svgProto.getComputedTextLength = () => 0;
-  }
-  if (typeof svgProto.getSubStringLength !== 'function') {
-    svgProto.getSubStringLength = () => 0;
-  }
-  if (typeof svgProto.getBBox !== 'function') {
-    svgProto.getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 });
-  }
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
-    ]
-  });
+  installSvgMeasurementShims();
+  installFakeFrameClock();
   mochart = await import('../../src');
 });
-
-afterEach(() => {
-  document.body.innerHTML = '';
-  vi.clearAllTimers();
-});
-
-function runFrames(maxFrames = 500) {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < maxFrames) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
-}
 
 const data = [
   { month: 'Jan', sales: 10, costs: 4 },
@@ -64,8 +32,7 @@ function mountChart() {
       { id: 'costs', property: 'costs', renderer: 'line' }
     ]
   });
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   const chart = createChart(container, {
     mochartConfig,
     dataProvider: new ArrayOfObjectsDataProvider(data),
@@ -131,8 +98,7 @@ describe('synchronous host re-entrancy', () => {
       ]
     });
     const rows = data.map((row, index) => ({ ...row, week: 'W' + index }));
-    const container = document.createElement('div');
-    document.body.appendChild(container);
+    const container = mountContainer();
 
     const reported: Record<string, boolean>[] = [];
     const host = {
@@ -212,8 +178,7 @@ describe('controlled focus props', () => {
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
       series: [{ id: 'sales', property: 'sales', renderer: 'line' }]
     });
-    const container = document.createElement('div');
-    document.body.appendChild(container);
+    const container = mountContainer();
     createChart(container, {
       mochartConfig,
       dataProvider: new ArrayOfObjectsDataProvider(data),
@@ -258,8 +223,7 @@ describe('controlled focus props', () => {
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
       series: [{ id: 'sales', property: 'sales', renderer: 'line' }]
     });
-    const container = document.createElement('div');
-    document.body.appendChild(container);
+    const container = mountContainer();
     const staleFocus = vi.fn();
     const freshFocus = vi.fn();
     const props = {

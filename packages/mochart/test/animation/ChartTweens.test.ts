@@ -2,6 +2,7 @@ import type { EnhancedMochartConfig } from '../../src/types/enhanced';
 // Tween engine + ChartTweenManager tests (sequencing, events, durations, cancellation) on a fake
 // clock; the data/focus interpolators are mocked — their math is covered by their own test files.
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { FRAME_MS, installFakeFrameClock, runFrames } from '../components/helpers';
 import {
   getChartTweenManager,
   dataTweenExpandStart, dataTweenExpandUpdate, dataTweenExpandComplete,
@@ -26,8 +27,6 @@ vi.mock('../../src/animation/FocusAnimation', () => ({
     ({ interpolated: 'focus', percentage }))
 }));
 
-const FRAME_MS = 16;
-const MAX_FRAMES = 500;
 
 interface Sentinel { phase: string; edge: string; }
 const sentinel = (phase: string, edge: string): Sentinel => ({ phase, edge });
@@ -84,28 +83,8 @@ function makeManager(): ChartTweenManager {
   return manager;
 }
 
-/** Advance the fake clock frame by frame until all tweens/timers settle. */
-function runFrames(maxFrames = MAX_FRAMES): number {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < maxFrames) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
-  return frames;
-}
-
 beforeAll(() => {
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
-    ]
-  });
+  installFakeFrameClock();
 });
 
 afterEach(() => {

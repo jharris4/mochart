@@ -1,52 +1,20 @@
 // an inverted explicit domain has a negative extent that used to zero the phase-duration denominator — an Infinity-duration tween that never settles; both tests drive real frames on a fake clock
-import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
+import { describe, it, beforeAll, expect, vi } from 'vitest';
+import { installSvgMeasurementShims } from '../components/svgShims';
+import { installFakeFrameClock, runFrames, mountContainer } from '../components/helpers';
 
 const WIDTH = 800;
 const HEIGHT = 600;
-const FRAME_MS = 16;
 // far beyond any real phase chain here (400ms + 200ms + 400ms ≈ 63 frames)
 const RUNAWAY_FRAMES = 2000;
 
 let mochart: typeof import('../../src');
 
 beforeAll(async () => {
-  const svgProto = globalThis.SVGElement.prototype as unknown as Record<string, unknown>;
-  if (typeof svgProto.getComputedTextLength !== 'function') {
-    svgProto.getComputedTextLength = () => 0;
-  }
-  if (typeof svgProto.getSubStringLength !== 'function') {
-    svgProto.getSubStringLength = () => 0;
-  }
-  if (typeof svgProto.getBBox !== 'function') {
-    svgProto.getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 });
-  }
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
-    ]
-  });
+  installSvgMeasurementShims();
+  installFakeFrameClock();
   mochart = await import('../../src');
 });
-
-afterEach(() => {
-  document.body.innerHTML = '';
-  vi.clearAllTimers();
-});
-
-function runFrames(maxFrames: number) {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < maxFrames) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
-  return frames;
-}
 
 interface Row { [key: string]: string | number; c: string; v: number }
 
@@ -58,8 +26,7 @@ function mount(valueAxis: Record<string, unknown>, rows: Row[]) {
     valueAxes: [valueAxis],
     series: [{ id: 'S0', property: 'v', renderer: 'bar' }]
   } as never);
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   const chart = mochart.createChart(container, {
     mochartConfig,
     dataProvider: new mochart.ArrayOfObjectsDataProvider(rows) as never,

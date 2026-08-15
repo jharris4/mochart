@@ -1,8 +1,8 @@
 // Series are clipped to the plot so values past an explicit axis min/max cannot paint over the chrome; jsdom does not rasterize, so these assert the clip contract while the geometry deliberately still runs past the bound.
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector } from '../../src/utils/ChartDom';
@@ -11,8 +11,6 @@ const WIDTH = 400;
 const HEIGHT = 300;
 
 const rows = [{ c: 'a', v: 5 }, { c: 'b', v: 50 }];
-
-let handles: ChartHandle<DefaultChartProps>[] = [];
 
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
@@ -25,9 +23,8 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
 }
 
 function mount(config = makeConfig(), data: readonly unknown[] = rows): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, { config, data, width: WIDTH, height: HEIGHT } as DefaultChartProps));
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, { config, data, width: WIDTH, height: HEIGHT } as DefaultChartProps));
   return container;
 }
 
@@ -49,14 +46,6 @@ function clipRect(container: Element) {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('series clip', () => {

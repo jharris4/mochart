@@ -1,10 +1,10 @@
 // Cartesian series keyboard a11y: interactive series (focusOnClick or onSeriesClick) are buttons with a roving tab stop —
 // arrows move in config order, Enter/Space clicks the whole series (categoryIndex -1), followers stay pointer-only, others aria-hidden; the plot rect owns the tooltip, only Escape crosses over.
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, lastHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
-import type { ChartSeriesClickPayload, DefaultChartProps } from '../../src/types/chart';
+import type { ChartSeriesClickPayload } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector, getIdCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
 
@@ -27,12 +27,9 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
   } as unknown as MochartInputConfig;
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig, onSeriesClick?: (payload: ChartSeriesClickPayload) => void): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, { config, data: rows, width: 800, height: 600, onSeriesClick }));
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, { config, data: rows, width: 800, height: 600, onSeriesClick }));
   return container;
 }
 
@@ -62,14 +59,6 @@ beforeAll(() => {
   if (typeof svgProto.focus !== 'function') {
     svgProto.focus = HTMLElement.prototype.focus;
   }
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('cartesian series keyboard semantics', () => {
@@ -223,7 +212,7 @@ describe('cartesian series keyboard semantics', () => {
 
   it('moves focus to a neighbor series when the focused series is filtered out', () => {
     const container = mountChart(makeConfig(), () => {});
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
     const items = seriesNodes(container);
     items[1].focus();
 

@@ -3,8 +3,8 @@
  * the static (instant) data source — unless the config opts out — and follows live preference changes.
  */
 import { describe, it, beforeAll, beforeEach, afterEach, expect, vi } from 'vitest';
-
-const FRAME_MS = 16;
+import { installSvgMeasurementShims } from '../components/svgShims';
+import { installFakeFrameClock, runFrames, mountContainer } from '../components/helpers';
 
 let mochart: typeof import('../../src');
 
@@ -16,27 +16,8 @@ class FakeMediaQueryList extends EventTarget {
 let reducedMotionQuery: FakeMediaQueryList;
 
 beforeAll(async () => {
-  const svgProto = globalThis.SVGElement.prototype as any;
-  if (typeof svgProto.getComputedTextLength !== 'function') {
-    svgProto.getComputedTextLength = () => 0;
-  }
-  if (typeof svgProto.getSubStringLength !== 'function') {
-    svgProto.getSubStringLength = () => 0;
-  }
-  if (typeof svgProto.getBBox !== 'function') {
-    svgProto.getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 });
-  }
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
-    ]
-  });
+  installSvgMeasurementShims();
+  installFakeFrameClock();
   mochart = await import('../../src');
 });
 
@@ -47,17 +28,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
-  document.body.innerHTML = '';
-  vi.clearAllTimers();
 });
-
-function runFrames(maxFrames = 500) {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < maxFrames) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
-}
 
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector } from '../../src/utils/ChartDom';
@@ -81,12 +52,6 @@ const changedData = () => [
   { label: 'a', value: 5 },
   { label: 'b', value: 3 }
 ];
-
-function mountContainer(): HTMLDivElement {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  return container;
-}
 
 function barPaths(container: HTMLElement): string[] {
   return Array.from(container.querySelectorAll('path' + getCssSelector('seriesBar')))

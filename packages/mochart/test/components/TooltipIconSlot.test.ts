@@ -1,6 +1,7 @@
 // The tooltip row icon's slot is rebuilt whenever tooltip.rightAlignValues flips; the outgoing slot used to stay registered with its SeriesColorIcon still mounted, leaking per toggle.
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
 import SeriesColorIcon from '../../src/components/SeriesColorIcon';
 import type { ChartHandle } from '../../src/createChart';
@@ -26,27 +27,15 @@ function makeConfig(rightAlignValues: boolean): MochartInputConfig {
   } as unknown as MochartInputConfig;
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 beforeAll(() => {
   installSvgMeasurementShims();
 });
 
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
-});
-
 function mountChart(rightAlignValues: boolean): { container: Element; handle: ChartHandle<DefaultChartProps> } {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  const handle = trackHandle(createDefaultChart(container, {
     config: makeConfig(rightAlignValues), data: rows, width: 800, height: 600
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return { container, handle };
 }
 

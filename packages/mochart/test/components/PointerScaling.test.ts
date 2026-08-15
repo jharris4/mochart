@@ -1,8 +1,8 @@
 // Pointer fractions and category picking must survive CSS scaling: the plot rect here reports half its logical size
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { ChartEventPayload, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getChartRootCssSelector } from '../../src/utils/ChartDom';
@@ -23,8 +23,6 @@ const config = {
   series: [{ property: 'sales' }]
 } as unknown as MochartInputConfig;
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 /** Report every element's client rect at `scale` of its logical size, anchored at the origin. */
 function mockRectsAtScale(scale: number) {
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
@@ -37,13 +35,11 @@ function mockRectsAtScale(scale: number) {
 }
 
 function mountChart(onChartMouseMove: (payload: ChartEventPayload) => void) {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, {
     config, data: rows, width: WIDTH, height: HEIGHT, onChartMouseMove,
     tooltip: undefined
-  } as unknown as DefaultChartProps);
-  handles.push(handle);
+  } as unknown as DefaultChartProps));
   return container;
 }
 
@@ -56,12 +52,7 @@ beforeAll(() => {
 });
 
 afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
   vi.restoreAllMocks();
-  document.body.innerHTML = '';
 });
 
 describe('pointer payloads under CSS scaling', () => {

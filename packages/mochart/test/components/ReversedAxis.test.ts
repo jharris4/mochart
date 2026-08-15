@@ -1,8 +1,8 @@
 // axis.reversed runs an axis in the opposite direction by reversing the scale's *range* only — bases, thresholds, tick generation and animation deltas all keep seeing an ascending domain.
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, mockBoundingClientRect } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector } from '../../src/utils/ChartDom';
@@ -12,12 +12,9 @@ const HEIGHT = 300;
 
 const rows = [{ c: 'a', v: 2 }, { c: 'b', v: 8 }];
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mount(overrides: Record<string, unknown>, data: readonly unknown[] = rows): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, {
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, {
     config: {
       version: '1.0.0',
       animation: { animate: false },
@@ -67,20 +64,7 @@ function baseLinePosition(container: Element) {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
-    return {
-      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
-      width: WIDTH, height: HEIGHT, toJSON: () => ({})
-    } as DOMRect;
-  });
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
+  mockBoundingClientRect(WIDTH, HEIGHT);
 });
 
 describe('value axis reversed', () => {

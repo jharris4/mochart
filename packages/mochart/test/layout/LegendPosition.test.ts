@@ -1,8 +1,8 @@
 // legend.position can put the legend above the plot, moving the plot down by the legend's height and reordering the title/legend/plot bands; both branches of that ChartLayout arithmetic were dead — nothing had ever put a legend at the top
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from '../components/svgShims';
+import { mountContainer, trackHandle } from '../components/helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector } from '../../src/utils/ChartDom';
@@ -17,11 +17,8 @@ const rows = [
   { month: 'Mar', sales: 30, costs: 13 }
 ];
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(legendOverrides: Record<string, unknown>, titleOverrides: Record<string, unknown> = {}): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   const config = {
     version: VERSION,
     animation: { animate: false },
@@ -30,7 +27,7 @@ function mountChart(legendOverrides: Record<string, unknown>, titleOverrides: Re
     title: { text: 'Trading', ...titleOverrides },
     legend: { visible: true, ...legendOverrides }
   } as unknown as MochartInputConfig;
-  handles.push(createDefaultChart(container, { config, data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps));
+  trackHandle(createDefaultChart(container, { config, data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps));
   return container;
 }
 
@@ -54,14 +51,6 @@ function plotBand(container: Element): { top: number; bottom: number } {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('legend position', () => {

@@ -5,13 +5,14 @@ import type { EnhancedMochartConfig } from '../../src/types/enhanced';
  * normalized DOM is compared against ./__snapshots__. The goldens were captured from the
  * mochart-vdom implementation and act as the equivalence oracle for the retained-mode renderer.
  */
-import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
+import { describe, it, beforeAll, expect, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { MochartInputConfig, DataProvider } from '../../src';
 import { getCssSelector, getIdCssSelector, mochartVersionAttribute } from '../../src/utils/ChartDom';
 import { installTextMetrics } from './textMetrics';
+import { FRAME_MS, installFakeFrameClock, runFrames, advanceFrames, mountContainer } from '../components/helpers';
 
 interface Demo { id: string; config: string; data: string; random?: string; generator?: string; goldenCategoryShift?: number }
 /** Rows are decoded from arbitrary demo JSON, so values are intentionally loose. */
@@ -25,7 +26,6 @@ const demosDir = path.resolve(here, '../../../mochart-demo-data/src');
 
 const WIDTH = 800;
 const HEIGHT = 600;
-const FRAME_MS = 16;
 const MAX_FRAMES = 500;
 
 // ---------------------------------------------------------------------------
@@ -67,46 +67,15 @@ beforeAll(async () => {
   // font so the goldens capture real measured text (truncation, tick pruning,
   // layout fitting) instead of the library's default-bounds fallbacks.
   installTextMetrics();
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
-    ]
-  });
+  installFakeFrameClock();
   mochart = await import('../../src');
   // imports @mochart/core, so it must also load after the fake timers
   ({ generateDemoDataProvider } = await import('../../../mochart-demo-common/src/chartTypeGenerators'));
 });
 
-afterEach(() => {
-  document.body.innerHTML = '';
-  vi.clearAllTimers();
-});
-
 // ---------------------------------------------------------------------------
 // helpers
 // ---------------------------------------------------------------------------
-
-/** Advance the fake clock frame by frame until all tweens/timers settle. */
-function runFrames(maxFrames = MAX_FRAMES) {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < maxFrames) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
-  return frames;
-}
-
-function advanceFrames(count: number) {
-  for (let i = 0; i < count && vi.getTimerCount() > 0; i++) {
-    vi.advanceTimersByTime(FRAME_MS);
-  }
-}
 
 const UNIQUE_ID_PREFIXES = [
   '__mochart__chart__', 'tooltip__clippath__', 'title__clippath__', 'legend__clippath__',
@@ -241,8 +210,7 @@ function removeCategoryRow(rows: Row[]): Row[] {
 }
 
 function createContainer() {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   return container;
 }
 

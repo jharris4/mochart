@@ -1,21 +1,14 @@
 // a chart smaller than its own spacing used to emit rects with negative width or height, which browsers drop silently (vanishing host-styled backgrounds) and strict SVG-to-PNG converters reject outright
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from '../components/svgShims';
+import { mountContainer, trackHandle } from '../components/helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps, MochartInputConfig } from '../../src';
 import { getCssSelector } from '../../src/utils/ChartDom';
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
 const rows = [{ c: 'a', v: 1 }, { c: 'b', v: 2 }];
 
 beforeAll(() => { installSvgMeasurementShims(); });
-afterEach(() => {
-  for (const handle of handles) { handle.destroy(); }
-  handles = [];
-  document.body.innerHTML = '';
-});
-
 function config(extra: Record<string, unknown>): MochartInputConfig {
   return {
     version: '1.0.0',
@@ -29,9 +22,8 @@ function config(extra: Record<string, unknown>): MochartInputConfig {
 
 /** Every rect with a negative dimension, named by the group holding it. */
 function negativeRects(chartConfig: MochartInputConfig, width: number, height: number): string[] {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, { config: chartConfig, data: rows, width, height } as DefaultChartProps));
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, { config: chartConfig, data: rows, width, height } as DefaultChartProps));
   return [...container.querySelectorAll('rect')]
     .filter(rect => Number(rect.getAttribute('width')) < 0 || Number(rect.getAttribute('height')) < 0)
     .map(rect => `${(rect.parentElement?.getAttribute('class') ?? '?').split(' ')[0]} ${rect.getAttribute('width')}x${rect.getAttribute('height')}`);

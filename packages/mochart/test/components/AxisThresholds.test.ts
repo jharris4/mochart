@@ -1,8 +1,8 @@
 // Threshold lines and their titles: title side, axis-side placement, and titleSnapToValue near the plot edges
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, mockBoundingClientRect } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
@@ -22,11 +22,8 @@ const linearRows = [
   { x: 100, sales: 100 }
 ];
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mount(overrides: Record<string, unknown>, data: readonly unknown[] = rows): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   const config = {
     version: '1.0.0',
     animation: { animate: false },
@@ -34,7 +31,7 @@ function mount(overrides: Record<string, unknown>, data: readonly unknown[] = ro
     series: [{ property: 'sales', renderer: 'bar' }],
     ...overrides
   } as unknown as MochartInputConfig;
-  handles.push(createDefaultChart(container, {
+  trackHandle(createDefaultChart(container, {
     config, data, width: WIDTH, height: HEIGHT
   } as DefaultChartProps));
   return container;
@@ -63,20 +60,7 @@ function titlePosition(container: Element): { x: number; y: number } {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
-    return {
-      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
-      width: WIDTH, height: HEIGHT, toJSON: () => ({})
-    } as DOMRect;
-  });
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
+  mockBoundingClientRect(WIDTH, HEIGHT);
 });
 
 describe('threshold lines', () => {
@@ -214,9 +198,8 @@ describe('threshold styling', () => {
 
   for (const useSeriesFocus of [true, false]) {
     it(`follows the focused series when useSeriesFocus is ${useSeriesFocus}`, () => {
-      const container = document.createElement('div');
-      document.body.appendChild(container);
-      handles.push(createDefaultChart(container, {
+      const container = mountContainer();
+      trackHandle(createDefaultChart(container, {
         config: {
           version: '1.0.0',
           animation: { animate: false },
@@ -235,9 +218,8 @@ describe('threshold styling', () => {
   }
 
   it('hides the thresholds of a value axis no series uses', () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    handles.push(createDefaultChart(container, {
+    const container = mountContainer();
+    trackHandle(createDefaultChart(container, {
       config: {
         version: '1.0.0',
         animation: { animate: false },

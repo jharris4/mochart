@@ -1,37 +1,25 @@
 // Regression tests for inverted-chart geometry: category-axis threshold position and per-side series label positions
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getIdCssClass, getIdCssSelector, getDescendantCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: Record<string, unknown>, data: readonly unknown[]): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, {
     config: { version: VERSION, animation: { animate: false }, ...config } as unknown as MochartInputConfig,
     data, width: 800, height: 600
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return container;
 }
 
 beforeAll(() => {
   installSvgMeasurementShims();
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 function thresholdTranslateY(container: Element): number {

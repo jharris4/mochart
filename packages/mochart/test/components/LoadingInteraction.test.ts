@@ -1,8 +1,8 @@
 // While loading: id-keyed handling keeps working, category-keyed is suppressed, whatever is open can be dismissed
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, mockBoundingClientRect } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { ChartEventPayload, ChartFocus, ChartSeriesClickPayload, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
@@ -21,15 +21,11 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
   } as unknown as MochartInputConfig;
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig, extra: Partial<DefaultChartProps> = {}) {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  const handle = trackHandle(createDefaultChart(container, {
     config, data: rows, width: WIDTH, height: HEIGHT, ...extra
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return { container, handle };
 }
 
@@ -41,15 +37,7 @@ function mouse(target: Element, type: string, clientX: number, clientY: number):
 
 beforeAll(() => {
   installSvgMeasurementShims();
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
-    return { x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT, width: WIDTH, height: HEIGHT, toJSON: () => ({}) } as DOMRect;
-  });
-});
-
-afterEach(() => {
-  for (const handle of handles) { handle.destroy(); }
-  handles = [];
-  document.body.innerHTML = '';
+  mockBoundingClientRect(WIDTH, HEIGHT);
 });
 
 describe('while loading, the chart still reports pointer movement', () => {

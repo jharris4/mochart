@@ -2,8 +2,9 @@
  * Arbitration of the chart's error/loading/no-data states: error wins over the loading overlay, and
  * "a provided error (including '' or 0) is the error state; null/undefined are not".
  */
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, mockBoundingClientRect } from './helpers';
 import { createChart, createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import { enhanceConfig } from '../../src/config/helper';
@@ -27,15 +28,11 @@ const rows = [
   { month: 'Feb', sales: 20 }
 ];
 
-let handles: (ChartHandle<DefaultChartProps> | ChartHandle<ManagedChartProps>)[] = [];
-
 function mountChart(extra: Partial<DefaultChartProps>): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, {
     config, data: rows, width: WIDTH, height: HEIGHT, ...extra
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return container;
 }
 
@@ -49,20 +46,7 @@ function stateClasses(container: Element): string[] {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
-    return {
-      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
-      width: WIDTH, height: HEIGHT, toJSON: () => ({})
-    } as DOMRect;
-  });
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
+  mockBoundingClientRect(WIDTH, HEIGHT);
 });
 
 describe('chart state arbitration', () => {
@@ -115,9 +99,8 @@ describe('the provider handed to the state factories', () => {
 
   function seenProvider(): unknown {
     let seen: unknown = 'NOT CALLED';
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    handles.push(createChart(container, {
+    const container = mountContainer();
+    trackHandle(createChart(container, {
       mochartConfig: enhanceConfig(config),
       dataProvider: new CountingProvider(rows),
       width: WIDTH,
@@ -189,12 +172,10 @@ describe('the no-size state', () => {
 // Regression: only a config going away was structural, so one arriving after mount (bindings while loading) threw
 describe('a mochartConfig arriving after mount', () => {
   function mountManaged(props: Partial<ManagedChartProps>): { container: Element; handle: ChartHandle<ManagedChartProps> } {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const handle = createChart(container, {
+    const container = mountContainer();
+    const handle = trackHandle(createChart(container, {
       mochartConfig: null, dataProvider: null, width: WIDTH, height: HEIGHT, ...props
-    } as unknown as ManagedChartProps);
-    handles.push(handle);
+    } as unknown as ManagedChartProps));
     return { container, handle };
   }
 

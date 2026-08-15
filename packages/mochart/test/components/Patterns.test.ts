@@ -1,9 +1,9 @@
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { createDefaultChart } from '../../src/createChart';
 import { createPie } from '../../src/data/Pie';
 import { getCssSelector, getCssClassMatchSelector, getDescendantCssSelector, getIdCssClass } from '../../src/utils/ChartDom';
 import { installSvgMeasurementShims } from './svgShims';
-import type { ChartHandle } from '../../src/createChart';
+import { mountContainer, trackHandle, lastHandle } from './helpers';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 
@@ -12,12 +12,9 @@ const rows = [
   { c: 'B', a: 20, b: 5, color: 1 }
 ];
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mount(config: MochartInputConfig, data: readonly unknown[] = rows): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, { config, data, width: 600, height: 400 } as DefaultChartProps));
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, { config, data, width: 600, height: 400 } as DefaultChartProps));
   return container;
 }
 
@@ -37,12 +34,6 @@ function openTooltip(container: Element): void {
 }
 
 beforeAll(() => installSvgMeasurementShims());
-
-afterEach(() => {
-  for (const handle of handles) handle.destroy();
-  handles = [];
-  document.body.innerHTML = '';
-});
 
 describe('built-in SVG patterns', () => {
   it('renders lines, crosshatch, and dots in screen-space pattern definitions', () => {
@@ -157,7 +148,7 @@ describe('built-in SVG patterns', () => {
       patterns: [{ id: 'p', type: 'dots', radius: 1.5 }],
       series: [{ id: 'A', property: 'a', renderer: 'bar', pattern: 'p' }]
     }));
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
 
     let pattern = container.querySelector('svg > defs > pattern')!;
     expect(pattern.querySelector('circle')).not.toBeNull();
@@ -194,7 +185,7 @@ describe('built-in SVG patterns', () => {
         { id: 'B', property: 'b', renderer: 'bar' }
       ]
     }));
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
     const bar = (seriesId: string) =>
       container.querySelector(getCssClassMatchSelector(getIdCssClass('series', seriesId)) + ' ' + getCssSelector('seriesBar'))!;
 

@@ -1,10 +1,10 @@
 // markerProperty size interpolation: a clamped scale over the marker value domain — sqrt by default (area tracks
 // the value), linear via markerSizeScale — so fractional domains span the full size range, constants land mid-range.
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
 import { getSymbolGenerator } from '../../src/utils/shapeUtils';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getIdCssSelector } from '../../src/utils/ChartDom';
@@ -12,8 +12,6 @@ import { getIdCssSelector } from '../../src/utils/ChartDom';
 const VERSION = '1.0.0';
 const MARKER_MIN_SIZE = 4;
 const MARKER_SIZE = 12;
-
-let handles: ChartHandle<DefaultChartProps>[] = [];
 
 function markerPath(size: number): string {
   return getSymbolGenerator(size, 'circle')()!;
@@ -31,12 +29,10 @@ function mountChart(data: readonly unknown[], seriesOverrides: Record<string, un
       ...seriesOverrides
     }]
   } as unknown as MochartInputConfig;
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, {
     config, data, width: 800, height: 600
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return container;
 }
 
@@ -46,14 +42,6 @@ function renderedMarkerPaths(container: Element): Array<string | null> {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('markerProperty size scale', () => {

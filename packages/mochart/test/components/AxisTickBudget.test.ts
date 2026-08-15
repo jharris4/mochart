@@ -1,8 +1,8 @@
 // maxTickCount and minTickSpacing, the two halves of the automatic tick budget, and tickCount overriding both
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector, getIdCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
@@ -14,11 +14,8 @@ const HEIGHT = 600;
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const rows = months.map((month, index) => ({ month, index, sales: 10 + index * 5 }));
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(categoryOverrides: Record<string, unknown>, valueOverrides: Record<string, unknown> = {}): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   const config = {
     version: VERSION,
     animation: { animate: false },
@@ -26,7 +23,7 @@ function mountChart(categoryOverrides: Record<string, unknown>, valueOverrides: 
     valueAxes: [{ id: 'VA0', min: 0, max: 100, ...valueOverrides }],
     series: [{ axis: 'VA0', property: 'sales', renderer: 'bar' }]
   } as unknown as MochartInputConfig;
-  handles.push(createDefaultChart(container, { config, data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps));
+  trackHandle(createDefaultChart(container, { config, data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps));
   return container;
 }
 
@@ -47,14 +44,6 @@ function valueTickCount(container: Element): number {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('ordinal category axis tick budget', () => {

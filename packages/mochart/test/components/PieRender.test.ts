@@ -4,9 +4,9 @@
  * respect labelMinFraction, and animated value updates settle on a fake
  * clock (same technique as the golden suite).
  */
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
-import type { ChartHandle } from '../../src/createChart';
+import { installFakeFrameClock, runFrames, mockBoundingClientRect, mountContainer, trackHandle } from './helpers';
 import type { ChartFocus, DefaultChartProps } from '../../src/types/chart';
 import type { DeepPartial, MochartInputConfig, PieConfig } from '../../src/types/config';
 import type { PieItem, CreatePieOptions } from '../../src/data/Pie';
@@ -16,7 +16,6 @@ const VERSION = '1.0.0';
 const WIDTH = 800;
 const HEIGHT = 600;
 const FRAME_MS = 16;
-const MAX_FRAMES = 500;
 
 const ITEMS: PieItem[] = [
   { label: 'Chrome', value: 62 },
@@ -28,27 +27,10 @@ let mochart: typeof import('../../src');
 
 beforeAll(async () => {
   installSvgMeasurementShims();
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-    return {
-      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
-      width: WIDTH, height: HEIGHT, toJSON: () => ({})
-    } as DOMRect;
-  });
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
-    ]
-  });
+  mockBoundingClientRect(WIDTH, HEIGHT);
+  installFakeFrameClock();
   mochart = await import('../../src');
 });
-
-let handles: ChartHandle<DefaultChartProps>[] = [];
 
 function pieChartProps(items: PieItem[], options: CreatePieOptions = {}, configOverrides: Record<string, unknown> = {}): { config: MochartInputConfig; data: readonly unknown[] } {
   const pie = mochart.createPie(items, options);
@@ -65,23 +47,11 @@ function pieChartProps(items: PieItem[], options: CreatePieOptions = {}, configO
 }
 
 function mountChart(config: MochartInputConfig, data: readonly unknown[], extraProps: Partial<DefaultChartProps> = {}) {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = mochart.createDefaultChart(container, {
+  const container = mountContainer();
+  const handle = trackHandle(mochart.createDefaultChart(container, {
     config, data, width: WIDTH, height: HEIGHT, ...extraProps
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return { container, handle };
-}
-
-/** Advance the fake clock frame by frame until all tweens/timers settle. */
-function runFrames(maxFrames = MAX_FRAMES): number {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < maxFrames) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
-  return frames;
 }
 
 function slicePaths(container: Element): Element[] {
@@ -91,15 +61,6 @@ function slicePaths(container: Element): Element[] {
 function mouse(target: Element, type: string, clientX: number, clientY: number): void {
   target.dispatchEvent(new MouseEvent(type, { clientX, clientY, bubbles: true }));
 }
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
-  vi.clearAllTimers();
-});
 
 describe('pie chart rendering', () => {
   it('mounts a radial plot with one slice path per series and no axes or crosshair', () => {

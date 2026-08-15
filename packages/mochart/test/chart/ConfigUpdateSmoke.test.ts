@@ -3,14 +3,14 @@
  * the retained DOM must match a fresh mount of B — catching stale derived data, layout, retained
  * list items, and animation state.
  */
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { installSvgMeasurementShims } from '../components/svgShims';
+import { installFakeFrameClock, runFrames, advanceFrames, mountContainer, trackHandle } from '../components/helpers';
 import type { ChartHandle, DefaultChartProps, MochartInputConfig } from '../../src';
 import { getIdCssClass, getCssSelector, getDescendantCssSelector, mochartVersionAttribute } from '../../src/utils/ChartDom';
 
 const WIDTH = 640;
 const HEIGHT = 420;
-const FRAME_MS = 16;
 const MAX_FRAMES = 100;
 
 type Row = Record<string, string | number>;
@@ -42,7 +42,6 @@ interface MountedDefaultChart {
 }
 
 let mochart: typeof import('../../src');
-let handles: Array<ChartHandle<any>> = [];
 
 const rows: readonly Row[] = [
   { month: 'Jan', week: 'W1', when: '2026-01-01T00:00:00Z', position: 1, sales: 10, costs: 4, profit: 6, low: 2, high: 12, bad: 'ten' },
@@ -320,31 +319,8 @@ const scenarios: TransitionScenario[] = [
 
 beforeAll(async () => {
   installSvgMeasurementShims();
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
-    ]
-  });
+  installFakeFrameClock();
   mochart = await import('../../src');
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
-  vi.clearAllTimers();
-});
-
-afterAll(() => {
-  vi.useRealTimers();
 });
 
 function withAnimation(configValue: MochartInputConfig, animate: boolean): MochartInputConfig {
@@ -358,37 +334,20 @@ function animated(endpointValue: Endpoint): Endpoint {
   return { ...endpointValue, config: withAnimation(endpointValue.config, true) };
 }
 
-function createContainer(): HTMLDivElement {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  return container;
-}
-
 function mountDefault(endpointValue: Endpoint): MountedDefaultChart {
-  const container = createContainer();
-  const handle = mochart.createDefaultChart(container, {
+  const container = mountContainer();
+  const handle = trackHandle(mochart.createDefaultChart(container, {
     config: endpointValue.config,
     data: endpointValue.data,
     width: WIDTH,
     height: HEIGHT
-  });
-  handles.push(handle);
+  }));
   return { container, handle };
 }
 
 function settle(): void {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < MAX_FRAMES) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
+  runFrames(MAX_FRAMES);
   expect(vi.getTimerCount(), `animation did not settle within ${MAX_FRAMES} frames`).toBe(0);
-}
-
-function advanceFrames(count: number): void {
-  for (let i = 0; i < count && vi.getTimerCount() > 0; i++) {
-    vi.advanceTimersByTime(FRAME_MS);
-  }
 }
 
 const UNIQUE_ID_PREFIXES = [
@@ -543,15 +502,14 @@ describe('public update variants', () => {
   it('createChart() converges when config and its matching provider change atomically', () => {
     const from = monthEndpoint();
     const to = weekEndpoint();
-    const container = createContainer();
+    const container = mountContainer();
     const fromConfig = mochart.enhanceConfig(from.config);
-    const handle = mochart.createChart(container, {
+    const handle = trackHandle(mochart.createChart(container, {
       mochartConfig: fromConfig,
       dataProvider: new mochart.ArrayOfObjectsDataProvider(from.data),
       width: WIDTH,
       height: HEIGHT
-    });
-    handles.push(handle);
+    }));
 
     const toConfig = mochart.enhanceConfig(to.config);
     handle.update({
@@ -560,14 +518,13 @@ describe('public update variants', () => {
     });
     settle();
 
-    const freshContainer = createContainer();
-    const freshHandle = mochart.createChart(freshContainer, {
+    const freshContainer = mountContainer();
+    trackHandle(mochart.createChart(freshContainer, {
       mochartConfig: toConfig,
       dataProvider: new mochart.ArrayOfObjectsDataProvider(to.data),
       width: WIDTH,
       height: HEIGHT
-    });
-    handles.push(freshHandle);
+    }));
     settle();
 
     expectEndpoint(container, to);

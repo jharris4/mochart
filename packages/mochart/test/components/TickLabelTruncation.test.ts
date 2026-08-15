@@ -1,6 +1,7 @@
 // Regression: measured tick-label truncation state must survive unrelated prop
 // updates instead of being wiped and re-measured (with one untruncated frame).
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
@@ -9,8 +10,6 @@ import { getDescendantCssSelector } from '../../src/utils/ChartDom';
 
 const PX_PER_CHAR = 9.7;
 let measureCalls = 0;
-
-let handles: ChartHandle<DefaultChartProps>[] = [];
 
 function rows(offset: number): Record<string, unknown>[] {
   return [
@@ -21,9 +20,8 @@ function rows(offset: number): Record<string, unknown>[] {
 }
 
 function mountChart(): { container: Element; handle: ChartHandle<DefaultChartProps> } {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  const handle = trackHandle(createDefaultChart(container, {
     config: {
       version: '1.0.0',
       animation: { animate: false },
@@ -31,8 +29,7 @@ function mountChart(): { container: Element; handle: ChartHandle<DefaultChartPro
       series: [{ property: 'sales' }]
     } as unknown as MochartInputConfig,
     data: rows(0), width: 500, height: 400
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return { container, handle };
 }
 
@@ -53,14 +50,6 @@ beforeAll(() => {
   svgProto.getBBox = function (this: SVGGraphicsElement) {
     return { x: 0, y: 0, width: (this.textContent ?? '').length * PX_PER_CHAR, height: 12 };
   };
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('tick-label truncation state across updates', () => {

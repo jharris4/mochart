@@ -3,50 +3,18 @@
  * raw category index — the renderer used the compacted position index, so after a skipped gap every
  * later bar read the wrong category's color (heatmap grids with missing cells hit this).
  */
-import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
+import { describe, it, beforeAll, expect } from 'vitest';
+import { installSvgMeasurementShims } from '../components/svgShims';
+import { installFakeFrameClock, runFrames, mountContainer } from '../components/helpers';
 import { getCssSelector } from '../../src/utils/ChartDom';
-
-const FRAME_MS = 16;
 
 let mochart: typeof import('../../src');
 
 beforeAll(async () => {
-  const svgProto = globalThis.SVGElement.prototype as any;
-  if (typeof svgProto.getComputedTextLength !== 'function') {
-    svgProto.getComputedTextLength = () => 0;
-  }
-  if (typeof svgProto.getSubStringLength !== 'function') {
-    svgProto.getSubStringLength = () => 0;
-  }
-  if (typeof svgProto.getBBox !== 'function') {
-    svgProto.getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 });
-  }
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
-    ]
-  });
+  installSvgMeasurementShims();
+  installFakeFrameClock();
   mochart = await import('../../src');
 });
-
-afterEach(() => {
-  document.body.innerHTML = '';
-  vi.clearAllTimers();
-});
-
-function runFrames(maxFrames = 500) {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < maxFrames) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
-}
 
 describe('missingValues connect bar series with a colorProperty', () => {
   it('colors bars after a skipped category from their own color values', () => {
@@ -68,8 +36,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
       { label: 'b' },
       { label: 'c', value: 9, heat: 100 }
     ];
-    const container = document.createElement('div');
-    document.body.appendChild(container);
+    const container = mountContainer();
     const chart = createChart(container, {
       mochartConfig,
       dataProvider: new ArrayOfObjectsDataProvider(data),
@@ -105,8 +72,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
       { label: 'b', value: 7 },
       { label: 'c', value: 9, heat: 100 }
     ];
-    const container = document.createElement('div');
-    document.body.appendChild(container);
+    const container = mountContainer();
     const chart = createChart(container, {
       mochartConfig,
       dataProvider: new ArrayOfObjectsDataProvider(data),
@@ -144,8 +110,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
       { label: 'b', value: 7 },
       { label: 'c', value: 9, heat: 100 }
     ];
-    const container = document.createElement('div');
-    document.body.appendChild(container);
+    const container = mountContainer();
     const chart = createChart(container, {
       mochartConfig,
       dataProvider: new ArrayOfObjectsDataProvider(data),
@@ -179,8 +144,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
       { label: 'b', value: 7 },
       { label: 'c', value: 9, heat: 100 }
     ];
-    const container = document.createElement('div');
-    document.body.appendChild(container);
+    const container = mountContainer();
     const chart = createChart(container, {
       mochartConfig,
       dataProvider: new ArrayOfObjectsDataProvider(data),
@@ -213,8 +177,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
       { label: 'a', value: 5 },
       { label: 'b', value: 7 }
     ];
-    const container = document.createElement('div');
-    document.body.appendChild(container);
+    const container = mountContainer();
     const chart = createChart(container, {
       mochartConfig,
       dataProvider: new ArrayOfObjectsDataProvider(data),

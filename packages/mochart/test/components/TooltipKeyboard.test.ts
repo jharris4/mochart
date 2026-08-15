@@ -5,10 +5,10 @@
  * tracks filtering (pressed = series shown) — and Escape anywhere inside
  * the tooltip closes it and hands focus back to the plot tab stop.
  */
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mockBoundingClientRect, mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { ChartFocus, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getIdCssClass, getCssSelector, getDescendantCssSelector, getCssClassMatchSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
@@ -37,15 +37,11 @@ function makeConfig(tooltip: Record<string, unknown> = {}, overrides: Record<str
   } as unknown as MochartInputConfig;
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig, callbacks: Partial<DefaultChartProps> = {}): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, {
     config, data: rows, width: WIDTH, height: HEIGHT, ...callbacks
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return container;
 }
 
@@ -91,20 +87,7 @@ beforeAll(() => {
   }
   // jsdom reports zero-size rects; report the mounted chart size instead so
   // the chart's pointer hit-testing (clientX/Y relative to the plot rect) works
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-    return {
-      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
-      width: WIDTH, height: HEIGHT, toJSON: () => ({})
-    } as DOMRect;
-  });
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
+  mockBoundingClientRect(WIDTH, HEIGHT);
 });
 
 describe('tooltip row keyboard semantics', () => {
@@ -527,9 +510,8 @@ describe('tooltip rows a series can opt out of', () => {
   // means "not this series' direction", so the row is left out rather than
   // rendered as "value – N/A"
   it('omits a ranged row whose category is missing one side', () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    handles.push(createDefaultChart(container, {
+    const container = mountContainer();
+    trackHandle(createDefaultChart(container, {
       config: {
         version: '1.0.0',
         animation: { animate: false },

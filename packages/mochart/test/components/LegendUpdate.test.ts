@@ -3,8 +3,9 @@
  * path: flipping a series' showInLegend must take the re-measure path instead
  * of laying out the new item set with bounds measured for the old one.
  */
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
@@ -27,15 +28,11 @@ function makeConfig(costsShowInLegend: boolean): MochartInputConfig {
   } as unknown as MochartInputConfig;
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig): { container: Element; handle: ChartHandle<DefaultChartProps> } {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  const handle = trackHandle(createDefaultChart(container, {
     config, data: rows, width: 800, height: 600
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return { container, handle };
 }
 
@@ -45,14 +42,6 @@ function legendItemCount(container: Element): number {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('legend membership config updates', () => {

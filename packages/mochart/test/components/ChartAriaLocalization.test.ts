@@ -1,8 +1,8 @@
 // The chartLabel, chartRoleDescription, plotLabel and legendLabel accessibility overrides must reach the DOM
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector } from '../../src/utils/ChartDom';
@@ -23,11 +23,8 @@ const german = {
   legendLabel: 'Legende'
 };
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(overrides: Record<string, unknown> = {}): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   const config = {
     version: VERSION,
     animation: { animate: false },
@@ -37,7 +34,7 @@ function mountChart(overrides: Record<string, unknown> = {}): Element {
     legend: { visible: true, filterOnClick: true },
     ...overrides
   } as unknown as MochartInputConfig;
-  handles.push(createDefaultChart(container, { config, data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps));
+  trackHandle(createDefaultChart(container, { config, data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps));
   return container;
 }
 
@@ -61,14 +58,6 @@ function legend(container: Element): Element {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('accessibility label defaults', () => {

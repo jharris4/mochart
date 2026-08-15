@@ -2,11 +2,10 @@
  * Plot-area keyboard accessibility: the series-area rect is a button tab stop — Enter/Space toggles the
  * tooltip (aria-expanded tracks it), arrows/Home/End step categories, Escape closes, reopening resumes.
  */
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, lastHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
-import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector } from '../../src/utils/ChartDom';
 import { focusRestoredAttribute } from '../../src/utils/utils';
@@ -30,12 +29,9 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
   } as unknown as MochartInputConfig;
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, { config, data: rows, width: 800, height: 600 }));
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, { config, data: rows, width: 800, height: 600 }));
   return container;
 }
 
@@ -67,14 +63,6 @@ beforeAll(() => {
   if (typeof svgProto.focus !== 'function') {
     svgProto.focus = HTMLElement.prototype.focus;
   }
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('plot keyboard semantics', () => {
@@ -156,9 +144,8 @@ describe('plot keyboard semantics', () => {
   });
 
   it('keeps arrows inert on a single-category chart, where Enter still toggles', () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    handles.push(createDefaultChart(container, {
+    const container = mountContainer();
+    trackHandle(createDefaultChart(container, {
       config: makeConfig({ chart: { type: 'pie' } }), data: [rows[0]], width: 800, height: 600
     }));
     const rect = plotRect(container);
@@ -206,7 +193,7 @@ describe('plot keyboard semantics', () => {
   // focus to <body> mid-refresh and desyncing aria-expanded from the tooltip.
   it('keeps the tab stop while loading and pauses stepping like pointer events', () => {
     const container = mountChart(makeConfig());
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
     const rect = plotRect(container);
 
     key(rect, 'Enter');
@@ -230,7 +217,7 @@ describe('plot keyboard semantics', () => {
 
   it('still closes the tooltip with Escape while loading', () => {
     const container = mountChart(makeConfig());
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
     const rect = plotRect(container);
 
     key(rect, 'Enter');
@@ -243,7 +230,7 @@ describe('plot keyboard semantics', () => {
   // Regression: a refresh that dropped the plot tab stop dumped keyboard focus on <body>; the replacing message takes it
   it('hands focus to the message when a refresh drops to zero categories', () => {
     const container = mountChart(makeConfig());
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
     const rect = plotRect(container);
     rect.focus();
     expect(document.activeElement).toBe(rect);
@@ -259,7 +246,7 @@ describe('plot keyboard semantics', () => {
 
   it('hands focus to the message when a refresh raises an error', () => {
     const container = mountChart(makeConfig());
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
     const rect = plotRect(container);
     rect.focus();
 
@@ -271,7 +258,7 @@ describe('plot keyboard semantics', () => {
 
   it('hands focus to the message when the refresh also unmounts the focused tooltip row', () => {
     const container = mountChart(makeConfig({ tooltip: { showControls: true } }));
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
     key(plotRect(container), 'Enter');
     const row = container.querySelector<HTMLElement>(getCssSelector('tooltip') + ' [data-row-key]')!;
     row.focus();
@@ -284,7 +271,7 @@ describe('plot keyboard semantics', () => {
 
   it('leaves focus alone when it was outside the chart', () => {
     const container = mountChart(makeConfig());
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
     const outside = document.createElement('button');
     document.body.appendChild(outside);
     outside.focus();
@@ -296,7 +283,7 @@ describe('plot keyboard semantics', () => {
 
   it('leaves the message unfocusable with accessibility disabled', () => {
     const container = mountChart(makeConfig({ accessibility: { enabled: false } }));
-    const handle = handles[handles.length - 1];
+    const handle = lastHandle();
 
     handle.update({ data: [] });
     expect(container.querySelector(getCssSelector('noData'))!.getAttribute('tabindex')).toBeNull();

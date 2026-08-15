@@ -1,6 +1,7 @@
 // onSeriesLayoutBoundsChange used to fire inside derive() — invoking the previous render's closure and letting a re-entrant host update be overwritten — so it now flushes from the post-commit measure hook.
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { Bounds } from '../../src/types/geometry';
@@ -20,15 +21,11 @@ const config = {
   series: [{ property: 'sales' }]
 } as unknown as MochartInputConfig;
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(props: Partial<DefaultChartProps>) {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  const handle = trackHandle(createDefaultChart(container, {
     config, data: rows, width: 800, height: 600, ...props
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return { container, handle };
 }
 
@@ -39,14 +36,6 @@ function svgSize(container: Element) {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('onSeriesLayoutBoundsChange', () => {

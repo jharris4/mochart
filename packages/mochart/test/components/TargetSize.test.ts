@@ -1,9 +1,8 @@
 // accessibility.targetMinSize: the floor for the chart's own click targets (legend items, tooltip control buttons, interactive tooltip rows) while series shapes keep their data geometry.
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mockBoundingClientRect, mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
-import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector, getIdCssSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
 
@@ -29,12 +28,9 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
   } as unknown as MochartInputConfig;
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, { config, data: rows, width: WIDTH, height: HEIGHT }));
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, { config, data: rows, width: WIDTH, height: HEIGHT }));
   return container;
 }
 
@@ -71,20 +67,7 @@ beforeAll(() => {
   installSvgMeasurementShims();
   // jsdom reports zero-size rects; report the mounted chart size instead so the
   // chart's pointer hit-testing (clientX/Y against the plot rect) works
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-    return {
-      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
-      width: WIDTH, height: HEIGHT, toJSON: () => ({})
-    } as DOMRect;
-  });
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
+  mockBoundingClientRect(WIDTH, HEIGHT);
 });
 
 describe('legend item click targets', () => {

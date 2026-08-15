@@ -1,13 +1,13 @@
 // errorLowProperty/errorHighProperty whiskers, centered on the bar slot (grouped sub-slots included) or line point;
 // asserts parse whisker paths: `M{cx},{low}V{high}` plus one `M{x},{y}H{x2}` cap per defined bound.
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mockBoundingClientRect, mountContainer, trackHandle, barRects } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import type { DataObject } from '../../src/types/data';
-import { getCssClass, getIdCssClass, getIdCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
+import { getIdCssClass, getIdCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 const WIDTH = 800;
@@ -19,28 +19,12 @@ const rows = [
   { label: 'C', value: 30, low: 28, high: 37 }
 ];
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig, data: DataObject[] = rows): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, {
     config, data, width: WIDTH, height: HEIGHT
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return container;
-}
-
-interface BarRect { x: number; y: number; width: number; height: number }
-
-function barRects(container: Element, seriesId: string): BarRect[] {
-  const paths = container.querySelectorAll(getIdCssSelector('series', seriesId) + ' path' + getCssClassMatchSelector(getCssClass('seriesBar')));
-  return Array.from(paths).map((path) => {
-    const d = path.getAttribute('d') ?? '';
-    const match = /^M(-?[\d.]+),(-?[\d.]+)h(-?[\d.]+)v(-?[\d.]+)/.exec(d);
-    expect(match, `unexpected bar path: ${d}`).not.toBeNull();
-    return { x: Number(match![1]), y: Number(match![2]), width: Number(match![3]), height: Number(match![4]) };
-  });
 }
 
 interface Whisker { center: number; low: number; high: number; caps: { at: number; from: number; to: number }[] }
@@ -63,20 +47,7 @@ function errorBarPaths(container: Element, seriesId: string): string[] {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-    return {
-      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
-      width: WIDTH, height: HEIGHT, toJSON: () => ({})
-    } as DOMRect;
-  });
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
+  mockBoundingClientRect(WIDTH, HEIGHT);
 });
 
 function makeConfig(series: Record<string, unknown>[], overrides: Record<string, unknown> = {}): MochartInputConfig {

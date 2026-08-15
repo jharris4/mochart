@@ -1,6 +1,7 @@
 // The "No Data" and "No Series" states and the six ChartFactories props, publicly overridable and previously untested
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, mockBoundingClientRect } from './helpers';
 import { createChart, createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartFactoryContext, DefaultChartProps, ManagedChartProps } from '../../src/types/chart';
@@ -25,12 +26,9 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
   } as unknown as MochartInputConfig;
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(props: Partial<DefaultChartProps> = {}, config = makeConfig(), data: readonly unknown[] = rows): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, {
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, {
     config, data, width: WIDTH, height: HEIGHT, ...props
   } as DefaultChartProps));
   return container;
@@ -47,20 +45,7 @@ function marker(text: string) {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
-    return {
-      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
-      width: WIDTH, height: HEIGHT, toJSON: () => ({})
-    } as DOMRect;
-  });
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
+  mockBoundingClientRect(WIDTH, HEIGHT);
 });
 
 describe('no-data state', () => {
@@ -86,12 +71,10 @@ describe('no-data state', () => {
   });
 
   it('goes away when rows arrive', () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const handle = createDefaultChart(container, {
+    const container = mountContainer();
+    const handle = trackHandle(createDefaultChart(container, {
       config: makeConfig(), data: [], width: WIDTH, height: HEIGHT
-    } as DefaultChartProps);
-    handles.push(handle);
+    } as DefaultChartProps));
     expect(container.querySelector(getCssSelector('noData'))).not.toBeNull();
 
     handle.update({ config: makeConfig(), data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps);
@@ -135,9 +118,8 @@ describe('ChartFactories overrides', () => {
   });
 
   it('uses getNoSizeComponent', () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    handles.push(createDefaultChart(container, {
+    const container = mountContainer();
+    trackHandle(createDefaultChart(container, {
       config: makeConfig(), data: rows, width: 0, height: 0,
       getNoSizeComponent: marker('custom no size')
     } as DefaultChartProps));
@@ -178,18 +160,16 @@ describe('the state factory context', () => {
   }
 
   function mountManaged(extra: Partial<ManagedChartProps>): void {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    handles.push(createChart(container, {
+    const container = mountContainer();
+    trackHandle(createChart(container, {
       mochartConfig: null, dataProvider: null, width: WIDTH, height: HEIGHT, ...extra
     } as unknown as ManagedChartProps) as unknown as ChartHandle<DefaultChartProps>);
   }
 
   it('reaches getNoSizeComponent whole, sized to the chart', () => {
     const seen: ChartFactoryContext[] = [];
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    handles.push(createDefaultChart(container, {
+    const container = mountContainer();
+    trackHandle(createDefaultChart(container, {
       config: makeConfig(), data: rows, width: 0, height: 0, getNoSizeComponent: capture(seen)
     } as DefaultChartProps));
 

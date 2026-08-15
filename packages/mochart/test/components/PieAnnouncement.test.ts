@@ -1,11 +1,10 @@
 // The pie tooltip's aria-live announcement speaks the same renormalized percentages the visible rows show
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
 import { createPie } from '../../src/data/Pie';
 import { getCssClass, getCssSelector, getIdCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
-import type { ChartHandle } from '../../src/createChart';
-import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import type { DataObject } from '../../src/types/data';
 import type { PieItem, CreatePieOptions } from '../../src/data/Pie';
@@ -37,12 +36,9 @@ function pieConfigAndData(options: CreatePieOptions, configOverrides: Record<str
   return { config, data: pie.data };
 }
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig, data: readonly DataObject[]): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  handles.push(createDefaultChart(container, { config, data, width: WIDTH, height: HEIGHT }));
+  const container = mountContainer();
+  trackHandle(createDefaultChart(container, { config, data, width: WIDTH, height: HEIGHT }));
   return container;
 }
 
@@ -77,14 +73,6 @@ beforeAll(() => {
   if (typeof svgProto.focus !== 'function') {
     svgProto.focus = HTMLElement.prototype.focus;
   }
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('pie tooltip announcement', () => {

@@ -1,7 +1,8 @@
 // missingValues 'connect' index-mapping regressions: positions compact only for 'connect', and the compacted->raw
 // remap (skipCategoryIndexMap) must track the data and feed every raw-indexed lookup (focus, colors, labels, marker sizes).
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartFocus, DefaultChartProps } from '../../src/types/chart';
@@ -16,8 +17,6 @@ const HEIGHT = 600;
 const PALETTE_1 = '#ff7f0e';
 const PALETTE_2 = '#2ca02c';
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function makeConfig(seriesOverrides: Record<string, unknown>): MochartInputConfig {
   return {
     version: VERSION,
@@ -29,12 +28,10 @@ function makeConfig(seriesOverrides: Record<string, unknown>): MochartInputConfi
 }
 
 function mountChart(config: MochartInputConfig, data: readonly unknown[], callbacks: Partial<DefaultChartProps> = {}): { container: Element; handle: ChartHandle<DefaultChartProps> } {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = createDefaultChart(container, {
+  const container = mountContainer();
+  const handle = trackHandle(createDefaultChart(container, {
     config, data, width: WIDTH, height: HEIGHT, ...callbacks
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return { container, handle };
 }
 
@@ -44,14 +41,6 @@ function click(target: Element): void {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('missingValues base', () => {

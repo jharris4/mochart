@@ -2,9 +2,9 @@
  * Interactions on the animated chart (animate: true): tooltip focus tweens and data tweens
  * driven deterministically on a fake clock (same technique as the golden suite).
  */
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
-import type { ChartHandle } from '../../src/createChart';
+import { installFakeFrameClock, runFrames, mockBoundingClientRect, mountContainer, trackHandle } from './helpers';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssClass, getIdCssClass, getCssSelector, getCssClassMatchSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
@@ -13,7 +13,6 @@ const VERSION = '1.0.0';
 const WIDTH = 800;
 const HEIGHT = 600;
 const FRAME_MS = 16;
-const MAX_FRAMES = 500;
 
 const rows = [
   { month: 'Jan', sales: 10 },
@@ -35,46 +34,17 @@ let mochart: typeof import('../../src');
 
 beforeAll(async () => {
   installSvgMeasurementShims();
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-    return {
-      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
-      width: WIDTH, height: HEIGHT, toJSON: () => ({})
-    } as DOMRect;
-  });
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
-    ]
-  });
+  mockBoundingClientRect(WIDTH, HEIGHT);
+  installFakeFrameClock();
   mochart = await import('../../src');
 });
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(config: MochartInputConfig, callbacks: Partial<DefaultChartProps> = {}, data: readonly unknown[] = rows) {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const handle = mochart.createDefaultChart(container, {
+  const container = mountContainer();
+  const handle = trackHandle(mochart.createDefaultChart(container, {
     config, data, width: WIDTH, height: HEIGHT, ...callbacks
-  } as DefaultChartProps);
-  handles.push(handle);
+  } as DefaultChartProps));
   return { container, handle };
-}
-
-/** Advance the fake clock frame by frame until all tweens/timers settle. */
-function runFrames(maxFrames = MAX_FRAMES): number {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < maxFrames) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
-  return frames;
 }
 
 function mouse(target: Element, type: string, clientX: number, clientY: number): void {
@@ -86,15 +56,6 @@ function chartRoot(container: Element): Element {
   expect(root).not.toBeNull();
   return root!;
 }
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
-  vi.clearAllTimers();
-});
 
 describe('animated chart interactions', () => {
   it('settles the initial value animation and renders series shapes', () => {

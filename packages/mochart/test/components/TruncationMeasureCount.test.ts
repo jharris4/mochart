@@ -3,7 +3,8 @@
  * of calls each truncating host makes across an animated update sequence is pinned here. The counts
  * were recorded before the truncation state machine moved into TruncationTracker and must not grow.
  */
-import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
+import { describe, it, beforeAll, expect } from 'vitest';
+import { installFakeFrameClock, runFrames, mountContainer } from './helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,8 +19,6 @@ const dataPath = path.resolve(here, '../../../mochart-demo-data/src/data/long-ca
 
 const WIDTH = 800;
 const HEIGHT = 600;
-const FRAME_MS = 16;
-const MAX_FRAMES = 500;
 
 type Host = 'tickLabels' | 'title' | 'axisTitle' | 'legendItem' | 'other';
 type Counts = Record<Host, number>;
@@ -56,29 +55,9 @@ beforeAll(async () => {
     counts[hostOf(this)]++;
     return measure.call(this);
   };
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date']
-  });
+  installFakeFrameClock();
   mochart = await import('../../src');
 });
-
-afterEach(() => {
-  document.body.innerHTML = '';
-  vi.clearAllTimers();
-});
-
-function runFrames() {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < MAX_FRAMES) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
-}
 
 function loadJson(filePath: string): any {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -107,8 +86,7 @@ describe('truncation measurement cost', () => {
   it('makes a fixed number of getComputedTextLength calls per host across an animated update sequence', () => {
     const mochartConfig = buildConfig();
     const rows: Record<string, any>[] = loadJson(dataPath);
-    const container = document.createElement('div');
-    document.body.appendChild(container);
+    const container = mountContainer();
     const provider = (data: Record<string, any>[]) => new mochart.ArrayOfObjectsDataProvider(data);
 
     resetCounts();

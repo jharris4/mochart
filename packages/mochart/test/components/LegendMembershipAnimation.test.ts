@@ -1,5 +1,7 @@
 // Flipping showInLegend is not structural: the chart keeps animating from where it is, driven on a fake clock here
-import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
+import { describe, it, beforeAll, expect, vi } from 'vitest';
+import { installSvgMeasurementShims } from './svgShims';
+import { installFakeFrameClock, runFrames, mountContainer } from './helpers';
 import { getCssClass, getIdCssClass } from '../../src/utils/ChartDom';
 
 const seriesIdClass = (seriesId: string) => getIdCssClass('series', seriesId);
@@ -9,7 +11,6 @@ const legendItemClass = getCssClass('legendItem');
 const WIDTH = 800;
 const HEIGHT = 600;
 const FRAME_MS = 16;
-const MAX_FRAMES = 500;
 
 const ITEMS = [
   { label: 'Mon', sales: 10, costs: 4 },
@@ -19,43 +20,10 @@ const ITEMS = [
 let mochart: typeof import('../../src');
 
 beforeAll(async () => {
-  const svgProto = globalThis.SVGElement.prototype as unknown as Record<string, unknown>;
-  if (typeof svgProto.getComputedTextLength !== 'function') {
-    svgProto.getComputedTextLength = () => 0;
-  }
-  if (typeof svgProto.getSubStringLength !== 'function') {
-    svgProto.getSubStringLength = () => 0;
-  }
-  if (typeof svgProto.getBBox !== 'function') {
-    svgProto.getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 });
-  }
-  if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
-    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
-  }
-  vi.useFakeTimers({
-    toFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
-    ]
-  });
+  installSvgMeasurementShims();
+  installFakeFrameClock();
   mochart = await import('../../src');
 });
-
-afterEach(() => {
-  document.body.innerHTML = '';
-  vi.clearAllTimers();
-});
-
-function runFrames(maxFrames = MAX_FRAMES) {
-  let frames = 0;
-  while (vi.getTimerCount() > 0 && frames < maxFrames) {
-    vi.advanceTimersByTime(FRAME_MS);
-    frames++;
-  }
-  return frames;
-}
 
 function makeConfig(costsShowInLegend: boolean) {
   return mochart.enhanceConfig({
@@ -71,8 +39,7 @@ function makeConfig(costsShowInLegend: boolean) {
 }
 
 function mountChart(costsShowInLegend: boolean) {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   const chart = mochart.createChart(container, {
     mochartConfig: makeConfig(costsShowInLegend),
     dataProvider: new mochart.ArrayOfObjectsDataProvider(ITEMS) as never,

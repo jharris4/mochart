@@ -1,8 +1,8 @@
 // The fraction guards that hide series labels which would not fit: by position within the value domain, and by the extent of the value itself.
-import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, mockBoundingClientRect } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector } from '../../src/utils/ChartDom';
@@ -16,15 +16,12 @@ const rows = [
   { month: 'Mar', sales: 100, floor: 20 }
 ];
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function surviving(container: Element): string[] {
   return [...container.querySelectorAll(getCssSelector('seriesLabel'))].map((label) => label.textContent ?? '');
 }
 
 function labelTexts(seriesOverrides: Record<string, unknown>, valueAxes?: unknown[]): string[] {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   const config = {
     version: '1.0.0',
     animation: { animate: false },
@@ -32,7 +29,7 @@ function labelTexts(seriesOverrides: Record<string, unknown>, valueAxes?: unknow
     series: [{ property: 'sales', renderer: 'bar', labelProperty: 'sales', ...seriesOverrides }],
     ...(valueAxes ? { valueAxes } : {})
   } as unknown as MochartInputConfig;
-  handles.push(createDefaultChart(container, {
+  trackHandle(createDefaultChart(container, {
     config, data: rows, width: WIDTH, height: HEIGHT
   } as DefaultChartProps));
   return surviving(container);
@@ -40,20 +37,7 @@ function labelTexts(seriesOverrides: Record<string, unknown>, valueAxes?: unknow
 
 beforeAll(() => {
   installSvgMeasurementShims();
-  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
-    return {
-      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
-      width: WIDTH, height: HEIGHT, toJSON: () => ({})
-    } as DOMRect;
-  });
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
+  mockBoundingClientRect(WIDTH, HEIGHT);
 });
 
 describe('series label fraction guards', () => {
@@ -76,9 +60,8 @@ describe('series label fraction guards', () => {
   });
 
   it('measures a stacked series against the domain minimum when the axis has no base', () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    handles.push(createDefaultChart(container, {
+    const container = mountContainer();
+    trackHandle(createDefaultChart(container, {
       config: {
         version: '1.0.0',
         animation: { animate: false },

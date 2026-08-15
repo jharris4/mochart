@@ -1,8 +1,8 @@
 // Three drawing switches no test or demo had ever set: series.missingValueMarkers, seriesStacks.outerCapExpand, and pie.centerOffsetXFraction.
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector, getIdCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
@@ -11,18 +11,15 @@ const VERSION = '1.0.0';
 const WIDTH = 800;
 const HEIGHT = 600;
 
-let handles: ChartHandle<DefaultChartProps>[] = [];
-
 function mountChart(overrides: Record<string, unknown>, data: readonly unknown[]): Element {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = mountContainer();
   const config = {
     version: VERSION,
     animation: { animate: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     ...overrides
   } as unknown as MochartInputConfig;
-  handles.push(createDefaultChart(container, { config, data, width: WIDTH, height: HEIGHT } as DefaultChartProps));
+  trackHandle(createDefaultChart(container, { config, data, width: WIDTH, height: HEIGHT } as DefaultChartProps));
   return container;
 }
 
@@ -42,14 +39,6 @@ function markerCount(container: Element): number {
 
 beforeAll(() => {
   installSvgMeasurementShims();
-});
-
-afterEach(() => {
-  for (const handle of handles) {
-    handle.destroy();
-  }
-  handles = [];
-  document.body.innerHTML = '';
 });
 
 describe('missing value markers', () => {
