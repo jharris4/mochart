@@ -11,7 +11,7 @@ import { getTooltipLayoutInfo, getTooltipLayoutInfoWithMutations } from '../layo
 import { getAxisData, getAxisDataWithMutations, getAxisDataForCategoryChange, getAxisDataForSeriesChange } from '../data/AxisData';
 import { getStackData, getStackDataWithMutations } from '../data/StackData';
 import { getChartTextBoundsData, getChartTextBoundsDataWithMutations, getTooltipBounds, getBoundsWithMutations } from '../utils/TextMeasurement';
-import { mochartCssClasses, getDomAccessors } from '../utils/ChartDom';
+import { mochartCssClasses, mochartVersionAttribute, getDomAccessors } from '../utils/ChartDom';
 import { CHART_TYPE_PIE } from '../config/core/constants';
 
 import Background from './Background';
@@ -1136,7 +1136,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       }
       this.setPresent(true);
       this.chartRef = null;
-      this.root.set({ className: mochartCssClasses['chartError'], style, 'data-mochart-version': getVersionString(),
+      this.root.set({ className: mochartCssClasses['chartError'], style, [mochartVersionAttribute]: getVersionString(),
         'aria-hidden': mochartConfig?.accessibility.hidden ? 'true' : null });
       this.clearBody();
       this.setSimpleContent(errorComponent);
@@ -1149,14 +1149,14 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       if (isErrorActive(error)) {
         this.setPresent(true);
         this.chartRef = null;
-        this.root.set({ className: mochartCssClasses['chartError'], style, 'data-mochart-version': getVersionString() });
+        this.root.set({ className: mochartCssClasses['chartError'], style, [mochartVersionAttribute]: getVersionString() });
         this.clearBody();
         this.setSimpleContent(errorFactory(this.factoryContext(width, height, error)));
       }
       else if (loading) {
         this.setPresent(true);
         this.chartRef = null;
-        this.root.set({ className: mochartCssClasses['loading'], style, 'data-mochart-version': getVersionString() });
+        this.root.set({ className: mochartCssClasses['loading'], style, [mochartVersionAttribute]: getVersionString() });
         this.clearBody();
         this.setSimpleContent(loadingFactory(this.factoryContext(width, height, error)));
       }
@@ -1182,7 +1182,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const rootClassName = accessibilityActive(mochartConfig.accessibility)
       ? mochartCssClasses['chart'] + ' ' + mochartCssClasses['accessible']
       : mochartCssClasses['chart'];
-    this.root.set({ className: rootClassName, ...chartEventHandler, style, 'data-mochart-version': getVersionString(),
+    this.root.set({ className: rootClassName, ...chartEventHandler, style, [mochartVersionAttribute]: getVersionString(),
       'aria-hidden': mochartConfig.accessibility.hidden ? 'true' : null });
     this.chartRef = this.root.node;
     this.setSimpleContent(false);
