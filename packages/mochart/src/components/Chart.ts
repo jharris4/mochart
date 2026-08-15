@@ -636,13 +636,6 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         const { chartTextBoundsData, axisData: oldAxisData, stackData: oldStackData } = this.state;
         let { uniqueIds, layoutInfo, axisData, stackData } = this.state;
 
-        const categoryAxisChanged = chartData === null || prevProps.chartData === null || prevProps.chartData.categoryData !== chartData.categoryData;
-        const valueAxisChanged = chartData === null || prevProps.chartData === null || prevProps.chartData.seriesData.raw.axisDomains !== chartData.seriesData.raw.axisDomains ||
-          prevProps.chartData.seriesData.filtered.axisDomains !== chartData.seriesData.filtered.axisDomains ||
-          // animation frames substitute only the render domains, so they must trip this too
-          prevProps.chartData.seriesData.raw.renderAxisDomains !== chartData.seriesData.raw.renderAxisDomains ||
-          prevProps.chartData.seriesData.filtered.renderAxisDomains !== chartData.seriesData.filtered.renderAxisDomains;
-        // TODO - what about if seriesData.axisSeriesCounts changes? how should that be handled?
         // layout reads chartData only through seriesData.axisSeriesCounts, so value-tween frames keeping that identity keep the layout
         const layoutInputsChanged = mochartConfigChanged || sizeChanged || this.state.layoutInfo === null ||
           chartData === null || prevProps.chartData === null ||
@@ -651,6 +644,17 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
           layoutInfo = getChartLayoutInfoWithMutations(this.state.layoutInfo, layoutInfo);
         }
+        // axis data also depends on the layout, so a moved axis layout info forces that axis's rebuild
+        const oldLayoutInfo = this.state.layoutInfo;
+        const categoryLayoutChanged = oldLayoutInfo === null || layoutInfo!.categoryAxisLayoutInfo !== oldLayoutInfo.categoryAxisLayoutInfo;
+        const valueLayoutChanged = oldLayoutInfo === null || layoutInfo!.valueAxisLayoutInfos !== oldLayoutInfo.valueAxisLayoutInfos;
+        const categoryAxisChanged = chartData === null || prevProps.chartData === null || prevProps.chartData.categoryData !== chartData.categoryData || categoryLayoutChanged;
+        const valueAxisChanged = chartData === null || prevProps.chartData === null || prevProps.chartData.seriesData.raw.axisDomains !== chartData.seriesData.raw.axisDomains ||
+          prevProps.chartData.seriesData.filtered.axisDomains !== chartData.seriesData.filtered.axisDomains ||
+          // animation frames substitute only the render domains, so they must trip this too
+          prevProps.chartData.seriesData.raw.renderAxisDomains !== chartData.seriesData.raw.renderAxisDomains ||
+          prevProps.chartData.seriesData.filtered.renderAxisDomains !== chartData.seriesData.filtered.renderAxisDomains ||
+          valueLayoutChanged;
 
         let tooltipStateSource: ChartState | ReturnType<typeof getInitialTooltipState> = this.state;
         if (chartData !== null) {
