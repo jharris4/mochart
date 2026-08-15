@@ -735,7 +735,7 @@ describe('dash array validation', () => {
   });
 
   it('accepts comma- and space-separated dash arrays', () => {
-    for (const dashArray of ['5,3', '5, 3', '6 3']) {
+    for (const dashArray of ['5,3', '5, 3', '6 3', '0.5, 2', '5 , 3']) {
       const errors = errorsFor({
         version: V,
         categoryAxis: { property: 'p', showGridLines: true, gridLineStyle: { normal: { strokeDashArray: dashArray } } },

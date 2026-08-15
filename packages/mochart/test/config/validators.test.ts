@@ -99,8 +99,19 @@ describe('dashArray', () => {
     expect(validate('4')).toBe(true);
   });
 
-  it('rejects non-numeric dash arrays', () => {
+  it('accepts decimals and mixed comma/whitespace separators', () => {
+    expect(validate('0.5, 2')).toBe(true);
+    expect(validate('.5 2.25')).toBe(true);
+    expect(validate('5 , 3')).toBe(true);
+    expect(validate(' 5,3 ')).toBe(true);
+  });
+
+  it('rejects non-numeric dash arrays and malformed separators', () => {
     expect(validate('dash')).toBe(false);
+    expect(validate('5,,3')).toBe(false);
+    expect(validate('5,')).toBe(false);
+    expect(validate('5.')).toBe(false);
+    expect(validate('5px 3px')).toBe(false);
   });
 });
 

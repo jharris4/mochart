@@ -4,7 +4,8 @@ import validators from '@mochart/movalid';
 import type { CustomValidator, Validator } from '@mochart/movalid';
 import { NONE, TOP_RIGHT_BOTTOM_LEFT, COLOR_CURRENT } from '../core/constants';
 
-const dashArrayRegexp = /^(\d+)([,\s]\s*\d+)*$/;
+// SVG stroke-dasharray: unitless numbers (decimals allowed) separated by whitespace and/or one comma
+const dashArrayRegexp = /^\s*(?:\d*\.\d+|\d+)(?:(?:\s*,\s*|\s+)(?:\d*\.\d+|\d+))*\s*$/;
 
 // Transcribed verbatim from d3's formatSpecifier (github.com/d3/d3-format) so the two stay
 // diff-able; its redundant character-class escapes are not ours to re-derive.
