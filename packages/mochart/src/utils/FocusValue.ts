@@ -1,6 +1,6 @@
 import { COLOR_SAME } from '../config/core/constants';
 import type { FocusPercentage, FocusPercentageMap } from '../types/animation';
-import type { Style } from '../types/config';
+import type { Style, StrokeStyleStates, StyleStates } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
 
 export function getFocusValue(focusPercentage: FocusPercentage, normalValue: number, focusedValue: number, defocusedValue: number): number {
@@ -136,6 +136,34 @@ export function getFocusStrokeDashArray(focusPercentage: FocusPercentage, normal
   const focused = focusedValue === undefined || focusedValue === COLOR_SAME ? normalValue : focusedValue;
   const defocused = defocusedValue === undefined || defocusedValue === COLOR_SAME ? normalValue : defocusedValue;
   return getFocusDiscreteValue(focusPercentage, normalValue, focused, defocused) ?? null;
+}
+
+export interface FocusStrokeStyle {
+  strokeWidth: number | null;
+  strokeDashArray: string | null;
+  strokeOpacity: number;
+}
+
+export interface FocusStyle extends FocusStrokeStyle {
+  fillOpacity: number;
+}
+
+/** Resolve the geometry and opacity members of a stroke style at a focus percentage (colors resolve separately, per series). */
+export function getFocusStrokeStyle<C>(focusPercentage: FocusPercentage, { normal, focused, defocused }: StrokeStyleStates<C>): FocusStrokeStyle {
+  return {
+    strokeWidth: getFocusStrokeWidth(focusPercentage, normal.strokeWidth, focused.strokeWidth, defocused.strokeWidth),
+    strokeDashArray: getFocusStrokeDashArray(focusPercentage, normal.strokeDashArray, focused.strokeDashArray, defocused.strokeDashArray),
+    strokeOpacity: getFocusValue(focusPercentage, normal.strokeOpacity, focused.strokeOpacity, defocused.strokeOpacity)
+  };
+}
+
+/** Resolve the geometry and opacity members of a full style at a focus percentage (colors resolve separately, per series). */
+export function getFocusStyle<C>(focusPercentage: FocusPercentage, styleStates: StyleStates<C>): FocusStyle {
+  const { normal, focused, defocused } = styleStates;
+  return {
+    ...getFocusStrokeStyle(focusPercentage, styleStates),
+    fillOpacity: getFocusValue(focusPercentage, normal.fillOpacity, focused.fillOpacity, defocused.fillOpacity)
+  };
 }
 
 /** Only members the normal state has are resolved, so anything it leaves out produces no attribute. */

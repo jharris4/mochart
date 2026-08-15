@@ -8,7 +8,7 @@ import { translate } from '../utils/utils';
 import { getSymbolGenerator } from '../utils/shapeUtils';
 import { getSeriesMarkerFillColor, getSeriesMarkerStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
-import { getFocusValue, getFocusStrokeWidth, getFocusStrokeDashArray, getCategoryFocusPercentage } from '../utils/FocusValue';
+import { getFocusStyle, getCategoryFocusPercentage } from '../utils/FocusValue';
 import type { ElListAdapter, ElProps } from '../render';
 import type { ColorPaletteConfig } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
@@ -57,9 +57,8 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
     if (seriesConfig.markerShape !== NONE) {
       const { categoryFocusPercentages, valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
-      let markerFillColor, markerStrokeColor, markerStrokeOpacity, markerFillOpacity, markerStrokeWidth;
+      let markerFillColor, markerStrokeColor;
       const { markerShape, missingValueMarkers, markerSize, markerMinSize, markerSizeScale } = seriesConfig;
-      const { normal: markerNormal, focused: markerFocused, defocused: markerDefocused } = seriesConfig.markerStyle;
       const markers: MarkerItem[] = [];
       let markerSizes: Array<number | undefined> | null = null;
       if (seriesConfig.markerProperty !== NONE) {
@@ -94,10 +93,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
           focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
           markerFillColor = getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
           markerStrokeColor = getSeriesMarkerStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
-          markerStrokeWidth = getFocusStrokeWidth(focusPercentage, markerNormal.strokeWidth, markerFocused.strokeWidth, markerDefocused.strokeWidth);
-          const markerStrokeDashArray = getFocusStrokeDashArray(focusPercentage, markerNormal.strokeDashArray, markerFocused.strokeDashArray, markerDefocused.strokeDashArray);
-          markerStrokeOpacity = getFocusValue(focusPercentage, markerNormal.strokeOpacity!, markerFocused.strokeOpacity!, markerDefocused.strokeOpacity!);
-          markerFillOpacity = getFocusValue(focusPercentage, markerNormal.fillOpacity!, markerFocused.fillOpacity!, markerDefocused.fillOpacity!);
+          const { strokeWidth: markerStrokeWidth, strokeDashArray: markerStrokeDashArray, strokeOpacity: markerStrokeOpacity, fillOpacity: markerFillOpacity } = getFocusStyle(focusPercentage, seriesConfig.markerStyle);
           let cx, cy;
           if (inverted) {
             cx = getSeriesPosition(null, i)!;

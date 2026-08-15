@@ -12,7 +12,7 @@ import { NONE, RENDERER_AREA, RENDERER_LINE, RENDERER_BAR } from '../config/core
 import { COLOR_CATEGORY_INDEX } from '../config/core/constants';
 import { getSeriesFillColor, getSeriesStrokeColor } from '../utils/SeriesColors';
 import { getGradientReference, getPatternReference } from '../utils/svgUtils';
-import { getFocusValue, getFocusStrokeWidth, getFocusStrokeDashArray, getCategoryFocusPercentage } from '../utils/FocusValue';
+import { getFocusStyle, getCategoryFocusPercentage } from '../utils/FocusValue';
 
 import SeriesErrorBars from './SeriesErrorBars';
 import SeriesMarkers from './SeriesMarkers';
@@ -237,17 +237,14 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       const { categoryFocusPercentages, valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
 
-      const { normal: shapeNormal, focused: shapeFocused, defocused: shapeDefocused } = seriesConfig.shapeStyle;
+      const { normal: shapeNormal } = seriesConfig.shapeStyle;
       const seriesStrokeColor = getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       let seriesFillColor = seriesConfig.renderer === RENDERER_LINE ? 'none' : getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       let seriesColorGenerator = null;
       if (seriesConfig.colorProperty !== NONE) {
         seriesColorGenerator = getSeriesColorGenerator(seriesConfig, seriesFocusPercentage, rawDomains, filteredValues);
       }
-      const seriesStrokeWidth = getFocusStrokeWidth(seriesFocusPercentage, shapeNormal.strokeWidth, shapeFocused.strokeWidth, shapeDefocused.strokeWidth);
-      const seriesStrokeDashArray = getFocusStrokeDashArray(seriesFocusPercentage, shapeNormal.strokeDashArray, shapeFocused.strokeDashArray, shapeDefocused.strokeDashArray);
-      const seriesStrokeOpacity = getFocusValue(seriesFocusPercentage, shapeNormal.strokeOpacity!, shapeFocused.strokeOpacity!, shapeDefocused.strokeOpacity!);
-      const seriesFillOpacity = getFocusValue(seriesFocusPercentage, shapeNormal.fillOpacity!, shapeFocused.fillOpacity!, shapeDefocused.fillOpacity!);
+      const { strokeWidth: seriesStrokeWidth, strokeDashArray: seriesStrokeDashArray, strokeOpacity: seriesStrokeOpacity, fillOpacity: seriesFillOpacity } = getFocusStyle(seriesFocusPercentage, seriesConfig.shapeStyle);
 
       if (seriesConfig.renderer === RENDERER_LINE) {
         const lineGenerator = getLineGenerator(seriesConfig, seriesPositionData, inverted);
@@ -293,9 +290,6 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         else if (seriesConfig.gradient !== NONE) {
           barFillColor = getGradientReference(gradientIdMap[seriesConfig.gradient]);
         }
-        let barStrokeOpacity = seriesStrokeOpacity;
-        let barFillOpacity = seriesFillOpacity;
-        let barStrokeWidth = seriesStrokeWidth;
         const hasDifferentStrokeColors = shapeNormal.strokeColor === COLOR_CATEGORY_INDEX;
         const hasDifferentFillColors = shapeNormal.fillColor === COLOR_CATEGORY_INDEX;
         const hasDifferentColors = hasDifferentStrokeColors || hasDifferentFillColors;
@@ -336,10 +330,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
                 barFillColor = seriesFillColor;
               }
             }
-            barStrokeWidth = getFocusStrokeWidth(focusPercentage, shapeNormal.strokeWidth, shapeFocused.strokeWidth, shapeDefocused.strokeWidth);
-            barStrokeOpacity = getFocusValue(focusPercentage, shapeNormal.strokeOpacity!, shapeFocused.strokeOpacity!, shapeDefocused.strokeOpacity!);
-            barFillOpacity = getFocusValue(focusPercentage, shapeNormal.fillOpacity!, shapeFocused.fillOpacity!, shapeDefocused.fillOpacity!);
-            const barStrokeDashArray = getFocusStrokeDashArray(focusPercentage, shapeNormal.strokeDashArray, shapeFocused.strokeDashArray, shapeDefocused.strokeDashArray);
+            const { strokeWidth: barStrokeWidth, strokeDashArray: barStrokeDashArray, strokeOpacity: barStrokeOpacity, fillOpacity: barFillOpacity } = getFocusStyle(focusPercentage, seriesConfig.shapeStyle);
             bars.push({
               key: 'bar-' + i,
               attrs: { d: columnGenerator(i), className: mochartCssClasses['seriesBar'] + i,

@@ -6,7 +6,7 @@ import { NONE, AUTO, LABEL_POSITION_CENTER, LABEL_POSITION_INSIDE } from '../con
 import { translate } from '../utils/utils';
 import { getSeriesLabelFillColor, getSeriesLabelStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
-import { getFocusValue, getFocusStrokeWidth, getCategoryFocusPercentage } from '../utils/FocusValue';
+import { getFocusStyle, getCategoryFocusPercentage } from '../utils/FocusValue';
 import type { El, ElListAdapter, TextEl } from '../render';
 import type { ColorPaletteConfig } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
@@ -95,8 +95,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
         const { max: maxValuesNullable, min: minValues, label: labelValuesNullable } = filteredValues;
         const maxValues = maxValuesNullable!;
         const labelValues = labelValuesNullable!;
-        let labelStrokeColor, labelFillColor, labelStrokeWidth, labelStrokeOpacity, labelFillOpacity;
-        const { normal: labelNormal, focused: labelFocused, defocused: labelDefocused } = seriesConfig.labelTextStyle;
+        let labelStrokeColor, labelFillColor;
 
         let withinPercentages = (_seriesValue: number, _minSeriesValue?: number | null) => {
           return true;
@@ -237,9 +236,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
             labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
             labelStrokeColor = getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
-            labelStrokeWidth = getFocusStrokeWidth(focusPercentage, labelNormal.strokeWidth, labelFocused.strokeWidth, labelDefocused.strokeWidth);
-            labelStrokeOpacity = getFocusValue(focusPercentage, labelNormal.strokeOpacity!, labelFocused.strokeOpacity!, labelDefocused.strokeOpacity!);
-            labelFillOpacity = getFocusValue(focusPercentage, labelNormal.fillOpacity!, labelFocused.fillOpacity!, labelDefocused.fillOpacity!);
+            const { strokeWidth: labelStrokeWidth, strokeOpacity: labelStrokeOpacity, fillOpacity: labelFillOpacity } = getFocusStyle(focusPercentage, seriesConfig.labelTextStyle);
             seriesPosition = getSeriesPosition(null, i)! + getOffset(aboveBase);
             x = inverted ? seriesPosition : getCategoryPosition(null, i)!;
             y = inverted ? getCategoryPosition(null, i)! : seriesPosition;

@@ -4,7 +4,7 @@ import { mochartCssClasses } from '../utils/ChartDom';
 import { NONE, RENDERER_BAR } from '../config/core/constants';
 import { getSeriesErrorBarStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
-import { getFocusValue, getFocusStrokeWidth, getFocusStrokeDashArray, getCategoryFocusPercentage } from '../utils/FocusValue';
+import { getFocusStrokeStyle, getCategoryFocusPercentage } from '../utils/FocusValue';
 import type { ElListAdapter, ElProps } from '../render';
 import type { FocusData } from '../types/animation';
 import type { ColorPaletteConfig } from '../types/config';
@@ -52,7 +52,6 @@ export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
       const { categoryFocusPercentages, valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
       const { errorBarCapSize } = seriesConfig;
-      const { normal: errorBarNormal, focused: errorBarFocused, defocused: errorBarDefocused } = seriesConfig.errorBarStyle;
       const errorLowValues = filteredValues.errorLow;
       const errorHighValues = filteredValues.errorHigh;
 
@@ -104,9 +103,7 @@ export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
 
           const focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
           const strokeColor = getSeriesErrorBarStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
-          const strokeOpacity = getFocusValue(focusPercentage, errorBarNormal.strokeOpacity!, errorBarFocused.strokeOpacity!, errorBarDefocused.strokeOpacity!);
-          const errorBarStrokeWidth = getFocusStrokeWidth(focusPercentage, errorBarNormal.strokeWidth, errorBarFocused.strokeWidth, errorBarDefocused.strokeWidth);
-          const errorBarStrokeDashArray = getFocusStrokeDashArray(focusPercentage, errorBarNormal.strokeDashArray, errorBarFocused.strokeDashArray, errorBarDefocused.strokeDashArray);
+          const { strokeWidth: errorBarStrokeWidth, strokeDashArray: errorBarStrokeDashArray, strokeOpacity } = getFocusStrokeStyle(focusPercentage, seriesConfig.errorBarStyle);
 
           errorBars.push({
             key: 'error-bar-' + i,
