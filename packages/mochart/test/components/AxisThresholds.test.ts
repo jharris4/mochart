@@ -5,7 +5,7 @@ import { mountContainer, trackHandle, mockBoundingClientRect } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
-import { getCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
+import { getCssSelector, getDescendantCssSelector, getIdCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -217,7 +217,7 @@ describe('threshold styling', () => {
     });
   }
 
-  it('hides the thresholds of a value axis no series uses', () => {
+  function mountOrphanAxis(visibleWhenAllFiltered: boolean): Element {
     const container = mountContainer();
     trackHandle(createDefaultChart(container, {
       config: {
@@ -226,13 +226,57 @@ describe('threshold styling', () => {
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         valueAxes: [
           { id: 'VA0' },
-          { id: 'VA1', min: 0, max: 100, thresholds: [{ value: 50, title: 'Orphan' }] }
+          { id: 'VA1', min: 0, max: 100, visibleWhenAllFiltered, thresholds: [{ value: 50, title: 'Orphan' }] }
         ],
         series: [{ property: 'sales', renderer: 'bar', axis: 'VA0' }]
       } as unknown as MochartInputConfig,
       data: rows, width: WIDTH, height: HEIGHT
     } as DefaultChartProps));
+    return container;
+  }
+
+  // thresholds follow the axis: a series-less axis draws (and keeps its thresholds) only when visibleWhenAllFiltered
+  it('keeps the thresholds of a visibleWhenAllFiltered axis no series uses', () => {
+    const container = mountOrphanAxis(true);
+    expect(container.querySelector(getIdCssSelector('valueAxis', 'VA1'))).not.toBeNull();
+    expect(container.textContent).toContain('Orphan');
+  });
+
+  it('hides the thresholds of a value axis no series uses when visibleWhenAllFiltered is off', () => {
+    const container = mountOrphanAxis(false);
+    expect(container.querySelector(getIdCssSelector('valueAxis', 'VA1'))).toBeNull();
     expect(container.textContent).not.toContain('Orphan');
+  });
+
+  function mountAllFiltered(visibleWhenAllFiltered: boolean): Element {
+    const container = mountContainer();
+    trackHandle(createDefaultChart(container, {
+      config: {
+        version: '1.0.0',
+        animation: { animate: false },
+        categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+        valueAxes: [{ id: 'VA0', min: 0, max: 100, visibleWhenAllFiltered, adjustForFiltering: false,
+          thresholds: [{ value: 50, title: 'Target' }] }],
+        series: [{ id: 'sales', property: 'sales', renderer: 'bar', axis: 'VA0' }]
+      } as unknown as MochartInputConfig,
+      data: rows, width: WIDTH, height: HEIGHT, filteredSeriesIds: { sales: true }
+    } as DefaultChartProps));
+    return container;
+  }
+
+  // the axis and its grid stay on screen for a visibleWhenAllFiltered axis, so its thresholds must too
+  it('keeps the thresholds of a visibleWhenAllFiltered axis whose series are all filtered', () => {
+    const container = mountAllFiltered(true);
+    expect(container.querySelector(getCssSelector('valueAxis'))).not.toBeNull();
+    expect(container.querySelector(getCssSelector('axisThreshold'))).not.toBeNull();
+    expect(container.textContent).toContain('Target');
+  });
+
+  it('hides the thresholds of an all-filtered axis when visibleWhenAllFiltered is off', () => {
+    const container = mountAllFiltered(false);
+    expect(container.querySelector(getCssSelector('valueAxis'))).toBeNull();
+    expect(container.querySelector(getCssSelector('axisThreshold'))).toBeNull();
+    expect(container.textContent).not.toContain('Target');
   });
 });
 

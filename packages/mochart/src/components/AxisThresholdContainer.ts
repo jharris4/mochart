@@ -54,7 +54,7 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
         key,
         ctor: AxisThreshold,
         props: { front, plotConfig, axisConfig, axisLayoutInfo: valueAxisLayoutInfos[id],
-          hidden: axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: valueAxisDomain, vertical: !inverted, ascending: inverted !== axisConfig.reversed,
+          hidden: !axisConfig.visibleWhenAllFiltered && axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: valueAxisDomain, vertical: !inverted, ascending: inverted !== axisConfig.reversed,
           axisFocusPercentage, seriesFocusPercentage, axisThresholdClass: mochartCssClasses['valueAxisThreshold'] + id }
       };
     }));
