@@ -30,7 +30,7 @@ import '@mochart/core/mochart.css';
 ## Quick start
 
 `defaultChart` is the simplest entry point — give it a raw config and a plain
-array-of-objects dataset:
+dataset — an array of objects or an object of arrays:
 
 ```js
 import { html, render } from 'lit-html';

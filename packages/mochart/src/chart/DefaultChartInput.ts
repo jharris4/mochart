@@ -1,16 +1,20 @@
 import { enhanceConfig } from '../config/helper';
-import { ArrayOfObjectsDataProvider } from '../data/DataProvider';
+import { ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider } from '../data/DataProvider';
 import { getDataErrors } from '../data/DataValidator';
 import type { DefaultChartProps } from '../types/chart';
 import type { EnhancedMochartConfig } from '../types/enhanced';
-import type { ArrayOfObjectsData, DataProvider } from '../types/data';
+import type { ArrayOfObjectsData, DataProvider, ObjectOfArraysData } from '../types/data';
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return v !== null && v !== undefined && typeof v === "object";
 }
 
-function isArrayOfObjects(data: readonly unknown[]): data is ArrayOfObjectsData {
+function isArrayOfObjects(data: unknown): data is ArrayOfObjectsData {
   return Array.isArray(data) && !data.some(v => !isObject(v));
+}
+
+function isObjectOfArrays(data: unknown): data is ObjectOfArraysData {
+  return isObject(data) && !Array.isArray(data) && Object.values(data).every(v => Array.isArray(v));
 }
 
 function buildErrorDataProvider(error: unknown = 'Invalid Data'): DataProvider {
@@ -20,15 +24,18 @@ function buildErrorDataProvider(error: unknown = 'Invalid Data'): DataProvider {
   };
 }
 
-function createRawDataProvider(data: readonly unknown[]): DataProvider | null {
-  return isArrayOfObjects(data) ? new ArrayOfObjectsDataProvider(data) : null;
+function createRawDataProvider(data: unknown): DataProvider | null {
+  if (isArrayOfObjects(data)) {
+    return new ArrayOfObjectsDataProvider(data);
+  }
+  return isObjectOfArrays(data) ? new ObjectOfArraysDataProvider(data) : null;
 }
 
 /**
  * Input adapter for createDefaultChart (was the DefaultChart component):
- * enhances the raw `config` and wraps the plain array-of-objects `data` in a
- * validated data provider, producing the enhanced config + provider pair the
- * ChartController consumes.
+ * enhances the raw `config` and wraps the plain `data` — an array of objects
+ * or an object of arrays, dispatched by shape — in a validated data provider,
+ * producing the enhanced config + provider pair the ChartController consumes.
  */
 export class DefaultChartInput {
   mochartConfig: EnhancedMochartConfig | null = null;

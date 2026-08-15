@@ -107,7 +107,8 @@ function wrapForReads(dataProvider: DataProvider | null | undefined): DataProvid
 
 /**
  * Convenience entry point for plain-JavaScript hosts: takes a raw `config`
- * (enhanced internally) and a plain array-of-objects `data`.
+ * (enhanced internally) and a plain `data` dataset — an array of objects or
+ * an object of arrays.
  */
 export function createDefaultChart(container: Element, props: DefaultChartProps): ChartHandle<DefaultChartProps> {
   let currentProps = { ...props };

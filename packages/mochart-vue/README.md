@@ -30,7 +30,7 @@ import '@mochart/core/mochart.css';
 ## Usage
 
 `DefaultChart` is the simplest entry point — give it a raw config and a plain
-array-of-objects dataset:
+dataset — an array of objects or an object of arrays:
 
 ```vue
 <script setup>

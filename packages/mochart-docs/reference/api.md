@@ -31,10 +31,10 @@ createDefaultChart(container: Element, props: DefaultChartProps): ChartHandle
 
 The simplest entry point (see [Getting started](/guide/getting-started)).
 Mounts a chart into `container` from a raw
-[config](/guide/config-model) and a plain array-of-objects dataset; the
+[config](/guide/config-model) and a plain dataset — an array of objects or an object of arrays; the
 config is validated and enhanced internally on every change, and `data` is
-wrapped in an `ArrayOfObjectsDataProvider` keyed by
-[`categoryAxis.property`](/reference/categoryAxis#categoryAxis.property).
+wrapped in the matching data provider (`ArrayOfObjectsDataProvider` or
+`ObjectOfArraysDataProvider`) by shape.
 
 Props: `config` and `data`, plus everything in
 [Chart props](/reference/props) — sizing, `loading`/`error`, the controlled

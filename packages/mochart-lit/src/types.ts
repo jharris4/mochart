@@ -1,6 +1,6 @@
 import type {
   Bounds, ChartEventPayload, ChartFocus, ChartSeriesClickPayload, ChartSeriesFilter, ChartSliceClickPayload,
-  ArrayOfObjectsData, DataProvider, MochartConfig, MochartInputConfig
+  ArrayOfObjectsData, DataProvider, MochartConfig, MochartInputConfig, ObjectOfArraysData
 } from '@mochart/core';
 
 /** Props mochart passes to placeholder templates (loading, error, and empty states). */
@@ -94,8 +94,8 @@ export interface ChartProps extends BaseChartProps {
   dataProvider: DataProvider | null;
 }
 
-/** Props for the `defaultChart` directive: a raw config plus a plain array-of-objects dataset. */
+/** Props for the `defaultChart` directive: a raw config plus a plain dataset — an array of objects or an object of arrays. */
 export interface DefaultChartProps extends BaseChartProps {
   config: MochartInputConfig;
-  data: ArrayOfObjectsData;
+  data: ArrayOfObjectsData | ObjectOfArraysData;
 }

@@ -1,6 +1,6 @@
 import type { MochartConfig, MochartInputConfig } from './config';
 import type { Bounds } from './geometry';
-import type { ArrayOfObjectsData, DataProvider } from './data';
+import type { ArrayOfObjectsData, DataProvider, ObjectOfArraysData } from './data';
 
 /** Pointer event details reported by the plot-area callbacks. */
 export interface ChartEventPayload {
@@ -216,8 +216,9 @@ export interface DefaultChartProps extends BaseChartProps {
   /** The raw config; validated and enhanced internally on every change. */
   config: MochartInputConfig;
   /**
-   * The dataset as one object per category; wrapped in an
-   * `ArrayOfObjectsDataProvider` keyed by `categoryAxisConfig.property`.
+   * The dataset, in either built-in shape: an array of objects (one per
+   * category) or an object of arrays (one per property); wrapped in the
+   * matching data provider by shape.
    */
-  data: ArrayOfObjectsData;
+  data: ArrayOfObjectsData | ObjectOfArraysData;
 }

@@ -34,11 +34,11 @@ const rows = [
   { month: 'Mar', sales: 30, label: 'thirty' }
 ];
 
-function props(config: MochartInputConfig, data: readonly unknown[]): DefaultChartProps {
+function props(config: MochartInputConfig, data: unknown): DefaultChartProps {
   return { config, data, width: 800, height: 600 } as DefaultChartProps;
 }
 
-function startInput(config: MochartInputConfig, data: readonly unknown[]): { input: DefaultChartInput; props: DefaultChartProps } {
+function startInput(config: MochartInputConfig, data: unknown): { input: DefaultChartInput; props: DefaultChartProps } {
   const input = new DefaultChartInput();
   const initial = props(config, data);
   input.start(initial);
@@ -124,5 +124,53 @@ describe('DefaultChartInput data validation', () => {
   it('exposes an error provider for data that is not an array of objects', () => {
     const { input } = startInput(salesConfig(), [1, 2, 3]);
     expect(isDataProviderValid(input.dataProvider)).toBe(false);
+  });
+});
+
+describe('DefaultChartInput object-of-arrays data', () => {
+  const arrays = {
+    month: ['Jan', 'Feb', 'Mar'],
+    sales: [10, 20, 30],
+    label: ['ten', 'twenty', 'thirty']
+  };
+
+  it('wraps an object of arrays in a valid provider', () => {
+    const { input } = startInput(salesConfig(), arrays);
+    expect(isDataProviderValid(input.dataProvider)).toBe(true);
+    expect(input.dataProvider!.getPropertyValues('month')).toEqual(['Jan', 'Feb', 'Mar']);
+    expect(input.dataProvider!.getPropertyValues('sales')).toEqual([10, 20, 30]);
+  });
+
+  it('exposes an error provider when a property holds a non-array value', () => {
+    const { input } = startInput(salesConfig(), { ...arrays, sales: 10 });
+    expect(isDataProviderValid(input.dataProvider)).toBe(false);
+  });
+
+  it('exposes an error provider when the arrays do not satisfy the config', () => {
+    const { input } = startInput(salesConfig(), { month: arrays.month, sales: [10, 20] });
+    expect(isDataProviderValid(input.dataProvider)).toBe(false);
+  });
+
+  it('rebuilds the provider when the data changes shape between updates', () => {
+    const { input, props: prev } = startInput(salesConfig(), rows);
+    const firstProvider = input.dataProvider;
+
+    input.update(prev, props(salesConfig(), arrays));
+    expect(input.dataProvider).not.toBe(firstProvider);
+    expect(isDataProviderValid(input.dataProvider)).toBe(true);
+    expect(input.dataProvider!.getPropertyValues('sales')).toEqual([10, 20, 30]);
+  });
+
+  it('refresh rebuilds the provider over mutated arrays', () => {
+    const mutable = { month: [...arrays.month], sales: [...arrays.sales] };
+    const { input, props: initial } = startInput(salesConfig(), mutable);
+    const provider = input.dataProvider;
+
+    mutable.month.push('Apr');
+    mutable.sales.push(40);
+    input.refresh(initial);
+
+    expect(input.dataProvider).not.toBe(provider);
+    expect(input.dataProvider!.getPropertyValues('month')).toEqual(['Jan', 'Feb', 'Mar', 'Apr']);
   });
 });

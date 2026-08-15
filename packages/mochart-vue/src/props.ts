@@ -1,7 +1,7 @@
 import type { PropType } from 'vue';
 import type {
   Bounds, ChartEventPayload, ChartFocus, ChartSeriesClickPayload, ChartSeriesFilter, ChartSliceClickPayload,
-  ArrayOfObjectsData, DataProvider, MochartConfig, MochartInputConfig
+  ArrayOfObjectsData, DataProvider, MochartConfig, MochartInputConfig, ObjectOfArraysData
 } from '@mochart/core';
 import type { PlaceholderComponent } from './types.js';
 
@@ -71,5 +71,5 @@ export const chartProps = {
 export const defaultChartProps = {
   ...baseChartProps,
   config: requiredProp<MochartInputConfig>(),
-  data: { type: Array as PropType<ArrayOfObjectsData>, required: true as const }
+  data: { type: [Array, Object] as PropType<ArrayOfObjectsData | ObjectOfArraysData>, required: true as const }
 };

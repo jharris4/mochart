@@ -37,7 +37,7 @@ inherit your page's font and text color.
 ## Your first chart
 
 `createDefaultChart` is the simplest entry point — give it a container
-element, a raw config, and an array-of-objects dataset:
+element, a raw config, and a dataset — an array of objects or an object of arrays:
 
 <script setup>
 import * as basic from '../examples/basic'

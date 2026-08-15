@@ -78,7 +78,7 @@ import '@mochart/core/mochart.css';
 ## Quick start
 
 `createDefaultChart` is the simplest entry point — give it a raw config and a
-plain array-of-objects dataset:
+plain dataset — an array of objects or an object of arrays:
 
 ```js
 import { createDefaultChart } from '@mochart/core';
