@@ -86,6 +86,22 @@ describe('chart state arbitration', () => {
     expect(stateClasses(mountChart({ error: null }))).toEqual([]);
     expect(stateClasses(mountChart({ error: undefined }))).toEqual([]);
   });
+
+  it('shows the message of an Error instance', () => {
+    const container = mountChart({ error: new Error('fetch failed') });
+    expect(stateClasses(container)).toEqual([getCssClass('noData')]);
+    expect(container.textContent).toContain('fetch failed');
+    expect(container.textContent).not.toContain('{}');
+  });
+
+  it('renders plain error objects as JSON and survives circular ones', () => {
+    expect(mountChart({ error: { code: 500 } }).textContent).toContain('{"code":500}');
+    const circular: Record<string, unknown> = { code: 500 };
+    circular.self = circular;
+    const container = mountChart({ error: circular });
+    expect(stateClasses(container)).toEqual([getCssClass('noData')]);
+    expect(container.textContent).toContain('[object Object]');
+  });
 });
 
 // Regression: the internal read delegate reached the factories, losing instanceof, refresh() and custom members

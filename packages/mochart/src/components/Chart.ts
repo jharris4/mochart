@@ -161,8 +161,17 @@ function isErrorActive(error: unknown): boolean {
   return error != null;
 }
 
+// Error instances show their message; JSON.stringify can throw (circular refs), so fall back to String.
+function formatErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message || String(error);
+  if (typeof error === 'object') {
+    try { return JSON.stringify(error); } catch { return String(error); }
+  }
+  return String(error);
+}
+
 function getErrorComponent({ width, height, error }: ChartFactoryContext): Node {
-  const errorMessage = isErrorActive(error) ? typeof error === 'object' ? JSON.stringify(error) : String(error) : 'Invalid Chart Config';
+  const errorMessage = isErrorActive(error) ? formatErrorMessage(error) : 'Invalid Chart Config';
   return buildMessageDiv(width, height, errorMessage);
 }
 
