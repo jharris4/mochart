@@ -80,6 +80,26 @@ describe('series label fraction guards', () => {
     expect(surviving(container)).toEqual(['100.00']);
   });
 
+  it('measures below-base stacked segments by their extent', () => {
+    const container = mountContainer();
+    trackHandle(createDefaultChart(container, {
+      config: {
+        version: '1.0.0',
+        animation: { animate: false },
+        categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+        valueAxes: [{ id: 'VA0' }],
+        seriesStacks: [{ id: 'S', axis: 'VA0' }],
+        series: [
+          { property: 'sales', renderer: 'bar', stack: 'S', axis: 'VA0',
+            labelProperty: 'sales', labelMinRangeFraction: 0.45 }
+        ]
+      } as unknown as MochartInputConfig,
+      data: rows.map((row) => ({ ...row, sales: -row.sales })), width: WIDTH, height: HEIGHT
+    } as DefaultChartProps));
+    // segments extend 10/50/100 below the base; the negative sign must not hide the two that clear the threshold
+    expect(surviving(container)).toEqual(['−50.00', '−100.00']);
+  });
+
   it('measures a ranged series against its own range property', () => {
     // range extents 2/40/80 against half of the 8–100 domain: only Mar survives
     expect(labelTexts(

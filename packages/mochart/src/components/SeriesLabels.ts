@@ -183,7 +183,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
                 if (minSeriesValue !== null && minSeriesValue !== undefined) {
                   valueMin = minSeriesValue;
                 }
-                return oldWithinPercentages(maxSeriesValue) && (maxSeriesValue - valueMin) >= minAbsoluteValue;
+                return oldWithinPercentages(maxSeriesValue) && Math.abs(maxSeriesValue - valueMin) >= minAbsoluteValue;
               };
             }
             else {
@@ -192,7 +192,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
                 if (minSeriesValue !== null && minSeriesValue !== undefined) {
                   valueMin = minSeriesValue;
                 }
-                return oldWithinPercentages(maxSeriesValue) && (maxSeriesValue - valueMin) >= minAbsoluteValue;
+                return oldWithinPercentages(maxSeriesValue) && Math.abs(maxSeriesValue - valueMin) >= minAbsoluteValue;
               };
             }
           }
