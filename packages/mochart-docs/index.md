@@ -14,7 +14,7 @@ hero:
       link: /reference/
     - theme: alt
       text: GitHub
-      link: https://github.com/jharris4/mochart
+      link: https://github.com/mocharts/mochart
 
 features:
   - title: Staged animation

@@ -136,7 +136,7 @@ Validation reports references that don't resolve.
 
 ## Validation
 
-Configs are validated with [@mochart/movalid](https://github.com/jharris4/mochart/tree/main/packages/movalid),
+Configs are validated with [@mochart/movalid](https://github.com/mocharts/mochart/tree/main/packages/movalid),
 producing human-readable messages rather than schema jargon:
 
 ```js

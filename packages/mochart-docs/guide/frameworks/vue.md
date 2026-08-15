@@ -1,6 +1,6 @@
 # Vue
 
-`@mochart/vue` wraps [@mochart/core](https://github.com/jharris4/mochart/tree/main/packages/mochart)
+`@mochart/vue` wraps [@mochart/core](https://github.com/mocharts/mochart/tree/main/packages/mochart)
 in Vue 3 components. Config and data changes get mochart's
 [staged animations](/guide/staged-animation) for free — axis expansion, value
 change, axis contraction, and gapless stacked transitions — no extra wiring
@@ -172,4 +172,4 @@ leave a prop `undefined` to let the chart keep managing that piece itself.
 
 The [Vue demo gallery](/vue/demos) is a full application built on `@mochart/vue`
 (vue reactivity router); its source lives in
-[packages/mochart-demo-vue](https://github.com/jharris4/mochart/tree/main/packages/mochart-demo-vue).
+[packages/mochart-demo-vue](https://github.com/mocharts/mochart/tree/main/packages/mochart-demo-vue).

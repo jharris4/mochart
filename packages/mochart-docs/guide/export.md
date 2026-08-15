@@ -1,6 +1,6 @@
 # Exporting images
 
-The [@mochart/export](https://github.com/jharris4/mochart/tree/main/packages/mochart-export)
+The [@mochart/export](https://github.com/mocharts/mochart/tree/main/packages/mochart-export)
 companion package downloads a rendered chart as a standalone SVG or PNG
 file. The export captures everything inside the chart svg — title, plot,
 axes, and legend, in their current state — with the chart's computed styles

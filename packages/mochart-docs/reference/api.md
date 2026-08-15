@@ -324,7 +324,7 @@ sections merged, and cross-references resolved, with the given validation
 result attached (or a blank valid one). Unlike `enhanceConfig` it neither
 migrates nor validates — call it directly only to share one defaults graph
 or validation result across several steps, the way
-[`@mochart/demo-common`](https://github.com/jharris4/mochart/tree/main/packages/mochart-demo-common)
+[`@mochart/demo-common`](https://github.com/mocharts/mochart/tree/main/packages/mochart-demo-common)
 derives a chart build and its editor views from a single `getDefaults` call.
 
 ```ts

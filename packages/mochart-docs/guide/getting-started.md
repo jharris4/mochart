@@ -135,7 +135,7 @@ uses — SVG rendering, SVG text measurement (`getBBox`,
 `requestAnimationFrame` for animation — is baseline in that set, so no
 polyfills are required. Build-free static HTML examples of both flavors —
 script tag and ES module — live in
-[packages/mochart/example](https://github.com/jharris4/mochart/tree/main/packages/mochart/example).
+[packages/mochart/example](https://github.com/mocharts/mochart/tree/main/packages/mochart/example).
 
 A few boundaries worth knowing:
 

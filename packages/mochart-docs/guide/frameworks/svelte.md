@@ -1,6 +1,6 @@
 # Svelte
 
-`@mochart/svelte` wraps [@mochart/core](https://github.com/jharris4/mochart/tree/main/packages/mochart)
+`@mochart/svelte` wraps [@mochart/core](https://github.com/mocharts/mochart/tree/main/packages/mochart)
 in Svelte 5 components. Config and data changes get mochart's
 [staged animations](/guide/staged-animation) for free — axis expansion, value
 change, axis contraction, and gapless stacked transitions — no extra wiring
@@ -159,4 +159,4 @@ leave a prop `undefined` to let the chart keep managing that piece itself.
 
 The [Svelte demo gallery](/svelte/demos) is a full application built on
 `@mochart/svelte` (Svelte 5 runes router); its source lives in
-[packages/mochart-demo-svelte](https://github.com/jharris4/mochart/tree/main/packages/mochart-demo-svelte).
+[packages/mochart-demo-svelte](https://github.com/mocharts/mochart/tree/main/packages/mochart-demo-svelte).

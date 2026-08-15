@@ -81,7 +81,7 @@ export default defineConfig({
     outline: { level: [2, 3] },
     search: { provider: 'local' },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/jharris4/mochart' }
+      { icon: 'github', link: 'https://github.com/mocharts/mochart' }
     ],
     footer: {
       message: 'Released under the MIT License.'

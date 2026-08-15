@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 Report privately, never as a public issue:
-[open a draft security advisory](https://github.com/jharris4/mochart/security/advisories/new).
+[open a draft security advisory](https://github.com/mocharts/mochart/security/advisories/new).
 That form only exists once **Settings > Code security > Private vulnerability
 reporting** is enabled on the repository — enable it before the repo goes
 public, or the first report has nowhere private to land.

@@ -2,7 +2,7 @@
 
 `@mochart/lit` provides
 [lit-html](https://lit.dev/docs/libraries/standalone-templates/) directives
-for [@mochart/core](https://github.com/jharris4/mochart/tree/main/packages/mochart).
+for [@mochart/core](https://github.com/mocharts/mochart/tree/main/packages/mochart).
 They work in standalone lit-html templates and inside `LitElement` render
 methods alike. Config and data changes get mochart's
 [staged animations](/guide/staged-animation) for free — axis expansion, value
@@ -186,4 +186,4 @@ leave a prop `undefined` to let the chart keep managing that piece itself.
 
 The [Lit demo gallery](/lit/demos) is a full `LitElement` application built on
 `@mochart/lit`; its source lives in
-[packages/mochart-demo-lit](https://github.com/jharris4/mochart/tree/main/packages/mochart-demo-lit).
+[packages/mochart-demo-lit](https://github.com/mocharts/mochart/tree/main/packages/mochart-demo-lit).

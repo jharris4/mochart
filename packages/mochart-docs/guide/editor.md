@@ -1,6 +1,6 @@
 # Editing config JSON
 
-The [@mochart/editor](https://github.com/jharris4/mochart/tree/main/packages/mochart-editor)
+The [@mochart/editor](https://github.com/mocharts/mochart/tree/main/packages/mochart-editor)
 companion package is a strict-JSON code editor (built on CodeMirror) with
 optional Mochart config intelligence: completions for sections, properties,
 and values; hover documentation with defaults and validation rules; and

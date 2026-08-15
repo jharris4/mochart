@@ -1,7 +1,7 @@
 # @mochart/export
 
 SVG and PNG image export for the
-[@mochart/core](https://github.com/jharris4/mochart) charting library. Give it any
+[@mochart/core](https://github.com/mocharts/mochart) charting library. Give it any
 element containing a rendered chart and it downloads the chart as a
 standalone image — computed styles inlined, crosshair stripped, and an
 optional solid background painted beneath the chart.

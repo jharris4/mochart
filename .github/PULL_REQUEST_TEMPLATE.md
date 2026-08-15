@@ -5,7 +5,7 @@
 ## Gates
 
 CI runs these in this order and stops at the first failure
-([CONTRIBUTING](https://github.com/jharris4/mochart/blob/main/CONTRIBUTING.md#getting-started)):
+([CONTRIBUTING](https://github.com/mocharts/mochart/blob/main/CONTRIBUTING.md#getting-started)):
 
 - [ ] `npm run lint`
 - [ ] `npm run deadcode`

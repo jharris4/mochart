@@ -1,6 +1,6 @@
 # Angular
 
-`@mochart/angular` wraps [@mochart/core](https://github.com/jharris4/mochart/tree/main/packages/mochart)
+`@mochart/angular` wraps [@mochart/core](https://github.com/mocharts/mochart/tree/main/packages/mochart)
 in Angular components. Config and data changes get mochart's
 [staged animations](/guide/staged-animation) for free — axis expansion, value
 change, axis contraction, and gapless stacked transitions — no extra wiring
@@ -187,4 +187,4 @@ leave an input `undefined` to let the chart keep managing that piece itself.
 
 The [Angular demo gallery](/angular/demos) is a full application built on
 `@mochart/angular` (Angular router, zoneless); its source lives in
-[packages/mochart-demo-angular](https://github.com/jharris4/mochart/tree/main/packages/mochart-demo-angular).
+[packages/mochart-demo-angular](https://github.com/mocharts/mochart/tree/main/packages/mochart-demo-angular).

@@ -1,14 +1,14 @@
 # @mochart/lit
 
 [lit-html](https://lit.dev/docs/libraries/standalone-templates/) directives for
-the [@mochart/core](https://github.com/jharris4/mochart) charting library. Works in
+the [@mochart/core](https://github.com/mocharts/mochart) charting library. Works in
 standalone lit-html templates and inside `LitElement` render methods alike.
 
 Docs: [mochart.org](https://mochart.org) — start with the
 [Lit guide](https://mochart.org/guide/frameworks/lit).
 
 Config and data changes get mochart's
-[staged animations](https://github.com/jharris4/mochart/tree/main/packages/mochart#staged-animation)
+[staged animations](https://github.com/mocharts/mochart/tree/main/packages/mochart#staged-animation)
 for free — axis expansion, value change (with category and series transitions),
 axis contraction, and gapless stacked transitions — no extra wiring needed.
 
