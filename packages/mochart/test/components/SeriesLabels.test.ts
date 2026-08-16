@@ -20,7 +20,7 @@ function surviving(container: Element): string[] {
   return [...container.querySelectorAll(getCssSelector('seriesLabel'))].map((label) => label.textContent ?? '');
 }
 
-function labelTexts(seriesOverrides: Record<string, unknown>, valueAxes?: unknown[]): string[] {
+function labelTexts(seriesOverrides: Record<string, unknown>, valueAxes?: unknown[], data: object[] = rows): string[] {
   const container = mountContainer();
   const config = {
     version: '1.0.0',
@@ -30,9 +30,16 @@ function labelTexts(seriesOverrides: Record<string, unknown>, valueAxes?: unknow
     ...(valueAxes ? { valueAxes } : {})
   } as unknown as MochartInputConfig;
   trackHandle(createDefaultChart(container, {
-    config, data: rows, width: WIDTH, height: HEIGHT
+    config, data, width: WIDTH, height: HEIGHT
   } as DefaultChartProps));
   return surviving(container);
+}
+
+// symmetric around a base of 0: domain −100–100 (extent 200), so a fraction f is 200f value units from the base or the far edge
+const basedRows = [-100, -50, -10, 0, 10, 50, 100].map((sales, i) => ({ month: 'M' + i, sales }));
+
+function basedLabelTexts(seriesOverrides: Record<string, unknown>): string[] {
+  return labelTexts(seriesOverrides, [{ base: 0 }], basedRows);
 }
 
 beforeAll(() => {
@@ -106,5 +113,62 @@ describe('series label fraction guards', () => {
       { rangeProperty: 'floor', labelMinRangeFraction: 0.5 },
       [{ base: null }]
     )).toEqual(['100.00']);
+  });
+});
+
+describe('series label fraction guards split at the axis base', () => {
+  it('labels every category when only the base is set', () => {
+    expect(basedLabelTexts({})).toEqual(['−100.00', '−50.00', '−10.00', '0.00', '10.00', '50.00', '100.00']);
+  });
+
+  it('measures labelAboveBaseMinPositionFraction up from the base and leaves below-base labels alone', () => {
+    // 0.2 × 200 = 40 above the base hides 0 (which counts as above) and 10
+    expect(basedLabelTexts({ labelAboveBaseMinPositionFraction: 0.2 }))
+      .toEqual(['−100.00', '−50.00', '−10.00', '50.00', '100.00']);
+  });
+
+  it('measures labelAboveBaseMaxPositionFraction down from the domain maximum', () => {
+    // 100 − 0.3 × 200 = 40 hides 50 and 100
+    expect(basedLabelTexts({ labelAboveBaseMaxPositionFraction: 0.3 }))
+      .toEqual(['−100.00', '−50.00', '−10.00', '0.00', '10.00']);
+  });
+
+  it('measures labelBelowBaseMinPositionFraction down from the base, keeping only the values that reach it', () => {
+    // 0 − 0.2 × 200 = −40: the guard inverts below the base, so −10 hides and −50/−100 stay
+    expect(basedLabelTexts({ labelBelowBaseMinPositionFraction: 0.2 }))
+      .toEqual(['−100.00', '−50.00', '0.00', '10.00', '50.00', '100.00']);
+  });
+
+  it('measures labelBelowBaseMaxPositionFraction up from the domain minimum', () => {
+    // −100 + 0.3 × 200 = −40 hides −50 and −100
+    expect(basedLabelTexts({ labelBelowBaseMaxPositionFraction: 0.3 }))
+      .toEqual(['−10.00', '0.00', '10.00', '50.00', '100.00']);
+  });
+
+  it('applies labelMinPositionFraction on both sides of the base when the base fractions are auto', () => {
+    // 40 units either side of the base rather than 40 above the domain minimum
+    expect(basedLabelTexts({ labelMinPositionFraction: 0.2 }))
+      .toEqual(['−100.00', '−50.00', '50.00', '100.00']);
+  });
+
+  it('applies labelMaxPositionFraction from both domain edges when the base fractions are auto', () => {
+    expect(basedLabelTexts({ labelMaxPositionFraction: 0.3 }))
+      .toEqual(['−10.00', '0.00', '10.00']);
+  });
+
+  it('lets a null base fraction exempt one side from the inherited bound', () => {
+    expect(basedLabelTexts({ labelMinPositionFraction: 0.2, labelBelowBaseMinPositionFraction: null }))
+      .toEqual(['−100.00', '−50.00', '−10.00', '50.00', '100.00']);
+  });
+
+  it('lets an explicit base fraction override the inherited bound on its side only', () => {
+    // above uses 0.2 (40), below uses 0.4 (−80)
+    expect(basedLabelTexts({ labelMinPositionFraction: 0.2, labelBelowBaseMinPositionFraction: 0.4 }))
+      .toEqual(['−100.00', '50.00', '100.00']);
+  });
+
+  it('ignores the base fractions when the axis has no base', () => {
+    expect(labelTexts({ labelAboveBaseMinPositionFraction: 0.9, labelBelowBaseMinPositionFraction: 0.9 }, [{ base: null }], basedRows))
+      .toEqual(['−100.00', '−50.00', '−10.00', '0.00', '10.00', '50.00', '100.00']);
   });
 });
