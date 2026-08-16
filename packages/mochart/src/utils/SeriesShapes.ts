@@ -193,11 +193,11 @@ const connectRoundInverted: Connector = (pathGenerator, y1, x1, x2, yExtent, off
   }
   const y2 = y + yOffset;
   pathGenerator.moveTo(x, y);
-  pathGenerator.arcTo(x1, y1, x1, y + radius, radius);
+  pathGenerator.arcTo(x1, y, x1, y + radius, radius);
   pathGenerator.lineTo(x1, y2 - radius);
   pathGenerator.arcTo(x1, y2, x, y2, radius);
 
-  if (size >= radius) {
+  if (size >= offset) {
     pathGenerator.lineTo(x2, y1 + yExtent);
     pathGenerator.lineTo(x2, y1);
   }
@@ -225,7 +225,7 @@ const connectRound: Connector = (pathGenerator, x1, y1, y2, xExtent, offsetSign,
   pathGenerator.lineTo(x2 - radius, y1);
   pathGenerator.arcTo(x2, y1, x2, y, radius);
 
-  if (size >= radius) {
+  if (size >= offset) {
     pathGenerator.lineTo(x1 + xExtent, y2);
     pathGenerator.lineTo(x1, y2);
   }
@@ -291,7 +291,8 @@ export function getColumnGenerator(seriesConfig: EnhancedSeriesConfig, seriesPos
       skipI = skipped ? skipCategoryIndexMap[i] : i;
       barCapConnector = (stackPositiveIds![skipI] === id || stackNegativeIds![skipI] === id) ? connector : inverted ? connectNoneInverted : connectNone;
     }
-    if (seriesPriorPosition === seriesPosition) {
+    // a below-base bar has its raw pixel at the prior end: swap so current is the cap end
+    if (seriesPriorPosition === seriesPosition && seriesPriorPosition !== seriesCurrentPosition) {
       tempPosition = seriesPriorPosition;
       seriesPriorPosition = seriesCurrentPosition;
       seriesCurrentPosition = tempPosition;
@@ -307,7 +308,8 @@ export function getColumnGenerator(seriesConfig: EnhancedSeriesConfig, seriesPos
       // expand to the minimum extent, centered between the ends, so zero-extent
       // range bars (equal property/rangeProperty values) stay visible as tick marks
       tempPosition = (seriesCurrentPosition + seriesPriorPosition) / 2;
-      const halfExtentSign = seriesCurrentPosition <= seriesPriorPosition ? -1 : 1;
+      // widen in the cap's direction so a zero-extent bar keeps its cap pointing outward
+      const halfExtentSign = inverted ? barCapSizeSign : -barCapSizeSign;
       seriesCurrentPosition = tempPosition + halfExtentSign * barMinExtent / 2;
       seriesPriorPosition = tempPosition - halfExtentSign * barMinExtent / 2;
       seriesValueExtent = Math.max(seriesValueExtent, barMinExtent);
