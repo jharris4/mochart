@@ -3,7 +3,7 @@ import { POSITION_TOP } from '../config/core/constants';
 import { createSpacingLayoutInfo } from './SpacingLayoutInfo';
 import { getTitleHeight, getTitleLayoutInfo } from './TitleLayout';
 import { getLegendHeight, getLegendLayoutInfo } from './LegendLayout';
-import { getPlotWidthAndX, getPlotHeight, getPlotLayoutInfo } from './PlotLayout';
+import { getAxisMetrics, getPlotWidthAndX, getPlotHeight, getPlotLayoutInfo } from './PlotLayout';
 import type { Bounds } from '../types/geometry';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { ChartDataForLayout, ChartLayoutInfo, ChartTextBoundsData, LegendLayoutResult, PlotLayoutResult, TitleLayoutResult } from '../types/layout';
@@ -31,7 +31,8 @@ function getChartContentLayoutInfo(mochartConfig: EnhancedMochartConfig, chartDa
   const { title: titleConfig, legend: legendConfig } = mochartConfig;
   const { y, height } = contentBounds;
 
-  const plotWidthAndX = getPlotWidthAndX(mochartConfig, chartTextBoundsData, chartData, contentBounds);
+  const axisMetrics = getAxisMetrics(mochartConfig, chartTextBoundsData, chartData);
+  const plotWidthAndX = getPlotWidthAndX(mochartConfig, axisMetrics, contentBounds);
   const titleHeight = getTitleHeight(mochartConfig, chartTextBoundsData);
   const legendHeight = getLegendHeight(mochartConfig, chartTextBoundsData, contentBounds, plotWidthAndX);
   const plotHeight = getPlotHeight(height, titleHeight, legendHeight);
@@ -58,7 +59,7 @@ function getChartContentLayoutInfo(mochartConfig: EnhancedMochartConfig, chartDa
     titleY += legendHeight;
   }
 
-  const plotAllLayoutInfo = getPlotLayoutInfo(mochartConfig, chartTextBoundsData, chartData, contentBounds, plotHeight, plotY);
+  const plotAllLayoutInfo = getPlotLayoutInfo(mochartConfig, chartTextBoundsData, chartData, axisMetrics, contentBounds, plotHeight, plotY);
   const { seriesLayoutInfo } = plotAllLayoutInfo;
   const titleAllLayoutInfo = getTitleLayoutInfo(mochartConfig, chartTextBoundsData, contentBounds, seriesLayoutInfo, titleHeight, titleY);
   const legendAllLayoutInfo = getLegendLayoutInfo(mochartConfig, chartTextBoundsData, contentBounds, seriesLayoutInfo, legendHeight, legendY);
