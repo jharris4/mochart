@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { binValues, createHistogram } from '../../src/data/Histogram';
+import { enhanceConfig } from '../../src/config/helper';
+import { getDataErrors } from '../../src/data/DataValidator';
+import { ArrayOfObjectsDataProvider } from '../../src/data/DataProvider';
+import type { CreateHistogramOptions } from '../../src/data/Histogram';
 
 describe('binValues', () => {
   it('returns no bins for empty input', () => {
@@ -205,6 +209,37 @@ describe('createHistogram', () => {
     const { bins, data } = createHistogram([]);
     expect(bins).toEqual([]);
     expect(data).toEqual([]);
+  });
+
+  describe('config round-trip', () => {
+    const values = [0, 1, 2, 3.5, 8, 9, 9.5, 12];
+
+    it.each<[string, CreateHistogramOptions]>([
+      ['default', {}],
+      ['custom property + label', { binWidth: 5, valueProperty: 'freq', binLabel: (bin) => `<${bin.end}` }],
+      ['cumulative density', { binCount: 4, normalize: 'density', cumulative: true }]
+    ])('assembles a valid config and data provider (%s)', (_label, options) => {
+      const histogram = createHistogram(values, options);
+      const mochartConfig = enhanceConfig({
+        version: '1.0.0',
+        categoryAxis: histogram.categoryAxis,
+        series: [histogram.seriesConfig]
+      });
+      expect(mochartConfig.validation.errors).toEqual([]);
+      expect(mochartConfig.validation.valid).toBe(true);
+      expect(getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(histogram.data))).toEqual([]);
+    });
+
+    it('stays valid for a single-bin histogram', () => {
+      const histogram = createHistogram([5, 5, 5]);
+      const mochartConfig = enhanceConfig({
+        version: '1.0.0',
+        categoryAxis: histogram.categoryAxis,
+        series: [histogram.seriesConfig]
+      });
+      expect(mochartConfig.validation.valid).toBe(true);
+      expect(getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(histogram.data))).toEqual([]);
+    });
   });
 });
 

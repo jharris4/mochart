@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { computeWaterfallSteps, createWaterfall } from '../../src/data/Waterfall';
+import { enhanceConfig } from '../../src/config/helper';
+import { getDataErrors } from '../../src/data/DataValidator';
+import { ArrayOfObjectsDataProvider } from '../../src/data/DataProvider';
 
 describe('computeWaterfallSteps', () => {
   it('returns no steps for empty input', () => {
@@ -145,5 +148,42 @@ describe('createWaterfall', () => {
       { label: 'Other', value: 20 },
       { label: 'Other', value: -30 }
     ])).toThrow(/createWaterfall: labels must be unique, duplicates: Other/);
+  });
+
+  describe('config round-trip', () => {
+    const items = [
+      { label: 'Revenue', value: 100 },
+      { label: 'Costs', value: -40 },
+      { label: 'Flat', value: 0 },
+      { label: 'Profit', total: true }
+    ];
+
+    it.each([
+      ['default', {}],
+      ['custom base', { base: 50, seriesTitles: { increase: 'Gains' }, colors: { decrease: '#123456' } }]
+    ])('assembles a valid config and data provider (%s)', (_label, options) => {
+      const waterfall = createWaterfall(items, options);
+      const mochartConfig = enhanceConfig({
+        version: '1.0.0',
+        categoryAxis: waterfall.categoryAxis,
+        valueAxes: waterfall.valueAxes,
+        series: waterfall.series
+      });
+      expect(mochartConfig.validation.errors).toEqual([]);
+      expect(mochartConfig.validation.valid).toBe(true);
+      expect(getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(waterfall.data))).toEqual([]);
+    });
+
+    it('stays valid when a direction is absent from the data', () => {
+      const waterfall = createWaterfall(items.slice(0, 1)); // increase only
+      const mochartConfig = enhanceConfig({
+        version: '1.0.0',
+        categoryAxis: waterfall.categoryAxis,
+        valueAxes: waterfall.valueAxes,
+        series: waterfall.series
+      });
+      expect(mochartConfig.validation.valid).toBe(true);
+      expect(getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(waterfall.data))).toEqual([]);
+    });
   });
 });

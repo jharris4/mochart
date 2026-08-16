@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { createOhlc } from '../../src/data/Ohlc';
+import { enhanceConfig } from '../../src/config/helper';
+import { getDataErrors } from '../../src/data/DataValidator';
+import { ArrayOfObjectsDataProvider } from '../../src/data/DataProvider';
+import type { CreateOhlcOptions } from '../../src/data/Ohlc';
 
 describe('createOhlc', () => {
   it('returns one row per bar keyed by direction, with the open split too', () => {
@@ -111,5 +115,42 @@ describe('createOhlc', () => {
       { label: 'Mon', open: 1, high: 3, low: 0, close: 2 },
       { label: 'Mon', open: 2, high: 4, low: 1, close: 1.5 }
     ])).toThrow(/labels must be unique, duplicates: Mon/);
+  });
+
+  describe('config round-trip', () => {
+    const items = [
+      { label: 'Mon', open: 100, high: 105, low: 98, close: 103, volume: 1200 },
+      { label: 'Tue', open: 103, high: 104, low: 96, close: 97, volume: 800 },
+      { label: 'Wed', open: 97, high: 97, low: 97, close: 97, volume: 300 } // flat bar
+    ];
+
+    it.each<[string, CreateOhlcOptions]>([
+      ['default', {}],
+      ['volume', { volume: true }],
+      ['custom widths + volume', { lineWidthFraction: 0.05, tickWidthFraction: 0.5, tickExtent: 3, volume: { heightFraction: 0.3, gapFraction: 0.1 } }]
+    ])('assembles a valid config and data provider (%s)', (_label, options) => {
+      const ohlc = createOhlc(items, options);
+      const mochartConfig = enhanceConfig({
+        version: '1.0.0',
+        categoryAxis: ohlc.categoryAxis,
+        valueAxes: ohlc.valueAxes,
+        series: ohlc.series
+      });
+      expect(mochartConfig.validation.errors).toEqual([]);
+      expect(mochartConfig.validation.valid).toBe(true);
+      expect(getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(ohlc.data))).toEqual([]);
+    });
+
+    it('stays valid when a direction is absent from the data', () => {
+      const ohlc = createOhlc(items.slice(1, 2), { volume: true }); // down only
+      const mochartConfig = enhanceConfig({
+        version: '1.0.0',
+        categoryAxis: ohlc.categoryAxis,
+        valueAxes: ohlc.valueAxes,
+        series: ohlc.series
+      });
+      expect(mochartConfig.validation.valid).toBe(true);
+      expect(getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(ohlc.data))).toEqual([]);
+    });
   });
 });

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { computeCandlesticks, createCandlestick } from '../../src/data/Candlestick';
+import { enhanceConfig } from '../../src/config/helper';
+import { getDataErrors } from '../../src/data/DataValidator';
+import { ArrayOfObjectsDataProvider } from '../../src/data/DataProvider';
+import type { CreateCandlestickOptions } from '../../src/data/Candlestick';
 
 describe('computeCandlesticks', () => {
   it('returns no candles for empty input', () => {
@@ -277,5 +281,43 @@ describe('createCandlestick', () => {
 
   it('still accepts a flat candle where every value is equal', () => {
     expect(() => createCandlestick([{ label: 'Mon', open: 2, high: 2, low: 2, close: 2 }])).not.toThrow();
+  });
+
+  describe('config round-trip', () => {
+    const items = [
+      { label: 'Mon', open: 100, high: 105, low: 98, close: 103, volume: 1200 },
+      { label: 'Tue', open: 103, high: 104, low: 96, close: 97, volume: 800 },
+      { label: 'Wed', open: 97, high: 97, low: 97, close: 97, volume: 300 } // doji
+    ];
+
+    it.each<[string, CreateCandlestickOptions]>([
+      ['filled', {}],
+      ['hollow', { hollow: true }],
+      ['volume', { volume: true }],
+      ['hollow + volume', { hollow: true, volume: { heightFraction: 0.3, gapFraction: 0.1 } }]
+    ])('assembles a valid config and data provider (%s)', (_label, options) => {
+      const candlestick = createCandlestick(items, options);
+      const mochartConfig = enhanceConfig({
+        version: '1.0.0',
+        categoryAxis: candlestick.categoryAxis,
+        valueAxes: candlestick.valueAxes,
+        series: candlestick.series
+      });
+      expect(mochartConfig.validation.errors).toEqual([]);
+      expect(mochartConfig.validation.valid).toBe(true);
+      expect(getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(candlestick.data))).toEqual([]);
+    });
+
+    it('stays valid when a direction is absent from the data', () => {
+      const candlestick = createCandlestick(items.slice(0, 1), { volume: true }); // up only
+      const mochartConfig = enhanceConfig({
+        version: '1.0.0',
+        categoryAxis: candlestick.categoryAxis,
+        valueAxes: candlestick.valueAxes,
+        series: candlestick.series
+      });
+      expect(mochartConfig.validation.valid).toBe(true);
+      expect(getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(candlestick.data))).toEqual([]);
+    });
   });
 });
