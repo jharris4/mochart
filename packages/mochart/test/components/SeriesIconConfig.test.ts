@@ -1,7 +1,7 @@
-// Legend/tooltip icon config that had never been set anywhere: showIconColors, showIconPlaceholders, iconUnfilteredColor, the border/spacer numbers, and the tooltip icon's gradient path.
+// Legend/tooltip icon config that had never been set anywhere: showIconColors, showIconPlaceholders, iconUnfilteredColor, the border/spacer numbers, and the legend/tooltip icon gradient paths.
 import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
-import { mountContainer, trackHandle } from './helpers';
+import { mountContainer, trackHandle, lastHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
@@ -41,11 +41,21 @@ function tooltipIcons(container: Element): SVGElement[] {
   return [...container.querySelectorAll<SVGElement>(inside + 'rect, ' + inside + 'path')];
 }
 
+/** The [offset, color] stops of a linearGradient. */
+function stopsOf(gradient: Element): [string | null, string | null][] {
+  return [...gradient.querySelectorAll('stop')].map((stop) => [stop.getAttribute('offset'), stop.getAttribute('stop-color')]);
+}
+
 /** The [offset, color] stops of the open tooltip's icon gradient. */
 function gradientStops(container: Element): [string | null, string | null][] {
   const gradient = container.querySelector(getCssSelector('tooltip') + ' defs linearGradient');
   expect(gradient).not.toBeNull();
-  return [...gradient!.querySelectorAll('stop')].map((stop) => [stop.getAttribute('offset'), stop.getAttribute('stop-color')]);
+  return stopsOf(gradient!);
+}
+
+/** The series-color gradients the chart defines once in its top-level <defs> for the legend swatches. */
+function chartGradients(container: Element): SVGLinearGradientElement[] {
+  return [...container.querySelectorAll<SVGLinearGradientElement>(getCssSelector('chart') + ' > svg > defs > linearGradient')];
 }
 
 function openTooltip(container: Element): void {
@@ -118,6 +128,130 @@ describe('legend icon switches', () => {
 
     // the item text starts after the icon plus its spacer, so 20 more spacer is 20 more offset
     expect(textX(wide) - textX(narrow)).toBeCloseTo(20);
+  });
+});
+
+describe('legend icon color-scale gradients', () => {
+  const rampSeries = { id: 'S0', property: 'sales', renderer: 'bar', colorProperty: 'sales', colorScale: { min: '#eee', max: '#036' } };
+  const splitSeries = { id: 'S0', property: 'sales', renderer: 'bar', colorProperty: 'sales', colorScale: {
+    base: { value: 15, belowMin: '#a00', belowMax: '#f00', aboveMin: '#0f0', aboveMax: '#0a0' }
+  } };
+  const plainSeries = { id: 'S1', property: 'costs', renderer: 'bar' };
+
+  it('defines no series-color gradient for series without a color scale', () => {
+    const container = mountChart();
+
+    expect(chartGradients(container)).toHaveLength(0);
+    // and the swatches stay flat colors
+    expect(legendIcons(container).map(icon => icon.getAttribute('fill'))).not.toContainEqual(expect.stringMatching(/^url\(/));
+  });
+
+  it('points the swatch at one chart-level min/max ramp, drawn bottom to top', () => {
+    const container = mountChart({ series: [rampSeries, plainSeries] });
+    const gradients = chartGradients(container);
+    const icons = legendIcons(container);
+
+    // one gradient per color-scale series, shared by every swatch that shows it
+    expect(gradients).toHaveLength(1);
+    expect(icons[0].getAttribute('fill')).toBe('url(#' + gradients[0].getAttribute('id') + ')');
+    expect(icons[1].getAttribute('fill')).not.toMatch(/^url\(/);
+    // min at the bottom, max at the top, matching a value axis that grows upward
+    expect(gradients[0].getAttribute('x1')).toBe('0');
+    expect(gradients[0].getAttribute('x2')).toBe('0');
+    expect(gradients[0].getAttribute('y1')).toBe('1');
+    expect(gradients[0].getAttribute('y2')).toBe('0');
+    expect(stopsOf(gradients[0])).toEqual([['0%', '#eee'], ['100%', '#036']]);
+    expect([...gradients[0].querySelectorAll('stop')].map(stop => stop.getAttribute('stop-opacity'))).toEqual(['1', '1']);
+  });
+
+  it('splits a base-value swatch at the midline with a hard break', () => {
+    const container = mountChart({ series: [splitSeries] });
+    const gradients = chartGradients(container);
+
+    expect(gradients).toHaveLength(1);
+    expect(legendIcons(container)[0].getAttribute('fill')).toBe('url(#' + gradients[0].getAttribute('id') + ')');
+    expect(stopsOf(gradients[0])).toEqual([['0%', '#a00'], ['50%', '#f00'], ['50%', '#0f0'], ['100%', '#0a0']]);
+  });
+
+  it('gives each color-scale series its own gradient id', () => {
+    const container = mountChart({ series: [rampSeries, { ...splitSeries, id: 'S1', property: 'costs', colorProperty: 'costs' }] });
+    const gradients = chartGradients(container);
+    const icons = legendIcons(container);
+
+    expect(gradients).toHaveLength(2);
+    expect(gradients[0].getAttribute('id')).not.toBe(gradients[1].getAttribute('id'));
+    expect(icons.map(icon => icon.getAttribute('fill'))).toEqual(gradients.map(gradient => 'url(#' + gradient.getAttribute('id') + ')'));
+    expect(stopsOf(gradients[0])).toHaveLength(2);
+    expect(stopsOf(gradients[1])).toHaveLength(4);
+  });
+
+  it('skips the gradient when the scale switches off one of its colors', () => {
+    // omitted colors get defaults, so a ramp without its max and a split without one of its four colors take an explicit null
+    const halfRamp = { ...rampSeries, colorScale: { min: '#eee', max: null } };
+    const halfSplit = { ...splitSeries, colorScale: { base: { value: 15, belowMin: '#a00', belowMax: '#f00', aboveMin: '#0f0', aboveMax: null } } };
+    const container = mountChart({ series: [halfRamp, { ...halfSplit, id: 'S1', property: 'costs', colorProperty: 'costs' }] });
+
+    expect(chartGradients(container)).toHaveLength(0);
+    expect(legendIcons(container).map(icon => icon.getAttribute('fill'))).not.toContainEqual(expect.stringMatching(/^url\(/));
+  });
+
+  it('rewrites the stops in place when the scale colors change', () => {
+    const container = mountChart({ series: [rampSeries] });
+    const before = chartGradients(container)[0];
+
+    lastHandle().update({ config: {
+      version: VERSION, animation: { animate: false },
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ ...rampSeries, colorScale: { min: '#111', max: '#999' } }],
+      legend: { visible: true }
+    } } as unknown as Partial<DefaultChartProps>);
+    const after = chartGradients(container);
+
+    // same element, same id, new colors: the swatch's url(#...) reference keeps working
+    expect(after).toHaveLength(1);
+    expect(after[0]).toBe(before);
+    expect(stopsOf(after[0])).toEqual([['0%', '#111'], ['100%', '#999']]);
+    expect(legendIcons(container)[0].getAttribute('fill')).toBe('url(#' + before.getAttribute('id') + ')');
+  });
+
+  it('switches between the ramp and the split shape when the scale kind changes', () => {
+    const container = mountChart({ series: [rampSeries] });
+    const gradient = chartGradients(container)[0];
+
+    lastHandle().update({ config: {
+      version: VERSION, animation: { animate: false },
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [splitSeries],
+      legend: { visible: true }
+    } } as unknown as Partial<DefaultChartProps>);
+
+    expect(chartGradients(container)[0]).toBe(gradient);
+    expect(stopsOf(gradient)).toEqual([['0%', '#a00'], ['50%', '#f00'], ['50%', '#0f0'], ['100%', '#0a0']]);
+
+    lastHandle().update({ config: {
+      version: VERSION, animation: { animate: false },
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [rampSeries],
+      legend: { visible: true }
+    } } as unknown as Partial<DefaultChartProps>);
+
+    // the two extra stops are removed, not left dangling
+    expect(stopsOf(gradient)).toEqual([['0%', '#eee'], ['100%', '#036']]);
+  });
+
+  it('drops the gradient and returns the swatch to a flat color when the scale is removed', () => {
+    const container = mountChart({ series: [rampSeries] });
+    expect(chartGradients(container)).toHaveLength(1);
+
+    lastHandle().update({ config: {
+      version: VERSION, animation: { animate: false },
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ id: 'S0', property: 'sales', renderer: 'bar' }],
+      legend: { visible: true }
+    } } as unknown as Partial<DefaultChartProps>);
+
+    expect(chartGradients(container)).toHaveLength(0);
+    expect(legendIcons(container)[0].getAttribute('fill')).not.toMatch(/^url\(/);
   });
 });
 
