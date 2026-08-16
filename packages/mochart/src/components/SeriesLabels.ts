@@ -3,7 +3,7 @@ import { Renderer, svgEl, textEl } from '../render';
 import { getSeriesLabelFormat } from '../utils/ValueFormat';
 import { mochartCssClasses } from '../utils/ChartDom';
 import { NONE, AUTO, LABEL_POSITION_CENTER, LABEL_POSITION_INSIDE } from '../config/core/constants';
-import { translate } from '../utils/utils';
+import { translate, isMissingValue } from '../utils/utils';
 import { getSeriesLabelFillColor, getSeriesLabelStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { getFocusStyle, getCategoryFocusPercentage } from '../utils/FocusValue';
@@ -228,7 +228,9 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
 
         for (let i = 0; i < length; i++) {
           const skipI = skipped ? skipCategoryIndexMap[i] : i;
-          if (getDefined(null, i) && labelValues[skipI] !== undefined && withinPercentages(maxValues[skipI]!, minValues ? minValues[skipI] : null)) {
+          // a missing prior (NaN) reads as undefined here so the base/domain fallbacks above apply
+          const minValue = minValues ? (isMissingValue(minValues[skipI]) ? undefined : minValues[skipI]) : null;
+          if (getDefined(null, i) && !isMissingValue(labelValues[skipI]) && withinPercentages(maxValues[skipI]!, minValue)) {
             aboveBase = !hasBase || maxValues[skipI]! >= base;
             textAnchor = aboveBase ? aboveBaseTextAnchor : belowBaseTextAnchor;
             dy = aboveBase ? aboveBaseDY : belowBaseDY;

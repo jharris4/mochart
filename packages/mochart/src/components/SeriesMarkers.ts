@@ -4,7 +4,7 @@ import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { NONE, MARKER_SIZE_SCALE_SQRT } from '../config/core/constants';
-import { translate } from '../utils/utils';
+import { translate, isMissingValue } from '../utils/utils';
 import { getSymbolGenerator } from '../utils/shapeUtils';
 import { getSeriesMarkerFillColor, getSeriesMarkerStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
@@ -74,7 +74,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
         const count = markerValues.length;
         for (let m = 0; m < count; m++) {
           const markerValue = markerValues[m];
-          markerSizes.push(markerValue !== undefined ? sizeScale(markerValue) : undefined);
+          markerSizes.push(!isMissingValue(markerValue) ? sizeScale(markerValue!) : undefined);
         }
       }
 
@@ -89,7 +89,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
 
       for (let i = 0; i < length; i++) {
         const skipI = skipped ? skipCategoryIndexMap[i] : i;
-        if (getDefined(null, i) && (missingValueMarkers || max[skipI] !== undefined)) {
+        if (getDefined(null, i) && (missingValueMarkers || !isMissingValue(max[skipI]))) {
           focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
           markerFillColor = getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
           markerStrokeColor = getSeriesMarkerStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);

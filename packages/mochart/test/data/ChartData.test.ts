@@ -126,7 +126,7 @@ describe('getCategorySeriesValueObject', () => {
   });
 });
 
-describe('undefined series values', () => {
+describe('missing series values', () => {
   function makeHoledChartData() {
     const config = makeConfig({
       categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
@@ -138,21 +138,28 @@ describe('undefined series values', () => {
     return { chartData: getChartData(config, provider, {}), seriesId };
   }
 
-  it('carries a missing value through as an undefined hole (not null or 0)', () => {
+  it('carries a missing value through as NaN (not null, 0 or a hole)', () => {
     const { chartData, seriesId } = makeHoledChartData();
     const plain = chartData.seriesData.raw.values[seriesId].plain!;
-    expect(plain).toEqual([10, undefined, 30]);
-    // the slot exists but holds undefined
+    expect(plain).toEqual([10, NaN, 30]);
+    // the slot exists and holds the missing value
     expect(1 in plain).toBe(true);
-    expect(plain[1]).toBeUndefined();
+    expect(plain[1]).toBeNaN();
   });
 
-  it('excludes the undefined hole from the series domain', () => {
+  it('hands the missing value outward as undefined in the per-category value object', () => {
+    // tooltips, labels and callbacks read this object; NaN stays internal to the value arrays
+    const { chartData, seriesId } = makeHoledChartData();
+    expect(getCategorySeriesValueObject(chartData, 1).series.raw.values[seriesId].plain).toBeUndefined();
+    expect(getCategorySeriesValueObject(chartData, 0).series.raw.values[seriesId].plain).toBe(10);
+  });
+
+  it('excludes the missing value from the series domain', () => {
     const { chartData, seriesId } = makeHoledChartData();
     expect(chartData.seriesData.raw.domains[seriesId].plain).toEqual([10, 30]);
   });
 
-  it('carries an undefined range value as a hole and excludes it from the range domain', () => {
+  it('carries a missing range value as NaN and excludes it from the range domain', () => {
     const config = makeConfig({
       categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
       series: [{ property: 'a', rangeProperty: 'hi' }]
@@ -162,7 +169,7 @@ describe('undefined series values', () => {
     const seriesId = config.series[0].id;
     const chartData = getChartData(config, provider, {});
     expect(chartData.seriesData.raw.values[seriesId].plain).toEqual([10, 20, 30]);
-    expect(chartData.seriesData.raw.values[seriesId].range).toEqual([15, undefined, 35]);
+    expect(chartData.seriesData.raw.values[seriesId].range).toEqual([15, NaN, 35]);
     expect(chartData.seriesData.raw.domains[seriesId].range).toEqual([15, 35]);
   });
 });

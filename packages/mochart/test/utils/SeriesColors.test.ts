@@ -11,6 +11,7 @@ import {
 } from '../../src/utils/SeriesColors';
 import { makeConfig } from '../data/fixtures';
 import { deepMerge } from '../../src/config/core/deepMerge';
+import { MISSING_VALUE } from '../../src/utils/utils';
 import type { ColorPaletteConfig, DeepPartial } from '../../src/types/config';
 import type { EnhancedSeriesConfig } from '../../src/types/enhanced';
 
@@ -169,7 +170,7 @@ describe('getSeriesColorGenerator', () => {
   it('returns the missing color for a row without a color value', () => {
     const gen = getSeriesColorGenerator(
       series({ colorScale: { min: '#000000', max: '#ffffff', missing: '#123456', interpolation: 'rgb', base: { value: null } } }),
-      null, rawDomains, { color: [0, undefined, 10] } as never
+      null, rawDomains, { color: [0, MISSING_VALUE, 10] } as never
     );
     expect(gen(1)).toBe('#123456');
     expect(typeof gen(0)).toBe('string');
@@ -181,7 +182,7 @@ describe('getSeriesColorGenerator', () => {
       series({ colorScale: { missing: '#123456', interpolation: null, base: { value: 5, belowMin: '#000000', belowMax: '#0000ff', aboveMin: '#ff0000', aboveMax: '#ffffff' } } }),
       null,
       { color: [0, 10] } as never,
-      { color: [0, undefined, 10] } as never
+      { color: [0, MISSING_VALUE, 10] } as never
     );
     expect(gen(1)).toBe('#123456');
   });
@@ -191,7 +192,7 @@ describe('getSeriesColorGenerator', () => {
       series({ colorScale: { min: '#000000', max: '#ffffff', missing: '#123456', interpolation: 'rgb', base: { value: null } } }),
       null,
       { color: [null, null] } as never,
-      { color: [undefined, undefined, undefined] } as never
+      { color: [MISSING_VALUE, MISSING_VALUE, MISSING_VALUE] } as never
     );
     expect(gen(0)).toBe('#123456');
     expect(gen(1)).toBe('#123456');
@@ -201,7 +202,7 @@ describe('getSeriesColorGenerator', () => {
   it('returns null for missing rows when missing is null, deferring to the series colors', () => {
     const gen = getSeriesColorGenerator(
       series({ colorScale: { min: '#000000', max: '#ffffff', missing: null, interpolation: 'rgb', base: { value: null } } }),
-      null, rawDomains, { color: [0, undefined, 10] } as never
+      null, rawDomains, { color: [0, MISSING_VALUE, 10] } as never
     );
     expect(gen(1)).toBe(null);
     expect(typeof gen(0)).toBe('string');

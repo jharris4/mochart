@@ -3,7 +3,8 @@ export type CategoryValue = string | number | Date;
 export type DomainValue = number | Date;
 export type NullableDomain<T extends DomainValue = number> = [T | null, T | null];
 export type CategoryAxisDomain = NullableDomain<number | Date>;
-export type NumericValue = number | undefined;
+/** A series value; a missing one is NaN (see isMissingValue), which keeps value arrays plain double arrays. */
+export type NumericValue = number;
 export type NumericValues = NumericValue[];
 export type AxisDomains = Record<string, NullableDomain>;
 

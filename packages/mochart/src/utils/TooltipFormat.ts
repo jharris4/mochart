@@ -3,6 +3,7 @@ import { getSeriesLabel } from './SeriesTitle';
 import { getCategoryFormat, getSeriesFormats } from './ValueFormat';
 import { formatPieLabelType, pieLabelTypeUsesPercent, getPieTooltipPercentFormat } from '../data/PieLabel';
 import { getPieSliceFractionMap } from '../data/PieData';
+import { MISSING_VALUE } from './utils';
 import type { PieTooltipLabelType } from '../config/core/constants';
 import type { TooltipConfig } from '../types/config';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig } from '../types/enhanced';
@@ -260,7 +261,7 @@ export function getFilteredValue(chartData: ChartData, seriesConfig: EnhancedSer
       max: null
     };
     let base = chartData.seriesData.axisBases[seriesConfig.valueAxisConfig.id];
-    newValueObject.plain = chartData.categoryData.values.raw.map(categoryValue => categoryValue !== undefined ? (base ?? undefined) : undefined);
+    newValueObject.plain = chartData.categoryData.values.raw.map(categoryValue => categoryValue !== undefined ? (base ?? MISSING_VALUE) : MISSING_VALUE);
     if (seriesConfig.rangeProperty !== NONE && newValueObject.range === null) {
       newValueObject.range = newValueObject.plain;
     }
@@ -272,11 +273,11 @@ export function getFilteredValue(chartData: ChartData, seriesConfig: EnhancedSer
     }
     if (seriesConfig.markerProperty !== NONE&& newValueObject.marker === null) {
       base = chartData.seriesData.raw.domains[seriesConfig.id]['marker'][0];
-      newValueObject.marker = chartData.categoryData.values.raw.map(categoryValue => categoryValue !== undefined ? (base ?? undefined) : undefined);
+      newValueObject.marker = chartData.categoryData.values.raw.map(categoryValue => categoryValue !== undefined ? (base ?? MISSING_VALUE) : MISSING_VALUE);
     }
     if (seriesConfig.tooltipProperty !== NONE && newValueObject.tooltip === null) {
       base = chartData.seriesData.raw.domains[seriesConfig.id]['tooltip'][0];
-      newValueObject.tooltip = chartData.categoryData.values.raw.map(categoryValue => categoryValue !== undefined ? (base ?? undefined) : undefined);
+      newValueObject.tooltip = chartData.categoryData.values.raw.map(categoryValue => categoryValue !== undefined ? (base ?? MISSING_VALUE) : MISSING_VALUE);
     }
   }
   return newValueObject

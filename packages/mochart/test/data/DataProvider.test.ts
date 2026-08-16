@@ -103,8 +103,8 @@ describe('ObjectOfArraysDataProvider', () => {
   });
 });
 
-// The chart-side readers: alignment carries the index, and null normalizes to
-// undefined at this boundary so the chart keeps a single missing sentinel.
+// The chart-side readers: alignment carries the index, and null/undefined normalize to
+// NaN at this boundary so the chart keeps a single missing sentinel.
 describe('property-values readers', () => {
   const provider: DataProvider = new ObjectOfArraysDataProvider({
     month: ['Jan', 'Feb', 'Mar'],
@@ -117,13 +117,14 @@ describe('property-values readers', () => {
     expect(readCategoryValues(provider, 'missing')).toEqual([]);
   });
 
-  it('readNumericValues normalizes null cells to undefined', () => {
-    expect(readNumericValues(provider, 'sales', 3)).toEqual([10, undefined, 30]);
+  it('readNumericValues normalizes null cells to NaN', () => {
+    expect(readNumericValues(provider, 'sales', 3)).toEqual([10, NaN, 30]);
   });
 
   it('readNumericValues reads an absent property as all-missing', () => {
-    expect(readNumericValues(provider, 'missing', 3)).toEqual([undefined, undefined, undefined]);
+    expect(readNumericValues(provider, 'missing', 3)).toEqual([NaN, NaN, NaN]);
   });
+
 
   it('readAlignedValues snapshots exactly categoryCount values', () => {
     // short values pad with missing; extra cells are never read (getDataErrors flags the mismatch)

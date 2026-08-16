@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getSeriesText, getFilteredValue } from '../../src/utils/TooltipFormat';
+import { MISSING_VALUE } from '../../src/utils/utils';
 import type { PieTooltipValues } from '../../src/utils/TooltipFormat';
 import type { TooltipConfig } from '../../src/types/config';
 import type { ChartData, SeriesValueObject } from '../../src/types/data';
@@ -395,10 +396,10 @@ describe('getFilteredValue', () => {
     expect(getFilteredValue(makeChartData(), seriesConfig, valueObject)).toBe(valueObject);
   });
 
-  it('fills plain values from the axis base, keeping category holes', () => {
+  it('fills plain values from the axis base, keeping category holes missing', () => {
     const valueObject = { plain: null } as unknown as SeriesValueObject;
     const out = getFilteredValue(makeChartData({ base: 5 }), seriesConfig, valueObject);
-    expect(out.plain).toEqual([5, 5, undefined]);
+    expect(out.plain).toEqual([5, 5, MISSING_VALUE]);
   });
 
   it('mirrors plain into range when a range property is configured', () => {
@@ -414,7 +415,7 @@ describe('getFilteredValue', () => {
       makeSeriesConfig({ markerProperty: 'm' }),
       valueObject
     );
-    expect(out.marker).toEqual([3, 3, undefined]);
+    expect(out.marker).toEqual([3, 3, MISSING_VALUE]);
   });
 
   it('fills tooltip values from the tooltip domain minimum', () => {
@@ -424,6 +425,6 @@ describe('getFilteredValue', () => {
       makeSeriesConfig({ tooltipProperty: 't' }),
       valueObject
     );
-    expect(out.tooltip).toEqual([2, 2, undefined]);
+    expect(out.tooltip).toEqual([2, 2, MISSING_VALUE]);
   });
 });

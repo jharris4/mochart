@@ -1,3 +1,5 @@
+import { MISSING_VALUE } from '../utils/utils';
+
 import type { CategoryValue, DataProvider, DataValue, NumericValues } from '../types/data';
 
 const emptyValues: readonly CategoryValue[] = [];
@@ -19,7 +21,13 @@ export function readAlignedValues(dataProvider: DataProvider, property: string, 
   return values;
 }
 
-/** The numeric read for series properties: the cast trusts the values getDataErrors checks with its numeric validator. */
+/** The numeric read for series properties: null and undefined both read as the chart's missing value (NaN); the cast trusts getDataErrors' numeric validator for the rest. */
 export function readNumericValues(dataProvider: DataProvider, property: string, categoryCount: number): NumericValues {
-  return readAlignedValues(dataProvider, property, categoryCount) as NumericValues;
+  const propertyValues = dataProvider.getPropertyValues(property);
+  const values: NumericValues = [];
+  for (let categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
+    const value = propertyValues?.[categoryIndex];
+    values.push(value === null || value === undefined ? MISSING_VALUE : value as number);
+  }
+  return values;
 }

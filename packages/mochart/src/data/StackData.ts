@@ -9,7 +9,7 @@ function assignIdIfPositive(seriesIds: (string | undefined)[], seriesConfig: Enh
   const count = values ? values.length : 0;
   const { id } = seriesConfig;
   for (let i = 0; i < count; i++) {
-    if (values !== null && values[i] !== undefined && values[i]! > 0) {
+    if (values !== null && values[i]! > 0) { // a missing value (NaN) fails the comparison
       seriesIds[i] = id;
     }
   }
@@ -19,7 +19,7 @@ function assignIdIfNegative(seriesIds: (string | undefined)[], seriesConfig: Enh
   const count = values ? values.length : 0;
   const { id } = seriesConfig;
   for (let i = 0; i < count; i++) {
-    if (values !== null && values[i] !== undefined && values[i]! < 0) {
+    if (values !== null && values[i]! < 0) {
       seriesIds[i] = id;
     }
   }

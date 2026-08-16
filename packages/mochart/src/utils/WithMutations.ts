@@ -1,3 +1,5 @@
+import { areValuesEqual } from './utils';
+
 export type CustomMutator = (oldValue: unknown, newValue: unknown) => unknown;
 
 // Merged outputs are created with a null prototype, so both must pass.
@@ -12,13 +14,14 @@ function isPlainObject(value: object): boolean {
  */
 export function getWithMutations<T>(oldValue: T | null | undefined, newValue: T, customMutator?: CustomMutator): T;
 export function getWithMutations(oldValue: unknown, newValue: unknown, customMutator?: CustomMutator): unknown {
-  if (oldValue === null || oldValue === undefined || newValue === undefined || newValue === null || oldValue === newValue) {
+  // areValuesEqual: a missing series value is NaN, which must not read as changed every frame
+  if (oldValue === null || oldValue === undefined || newValue === undefined || newValue === null || areValuesEqual(oldValue, newValue)) {
     return newValue;
   }
   else if (Array.isArray(oldValue) && Array.isArray(newValue)) {
     if (oldValue.length === newValue.length) {
       const newArray = oldValue.map((v, i) => getWithMutations(v, newValue[i], customMutator));
-      if (oldValue.some((v, i) => v !== newArray[i])) {
+      if (oldValue.some((v, i) => !areValuesEqual(v, newArray[i]))) {
         return newArray;
       }
       else {

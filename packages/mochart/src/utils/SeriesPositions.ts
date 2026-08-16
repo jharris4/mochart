@@ -1,4 +1,5 @@
 import { NONE, MISSING_VALUES_BASE, MISSING_VALUES_CONNECT } from '../config/core/constants';
+import { isMissingValue } from './utils';
 import type { CategoryAxisConfig } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { AxisScale, CategoryAxisData, SeriesPosition, SeriesPositionAccessor, SeriesPositionData, SeriesValueObject } from '../types/data';
@@ -82,8 +83,9 @@ export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, se
 
   let i, length = categoryPositions.length;
   let position;
+  // positions keep undefined for a missing point (values mark it NaN)
   for (i=0; i<length; i++) {
-    if (max[i] !== undefined && (!requireBothValues || min![i] !== undefined)) {
+    if (!isMissingValue(max[i]) && (!requireBothValues || !isMissingValue(min![i]))) {
       position = Math.floor(valueAxisScale(max[i]!));
       seriesPositions.push(position);
     }
@@ -94,7 +96,7 @@ export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, se
   if (min !== null) {
     seriesPriorPositions = [];
     for (i=0; i<length; i++) {
-      if (min[i] !== undefined && (!requireBothValues || max[i] !== undefined)) {
+      if (!isMissingValue(min[i]) && (!requireBothValues || !isMissingValue(max[i]))) {
         position = Math.floor(valueAxisScale(min[i]!));
         seriesPriorPositions.push(position);
       }

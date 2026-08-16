@@ -5,7 +5,7 @@ import { NONE } from '../config/core/constants';
 
 import { keyPlain, valueKeys, positionKeys, extraKeys, extraCopyKeys, positionOrComputedOrExtraKeys } from './constants';
 
-import { createArrayFilledWithZero, arrayToMap, mapMap, idAccessor } from '../utils/utils';
+import { createArrayFilledWithZero, arrayToMap, mapMap, idAccessor, isMissingValue, MISSING_VALUE } from '../utils/utils';
 import type { DataProvider, CategoryData, CategoryValue, NullableDomain, NumericValues, SeriesData, SeriesDataSet, SeriesDomainObject, SeriesDomainObjects, SeriesValueObject, SeriesValueObjects } from '../types/data';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig, EnhancedSeriesGroupConfig, EnhancedSeriesStackConfig, EnhancedValueAxisConfig } from '../types/enhanced';
 import type { ExtraCopyKey, ExtraKey, PositionKey, ValueKey } from './constants';
@@ -234,21 +234,21 @@ function setStackSeriesValues(seriesConfigs: EnhancedSeriesConfig[], seriesStack
   }
 }
 
-// a non-finite value would poison the running total for every later series in the stack
-function isStackableValue(value: number | undefined): value is number {
-  return value !== undefined && Number.isFinite(value);
+// a non-finite value (missing is NaN) would poison the running total for every later series in the stack
+function isStackableValue(value: number): boolean {
+  return Number.isFinite(value);
 }
 
 function setStackSingleSeriesValues(valueObject: SeriesValueObject, positiveStackValues: number[], negativeStackValues: number[], values: NumericValues): void {
   const count = values.length;
   let priorValues: NumericValues = [];
   const stackValues: NumericValues = [];
-  let value: number | undefined, tempValue: number | undefined;
+  let value: number, tempValue: number | undefined;
   for (let i=0; i<count; i++) {
     value = values[i];
     if (!isStackableValue(value)) {
       priorValues.push(positiveStackValues[i]);
-      stackValues.push(undefined);
+      stackValues.push(MISSING_VALUE);
     }
     else if (value >= 0) {
       tempValue = positiveStackValues[i];
@@ -272,7 +272,7 @@ function setStackSingleSeriesValues(valueObject: SeriesValueObject, positiveStac
 
 function getStackPriorValues(positiveStackValues: number[], negativeStackValues: number[], values: NumericValues): NumericValues {
   const priorValues: NumericValues = [];
-  let value: number | undefined;
+  let value: number;
   const count = values.length;
   for (let i = 0; i < count; i++) {
     value = values[i];
@@ -483,7 +483,9 @@ function getCategorySeriesValueObject(seriesValueObject: SeriesValueObject, cate
         categorySeriesValueObject[key] = null;
       }
       else {
-        categorySeriesValueObject[key] = keyValues[categoryIndex];
+        // per-category value objects feed tooltips, labels and callbacks, where a missing value stays undefined
+        const value = keyValues[categoryIndex];
+        categorySeriesValueObject[key] = isMissingValue(value) ? undefined : value;
       }
     }
   }

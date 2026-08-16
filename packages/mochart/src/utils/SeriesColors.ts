@@ -7,6 +7,7 @@ import {
   RENDERER_AREA, RENDERER_BAR, RENDERER_LINE
 } from '../config/core/constants';
 import { getFocusedDefocused } from './FocusValue';
+import { isMissingValue } from './utils';
 import type { FocusPercentage } from '../types/animation';
 import type { ColorPaletteConfig, SeriesColor } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
@@ -206,14 +207,14 @@ export function getSeriesColorGenerator(seriesConfig: EnhancedSeriesConfig, _foc
 
     return function getColor(index: number) {
       const colorValue = colorValues[index];
-      if (colorValue === undefined) {
+      if (isMissingValue(colorValue)) {
         return missing;
       }
-      if (colorValue < colorBase) {
-        return belowColorScale(colorValue);
+      if (colorValue! < colorBase) {
+        return belowColorScale(colorValue!);
       }
       else {
-        return aboveColorScale(colorValue);
+        return aboveColorScale(colorValue!);
       }
     }
   }
@@ -221,10 +222,10 @@ export function getSeriesColorGenerator(seriesConfig: EnhancedSeriesConfig, _foc
     const colorScale = buildScale([min, max], [colorDomainMin, colorDomainMax], interpolator);
     return function getColor(index: number) {
       const colorValue = colorValues[index];
-      if (colorValue === undefined) {
+      if (isMissingValue(colorValue)) {
         return missing;
       }
-      return colorScale(colorValue);
+      return colorScale(colorValue!);
     }
   }
 }

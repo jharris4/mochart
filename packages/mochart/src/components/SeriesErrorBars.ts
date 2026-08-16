@@ -5,6 +5,7 @@ import { NONE, RENDERER_BAR } from '../config/core/constants';
 import { getSeriesErrorBarStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { getFocusStrokeStyle, getCategoryFocusPercentage } from '../utils/FocusValue';
+import { isMissingValue } from '../utils/utils';
 import type { ElListAdapter, ElProps } from '../render';
 import type { FocusData } from '../types/animation';
 import type { ColorPaletteConfig } from '../types/config';
@@ -69,8 +70,9 @@ export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
           // Positions may be compacted, but values and focus percentages stay
           // indexed by the raw category index.
           const skipI = skipped ? skipCategoryIndexMap[i] : i;
-          const errorLow = errorLowValues !== null ? errorLowValues[skipI] : undefined;
-          const errorHigh = errorHighValues !== null ? errorHighValues[skipI] : undefined;
+          // a missing bound (NaN) reads as undefined below, like an absent property
+          const errorLow = errorLowValues !== null && !isMissingValue(errorLowValues[skipI]) ? errorLowValues[skipI] : undefined;
+          const errorHigh = errorHighValues !== null && !isMissingValue(errorHighValues[skipI]) ? errorHighValues[skipI] : undefined;
           if (errorLow === undefined && errorHigh === undefined) {
             continue;
           }

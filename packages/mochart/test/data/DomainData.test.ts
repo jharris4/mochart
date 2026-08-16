@@ -10,6 +10,7 @@ import {
   getMaxDomain,
   copyDomain
 } from '../../src/data/DomainData';
+import { MISSING_VALUE } from '../../src/utils/utils';
 
 describe('getCategoryDomainForValues', () => {
   it('finds the min and max of numeric values', () => {
@@ -53,16 +54,16 @@ describe('getCategoryDomainForValues', () => {
 });
 
 describe('getDomainForValues', () => {
-  it('finds the min and max ignoring undefined holes', () => {
-    expect(getDomainForValues([5, undefined, 2, undefined, 8])).toEqual([2, 8]);
+  it('finds the min and max ignoring missing entries', () => {
+    expect(getDomainForValues([5, MISSING_VALUE, 2, MISSING_VALUE, 8])).toEqual([2, 8]);
   });
 
   it('returns the null domain for null input', () => {
     expect(getDomainForValues(null)).toEqual([null, null]);
   });
 
-  it('returns the null domain when every value is undefined', () => {
-    expect(getDomainForValues([undefined, undefined])).toEqual([null, null]);
+  it('returns the null domain when every value is missing', () => {
+    expect(getDomainForValues([MISSING_VALUE, MISSING_VALUE])).toEqual([null, null]);
   });
 
   it('handles negative values', () => {
@@ -77,23 +78,24 @@ describe('getDomainForValues', () => {
     expect(getDomainForValues([5, NaN, 2])).toEqual([2, 5]);
   });
 
+  // undefined can still arrive through loosely typed callers and must not poison the domain either
   it('returns the null domain when every value is NaN or undefined', () => {
-    expect(getDomainForValues([NaN, undefined, NaN])).toEqual([null, null]);
+    expect(getDomainForValues([NaN, undefined, NaN] as unknown as number[])).toEqual([null, null]);
   });
 
   // null is the standard JSON/API missing marker and compares as 0, so it used to re-arm the `min === null` sentinel and discard every minimum seen so far
   it('skips null the way it skips undefined', () => {
-    const withNulls = [5, null, 20] as unknown as (number | undefined)[];
+    const withNulls = [5, null, 20] as unknown as number[];
     expect(getDomainForValues(withNulls)).toEqual([5, 20]);
   });
 
   it('does not break the null-pair invariant on a trailing null', () => {
-    const trailingNull = [10, null] as unknown as (number | undefined)[];
+    const trailingNull = [10, null] as unknown as number[];
     expect(getDomainForValues(trailingNull)).toEqual([10, 10]);
   });
 
   it('returns the null domain when every value is null', () => {
-    const allNull = [null, null] as unknown as (number | undefined)[];
+    const allNull = [null, null] as unknown as number[];
     expect(getDomainForValues(allNull)).toEqual([null, null]);
   });
 

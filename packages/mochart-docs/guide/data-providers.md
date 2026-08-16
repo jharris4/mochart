@@ -63,7 +63,7 @@ The rules the chart holds the values to:
   hard data error naming both counts.
 - **Every value is a `DataValue`.** Series values must be numeric, with
   `null` and `undefined` both reading as a missing value (`null` is how JSON
-  writes a hole in the data, and the chart normalizes it to `undefined`
+  writes a hole in the data, and the chart normalizes it to `NaN`
   internally). Category and display values are strings, numbers, or `Date`s
   matching `categoryAxis.type`.
 - **`undefined` in place of the array means "not in the data".** That is

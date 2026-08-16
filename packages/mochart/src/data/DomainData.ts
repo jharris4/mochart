@@ -28,7 +28,7 @@ export function getCategoryDomainForValues<T extends DomainValue>(values: readon
   return [min, max];
 }
 
-export function getDomainForValues(values: readonly (number | undefined)[] | null): NullableDomain {
+export function getDomainForValues(values: readonly number[] | null): NullableDomain {
   let min: number | null = null;
   let max: number | null = null;
   if (values !== null) {
@@ -36,7 +36,7 @@ export function getDomainForValues(values: readonly (number | undefined)[] | nul
     const valueCount = values.length;
     for (let i=0; i<valueCount; i++) {
       value = values[i];
-      // null compares as 0 and would re-arm the `min === null` sentinel, discarding the minimum
+      // a missing value is NaN; null would compare as 0 and re-arm the `min === null` sentinel, discarding the minimum
       if (typeof value === 'number' && Number.isFinite(value)) {
         if (min === null || value < min) {
           min = value;

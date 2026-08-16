@@ -1,7 +1,7 @@
 import { getDomainForValues, mergeDomain } from '../data/DomainData';
 import { getCategorySpacingInfo } from '../data/AxisData';
 import { getWithMutations } from '../utils/WithMutations';
-import { arrayToMap, idAccessor } from '../utils/utils';
+import { arrayToMap, idAccessor, isMissingValue, MISSING_VALUE } from '../utils/utils';
 import { NONE } from '../config/core/constants';
 import type { FocusData, FocusPercentage, CategoryDeltaData } from '../types/animation';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig } from '../types/enhanced';
@@ -310,12 +310,12 @@ function getSeriesFocusDomainPercentages(mochartConfig: EnhancedMochartConfig, s
         let seriesCategoryValues: number[] = [];
         for (const config of focusedSeriesConfigs) {
           const { max: maxValues, min: minValues } = values[config.id];
-          const maxValue = maxValues !== null ? maxValues[focusedCategoryIndex] : undefined;
-          const minValue = minValues !== null ? minValues[focusedCategoryIndex] : undefined;
-          if (maxValue !== undefined) {
+          const maxValue = maxValues !== null ? maxValues[focusedCategoryIndex]! : MISSING_VALUE;
+          const minValue = minValues !== null ? minValues[focusedCategoryIndex]! : MISSING_VALUE;
+          if (!isMissingValue(maxValue)) {
             seriesCategoryValues.push(maxValue);
           }
-          if (minValue !== undefined && minValue !== maxValue) {
+          if (!isMissingValue(minValue) && minValue !== maxValue) {
             seriesCategoryValues.push(minValue);
           }
         }
@@ -345,7 +345,7 @@ function getSeriesFocusDomainPercentages(mochartConfig: EnhancedMochartConfig, s
             else if (maxValuesDomain[0] !== null) {
               configFocusDomain = maxValuesDomain;
             }
-            else if (config.stack !== NONE) { // for stacks, if max is undefined then the value was undefined...
+            else if (config.stack !== NONE) { // for stacks, if max is missing then the value was missing...
               configFocusDomain = minValuesDomain;
             }
           }

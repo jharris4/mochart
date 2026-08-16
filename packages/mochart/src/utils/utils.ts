@@ -66,10 +66,22 @@ export function centerTextY(textBounds: { x?: number; y?: number; height: number
   };
 }
 
-export function createArrayFilledWithUndefined(count: number): undefined[] {
-  const theArray: undefined[] = [];
+/** Chart data marks a missing series value with NaN (see NumericValue). */
+export const MISSING_VALUE = NaN;
+
+export function isMissingValue(value: number | null | undefined): boolean {
+  return Number.isNaN(value);
+}
+
+// NaN-aware identity: NaN !== NaN, and value arrays compare element-wise every frame
+export function areValuesEqual(a: unknown, b: unknown): boolean {
+  return a === b || (a !== a && b !== b);
+}
+
+export function createArrayFilledWithMissing(count: number): number[] {
+  const theArray: number[] = [];
   for (let i=0; i<count; i++) {
-    theArray.push(undefined);
+    theArray.push(MISSING_VALUE);
   }
   return theArray;
 }
@@ -82,48 +94,39 @@ export function createArrayFilledWithZero(count: number): number[] {
   return theArray;
 }
 
-export function createArrayWithValueIfNotUndefined<T, V>(source: readonly T[], value: V): (V | undefined)[] {
-  const theArray: (V | undefined)[] = [];
+// missing (NaN) entries mirror the source; a missing fill value leaves them missing too
+export function createArrayWithValueIfNotMissing(source: readonly number[], value: number): number[] {
+  const theArray: number[] = [];
   const count = source.length;
   for (let i=0; i<count; i++) {
-    if (source[i] !== undefined) {
-      theArray.push(value);
-    }
-    else {
-      theArray.push(undefined);
-    }
+    theArray.push(isMissingValue(source[i]) ? MISSING_VALUE : value);
   }
   return theArray;
 }
 
-export function copyArrayWithValueIfNotUndefined<T, U>(source: readonly T[], otherSource: readonly U[]): (T | undefined)[] {
-  const theArray: (T | undefined)[] = [];
+export function copyArrayWithValueIfNotMissing(source: readonly number[], otherSource: readonly number[]): number[] {
+  const theArray: number[] = [];
   const count = source.length;
   for (let i=0; i<count; i++) {
-    if (otherSource[i] === undefined) {
-      theArray.push(undefined);
-    }
-    else {
-      theArray.push(source[i]);
-    }
+    theArray.push(isMissingValue(otherSource[i]) ? MISSING_VALUE : source[i]);
   }
   return theArray;
 }
 
-export function replaceArrayUndefinedWithValue<T>(array: (T | undefined)[], value: T): void {
+export function replaceArrayMissingWithValue(array: number[], value: number): void {
   const count = array.length;
   for (let i=0; i<count; i++) {
-    if (array[i] === undefined) {
+    if (isMissingValue(array[i])) {
       array[i] = value;
     }
   }
 }
 
-export function copyWithValueOnlyIfOtherUndefined<T, U>(source: T[], otherSource: readonly (U | undefined)[], value: T): T[] {
+export function copyWithValueOnlyIfOtherMissing(source: number[], otherSource: readonly number[], value: number): number[] {
   let i, found = -1;
   const count = source.length;
   for (i=0; i<count; i++) {
-    if (otherSource[i] === undefined) {
+    if (isMissingValue(otherSource[i])) {
       found = i;
       break;
     }
@@ -131,7 +134,7 @@ export function copyWithValueOnlyIfOtherUndefined<T, U>(source: T[], otherSource
   if (found >= 0) {
     const copy = source.slice();
     for (i=found; i<count; i++) {
-      if (otherSource[i] === undefined) {
+      if (isMissingValue(otherSource[i])) {
         copy[i] = value;
       }
     }
@@ -160,7 +163,7 @@ export function areArraysAndEqual(oldValue: unknown, newValue: unknown): boolean
     if (oldValue.length === newValue.length) {
       const count = oldValue.length;
       for (let i=0; i<count; i++) {
-        if (oldValue[i] !== newValue[i]) {
+        if (!areValuesEqual(oldValue[i], newValue[i])) {
           return false;
         }
       }
@@ -184,35 +187,36 @@ export function getValuesAtIndices<T>(source: readonly T[], indices: readonly nu
   return values;
 }
 
-export function setArrayValuesIfOneIsUndefined<T>(array: (T | undefined)[], otherArray: (T | undefined)[], value: T): void {
+// where exactly one side is missing, fill it so both animate from the same base
+export function setArrayValuesIfOneIsMissing(array: number[], otherArray: number[], value: number): void {
   const count = array.length;
   for (let i=0; i<count; i++) {
-    if (array[i] !== otherArray[i]) {
-      if (array[i] === undefined) {
-        array[i] = value;
-      }
-      else if (otherArray[i] === undefined) {
-        otherArray[i] = value;
-      }
+    const missing = isMissingValue(array[i]);
+    const otherMissing = isMissingValue(otherArray[i]);
+    if (missing && !otherMissing) {
+      array[i] = value;
+    }
+    else if (otherMissing && !missing) {
+      otherArray[i] = value;
     }
   }
 }
 
-export function setArrayValuesFromSourcesIfOneIsUndefined<T>(
-  array: (T | undefined)[],
-  otherArray: (T | undefined)[],
-  sourceArray: readonly T[],
-  otherSourceArray: readonly T[]
+export function setArrayValuesFromSourcesIfOneIsMissing(
+  array: number[],
+  otherArray: number[],
+  sourceArray: readonly number[],
+  otherSourceArray: readonly number[]
 ): void {
   const count = array.length;
   for (let i=0; i<count; i++) {
-    if (array[i] !== otherArray[i]) {
-      if (array[i] === undefined) {
-        array[i] = sourceArray[i];
-      }
-      else if (otherArray[i] === undefined) {
-        otherArray[i] = otherSourceArray[i];
-      }
+    const missing = isMissingValue(array[i]);
+    const otherMissing = isMissingValue(otherArray[i]);
+    if (missing && !otherMissing) {
+      array[i] = sourceArray[i];
+    }
+    else if (otherMissing && !missing) {
+      otherArray[i] = otherSourceArray[i];
     }
   }
 }
@@ -224,17 +228,18 @@ export function setArrayValuesForRange<T>(array: T[], min: number, max: number, 
   }
 }
 
-export function hasUndefinedForRange(array: readonly unknown[], min: number, max: number): boolean {
+// an index past the end counts as missing: callers check merged-space ranges against shorter arrays
+export function hasMissingForRange(array: readonly number[], min: number, max: number): boolean {
   let i;
   for (i=min; i<max; i++) {
-    if (array[i] === undefined) {
+    if (i >= array.length || isMissingValue(array[i])) {
       return true;
     }
   }
   return false;
 }
 
-export function getMaxAbsoluteValue(values: readonly (number | null | undefined)[] | null): number {
+export function getMaxAbsoluteValue(values: readonly (number | null)[] | null): number {
   let max = 0;
   if (values !== null) {
     const count = values.length;
@@ -249,12 +254,12 @@ export function getMaxAbsoluteValue(values: readonly (number | null | undefined)
   return max;
 }
 
-export function getArrayDeltas(array: readonly number[], otherArray: readonly (number | undefined)[]): number[] {
+export function getArrayDeltas(array: readonly number[], otherArray: readonly number[]): number[] {
   const count = array.length;
   const deltas: number[] = [];
   for (let i=0; i<count; i++) {
-    if (otherArray[i] !== undefined) { // if one is undefined, both should be undefined
-      deltas.push((otherArray[i] as number) - array[i]);
+    if (!isMissingValue(otherArray[i])) { // if one is missing, both should be missing
+      deltas.push(otherArray[i] - array[i]);
     }
     else {
       deltas.push(0);
