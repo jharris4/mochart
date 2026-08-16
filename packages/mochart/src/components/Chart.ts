@@ -27,7 +27,7 @@ import TitleClip from './TitleClip';
 import AxisTitleClip from './AxisTitleClip';
 import CategoryAxisTickLabelClip from './CategoryAxisTickLabelClip';
 import SeriesClip from './SeriesClip';
-import { getClippedEdges } from '../data/ClipData';
+import { getClippedEdgesWithMutations, noClippedEdges } from '../data/ClipData';
 import SeriesColorGradient from './SeriesColorGradient';
 import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
@@ -38,7 +38,7 @@ import { getTooltipAnnouncement } from '../utils/TooltipFormat';
 import type { ChartFactoryContent, ChartFactoryContext, ChartContentFactory, ChartEventPayload, ChartSeriesClickPayload, ChartSliceClickPayload, InternalFocus } from '../types/chart';
 import type { LinearGradientConfig, PatternConfig, RadialGradientConfig } from '../types/config';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig, EnhancedValueAxisConfig } from '../types/enhanced';
-import type { AxisData, ChartData, DataProvider, StackData } from '../types/data';
+import type { AxisData, ChartData, ClippedEdges, DataProvider, StackData } from '../types/data';
 import type { FocusData } from '../types/animation';
 import type { ChartLayoutInfo, ChartTextBoundsData, LayoutInfo } from '../types/layout';
 import type { Bounds, Size } from '../types/geometry';
@@ -100,6 +100,7 @@ interface ChartState {
   tooltipBounds: Size | null;
   axisData: AxisData | null;
   stackData: StackData | null;
+  clippedEdges: ClippedEdges;
   tooltipVisible: boolean;
   tooltipCategoryIndex: number;
   tooltipCategoryPercentage: number | null;
@@ -245,7 +246,7 @@ function getBoundsAreDifferent(oldBounds: Bounds, newBounds: Bounds): boolean {
 }
 
 const getInitialState = (): ChartState => ({
-  uniqueIds: null, layoutInfo: null, tooltipLayoutInfo: null, chartTextBoundsData: {} as ChartTextBoundsData, tooltipBounds: null, axisData: null, stackData: null,
+  uniqueIds: null, layoutInfo: null, tooltipLayoutInfo: null, chartTextBoundsData: {} as ChartTextBoundsData, tooltipBounds: null, axisData: null, stackData: null, clippedEdges: noClippedEdges,
   ...getInitialTooltipState()
 });
 
@@ -533,11 +534,13 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         const layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
         let axisData = null;
         let stackData = null;
+        let clippedEdges = noClippedEdges;
         if (chartData !== null && getChartDataCategoryCount(chartData) > 0) {
           axisData = getAxisData(mochartConfig, layoutInfo, chartData);
           stackData = getStackData(mochartConfig, chartData);
+          clippedEdges = getClippedEdgesWithMutations(this.state.clippedEdges, mochartConfig, chartData);
         }
-        return this.applyLayoutInfo(mochartConfig, { ...newState, layoutInfo, axisData, stackData, chartTextBoundsData, ...uniqueIdState });
+        return this.applyLayoutInfo(mochartConfig, { ...newState, layoutInfo, axisData, stackData, clippedEdges, chartTextBoundsData, ...uniqueIdState });
       }
       if (warn && standalone) {
         if (errors.length > 0) {
@@ -659,7 +662,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       }
       else if (mochartConfig.validation.valid) {
         const { chartTextBoundsData, axisData: oldAxisData, stackData: oldStackData } = this.state;
-        let { uniqueIds, layoutInfo, axisData, stackData } = this.state;
+        let { uniqueIds, layoutInfo, axisData, stackData, clippedEdges } = this.state;
 
         // layout reads chartData only through seriesData.axisSeriesCounts, so value-tween frames keeping that identity keep the layout
         const layoutInputsChanged = mochartConfigChanged || sizeChanged || this.state.layoutInfo === null ||
@@ -696,6 +699,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           }
           if (mochartConfigChanged || dataChanged) {
             stackData = getStackDataWithMutations(oldStackData, mochartConfig, chartData);
+            clippedEdges = getClippedEdgesWithMutations(clippedEdges, mochartConfig, chartData);
           }
 
           if (dataChanged && prevProps.chartData !== null) {
@@ -727,7 +731,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           ({ uniqueIds } = this.constructUniqueIds(mochartConfig));
         }
         const { tooltipVisible, tooltipCategoryIndex, tooltipCategoryPercentage, tooltipSeriesPercentage, tooltipValueObject } = tooltipStateSource;
-        const newState = { uniqueIds, layoutInfo, axisData, stackData, tooltipVisible, tooltipCategoryIndex, tooltipCategoryPercentage, tooltipSeriesPercentage, tooltipValueObject };
+        const newState = { uniqueIds, layoutInfo, axisData, stackData, clippedEdges, tooltipVisible, tooltipCategoryIndex, tooltipCategoryPercentage, tooltipSeriesPercentage, tooltipValueObject };
         return this.applyLayoutInfo(mochartConfig, newState);
       }
       else {
@@ -1299,7 +1303,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       getNoDataComponent: noDataFactory = getNoDataComponent,
       getNoSeriesComponent: noSeriesFactory = getNoSeriesComponent
     } = this.props;
-    const { layoutInfo, tooltipLayoutInfo, axisData, stackData, tooltipVisible, tooltipCategoryIndex, tooltipBounds, uniqueIds, tooltipValueObject } = this.state;
+    const { layoutInfo, tooltipLayoutInfo, axisData, stackData, clippedEdges, tooltipVisible, tooltipCategoryIndex, tooltipBounds, uniqueIds, tooltipValueObject } = this.state;
     const { mochartConfig, error, loading } = body.props;
     // read before the slots below can unmount whatever holds focus
     const focusedNode = this.getFocusedChartNode();
@@ -1420,7 +1424,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           categoryAxisTitleClipPathUniqueId,
           categoryAxisTickLabelClipPathUniqueId,
           seriesClipPathUniqueId,
-          clippedEdges: getClippedEdges(mochartConfig, chartData!),
+          clippedEdges,
           clipIndicatorPatternUniqueId,
           valueAxisTitleClipPathUniqueIds,
           tooltipClipPathUniqueId });

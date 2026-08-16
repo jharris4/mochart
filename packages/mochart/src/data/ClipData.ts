@@ -1,5 +1,6 @@
 import { getCategoryDomainForValues } from './DomainData';
 import { calculateValueAxisDomain } from './SeriesData';
+import { getWithMutations } from '../utils/WithMutations';
 import { AUTO, SCALE_ORDINAL } from '../config/core/constants';
 import type { ChartData, ClippedEdges, DomainValue, NullableDomain } from '../types/data';
 import type { EnhancedMochartConfig } from '../types/enhanced';
@@ -8,6 +9,11 @@ export const noClippedEdges: ClippedEdges = { top: false, right: false, bottom: 
 
 export function hasClippedEdge(clippedEdges: ClippedEdges): boolean {
   return clippedEdges.top || clippedEdges.right || clippedEdges.bottom || clippedEdges.left;
+}
+
+/** getClippedEdges keeping the old object when no edge changed, so the clip indicator can skip. */
+export function getClippedEdgesWithMutations(clippedEdges: ClippedEdges | null, mochartConfig: EnhancedMochartConfig, chartData: ChartData): ClippedEdges {
+  return getWithMutations(clippedEdges, getClippedEdges(mochartConfig, chartData));
 }
 
 /** Which plot edges have data hidden behind them (for the clip indicator): compares the drawn filtered values against the rendered axis domain, per frame. */
