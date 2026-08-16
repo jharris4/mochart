@@ -337,10 +337,11 @@ describe.each(allDemos)('demo: $id', (demo) => {
 // Series filtering via legend click — the per-demo suites never filter. A wrong tween resting value
 // (the axis base) strands the shrink partway, and a fixed-frame snapshot can miss it, so the oracle
 // is the LAST frame the filtered series is still in the DOM: correct code shows a vanishing sliver,
-// a wrong base a stranded shape. Radial demos cover the pie-mode base-0 default; grouped is the xy control.
+// a wrong base a stranded shape. Radial demos cover the pie-mode base-0 default; grouped is the xy control;
+// candlestick's legend series carries followSeries followers (wick, volume) that must filter with it.
 // ---------------------------------------------------------------------------
 
-const FILTERING_DEMO_IDS = ['pie', 'donut', 'gauge', 'grouped'];
+const FILTERING_DEMO_IDS = ['pie', 'donut', 'gauge', 'grouped', 'candlestick'];
 const filteringDemos = allDemos.filter((demo) => FILTERING_DEMO_IDS.includes(demo.id));
 
 function clickFirstLegendItem(container: HTMLElement) {
@@ -367,19 +368,25 @@ describe.each(filteringDemos)('filtering: $id', (demo) => {
     advanceFrames(3);
     await expectSnapshot(container, demo.id, 'filter-early-tween');
 
-    // step to the removal of the filtered series' element, keeping the DOM
-    // of the last frame it was still present
-    const seriesSelector = getIdCssSelector('series', mochartConfig.series[0].id);
-    expect(container.querySelector(seriesSelector)).not.toBeNull();
+    // step to the removal of the filtered series' elements (the first legend series plus its
+    // followSeries followers), keeping the DOM of the last frame any of them was still present
+    const leaderId = mochartConfig.series.find((seriesConfig) => seriesConfig.showInLegend)!.id;
+    const filteredSelectors = mochartConfig.series
+      .filter((seriesConfig) => seriesConfig.id === leaderId || seriesConfig.followSeries === leaderId)
+      .map((seriesConfig) => getIdCssSelector('series', seriesConfig.id));
+    const anyFilteredPresent = () => filteredSelectors.some((selector) => container.querySelector(selector) !== null);
+    for (const selector of filteredSelectors) {
+      expect(container.querySelector(selector)).not.toBeNull();
+    }
     let lastPresentHtml = container.innerHTML;
     for (let frame = 0; frame < MAX_FRAMES && vi.getTimerCount() > 0; frame++) {
       vi.advanceTimersByTime(FRAME_MS);
-      if (container.querySelector(seriesSelector) === null) {
+      if (!anyFilteredPresent()) {
         break;
       }
       lastPresentHtml = container.innerHTML;
     }
-    expect(container.querySelector(seriesSelector)).toBeNull();
+    expect(anyFilteredPresent()).toBe(false);
     await expect(normalizeHtml(lastPresentHtml)).toMatchFileSnapshot(snapshotFile(demo.id, 'filter-last-frame'));
     runFrames();
     await expectSnapshot(container, demo.id, 'filter-settled');

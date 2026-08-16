@@ -1047,6 +1047,109 @@ describe('followSeries follower focus', () => {
   });
 });
 
+describe('followSeries legend filtering', () => {
+  // A body with two legend-less followers (wick + volume) and an unrelated
+  // series: a legend click on the body must take both followers with it.
+  const candleRows = [
+    { month: 'Jan', high: 30, low: 5, open: 10, close: 20, volume: 3, x: 50 },
+    { month: 'Feb', high: 40, low: 12, open: 22, close: 25, volume: 4, x: 60 }
+  ];
+
+  function candleConfig(): MochartInputConfig {
+    return makeConfig({
+      legend: { visible: true },
+      series: [
+        { id: 'wick', property: 'high', rangeProperty: 'low', renderer: 'bar', barWidthFraction: 0.2,
+          showInLegend: false, followSeries: 'body' },
+        { id: 'body', property: 'close', rangeProperty: 'open', renderer: 'bar' },
+        { id: 'volume', property: 'volume', renderer: 'bar', showInLegend: false, followSeries: 'body' },
+        { id: 'other', property: 'x', renderer: 'bar' }
+      ]
+    });
+  }
+
+  function clickLegendItem(container: Element, seriesId: string): void {
+    const item = container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', seriesId)));
+    expect(item).not.toBeNull();
+    item!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+  }
+
+  function renderedSeriesIds(container: Element): string[] {
+    return ['wick', 'body', 'volume', 'other'].filter(id => container.querySelector(getIdCssSelector('series', id)) !== null);
+  }
+
+  it('filters the followers together with their leader and restores them together', () => {
+    const filters: Array<{ filteredSeriesIds: Record<string, boolean> }> = [];
+    const container = mountChart(candleConfig(), {
+      onSeriesFilter: filter => { filters.push(filter); }
+    }, candleRows);
+    // followers stay out of the legend, so only the body can be clicked
+    expect(container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', 'wick')))).toBeNull();
+    expect(renderedSeriesIds(container)).toEqual(['wick', 'body', 'volume', 'other']);
+
+    clickLegendItem(container, 'body');
+    expect(filters).toHaveLength(1);
+    expect(filters[0].filteredSeriesIds).toEqual({ body: true, wick: true, volume: true });
+    expect(renderedSeriesIds(container)).toEqual(['other']);
+
+    clickLegendItem(container, 'body');
+    expect(filters).toHaveLength(2);
+    expect(filters[1].filteredSeriesIds).toEqual({});
+    expect(renderedSeriesIds(container)).toEqual(['wick', 'body', 'volume', 'other']);
+  });
+
+  it('leaves the leader and its other followers alone when the host filters one follower', () => {
+    const filters: Array<{ filteredSeriesIds: Record<string, boolean> }> = [];
+    const container = mountChart(candleConfig(), {
+      onSeriesFilter: filter => { filters.push(filter); },
+      filteredSeriesIds: { volume: true }
+    }, candleRows);
+    expect(renderedSeriesIds(container)).toEqual(['wick', 'body', 'other']);
+
+    // the leader click adds the rest of the group on top of the host's filter...
+    clickLegendItem(container, 'body');
+    expect(filters[0].filteredSeriesIds).toEqual({ body: true, wick: true, volume: true });
+
+    // ...and the second click clears the whole group, the host-filtered follower included
+    clickLegendItem(container, 'body');
+    expect(filters[1].filteredSeriesIds).toEqual({});
+    expect(renderedSeriesIds(container)).toEqual(['wick', 'body', 'volume', 'other']);
+  });
+
+  it('clears series focus when the leader click filters the focused follower', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(candleConfig(), {
+      onFocus: focus => { focuses.push(focus); },
+      focusedSeriesId: 'wick'
+    }, candleRows);
+    expect(focuses).toHaveLength(0);
+
+    // the follower is filtered through its leader, so it cannot stay focused
+    clickLegendItem(container, 'body');
+    expect(focuses).toHaveLength(1);
+    expect(focuses[0].focusedSeriesId).toBeNull();
+
+    // unfiltering does not bring the focus back
+    clickLegendItem(container, 'body');
+    expect(focuses).toHaveLength(1);
+  });
+
+  it('reports no focus change when the leader click leaves the focused series alone', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(candleConfig(), {
+      onFocus: focus => { focuses.push(focus); },
+      focusedSeriesId: 'other'
+    }, candleRows);
+    const otherOpacity = () => container.querySelector(getIdCssSelector('series', 'other') + ' path')!.getAttribute('fill-opacity');
+    const focusedOpacity = otherOpacity();
+
+    clickLegendItem(container, 'body');
+    expect(focuses).toHaveLength(0);
+    // the unrelated series keeps its focused look through the filter change
+    expect(otherOpacity()).toBe(focusedOpacity);
+  });
+});
+
 describe('showPointer', () => {
   it('sets the pointer cursor on the series root only when configured', () => {
     const container = mountChart(makeConfig({
