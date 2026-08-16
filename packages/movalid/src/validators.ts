@@ -76,9 +76,15 @@ typeValidatorKeys.forEach(typeValidatorKey => {
 
 export { typeValidators };
 
+// SameValueZero, the equality Array.prototype.includes uses: NaN equals NaN (a strict === never matches it), and 0 still equals -0
+const sameValue = (a: any, b: any): boolean => a === b || (a !== a && b !== b);
+
 const printAny = (value: any, recurse?: boolean): string => {
   if (recurse === false) {
     return value;
+  } else if (typeof value === "number") {
+    // JSON.stringify prints NaN and the infinities as null
+    return String(value);
   } else if (value === undefined) {
     return "undefined";
   } else if (value === null) {
@@ -294,11 +300,11 @@ const argumentTypeValidatorDefinitions = {
       "should be a string with length >= to " + minLength + " and <= to " + maxLength
   },
   equal: {
-    validator: (value: any) => v => v === value,
+    validator: (value: any) => v => sameValue(v, value),
     message: (value: any) => "should be equal to " + printAny(value)
   },
   oneOf: {
-    validator: (valueArray: any[]) => v => valueArray.indexOf(v) !== -1,
+    validator: (valueArray: any[]) => v => valueArray.includes(v),
     message: (valueArray: any[]) => "should be one of " + printArray(valueArray)
   },
   oneIn: {
@@ -307,11 +313,11 @@ const argumentTypeValidatorDefinitions = {
     message: (valueMap: Record<string, any>) => "should be in " + printObject(valueMap)
   },
   notEqual: {
-    validator: (value: any) => v => v !== value,
+    validator: (value: any) => v => !sameValue(v, value),
     message: (value: any) => "should not be equal to " + printAny(value)
   },
   notOneOf: {
-    validator: (valueArray: any[]) => v => valueArray.indexOf(v) === -1,
+    validator: (valueArray: any[]) => v => !valueArray.includes(v),
     message: (valueArray: any[]) => "should not be one of " + printArray(valueArray)
   },
   notOneIn: {
@@ -586,11 +592,11 @@ const validatorDefinitionKeys = Object.keys(validatorDefinitions);
 
 const validatorExtensionDefinitions: Record<string, ValidatorDefinition> = {
   orEqual: {
-    validator: (value: any) => v => v === value,
+    validator: (value: any) => v => sameValue(v, value),
     message: (value: any) => " or be equal to " + printAny(value)
   },
   orOneOf: {
-    validator: (valueArray: any[]) => v => valueArray.indexOf(v) !== -1,
+    validator: (valueArray: any[]) => v => valueArray.includes(v),
     message: (valueArray: any[]) => " or be one of " + printArray(valueArray)
   },
   or: {

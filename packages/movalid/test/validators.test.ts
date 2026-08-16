@@ -1179,6 +1179,23 @@ describe("validators", () => {
         expect(baseValidators.equal(undefined)(1)).toBe(false);
       });
 
+      // strict === never matches NaN, so an equal(NaN) used to reject every value
+      it("should treat NaN as equal to NaN", () => {
+        expect(baseValidators.equal(NaN)(NaN)).toBe(true);
+        expect(baseValidators.equal(NaN)(1)).toBe(false);
+        expect(baseValidators.equal(1)(NaN)).toBe(false);
+      });
+
+      it("should keep 0 equal to -0", () => {
+        expect(baseValidators.equal(0)(-0)).toBe(true);
+      });
+
+      it("should print NaN and the infinities by name in its error message", () => {
+        expect(baseValidators.equal(NaN).errorMessage).toBe("should be equal to NaN");
+        expect(baseValidators.equal(Infinity).errorMessage).toBe("should be equal to Infinity");
+        expect(baseValidators.equal(-Infinity).errorMessage).toBe("should be equal to -Infinity");
+      });
+
       it("should name a function argument in its error message", () => {
         const namedFunction = () => true;
         expect(baseValidators.equal(namedFunction).errorMessage).toBe("should be equal to function namedFunction");
@@ -1229,6 +1246,15 @@ describe("validators", () => {
       it("should not allow values that are not equal to the last value in the array of arguments", () => {
         expect(baseValidators.oneOf([undefined, null, 1])(2)).toBe(false);
       });
+
+      it("should match a NaN member", () => {
+        expect(baseValidators.oneOf([undefined, null, NaN])(NaN)).toBe(true);
+        expect(baseValidators.oneOf([undefined, null, 1])(NaN)).toBe(false);
+      });
+
+      it("should print a NaN member by name in its error message", () => {
+        expect(baseValidators.oneOf([null, NaN]).errorMessage).toBe("should be one of [ null, NaN ]");
+      });
     });
 
     describe("one in", () => {
@@ -1258,6 +1284,11 @@ describe("validators", () => {
       it("should not allow values that are equal to the argument", () => {
         expect(baseValidators.notEqual(undefined)(undefined)).toBe(false);
       });
+
+      it("should treat NaN as equal to NaN", () => {
+        expect(baseValidators.notEqual(NaN)(NaN)).toBe(false);
+        expect(baseValidators.notEqual(NaN)(1)).toBe(true);
+      });
     });
 
     describe("not one of", () => {
@@ -1283,6 +1314,11 @@ describe("validators", () => {
 
       it("should allow values that are not equal to the last value in the array of arguments", () => {
         expect(baseValidators.notOneOf([undefined, null, 1])(2)).toBe(true);
+      });
+
+      it("should match a NaN member", () => {
+        expect(baseValidators.notOneOf([undefined, null, NaN])(NaN)).toBe(false);
+        expect(baseValidators.notOneOf([undefined, null, 1])(NaN)).toBe(true);
       });
     });
 
@@ -2030,6 +2066,16 @@ describe("validators", () => {
       expect(validator.orEqual("abc")("abc")).toBe(true);
       expect(validator.orOneOf(["ab", "abcd"])("abcd")).toBe(true);
       expect(validator.or(baseValidators.equal("abcd"))("abcd")).toBe(true);
+    });
+
+    it("should let orEqual and orOneOf admit NaN by name while number() itself stays finite-only", () => {
+      const validator = baseValidators.number();
+      expect(validator(NaN)).toBe(false);
+      expect(validator.orEqual(NaN)(NaN)).toBe(true);
+      expect(validator.orOneOf([undefined, null, NaN])(NaN)).toBe(true);
+      expect(validator.orOneOf([undefined, null, NaN])(null)).toBe(true);
+      expect(validator.orOneOf([undefined, null, NaN])("x")).toBe(false);
+      expect(validator.orOneOf([undefined, null, NaN]).errorMessage).toBe("should be a number or be one of [ undefined, null, NaN ]");
     });
 
     it("should expose validators added with or as alternatives", () => {
