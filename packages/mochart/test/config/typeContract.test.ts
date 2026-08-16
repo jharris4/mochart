@@ -2,7 +2,10 @@
 import { describe, it, expect } from 'vitest';
 import ts from 'typescript';
 
-import type { MochartInputConfig } from '../../src';
+import type {
+  ColorPaletteConfig, DeepPartial, GradientStop, MochartConfig, MochartInputConfig, PatternInputConfig, SeriesColor,
+  SeriesConfig, Style, ValueAxisConfig, ValueAxisTick
+} from '../../src';
 import validateConfig, { configWithoutAllValidators } from '../../src/config/validation/mochartConfig';
 import { getDefaults } from '../../src/config/defaults/mochartConfig';
 import { buildConfigReference, getRuntimeSectionIds } from '../../scripts/configReferenceModel';
@@ -130,6 +133,95 @@ describe('gradient stops have no default and are required by validation', () => 
       series: [{ property: 'v' }],
       radialGradients: [{ id: 'G', stops: [] }]
     }).length).toBe(1);
+  });
+});
+
+// --- DeepPartial, checked at compile time -------------------------------------
+
+type Extends<A, B> = A extends B ? true : false;
+type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2) ? true : false;
+function expectType<T extends true>(_value?: T): void { /* compile-time only */ }
+// NonNullable is T & {}, which collapses ColorMode | (string & {}) to string; Exclude keeps the union as declared
+type Defined<T> = Exclude<T, undefined>;
+
+/** A section's element type: the entry type of an array (or OneOrMany) section, the section itself otherwise. */
+type SectionEntry<T> = Defined<T> extends infer U ? U extends readonly (infer E)[] ? E : U : never;
+
+// every input section accepts the one-level Partial of its built section, so DeepPartial only ever
+// accepts more than Partial did, never less (patterns is checked against its own input type below)
+type SectionSupersets = {
+  [K in Exclude<keyof MochartInputConfig & keyof MochartConfig, 'patterns'>]:
+    Extends<Partial<SectionEntry<MochartConfig[K]>>, SectionEntry<MochartInputConfig[K]>>
+};
+
+describe('DeepPartial', () => {
+  it('makes nested members optional without narrowing what Partial accepted', () => {
+    expectType<Equal<SectionSupersets[keyof SectionSupersets], true>>();
+    expectType<Extends<Partial<PatternInputConfig>, SectionEntry<MochartInputConfig['patterns']>>>();
+    expectType<Extends<Partial<Style>, DeepPartial<Style>>>();
+    expectType<Extends<{ backgroundStyle: { fillColor: 'red' } }, DeepPartial<{ backgroundStyle: Style }>>>();
+    const nested: MochartInputConfig = {
+      version: V,
+      categoryAxis: { property: 'c' },
+      series: [{ property: 'v' }],
+      chart: { backgroundStyle: { fillColor: 'red' } },
+      seriesDefaults: { curve: { type: 'basis' } }
+    };
+    expect(errorsFor(nested)).toEqual([]);
+  });
+
+  it('keeps arrays as arrays of whole entries, so a partial entry is rejected at typecheck time', () => {
+    // the runtime merge replaces an array wholesale, so its entries can never be filled in from a default
+    expectType<Equal<DeepPartial<{ stops: GradientStop[] }>['stops'], GradientStop[] | undefined>>();
+    expectType<Equal<DeepPartial<readonly string[]>, readonly string[]>>();
+    expectType<Equal<Defined<Defined<DeepPartial<ColorPaletteConfig>['series']>['normal']>['strokeColors'], string[] | undefined>>();
+    expectType<Equal<DeepPartial<ValueAxisConfig>['ticks'], ValueAxisTick[] | null | undefined>>();
+    const config: MochartInputConfig = {
+      version: V,
+      categoryAxis: { property: 'c' },
+      series: [{ property: 'v' }],
+      // @ts-expect-error a stop is a whole GradientStop; the validator rejects the missing members too
+      linearGradients: [{ id: 'G', stops: [{ offset: 0 }] }]
+    };
+    expect(errorsFor(config)).toEqual([
+      'linearGradients[0] - stops - should be a non-empty array with elements that should be an object with exact properties'
+      + ' { offset: should be a number >= to 0 and <= 1, color: should be a valid color, opacity: should be a number >= to 0 and <= 1 }: [ { offset: 0 } ]'
+    ]);
+  });
+
+  it('leaves the optionality an array entry declares for itself alone', () => {
+    // a ThresholdConfig entry marks its own optional members, so those are optional and value is not
+    const config: MochartInputConfig = {
+      version: V,
+      categoryAxis: { property: 'c', type: 'number', scale: 'linear', thresholds: [{ value: 1, style: { normal: { strokeColor: 'red' } } }] },
+      series: [{ property: 'v' }]
+    };
+    expect(errorsFor(config)).toEqual([]);
+    expect(errorsFor({
+      version: V,
+      // @ts-expect-error a threshold entry is a whole ThresholdConfig, so value is required
+      categoryAxis: { property: 'c', type: 'number', scale: 'linear', thresholds: [{ front: true }] },
+      series: [{ property: 'v' }]
+    }).length).toBe(1);
+  });
+
+  it('leaves primitives alone, so ColorMode | (string & {}) keeps its literals and its free string', () => {
+    expectType<Equal<DeepPartial<SeriesColor>, SeriesColor>>();
+    expectType<Equal<DeepPartial<string | null>, string | null>>();
+    expectType<Equal<DeepPartial<number | 'auto'>, number | 'auto'>>();
+    type StrokeColor = Defined<Defined<Defined<DeepPartial<SeriesConfig>['shapeStyle']>['normal']>['strokeColor']>;
+    expectType<Equal<StrokeColor, SeriesColor>>();
+    expectType<Extends<'#ff0000', StrokeColor>>();
+    expectType<Extends<'seriesIndex', StrokeColor>>();
+  });
+
+  it('leaves functions alone rather than mapping them to an empty object', () => {
+    type Format = (value: number) => string;
+    expectType<Equal<DeepPartial<Format>, Format>>();
+    expectType<Equal<DeepPartial<{ format: Format }>, { format?: Format }>>();
+    // @ts-expect-error a function member is still a function, not an object that anything satisfies
+    const notAFunction: DeepPartial<{ format: Format }> = { format: {} };
+    expect(notAFunction).toBeDefined();
   });
 });
 

@@ -3,7 +3,7 @@ import { deepClone, deepMerge, deepMergeAll, isPlainObject, withoutUndefined } f
 import { enhanceConfig } from '../../src/config/helper';
 import { getDefaults } from '../../src/config/defaults/mochartConfig';
 import { validateConfigDetailed } from '../../src/config/validation/mochartConfig';
-import type { DeepPartial, MochartInputConfig, Style, SeriesConfig } from '../../src/types/config';
+import type { MochartInputConfig } from '../../src/types/config';
 
 const V = '1.0.0';
 
@@ -275,66 +275,6 @@ describe('nested validation diagnostics', () => {
     });
     expect(detailed.diagnostics.some(diagnostic =>
       diagnostic.severity === 'warning' && diagnostic.path.join('.') === 'legend')).toBe(true);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// DeepPartial, checked at compile time
-// ---------------------------------------------------------------------------
-
-type Extends<A, B> = A extends B ? true : false;
-function expectType<T extends true>(_value?: T): void { /* compile-time only */ }
-
-type OneOrManyOld<T> = T | T[];
-
-/** MochartInputConfig as it was before DeepPartial: one level of Partial. */
-interface ShallowInputConfig {
-  id?: string;
-  version?: string;
-  animation?: Partial<import('../../src/types/config').AnimationConfig>;
-  chart?: Partial<import('../../src/types/config').ChartConfig>;
-  colorPalette?: Partial<import('../../src/types/config').ColorPaletteConfig>;
-  crosshair?: Partial<import('../../src/types/config').CrosshairConfig>;
-  categoryAxis?: Partial<import('../../src/types/config').CategoryAxisConfig>;
-  legend?: Partial<import('../../src/types/config').LegendConfig>;
-  pie?: Partial<import('../../src/types/config').PieConfig>;
-  plot?: Partial<import('../../src/types/config').PlotConfig>;
-  title?: Partial<import('../../src/types/config').TitleConfig>;
-  tooltip?: Partial<import('../../src/types/config').TooltipConfig>;
-  linearGradients?: OneOrManyOld<Partial<import('../../src/types/config').LinearGradientConfig>>;
-  linearGradientDefaults?: Partial<import('../../src/types/config').LinearGradientConfig>;
-  radialGradients?: OneOrManyOld<Partial<import('../../src/types/config').RadialGradientConfig>>;
-  radialGradientDefaults?: Partial<import('../../src/types/config').RadialGradientConfig>;
-  valueAxes?: OneOrManyOld<Partial<import('../../src/types/config').ValueAxisConfig>>;
-  valueAxisDefaults?: Partial<import('../../src/types/config').ValueAxisConfig>;
-  series?: OneOrManyOld<Partial<SeriesConfig>>;
-  seriesDefaults?: Partial<SeriesConfig>;
-  seriesGroups?: OneOrManyOld<Partial<import('../../src/types/config').SeriesGroupConfig>>;
-  seriesGroupDefaults?: Partial<import('../../src/types/config').SeriesGroupConfig>;
-  seriesStacks?: OneOrManyOld<Partial<import('../../src/types/config').SeriesStackConfig>>;
-  seriesStackDefaults?: Partial<import('../../src/types/config').SeriesStackConfig>;
-}
-
-describe('DeepPartial', () => {
-  it('accepts a nested partial, keeps arrays whole, and leaves SeriesColor alone', () => {
-    // nothing the one-level-Partial input config accepted is rejected now, so
-    // every config that typechecked before still typechecks
-    expectType<Extends<ShallowInputConfig, MochartInputConfig>>();
-    expectType<Extends<Partial<Style>, DeepPartial<Style>>>();
-    // nested members become optional
-    expectType<Extends<{ backgroundStyle: { fillColor: 'red' } }, DeepPartial<{ backgroundStyle: Style }>>>();
-    // arrays stay arrays of whole entries
-    expectType<Extends<DeepPartial<{ stops: { a: number }[] }>['stops'], { a: number }[] | undefined>>();
-    // the string & {} pattern survives, so arbitrary colors are still accepted
-    expectType<Extends<'#ff0000', NonNullable<NonNullable<NonNullable<DeepPartial<SeriesConfig>['shapeStyle']>['normal']>['strokeColor']>>>();
-    expectType<Extends<'seriesIndex', NonNullable<NonNullable<NonNullable<DeepPartial<SeriesConfig>['shapeStyle']>['normal']>['strokeColor']>>>();
-
-    const partial: MochartInputConfig = {
-      version: V,
-      chart: { backgroundStyle: { fillColor: 'red' } },
-      seriesDefaults: { curve: { type: 'basis' } }
-    };
-    expect(partial.chart!.backgroundStyle!.fillColor).toBe('red');
   });
 });
 
