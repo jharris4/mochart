@@ -15,12 +15,24 @@ import { NONE, CHART_TYPE_PIE } from '../config/core/constants';
 import TooltipControls, { MODE_FOCUS, MODE_FILTER } from './TooltipControls';
 import SeriesColorIcon from './SeriesColorIcon';
 import type { ColorPaletteConfig } from '../types/config';
-import type { EnhancedMochartConfig, EnhancedSeriesConfig } from '../types/enhanced';
+import type { EnhancedMochartConfig, EnhancedSeriesConfig, EnhancedValueAxisConfig } from '../types/enhanced';
+import type { AxisDomains } from '../types/data';
+import type { ValueFormatter } from '../utils/ValueFormat';
 import type { InternalFocus } from '../types/chart';
 import type { FocusPercentage, FocusPercentageMap } from '../types/animation';
 import type { CategorySeriesValueObject } from '../data/ChartData';
 
 type LineStyle = Record<string, string | number>;
+
+interface LineStyles {
+  minWidth: number | null; linePadding: number; targetMinSize: number;
+  lineStyle: LineStyle; targetLineStyle: LineStyle; lastLineStyle: LineStyle; lastTargetLineStyle: LineStyle;
+}
+
+interface ValueFormats {
+  seriesConfigs: EnhancedSeriesConfig[]; valueAxisConfigs: EnhancedValueAxisConfig[]; axisDomains: AxisDomains;
+  formats: Record<string, ValueFormatter>;
+}
 
 interface TooltipCategoryLineProps {
   lineStyle: LineStyle;
@@ -53,9 +65,11 @@ interface TooltipSeriesLineProps {
   tabStop: boolean;
   /** filtering applies, so the row exposes aria-pressed (pressed = series shown) */
   showsFilterState: boolean;
-  onMouseEnter: (event: Event) => void;
+  /** the series the row acts on: a follower's leader (followSeries), else itself */
+  focusSeriesId: string;
+  onMouseEnter: (event: Event, seriesId: string) => void;
   onMouseLeave: (event: Event) => void;
-  onClick: (event: Event) => void;
+  onClick: (event: Event, seriesId: string) => void;
 }
 
 interface TooltipContentProps {
@@ -98,7 +112,7 @@ const alignedLineStyle = {
   whiteSpace: 'nowrap'
 };
 
-class TooltipCategoryLine extends Renderer<TooltipCategoryLineProps> {
+export class TooltipCategoryLine extends Renderer<TooltipCategoryLineProps> {
   root = htmlEl('div');
   text = textEl();
 
@@ -138,12 +152,21 @@ class TooltipCategoryLine extends Renderer<TooltipCategoryLineProps> {
   }
 }
 
-class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
+export class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
   root = htmlEl('div');
   line = this.elSlot(this.root);
   iconSlot: Slot | null = null;
   labelValue: TextEl | null = null;
   valueValue: TextEl | null = null;
+
+  // stable per row, so the content's shared handlers never force a row re-sync
+  onRootMouseEnter = (event: Event) => {
+    this.props.onMouseEnter(event, this.props.focusSeriesId);
+  }
+
+  onRootClick = (event: Event) => {
+    this.props.onClick(event, this.props.focusSeriesId);
+  }
 
   // the icon sits in a different host per layout, so the slot is rebuilt when rightAlignValues
   // flips; the outgoing one still holds a mounted SeriesColorIcon and has to be destroyed
@@ -158,13 +181,13 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
     const { key } = event as KeyboardEvent;
     if (key === 'Enter' || key === ' ') {
       event.preventDefault();
-      this.props.onClick(event);
+      this.onRootClick(event);
     }
   }
 
   // keyboard focus mirrors hover, so the focused row highlights its series
   onFocusIn = (event: Event) => {
-    this.props.onMouseEnter(event);
+    this.onRootMouseEnter(event);
   }
 
   onFocusOut = (event: Event) => {
@@ -209,7 +232,7 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
   sync() {
     const { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsFiltered, seriesFocusPercentage,
       colorPaletteConfig, svgUniqueId, visible, labelText, valueText, style, rowKey, interactive, tabStop, showsFilterState,
-      onMouseEnter, onMouseLeave, onClick } = this.props;
+      onMouseLeave } = this.props;
     const { tooltip: tooltipConfig } = mochartConfig;
 
     this.root.set({ className: mochartCssClasses['tooltipSeriesLine'] + seriesConfig.id, style,
@@ -218,7 +241,7 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
       role: interactive ? 'button' : null,
       // pressed = series shown; toggling filters it out
       'aria-pressed': showsFilterState ? String(!seriesIsFiltered) : null,
-      onMouseEnter, onMouseLeave, onClick,
+      onMouseEnter: this.onRootMouseEnter, onMouseLeave, onClick: this.onRootClick,
       onKeyDown: interactive ? this.onKeyDown : null,
       onFocusIn: interactive ? this.onFocusIn : null,
       onFocusOut: interactive ? this.onFocusOut : null });
@@ -402,6 +425,34 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     }
   }
 
+  // row styles keep their identity across syncs unless their inputs change, so unchanged rows can skip
+  private lineStyles: LineStyles | null = null;
+
+  private getLineStyles(minWidth: number | null, linePadding: number, targetMinSize: number): LineStyles {
+    const styles = this.lineStyles;
+    if (styles !== null && styles.minWidth === minWidth && styles.linePadding === linePadding && styles.targetMinSize === targetMinSize) {
+      return styles;
+    }
+    const targetStyle: LineStyle = targetMinSize > 0 ? { minHeight: targetMinSize } : {};
+    const lastLineStyle: LineStyle = minWidth !== null ? { ...baseLineStyle, minWidth } : baseLineStyle;
+    const lineStyle: LineStyle = { ...lastLineStyle, paddingBottom: linePadding };
+    return this.lineStyles = { minWidth, linePadding, targetMinSize, lineStyle, lastLineStyle,
+      targetLineStyle: { ...lineStyle, ...targetStyle }, lastTargetLineStyle: { ...lastLineStyle, ...targetStyle } };
+  }
+
+  // the formatters build d3 scales/formats per series; rebuilt only when their inputs change
+  private valueFormats: ValueFormats | null = null;
+
+  private getValueFormats(seriesConfigs: EnhancedSeriesConfig[], valueAxisConfigs: EnhancedValueAxisConfig[], axisDomains: AxisDomains): Record<string, ValueFormatter> {
+    const cached = this.valueFormats;
+    if (cached !== null && cached.seriesConfigs === seriesConfigs && cached.valueAxisConfigs === valueAxisConfigs && cached.axisDomains === axisDomains) {
+      return cached.formats;
+    }
+    const formats = getSeriesFormats(seriesConfigs, valueAxisConfigs, axisDomains);
+    this.valueFormats = { seriesConfigs, valueAxisConfigs, axisDomains, formats };
+    return formats;
+  }
+
   onClick = (event: Event) => {
     const { mochartConfig, onClose } = this.props;
     const { tooltip: tooltipConfig } = mochartConfig;
@@ -465,14 +516,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const categoryRowClickable = tooltipConfig.showControls || tooltipConfig.focusCategoryOnClick;
     const seriesRowClickable = (leaderSeriesId: string): boolean => tooltipConfig.showControls ||
       tooltipConfig.focusSeriesOnClick || (tooltipConfig.filterSeriesOnClick && mochartConfig.seriesById[leaderSeriesId].filterable);
-    const targetStyle = targetMinSize > 0 ? { minHeight: targetMinSize } : {};
-
-    const lastLineStyle = minWidth !== null ? { ...baseLineStyle, minWidth } : baseLineStyle;
-    const lineStyle = {
-      ...lastLineStyle, paddingBottom: tooltipConfig.linePadding
-    };
-    const targetLineStyle = { ...lineStyle, ...targetStyle };
-    const lastTargetLineStyle = { ...lastLineStyle, ...targetStyle };
+    const { lineStyle, targetLineStyle, lastLineStyle, lastTargetLineStyle } = this.getLineStyles(minWidth, tooltipConfig.linePadding, targetMinSize);
 
     const tooltipLines: RendererItem[] = [];
 
@@ -489,13 +533,11 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
         ctor: TooltipCategoryLine,
         props: { lineStyle: categoryRowClickable ? targetLineStyle : lineStyle, categoryLabel, categoryText: categoryFormat(categoryText!),
           rowKey: 'category', interactive: categoryRowInteractive, tabStop: false,
-          onMouseEnter: (event: Event) => this.onCategoryMouseEnter(event),
-          onMouseLeave: (event: Event) => this.onCategoryMouseLeave(event),
-          onClick: (event: Event) => this.onCategoryClick(event) }
+          onMouseEnter: this.onCategoryMouseEnter, onMouseLeave: this.onCategoryMouseLeave, onClick: this.onCategoryClick }
       });
     }
 
-    const valueFormats = getSeriesFormats(seriesConfigs, valueAxisConfigs, renderAxisDomains);
+    const valueFormats = this.getValueFormats(seriesConfigs, valueAxisConfigs, renderAxisDomains);
     let lastSeriesLineIndex = -1;
     let lastSeriesLineIsTarget = false;
     for (const seriesConfig of seriesConfigs) {
@@ -537,10 +579,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
               colorPaletteConfig, svgUniqueId, visible, labelText, valueText,
               style: rowIsTarget ? targetLineStyle : lineStyle,
               rowKey, interactive: rowInteractive, tabStop: false,
-              showsFilterState: a11yRows && rowFilters,
-              onMouseEnter: (event: Event) => this.onSeriesMouseEnter(event, focusSeriesId),
-              onMouseLeave: (event: Event) => this.onSeriesMouseLeave(event),
-              onClick: (event: Event) => this.onSeriesClick(event, focusSeriesId) }
+              showsFilterState: a11yRows && rowFilters, focusSeriesId,
+              onMouseEnter: this.onSeriesMouseEnter, onMouseLeave: this.onSeriesMouseLeave, onClick: this.onSeriesClick }
           });
         }
       }
