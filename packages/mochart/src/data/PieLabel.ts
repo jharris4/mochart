@@ -58,12 +58,25 @@ export function formatPieLabelType(labelType: PieLabelType, parts: PieLabelParts
   return getPieLabelTemplate(labelType).replace(PIE_LABEL_TOKENS, (_token, name: keyof PieLabelParts) => parts[name]);
 }
 
+export interface PieLabelFormats {
+  valueFormat: NumberFormat;
+  percentFormat: NumberFormat;
+}
+
+// compiled once per pie config: every slice reads these on every animation frame
+const pieLabelFormatsByConfig = new WeakMap<PieConfig, PieLabelFormats>();
+
 /** The slice label formatters, resolving auto per token. */
-export function getPieLabelFormats(pieConfig: PieConfig): { valueFormat: NumberFormat; percentFormat: NumberFormat } {
-  return {
-    valueFormat: format(pieConfig.labelValueFormat === AUTO ? AUTO_LABEL_VALUE_FORMAT : pieConfig.labelValueFormat),
-    percentFormat: format(pieConfig.labelPercentFormat === AUTO ? AUTO_LABEL_PERCENT_FORMAT : pieConfig.labelPercentFormat)
-  };
+export function getPieLabelFormats(pieConfig: PieConfig): PieLabelFormats {
+  let formats = pieLabelFormatsByConfig.get(pieConfig);
+  if (formats === undefined) {
+    formats = {
+      valueFormat: format(pieConfig.labelValueFormat === AUTO ? AUTO_LABEL_VALUE_FORMAT : pieConfig.labelValueFormat),
+      percentFormat: format(pieConfig.labelPercentFormat === AUTO ? AUTO_LABEL_PERCENT_FORMAT : pieConfig.labelPercentFormat)
+    };
+    pieLabelFormatsByConfig.set(pieConfig, formats);
+  }
+  return formats;
 }
 
 /**

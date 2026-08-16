@@ -1,4 +1,5 @@
 import { arc } from 'd3-shape';
+import type { ArcDatum } from 'd3-shape';
 
 import { Renderer, svgEl, textEl } from '../render';
 
@@ -13,6 +14,7 @@ import { mochartCssClasses } from '../utils/ChartDom';
 import { translate, textDY } from '../utils/utils';
 import { NONE } from '../config/core/constants';
 import { formatPieLabelType, getPieLabelFormats } from '../data/PieLabel';
+import type { PieLabelFormats } from '../data/PieLabel';
 
 import type { ColorPaletteConfig, PieConfig } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
@@ -22,6 +24,16 @@ import type { PieSliceAngles } from '../data/PieData';
 import type { RadialLayoutInfo } from '../layout/RadialLayout';
 
 const noOp = () => {};
+
+interface SliceArcDatum extends ArcDatum {
+  innerRadius: number;
+  outerRadius: number;
+  padAngle: number;
+  cornerRadius: number;
+}
+
+// one generator for every slice and frame; the datum carries the per-sync geometry
+const sliceArc = arc<SliceArcDatum>().cornerRadius(d => d.cornerRadius);
 
 interface PieSeriesFocusUpdate {
   seriesId?: string | null;
@@ -58,8 +70,8 @@ interface PieSeriesState {
   onSeriesClick: () => void;
 }
 
-function getPieLabelText(pieConfig: PieConfig, seriesConfig: EnhancedSeriesConfig, sliceAngles: PieSliceAngles, labelFraction: number): string {
-  const { valueFormat, percentFormat } = getPieLabelFormats(pieConfig);
+function getPieLabelText(pieConfig: PieConfig, { valueFormat, percentFormat }: PieLabelFormats, seriesConfig: EnhancedSeriesConfig,
+    sliceAngles: PieSliceAngles, labelFraction: number): string {
   return formatPieLabelType(pieConfig.labelType, {
     title: seriesConfig.title ?? seriesConfig.id,
     value: valueFormat(sliceAngles.value),
@@ -149,12 +161,10 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     }
     const { strokeWidth, strokeDashArray, strokeOpacity, fillOpacity } = getFocusStyle(seriesFocusPercentage, seriesConfig.shapeStyle);
 
-    const arcGenerator = arc()
-      .innerRadius(radialLayoutInfo.innerRadius)
-      .outerRadius(radialLayoutInfo.outerRadius)
-      .cornerRadius(pieConfig.cornerRadius)
-      .padAngle(degreesToRadians(pieConfig.padAngle));
     const { startAngle, endAngle } = sliceAngles;
+    const arcPath = sliceArc({ startAngle, endAngle,
+      innerRadius: radialLayoutInfo.innerRadius, outerRadius: radialLayoutInfo.outerRadius,
+      cornerRadius: pieConfig.cornerRadius, padAngle: degreesToRadians(pieConfig.padAngle) });
 
     // The focused slice "explodes" along its mid-angle; the tweened focus
     // percentage animates the offset in and out.
@@ -170,19 +180,19 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     this.setPresent(true);
     // keyboard focus shows only the ring — mirroring hover would reorder the DOM under the focused node
     const interactive = sliceIsInteractive(accessibility, seriesConfig, onSliceClick);
-    const { percentFormat } = getPieLabelFormats(pieConfig);
+    const labelFormats = getPieLabelFormats(pieConfig);
     this.root.set({ className: mochartCssClasses['series'] + seriesConfig.id,
       cursor: seriesConfig.showPointer ? 'pointer' : null,
       ariaHidden: accessibility && !interactive ? 'true' : null,
       dataSeriesId: interactive ? seriesConfig.id : null,
       tabindex: interactive ? (tabStop ? '0' : '-1') : null,
       role: interactive ? 'button' : null,
-      ariaLabel: interactive ? getSeriesTitle(seriesConfig) + ', ' + percentFormat(labelFraction) : null,
+      ariaLabel: interactive ? getSeriesTitle(seriesConfig) + ', ' + labelFormats.percentFormat(labelFraction) : null,
       onKeyDown: interactive ? this.onKeyDown : null,
       transform: translate(seriesLayoutInfo.x + radialLayoutInfo.cx + offsetX, seriesLayoutInfo.y + radialLayoutInfo.cy + offsetY) });
 
     this.shape.set('slice', () => svgEl('path'))!.set({
-      d: arcGenerator({ startAngle, endAngle }), className: mochartCssClasses['seriesSlice'],
+      d: arcPath, className: mochartCssClasses['seriesSlice'],
       onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick,
       stroke: strokeColor, strokeWidth, strokeDasharray: strokeDashArray, strokeOpacity,
       fill: fillColor, fillOpacity });
@@ -204,7 +214,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
         textAnchor: 'middle', dy: textDY,
         stroke: labelStrokeColor, strokeWidth: labelStrokeWidth, strokeOpacity: labelStrokeOpacity,
         fill: labelFillColor, fillOpacity: labelFillOpacity });
-      this.labelText.set(getPieLabelText(pieConfig, seriesConfig, sliceAngles, labelFraction));
+      this.labelText.set(getPieLabelText(pieConfig, labelFormats, seriesConfig, sliceAngles, labelFraction));
     }
     else {
       this.label.set(null);
