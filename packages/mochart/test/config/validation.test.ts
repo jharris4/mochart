@@ -5,6 +5,8 @@ import validateConfig, {
   getCommonReferenceMessage,
   validateConfigDetailed
 } from '../../src/config/validation/mochartConfig';
+import { getAxisBoundsMessage } from '../../src/config/validation/axisConfig';
+import { boundValue } from '../../src/config/validation/validators';
 import { getDefaults } from '../../src/config/defaults/mochartConfig';
 
 const V = '1.0.0';
@@ -780,5 +782,136 @@ describe('animation domain change validation', () => {
   it('rejects an unknown mode on either property', () => {
     expect(errorsFor(withAnimation({ valueDomainChange: 'sideways' })).some(error => error.includes('valueDomainChange'))).toBe(true);
     expect(errorsFor(withAnimation({ categoryDomainChange: 'sideways' })).some(error => error.includes('categoryDomainChange'))).toBe(true);
+  });
+});
+
+describe('axis bounds validation', () => {
+  const BOUNDS = 'should not be above the max property of the same axis: ';
+  const withValueAxes = (valueAxes: unknown, valueAxisDefaults?: unknown) => ({
+    version: V,
+    categoryAxis: { property: 'p' },
+    series: [{ property: 'a' }],
+    valueAxes,
+    ...(valueAxisDefaults === undefined ? {} : { valueAxisDefaults })
+  });
+  const withCategoryAxis = (categoryAxis: unknown) => ({ version: V, categoryAxis, series: [{ property: 'a' }] });
+  const boundsErrors = (config: unknown) => errorsFor(config).filter(error => error.includes(BOUNDS));
+
+  it('getAxisBoundsMessage quotes the max it was compared against', () => {
+    expect(getAxisBoundsMessage(5)).toBe(BOUNDS + '5');
+    expect(getAxisBoundsMessage('2020-01-01')).toBe(BOUNDS + '"2020-01-01"');
+  });
+
+  describe('boundValue', () => {
+    it('takes finite numbers on any axis and rejects non-finite ones', () => {
+      expect(boundValue(5, false)).toBe(5);
+      expect(boundValue(-2.5, true)).toBe(-2.5);
+      expect(boundValue(Infinity, false)).toBeNull();
+      expect(boundValue(NaN, true)).toBeNull();
+    });
+
+    it('reads Date objects and parseable strings only on a date axis', () => {
+      const date = new Date('2020-06-01T00:00:00Z');
+      expect(boundValue(date, true)).toBe(date.getTime());
+      expect(boundValue('2020-06-01T00:00:00Z', true)).toBe(date.getTime());
+      expect(boundValue(date, false)).toBeNull();
+      expect(boundValue('2020-06-01T00:00:00Z', false)).toBeNull();
+    });
+
+    it('leaves invalid dates, unparseable strings and other types to the type rules', () => {
+      expect(boundValue(new Date('nope'), true)).toBeNull();
+      expect(boundValue('not a date', true)).toBeNull();
+      expect(boundValue(null, true)).toBeNull();
+      expect(boundValue({ time: 1 }, true)).toBeNull();
+    });
+  });
+
+  it('flags a value axis whose min is above its max, at the min property', () => {
+    const config = withValueAxes([{ id: 'A', min: 10, max: 5 }]);
+    expect(errorsFor(config)).toEqual(['valueAxes[0] - min - ' + BOUNDS + '5']);
+    expect(detailedFor(config).diagnostics).toContainEqual(expect.objectContaining({
+      path: ['valueAxes', 0, 'min'], severity: 'error', message: BOUNDS + '5'
+    }));
+  });
+
+  it('accepts min below max, and min equal to max as auto bounds on flat data produce it', () => {
+    expect(errorsFor(withValueAxes([{ id: 'A', min: 5, max: 10 }]))).toEqual([]);
+    expect(errorsFor(withValueAxes([{ id: 'A', min: 5, max: 5 }]))).toEqual([]);
+    expect(errorsFor(withValueAxes([{ id: 'A', min: -1, max: -1 }]))).toEqual([]);
+  });
+
+  it('skips the comparison while either end is auto', () => {
+    expect(errorsFor(withValueAxes([{ id: 'A', min: 10, max: 'auto' }]))).toEqual([]);
+    expect(errorsFor(withValueAxes([{ id: 'A', min: 'auto', max: -10 }]))).toEqual([]);
+    expect(errorsFor(withValueAxes([{ id: 'A', min: 10 }]))).toEqual([]);
+  });
+
+  it('checks every authored value axis independently', () => {
+    const errors = errorsFor({
+      ...withValueAxes([{ id: 'A', min: 0, max: 1 }, { id: 'B', min: 3, max: 2 }, { id: 'C', min: 9, max: 8 }]),
+      series: [{ property: 'a', axis: 'A' }]
+    });
+    expect(errors).toEqual([
+      'valueAxes[1] - min - ' + BOUNDS + '2',
+      'valueAxes[2] - min - ' + BOUNDS + '8'
+    ]);
+  });
+
+  it('reports at the raw index when an earlier entry is ignored', () => {
+    const config = withValueAxes([{ ignore: true, id: 'dead' }, { id: 'A', min: 10, max: 5 }]);
+    expect(errorsFor(config)).toEqual(['valueAxes[1] - min - ' + BOUNDS + '5']);
+    expect(detailedFor(config).diagnostics).toContainEqual(expect.objectContaining({ path: ['valueAxes', 1, 'min'] }));
+  });
+
+  it('reports the implicit value axis against valueAxisDefaults', () => {
+    const expectDefaultsError = (config: unknown) => {
+      expect(errorsFor(config)).toEqual(['valueAxisDefaults - min - ' + BOUNDS + '5']);
+      expect(detailedFor(config).diagnostics).toContainEqual(expect.objectContaining({
+        path: ['valueAxisDefaults', 'min'], severity: 'error', message: BOUNDS + '5'
+      }));
+    };
+    // no valueAxes at all, an empty list, and a list of only ignored entries all leave the implicit axis
+    expectDefaultsError({ version: V, categoryAxis: { property: 'p' }, series: [{ property: 'a' }], valueAxisDefaults: { min: 10, max: 5 } });
+    expectDefaultsError(withValueAxes([], { min: 10, max: 5 }));
+    expectDefaultsError(withValueAxes([{ ignore: true, id: 'dead' }], { min: 10, max: 5 }));
+  });
+
+  it('reports authored axes that inherit bad bounds from valueAxisDefaults at their own index', () => {
+    const errors = errorsFor({ ...withValueAxes([{ id: 'A' }, { id: 'B', min: 0 }], { min: 10, max: 5 }), series: [{ property: 'a', axis: 'A' }] });
+    // B overrides min and is fine; A inherits both ends and is reported on the list, not the defaults
+    expect(errors).toEqual(['valueAxes[0] - min - ' + BOUNDS + '5']);
+  });
+
+  it('flags a linear number category axis with min above max', () => {
+    const config = withCategoryAxis({ property: 'p', type: 'number', scale: 'linear', min: 10, max: 5 });
+    expect(errorsFor(config)).toEqual(['categoryAxis - min - ' + BOUNDS + '5']);
+    expect(detailedFor(config).diagnostics).toContainEqual(expect.objectContaining({ path: ['categoryAxis', 'min'] }));
+    expect(errorsFor(withCategoryAxis({ property: 'p', type: 'number', scale: 'linear', min: 5, max: 5 }))).toEqual([]);
+  });
+
+  it('compares date category axis bounds given as timestamps or ISO strings, in either mix', () => {
+    // the date rule takes epoch numbers and iso strings (Date objects fail it), so those are the config-level forms
+    const dateAxis = (min: unknown, max: unknown) => withCategoryAxis({ property: 'p', type: 'date', scale: 'linear', min, max });
+    const early = '2020-01-01T00:00:00.000Z';
+    const late = '2021-01-01T00:00:00.000Z';
+    const earlyTime = new Date(early).getTime();
+    const lateTime = new Date(late).getTime();
+
+    expect(errorsFor(dateAxis(lateTime, earlyTime))).toEqual(['categoryAxis - min - ' + BOUNDS + earlyTime]);
+    expect(errorsFor(dateAxis(late, early))).toEqual(['categoryAxis - min - ' + BOUNDS + '"' + early + '"']);
+    expect(errorsFor(dateAxis(late, earlyTime))).toEqual(['categoryAxis - min - ' + BOUNDS + earlyTime]);
+    expect(errorsFor(dateAxis(lateTime, early))).toEqual(['categoryAxis - min - ' + BOUNDS + '"' + early + '"']);
+    // in order, and the same instant in two forms, both stay legal
+    expect(errorsFor(dateAxis(early, late))).toEqual([]);
+    expect(errorsFor(dateAxis(earlyTime, late))).toEqual([]);
+    expect(errorsFor(dateAxis(early, earlyTime))).toEqual([]);
+  });
+
+  it('adds no bounds error on top of a type error for an unreadable bound', () => {
+    // a string on a number axis and an unparseable string on a date axis both fail their type rule alone
+    expect(boundsErrors(withValueAxes([{ id: 'A', min: '2021-01-01', max: 5 }]))).toEqual([]);
+    expect(errorsFor(withValueAxes([{ id: 'A', min: '2021-01-01', max: 5 }])).some(error => error.startsWith('valueAxes[0] - min - '))).toBe(true);
+    expect(boundsErrors(withCategoryAxis({ property: 'p', type: 'date', scale: 'linear', min: 'later', max: '2020-01-01' }))).toEqual([]);
+    expect(boundsErrors(withCategoryAxis({ property: 'p', type: 'date', scale: 'linear', min: new Date('nope'), max: 0 }))).toEqual([]);
   });
 });
