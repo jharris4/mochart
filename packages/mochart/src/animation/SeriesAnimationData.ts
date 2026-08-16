@@ -542,6 +542,7 @@ function createValueDeltaData(mochartConfig: EnhancedMochartConfig, startChartDa
   const filteredValueDeltaData = createFilteredValueDeltaData(mochartConfig,
     startChartData.seriesData.filtered.values, endChartData.seriesData.filtered.values,
     startChartData.seriesData.raw.values, endChartData.seriesData.raw.values, valueDeltaData, filteredValueAxisExtents, rawSeriesDomains);
+  adjustDeltaPercentagesForStackedCategories(mochartConfig.seriesStacks, [valueDeltaData, filteredValueDeltaData]);
 
   const categoryOrderDeltaData = createCategoryOrderDeltaData(mochartConfig, startChartData, endChartData, ordinalCategoryOrderOffets);
 
@@ -592,7 +593,6 @@ function createRawValueDeltaData(mochartConfig: EnhancedMochartConfig, startValu
     deltas[id] = deltaObject;
   }
 
-  adjustDeltaPercentagesForStackedCategories(mochartConfig.seriesStacks, deltas);
   adjustDeltaPercentagesForRangedSeries(seriesConfigs, deltas);
   adjustDeltaPercentagesForErrorBarSeries(seriesConfigs, deltas);
   adjustDeltaPercentagesForFollowerCategories(seriesConfigs, deltas);
@@ -701,27 +701,37 @@ function adjustDeltaPercentagesForFollowerCategories(seriesConfigs: EnhancedSeri
   }
 }
 
-function adjustDeltaPercentagesForStackedCategories(seriesStackConfigs: EnhancedSeriesStackConfig[], deltaObjects: Record<string, ValueDeltaObject>): void {
+// A stack renders from both maps at once (series below a toggled one stay raw copies), so the
+// raw and filtered maps share one duration per stack — otherwise the edges detach mid-tween.
+function adjustDeltaPercentagesForStackedCategories(seriesStackConfigs: EnhancedSeriesStackConfig[], deltaMaps: SeriesValueDeltaMap[]): void {
   let maxDeltaPercentage;
   let currentDeltaObject;
   for (const seriesStackConfig of seriesStackConfigs) {
     maxDeltaPercentage = 0;
     const stackedSeriesConfigs = seriesStackConfig.seriesConfigs!;
-    for (const seriesConfig of stackedSeriesConfigs) {
-      const { id } = seriesConfig;
-      maxDeltaPercentage = Math.max(maxDeltaPercentage, deltaObjects[id].stack.deltaPercentage, deltaObjects[id].prior.deltaPercentage);
-    };
+    for (const deltaMap of deltaMaps) {
+      const deltaObjects = deltaMap.deltas as Record<string, ValueDeltaObject>;
+      for (const seriesConfig of stackedSeriesConfigs) {
+        const { id } = seriesConfig;
+        maxDeltaPercentage = Math.max(maxDeltaPercentage, deltaObjects[id].stack.deltaPercentage, deltaObjects[id].prior.deltaPercentage);
+      }
+    }
 
     if (maxDeltaPercentage !== 0) {
-      for (const seriesConfig of stackedSeriesConfigs) {
-        currentDeltaObject = deltaObjects[seriesConfig.id];
-        if (currentDeltaObject.stack.deltaPercentage !== 0) {
-          currentDeltaObject.stack.deltaPercentage = maxDeltaPercentage;
-          currentDeltaObject.deltaPercentage = Math.max(currentDeltaObject.deltaPercentage, maxDeltaPercentage);
-        }
-        if (currentDeltaObject.prior.deltaPercentage !== 0) {
-          currentDeltaObject.prior.deltaPercentage = maxDeltaPercentage;
-          currentDeltaObject.deltaPercentage = Math.max(currentDeltaObject.deltaPercentage, maxDeltaPercentage);
+      for (const deltaMap of deltaMaps) {
+        const deltaObjects = deltaMap.deltas as Record<string, ValueDeltaObject>;
+        for (const seriesConfig of stackedSeriesConfigs) {
+          currentDeltaObject = deltaObjects[seriesConfig.id];
+          if (currentDeltaObject.stack.deltaPercentage !== 0) {
+            currentDeltaObject.stack.deltaPercentage = maxDeltaPercentage;
+            currentDeltaObject.deltaPercentage = Math.max(currentDeltaObject.deltaPercentage, maxDeltaPercentage);
+          }
+          if (currentDeltaObject.prior.deltaPercentage !== 0) {
+            currentDeltaObject.prior.deltaPercentage = maxDeltaPercentage;
+            currentDeltaObject.deltaPercentage = Math.max(currentDeltaObject.deltaPercentage, maxDeltaPercentage);
+          }
+          // the map must not report done while its stack entries still tween
+          deltaMap.deltaPercentage = Math.max(deltaMap.deltaPercentage, currentDeltaObject.deltaPercentage);
         }
       }
     }
@@ -806,7 +816,6 @@ function createFilteredValueDeltaData(mochartConfig: EnhancedMochartConfig, star
     deltas[id] = (deltaObject);
   };
 
-  adjustDeltaPercentagesForStackedCategories(mochartConfig.seriesStacks, deltas);
   adjustDeltaPercentagesForRangedSeries(seriesConfigs, deltas);
   adjustDeltaPercentagesForErrorBarSeries(seriesConfigs, deltas);
   adjustDeltaPercentagesForFollowerCategories(seriesConfigs, deltas);
