@@ -1,0 +1,119 @@
+/**
+ * Per-category shape handlers: bars, markers and labels keep the same handler functions across
+ * syncs (no per-frame closures), while still routing to the series' current callbacks.
+ */
+import { describe, it, expect, beforeAll, vi } from 'vitest';
+import { installSvgMeasurementShims } from './svgShims';
+import { mountContainer, trackHandle, mockBoundingClientRect } from './helpers';
+import { createDefaultChart } from '../../src/createChart';
+import { CategoryHandlerCache } from '../../src/utils/CategoryHandlers';
+import type { CategoryCallbacks } from '../../src/utils/CategoryHandlers';
+import type { ChartFocus, DefaultChartProps } from '../../src/types/chart';
+import type { MochartInputConfig } from '../../src/types/config';
+import { getIdCssSelector } from '../../src/utils/ChartDom';
+
+const WIDTH = 800;
+const HEIGHT = 600;
+
+const rows = [
+  { month: 'Jan', sales: 10 },
+  { month: 'Feb', sales: 20 },
+  { month: 'Mar', sales: 30 }
+];
+const otherRows = [
+  { month: 'Jan', sales: 15 },
+  { month: 'Feb', sales: 25 },
+  { month: 'Mar', sales: 35 }
+];
+
+function makeConfig(seriesOverrides: Record<string, unknown> = {}): MochartInputConfig {
+  return {
+    version: '1.0.0',
+    animation: { animate: false },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ id: 'sales', property: 'sales', renderer: 'bar', markerShape: 'circle', labelProperty: 'sales', ...seriesOverrides }]
+  } as unknown as MochartInputConfig;
+}
+
+function mountChart(config: MochartInputConfig, callbacks: Partial<DefaultChartProps> = {}) {
+  const container = mountContainer();
+  const handle = trackHandle(createDefaultChart(container, {
+    config, data: rows, width: WIDTH, height: HEIGHT, ...callbacks
+  } as DefaultChartProps));
+  return { container, handle };
+}
+
+/** the handlers the render layer has registered on a shape, keyed by event type */
+function listeners(shape: Element): Record<string, EventListener | null | undefined> {
+  return (shape as Element & { _listeners?: Record<string, EventListener | null | undefined> })._listeners ?? {};
+}
+
+function shape(container: Element, classKey: 'seriesBar' | 'seriesMarker' | 'seriesLabel', index: number): Element {
+  const node = container.querySelector(getIdCssSelector(classKey, index));
+  expect(node, classKey + ' ' + index).not.toBeNull();
+  return node!;
+}
+
+function mouse(target: Element, type: string): void {
+  target.dispatchEvent(new MouseEvent(type, { bubbles: true }));
+}
+
+beforeAll(() => {
+  installSvgMeasurementShims();
+  mockBoundingClientRect(WIDTH, HEIGHT);
+});
+
+describe('CategoryHandlerCache', () => {
+  it('returns the same handlers per index and calls the current callbacks', () => {
+    const first: CategoryCallbacks = { onCategoryEnter: vi.fn(), onCategoryLeave: vi.fn(), onCategoryClick: vi.fn() };
+    const second: CategoryCallbacks = { onCategoryEnter: vi.fn(), onCategoryLeave: vi.fn(), onCategoryClick: vi.fn() };
+    let current = first;
+    const cache = new CategoryHandlerCache(() => current);
+
+    const handlers = cache.get(2);
+    expect(cache.get(2)).toBe(handlers);
+    expect(cache.get(1)).not.toBe(handlers);
+
+    const event = new Event('click');
+    handlers.onMouseEnter(event);
+    expect(first.onCategoryEnter).toHaveBeenCalledWith(2);
+
+    current = second;
+    handlers.onClick(event);
+    expect(second.onCategoryClick).toHaveBeenCalledWith(2, event);
+    expect(first.onCategoryClick).not.toHaveBeenCalled();
+  });
+});
+
+describe('series shape handlers across syncs', () => {
+  it('keeps the same handler functions on bars, markers and labels through a data update', () => {
+    const { container, handle } = mountChart(makeConfig({ focusCategoryOnMouseOver: true, focusCategoryOnClick: true }));
+    const before = (['seriesBar', 'seriesMarker', 'seriesLabel'] as const).map(key => ({ ...listeners(shape(container, key, 1)) }));
+
+    handle.update({ data: otherRows } as Partial<DefaultChartProps>);
+
+    (['seriesBar', 'seriesMarker', 'seriesLabel'] as const).forEach((key, i) => {
+      const after = listeners(shape(container, key, 1));
+      expect(after.mouseenter, key).toBe(before[i].mouseenter);
+      expect(after.mouseleave, key).toBe(before[i].mouseleave);
+      expect(after.click, key).toBe(before[i].click);
+    });
+  });
+
+  it('routes through the same handlers to callbacks rebuilt by a config change', () => {
+    const focuses: ChartFocus[] = [];
+    const { container, handle } = mountChart(makeConfig(), { onFocus: focus => focuses.push(focus) });
+    const bar = shape(container, 'seriesBar', 1);
+    const handler = listeners(bar).mouseenter;
+
+    // no hover focus configured: the handler is wired but the series callback is a no-op
+    mouse(bar, 'mouseenter');
+    expect(focuses).toEqual([]);
+
+    handle.update({ config: makeConfig({ focusCategoryOnMouseOver: true }) } as Partial<DefaultChartProps>);
+
+    expect(listeners(shape(container, 'seriesBar', 1)).mouseenter).toBe(handler);
+    mouse(shape(container, 'seriesBar', 1), 'mouseenter');
+    expect(focuses[focuses.length - 1]).toMatchObject({ focusedCategoryIndex: 1 });
+  });
+});

@@ -13,6 +13,7 @@ import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { FocusData } from '../types/animation';
 import type { AxisScale, NullableDomain, SeriesPositionData, SeriesValueObject } from '../types/data';
 import type { LabelPosition } from '../config/core/constants';
+import { CategoryHandlerCache } from '../utils/CategoryHandlers';
 
 const getLabelPosition = (isAboveBase: boolean, hasBase: boolean, seriesConfig: EnhancedSeriesConfig): LabelPosition => {
   let { labelPosition } = seriesConfig;
@@ -74,6 +75,7 @@ interface SeriesLabelsProps {
 export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
   root = svgEl('g');
   labels = this.elList<SeriesLabelData, SeriesLabelHandle>(this.root);
+  categoryHandlers = new CategoryHandlerCache(() => this.props);
 
   create() {
     return this.root.node;
@@ -81,7 +83,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
 
   sync() {
     const { colorPaletteConfig, seriesConfig, seriesIndex, rawValueAxisDomain, valueAxisScale, seriesPositionData,
-      filteredValues, inverted, focusData, accessibility, onCategoryEnter, onCategoryLeave, onCategoryClick } = this.props;
+      filteredValues, inverted, focusData, accessibility } = this.props;
     if (seriesConfig.labelProperty !== NONE) {
       const { valueAxisConfig } = seriesConfig;
       const hasBase = valueAxisConfig.base !== NONE;
@@ -242,11 +244,12 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             seriesPosition = getSeriesPosition(null, i)! + getOffset(aboveBase);
             x = inverted ? seriesPosition : getCategoryPosition(null, i)!;
             y = inverted ? getCategoryPosition(null, i)! : seriesPosition;
+            const { onMouseEnter, onMouseLeave, onClick } = this.categoryHandlers.get(i);
             labels.push({
               key: 'label-' + i,
               attrs: { className: mochartCssClasses['seriesLabel'] + i, transform: translate(x, y),
                 textAnchor, dy, stroke: labelStrokeColor, fill: labelFillColor, fillOpacity: labelFillOpacity, strokeOpacity: labelStrokeOpacity,
-                strokeWidth: labelStrokeWidth, onMouseEnter: () => onCategoryEnter(i), onMouseLeave: () => onCategoryLeave(i), onClick: (event: Event) => onCategoryClick(i, event) },
+                strokeWidth: labelStrokeWidth, onMouseEnter, onMouseLeave, onClick },
               text: String(valueFormat(labelValues[skipI]!))
             });
           }

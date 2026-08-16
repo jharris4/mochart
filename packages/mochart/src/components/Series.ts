@@ -23,6 +23,7 @@ import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { FocusData } from '../types/animation';
 import type { AxisScale, CategoryAxisData, NullableDomain, SeriesDomainObject, SeriesPositionData, SeriesValueObject, StackData } from '../types/data';
 import type { LayoutInfo } from '../types/layout';
+import { CategoryHandlerCache } from '../utils/CategoryHandlers';
 
 const noOp = () => {};
 const noOpCategory = (_categoryIndex: number) => {};
@@ -86,6 +87,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
   labels = this.slot(this.root);
   barsGroup = svgEl('g');
   bars = new ElList<BarData, BarHandle>(this.barsGroup.node, null);
+  categoryHandlers = new CategoryHandlerCache(() => this.state);
 
   constructor() {
     super();
@@ -331,12 +333,11 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
               }
             }
             const { strokeWidth: barStrokeWidth, strokeDashArray: barStrokeDashArray, strokeOpacity: barStrokeOpacity, fillOpacity: barFillOpacity } = getFocusStyle(focusPercentage, seriesConfig.shapeStyle);
+            const { onMouseEnter, onMouseLeave, onClick } = this.categoryHandlers.get(i);
             bars.push({
               key: 'bar-' + i,
               attrs: { d: columnGenerator(i), className: mochartCssClasses['seriesBar'] + i,
-                onMouseEnter: () => onCategoryEnter(i),
-                onMouseLeave: () => onCategoryLeave(i),
-                onClick: (event: Event) => onCategoryClick(i, event),
+                onMouseEnter, onMouseLeave, onClick,
                 stroke: barStrokeColor, strokeWidth: barStrokeWidth, strokeOpacity: barStrokeOpacity,
                 strokeDasharray: barStrokeDashArray, fill: barFillColor, fillOpacity: barFillOpacity }
             });

@@ -14,6 +14,7 @@ import type { ColorPaletteConfig } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { FocusData } from '../types/animation';
 import type { SeriesDomainObject, SeriesPositionData, SeriesValueObject } from '../types/data';
+import { CategoryHandlerCache } from '../utils/CategoryHandlers';
 
 interface MarkerItem {
   key: string;
@@ -45,14 +46,14 @@ interface SeriesMarkersProps {
 export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
   root = svgEl('g');
   markers = this.elList<MarkerItem>(this.root);
+  categoryHandlers = new CategoryHandlerCache(() => this.props);
 
   create() {
     return this.root.node;
   }
 
   sync() {
-    const { colorPaletteConfig, seriesConfig, seriesIndex, seriesPositionData, filteredValues, rawDomains, inverted, focusData,
-      onCategoryEnter, onCategoryLeave, onCategoryClick } = this.props;
+    const { colorPaletteConfig, seriesConfig, seriesIndex, seriesPositionData, filteredValues, rawDomains, inverted, focusData } = this.props;
 
     if (seriesConfig.markerShape !== NONE) {
       const { categoryFocusPercentages, valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
@@ -112,11 +113,12 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
             }
           }
           if (currentMarkerSize !== undefined) {
+            const { onMouseEnter, onMouseLeave, onClick } = this.categoryHandlers.get(i);
             markers.push({
               key: 'marker-' + i,
               attrs: { className: mochartCssClasses['seriesMarker'] + i, d: theSymbol, transform: translate(cx, cy),
                 stroke: markerStrokeColor, fill: markerFillColor, strokeWidth: markerStrokeWidth, strokeDasharray: markerStrokeDashArray, strokeOpacity: markerStrokeOpacity, fillOpacity: markerFillOpacity,
-                onMouseEnter: () => onCategoryEnter(i), onMouseLeave: () => onCategoryLeave(i), onClick: (event: Event) => onCategoryClick(i, event) }
+                onMouseEnter, onMouseLeave, onClick }
             });
           }
         }
