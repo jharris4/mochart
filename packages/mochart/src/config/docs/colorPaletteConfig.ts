@@ -22,6 +22,6 @@ export default function getDescriptions() {
 }
 export function getDetails() {
   return {
-    series: 'The fallback coloring for series that do not set explicit colors: each series takes the palette entry for its series index (or its category index, for series configured to color by category index). The focused/defocused variants apply while another element has focus.'
+    series: 'The fallback coloring for series that do not set explicit colors: each series takes the palette entry for its series index (or its category index, for series configured to color by category index). The focused/defocused variants apply while another element has focus. The built-in arrays use Paul Tol\'s <a href="https://sronpersonalpages.nl/~pault/">Bright qualitative color scheme</a>, designed to be color-blind safe.'
   };
 }

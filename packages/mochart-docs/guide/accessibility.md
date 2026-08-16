@@ -258,6 +258,36 @@ tooltip in any case, and the keyboard reaches every category without aiming.
 The same goes for anything you inject through the
 [state factories](/guide/chart-states): its target sizes are yours.
 
+## Color and visual encoding
+
+The default series colors use Paul Tol's
+[Bright qualitative color scheme](https://sronpersonalpages.nl/~pault/),
+which was designed to remain distinguishable with common forms of
+color-vision deficiency. The seven colors repeat when a chart has more than
+seven series or color-indexed categories. See
+[Colors, theming, and dark mode](/guide/theming#series-color-palettes) to view
+the defaults or configure another palette.
+
+A color-blind-safe palette is a useful baseline, not a guarantee that a chart
+is accessible by color alone. It does not guarantee sufficient contrast
+against every page background or between every pair of adjacent filled
+shapes. Test configured colors against the chart's actual background, and
+remember that changing the page theme does not change concrete series colors.
+The W3C's
+[Non-text Contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)
+includes chart-specific examples for lines and adjacent pie slices.
+
+When readers must identify a series or category, provide a visible cue in
+addition to hue. Depending on the chart, that can be distinct
+[`markerShape`](/reference/series#series.markerShape) values,
+[`strokeDashArray`](/reference/series#series.shapeStyle.normal.strokeDashArray)
+patterns on lines, [pattern fills](/recipes/patterns), direct labels, or an
+adjacent data table or text summary. Tooltip and screen-reader announcements
+make values available through other routes, but they do not replace the
+visible non-color cue needed by sighted readers who cannot distinguish the
+colors. This follows
+[WCAG 2.2's Use of Color criterion](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html).
+
 ## Forced colors and High Contrast
 
 In forced-colors modes (Windows High Contrast among them) the stylesheet
@@ -273,8 +303,7 @@ collapse every series to one color — worse than keeping hues the mode did not
 ask about. A chart that has to stay readable there should carry a non-color
 encoding as well: distinct
 [`markerShape`](/reference/series#series.markerShape) values per series, or
-`strokeDashArray` on lines. That advice applies to color-vision deficiency
-generally, not only to forced colors.
+`strokeDashArray` on lines.
 
 ## Reduced motion
 

@@ -189,8 +189,8 @@ A few boundaries worth knowing:
 - [Accessibility](/guide/accessibility) — the keyboard map, screen-reader
   behavior, and reduced-motion support, on by default and tuned via the
   `accessibility` config section
-- [Theming and dark mode](/guide/theming) — chart chrome follows your
-  page's CSS `color`, dark mode included
+- [Colors, theming, and dark mode](/guide/theming) — customize series
+  palettes; chart chrome follows your page's CSS `color`, dark mode included
 - [Exporting images](/guide/export) — download any chart as a standalone
   SVG or PNG file
 - [Recipes](/recipes/stacked-bars) — working configs for common chart shapes

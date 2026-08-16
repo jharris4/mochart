@@ -84,7 +84,7 @@ Series styles additionally accept the palette modes `'series'`,
 `'seriesIndex'` and `'categoryIndex'` in place of a color; see
 [`colorPalette`](/reference/colorPalette). Any style color also
 accepts `'currentColor'` to follow the host page's CSS `color` (how chart
-chrome themes itself — see [Theming and dark mode](/guide/theming)), and `'none'`
+chrome themes itself — see [Colors, theming, and dark mode](/guide/theming)), and `'none'`
 to switch that half of the style off.
 
 Style colors are written straight to the DOM, so any CSS color the browser

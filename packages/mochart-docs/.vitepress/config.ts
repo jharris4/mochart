@@ -115,7 +115,7 @@ function guideSidebar() {
         { text: 'Interaction', link: '/guide/interaction' },
         { text: 'Accessibility', link: '/guide/accessibility' },
         { text: 'Chart states', link: '/guide/chart-states' },
-        { text: 'Theming and dark mode', link: '/guide/theming' },
+        { text: 'Colors, theming, and dark mode', link: '/guide/theming' },
         { text: 'Exporting images', link: '/guide/export' },
         { text: 'Editing config JSON', link: '/guide/editor' }
       ]

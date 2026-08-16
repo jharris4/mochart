@@ -65,7 +65,7 @@ high-DPI displays.
 
 The chart's structural colors (axis and legend text, grid lines, …) default
 to following the host page via `currentColor`
-(see [Theming and dark mode](/guide/theming)), and the export inlines those
+(see [Colors, theming, and dark mode](/guide/theming)), and the export inlines those
 resolved colors. The default background matches: with no `backgroundColor`
 given, the export paints the effective page background behind the chart (the
 nearest ancestor with a non-transparent background, white when there is none),

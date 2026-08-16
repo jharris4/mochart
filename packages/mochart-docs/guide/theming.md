@@ -1,4 +1,4 @@
-# Theming and dark mode
+# Colors, theming, and dark mode
 
 A chart has two kinds of color. **Series colors** — bars, lines, markers,
 slices — come from the config: the
@@ -16,6 +16,7 @@ page; they stay whatever the palette or your config says.
 
 <script setup>
 import * as theming from '../examples/theming'
+import * as palette from '../examples/palette'
 </script>
 
 The page color doesn't have to be a theme. This chart's host element sets
@@ -24,7 +25,53 @@ tint while the series keep their palette colors:
 
 <LiveChart :config="theming.config" :data="theming.data" color="#7c3aed" />
 
-## How it works
+## Series color palettes
+
+Mochart's default is Paul Tol's
+[Bright qualitative color scheme](https://sronpersonalpages.nl/~pault/), in
+its recommended order:
+
+```js
+['#4477aa', '#ee6677', '#228833', '#ccbb44', '#66ccee', '#aa3377', '#bbbbbb']
+```
+
+It is designed to distinguish unordered categories for people with common
+forms of color-vision deficiency. A default series shape takes the color at
+its series index; a style set to `categoryIndex` instead takes the color at
+the datum's category index. Indices wrap, so index 7 reuses index 0. If that
+would make two things that readers must identify share a color, add another
+visual encoding or choose a suitable palette with more entries — see
+[Color and visual encoding](/guide/accessibility#color-and-visual-encoding).
+
+Set both `strokeColors` and `fillColors` when line and filled renderers should
+share a palette. The arrays are replacements, not extensions of the defaults.
+This example replaces the normal series palette with Tol's three-color
+high-contrast scheme:
+
+<LiveChart :config="palette.config" :data="palette.data" demo="monthly" />
+
+<<< @/examples/palette.ts
+
+The default `focused` and `defocused` series styles use `same`, so the normal
+color remains in effect during interaction and the example only needs to
+override `normal`. If a custom style uses `seriesIndex` or `categoryIndex`
+directly in either focus state, configure that state's palette arrays too.
+
+The four top-level palette groups serve different elements:
+
+- `series` colors the main line, area, bar, or pie shape.
+- `marker`, `label`, and `errorBar` provide independent colors when those
+  elements' styles explicitly use `seriesIndex` or `categoryIndex`.
+- By default, markers and error bars use the owning `series` color, while
+  labels use the page's `currentColor`, so changing `series` is usually enough.
+
+See the [`colorPalette` reference](/reference/colorPalette) for the complete
+shape and [the config model](/guide/config-model#partial-overrides) for merge
+behavior. A qualitative palette identifies separate categories; to map a
+numeric magnitude through a continuous or diverging ramp, use
+[`colorProperty` and `colorScale`](/recipes/color-by-value) instead.
+
+## Chrome and `currentColor`
 
 Chrome style fields default to `'currentColor'`, which is written to the
 rendered SVG as-is — the browser resolves it against the inherited `color`,

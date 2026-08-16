@@ -12,6 +12,7 @@ import * as basic from '../../examples/basic';
 import * as hero from '../../examples/hero';
 import * as animation from '../../examples/animation';
 import * as interaction from '../../examples/interaction';
+import * as palette from '../../examples/palette';
 import * as stackedBars from '../../examples/stackedBars';
 import * as dualAxes from '../../examples/dualAxes';
 import * as dateAxis from '../../examples/dateAxis';
@@ -49,6 +50,7 @@ const docsExamples: { config: object; page: UsageLink }[] = [
   { config: basic.config, page: { text: 'Getting started', link: '/guide/getting-started' } },
   { config: animation.config, page: { text: 'Staged animation', link: '/guide/staged-animation' } },
   { config: interaction.config, page: { text: 'Interaction', link: '/guide/interaction' } },
+  { config: palette.config, page: { text: 'Colors and theming', link: '/guide/theming#series-color-palettes' } },
   { config: stackedBars.config, page: { text: 'Stacked bars', link: '/recipes/stacked-bars' } },
   { config: dualAxes.config, page: { text: 'Dual value axes', link: '/recipes/dual-axes' } },
   { config: dateAxis.config, page: { text: 'Date axis', link: '/recipes/date-axis' } },
