@@ -73,10 +73,12 @@ afterEach(() => {
     handle.destroy();
   }
   handles.length = 0;
-  document.body.innerHTML = '';
   if (vi.isFakeTimers()) {
+    // let the shared rAF loop see the tweens finish; a cleared frame would leave it stuck for the next test
+    runFrames();
     vi.clearAllTimers();
   }
+  document.body.innerHTML = '';
 });
 
 afterAll(() => {

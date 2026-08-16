@@ -31,6 +31,8 @@ export class AnimatedDataSource implements ChartDataSource {
   initialAnimationPercentage: number | null = null;
 
   private input!: ChartDataSourceInput;
+  /** Entrance progress already rendered when a config-only change rebuilt the tween; its percentages resume from here. */
+  private initialAnimationOffset = 0;
   /** The running data tween's destination data (chartData lags it by a frame). */
   private targetChartData: ChartData | null = null;
   private chartAnimationData: ChartAnimationData | null = null;
@@ -61,6 +63,7 @@ export class AnimatedDataSource implements ChartDataSource {
     this.valuesTweened = false;
     this.focusTweening = false;
     this.initialAnimationPercentage = null;
+    this.initialAnimationOffset = 0;
     this.tweenManager.cancelTweens();
     if (mochartConfig !== null && mochartConfig.validation.valid && dataProvider !== null && isDataProviderValid(dataProvider)) {
       const newChartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
@@ -113,7 +116,11 @@ export class AnimatedDataSource implements ChartDataSource {
       if (configChanged || dataChanged) {
         const chartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
         this.targetChartData = chartData;
-        const chartAnimationData = this.chartAnimationData = getChartAnimationData(mochartConfig, this.chartData, chartData);
+        // a config-only change mid-entrance keeps the entrance: initialDuration pacing and continuous progress
+        const continueInitial = !dataChanged && this.chartAnimationData !== null && this.chartAnimationData.initialAnimation &&
+          this.dataTweening && !this.valuesTweened;
+        this.initialAnimationOffset = continueInitial ? (this.initialAnimationPercentage ?? 0) : 0;
+        const chartAnimationData = this.chartAnimationData = getChartAnimationData(mochartConfig, this.chartData, chartData, continueInitial);
 
         this.startDataTween(mochartConfig, chartAnimationData);
         categoriesChanged = this.hasCategoryAdditions || this.hasCategoryRemovals || this.hasCategoryReorder;
@@ -196,11 +203,12 @@ export class AnimatedDataSource implements ChartDataSource {
     // Expose the initial value tween's progress (chart types with entrance
     // effects — the pie sweep-in — consume it); cleared once values settle.
     if (this.chartAnimationData !== null && this.chartAnimationData.initialAnimation) {
+      const offset = this.initialAnimationOffset;
       if (updateType === dataTweenValueStart) {
-        this.initialAnimationPercentage = 0;
+        this.initialAnimationPercentage = offset;
       }
       else if (updateType === dataTweenValueUpdate && percentage !== undefined) {
-        this.initialAnimationPercentage = percentage;
+        this.initialAnimationPercentage = offset + (1 - offset) * percentage;
       }
       else if (updateType === dataTweenValueComplete) {
         this.initialAnimationPercentage = null;

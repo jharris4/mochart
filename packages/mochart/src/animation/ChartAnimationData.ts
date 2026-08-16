@@ -20,19 +20,22 @@ import type {
 
 // Main animation logic functions
 
+/** `continueInitial`: a tween rebuilt mid-entrance from rendered data stays the initial animation. */
 export function getChartAnimationData(
   mochartConfig: EnhancedMochartConfig,
   oldChartData: AnimationChartData | null,
-  newChartData: AnimationChartData
+  newChartData: AnimationChartData,
+  continueInitial = false
 ): ChartAnimationData {
   let categoryDeltaData: CategoryDeltaData;
   let axisExpansionData: AxisTransitionData;
   let valueChangeData: ValueChangeData;
   let axisContractionData: AxisTransitionData;
 
-  const initialAnimation = getChartDataCategoryCount(oldChartData) === 0;
+  const fromEmpty = getChartDataCategoryCount(oldChartData) === 0;
+  const initialAnimation = fromEmpty || continueInitial;
 
-  if (initialAnimation) {
+  if (fromEmpty) {
     categoryDeltaData = getInitialCategoryDeltaData(mochartConfig.categoryAxis, newChartData.categoryData);
     axisExpansionData = emptyAxisDeltaData as EmptyAxisDeltaData;
     valueChangeData = getInitialValueChangeData(mochartConfig, newChartData) as ValueChangeData;
