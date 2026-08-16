@@ -182,7 +182,9 @@ export function getFocusStrokeStyle<C>(focusPercentage: FocusPercentage, { norma
 export function getFocusStyle<C>(focusPercentage: FocusPercentage, styleStates: StyleStates<C>): FocusStyle {
   const { normal, focused, defocused } = styleStates;
   return {
-    ...getFocusStrokeStyle(focusPercentage, styleStates),
+    strokeWidth: getFocusStrokeWidth(focusPercentage, normal.strokeWidth, focused.strokeWidth, defocused.strokeWidth),
+    strokeDashArray: getFocusStrokeDashArray(focusPercentage, normal.strokeDashArray, focused.strokeDashArray, defocused.strokeDashArray),
+    strokeOpacity: getFocusValue(focusPercentage, normal.strokeOpacity, focused.strokeOpacity, defocused.strokeOpacity),
     fillOpacity: getFocusValue(focusPercentage, normal.fillOpacity, focused.fillOpacity, defocused.fillOpacity)
   };
 }

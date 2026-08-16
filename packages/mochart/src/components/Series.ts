@@ -23,7 +23,8 @@ import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { FocusData } from '../types/animation';
 import type { AxisScale, CategoryAxisData, NullableDomain, SeriesDomainObject, SeriesPositionData, SeriesValueObject, StackData } from '../types/data';
 import type { LayoutInfo } from '../types/layout';
-import { CategoryHandlerCache } from '../utils/CategoryHandlers';
+import { CategoryShapeCache } from '../utils/CategoryShapes';
+import type { CategoryShape } from '../utils/CategoryShapes';
 
 const noOp = () => {};
 const noOpCategory = (_categoryIndex: number) => {};
@@ -67,13 +68,12 @@ interface SeriesState {
   onCategoryClick: (categoryIndex: number, event: Event) => void;
 }
 
-interface BarData { key: string; attrs: Record<string, unknown> }
 interface BarHandle { root: El }
 
-const barAdapter: ElListAdapter<BarData, BarHandle> = {
-  key: (bar: BarData) => bar.key,
+const barAdapter: ElListAdapter<CategoryShape, BarHandle> = {
+  key: (bar: CategoryShape) => bar.key,
   create: () => ({ root: svgEl('path') }),
-  update: (handle: BarHandle, bar: BarData) => {
+  update: (handle: BarHandle, bar: CategoryShape) => {
     handle.root.set(bar.attrs);
   }
 };
@@ -86,8 +86,8 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
   markers = this.slot(this.root);
   labels = this.slot(this.root);
   barsGroup = svgEl('g');
-  bars = new ElList<BarData, BarHandle>(this.barsGroup.node, null);
-  categoryHandlers = new CategoryHandlerCache(() => this.state);
+  bars = new ElList<CategoryShape, BarHandle>(this.barsGroup.node, null);
+  barShapes = new CategoryShapeCache('seriesBar', () => this.state);
 
   constructor() {
     super();
@@ -281,7 +281,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         this.rangeShape.set(null);
       }
       else if (seriesConfig.renderer === RENDERER_BAR) {
-        const bars: BarData[] = [];
+        const bars: CategoryShape[] = [];
         const columnGenerator = getColumnGenerator(seriesConfig, seriesPositionData, inverted, stackData);
         let barStrokeColor = seriesStrokeColor;
         let barFillColor = seriesFillColor;
@@ -333,14 +333,12 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
               }
             }
             const { strokeWidth: barStrokeWidth, strokeDashArray: barStrokeDashArray, strokeOpacity: barStrokeOpacity, fillOpacity: barFillOpacity } = getFocusStyle(focusPercentage, seriesConfig.shapeStyle);
-            const { onMouseEnter, onMouseLeave, onClick } = this.categoryHandlers.get(i);
-            bars.push({
-              key: 'bar-' + i,
-              attrs: { d: columnGenerator(i), className: mochartCssClasses['seriesBar'] + i,
-                onMouseEnter, onMouseLeave, onClick,
-                stroke: barStrokeColor, strokeWidth: barStrokeWidth, strokeOpacity: barStrokeOpacity,
-                strokeDasharray: barStrokeDashArray, fill: barFillColor, fillOpacity: barFillOpacity }
-            });
+            const bar = this.barShapes.get(i);
+            bar.attrs = { d: columnGenerator(i), className: bar.className,
+              onMouseEnter: bar.onMouseEnter, onMouseLeave: bar.onMouseLeave, onClick: bar.onClick,
+              stroke: barStrokeColor, strokeWidth: barStrokeWidth, strokeOpacity: barStrokeOpacity,
+              strokeDasharray: barStrokeDashArray, fill: barFillColor, fillOpacity: barFillOpacity };
+            bars.push(bar);
           }
         }
         this.shape.set('bars', () => this.barsGroup);

@@ -9,19 +9,15 @@ import { getSymbolGenerator } from '../utils/shapeUtils';
 import { getSeriesMarkerFillColor, getSeriesMarkerStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { getFocusStyle, getCategoryFocusPercentage } from '../utils/FocusValue';
-import type { ElListAdapter, ElProps } from '../render';
+import type { ElListAdapter } from '../render';
 import type { ColorPaletteConfig } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { FocusData } from '../types/animation';
 import type { SeriesDomainObject, SeriesPositionData, SeriesValueObject } from '../types/data';
-import { CategoryHandlerCache } from '../utils/CategoryHandlers';
+import { CategoryShapeCache } from '../utils/CategoryShapes';
+import type { CategoryShape } from '../utils/CategoryShapes';
 
-interface MarkerItem {
-  key: string;
-  attrs: ElProps;
-}
-
-const markerAdapter: ElListAdapter<MarkerItem, { root: ReturnType<typeof svgEl> }> = {
+const markerAdapter: ElListAdapter<CategoryShape, { root: ReturnType<typeof svgEl> }> = {
   key: (marker) => marker.key,
   create: () => ({ root: svgEl('path') }),
   update: (handle, marker) => {
@@ -45,8 +41,8 @@ interface SeriesMarkersProps {
 
 export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
   root = svgEl('g');
-  markers = this.elList<MarkerItem>(this.root);
-  categoryHandlers = new CategoryHandlerCache(() => this.props);
+  markers = this.elList<CategoryShape>(this.root);
+  markerShapes = new CategoryShapeCache('seriesMarker', () => this.props);
 
   create() {
     return this.root.node;
@@ -60,7 +56,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
       let markerFillColor, markerStrokeColor;
       const { markerShape, missingValueMarkers, markerSize, markerMinSize, markerSizeScale } = seriesConfig;
-      const markers: MarkerItem[] = [];
+      const markers: CategoryShape[] = [];
       let markerSizes: Array<number | undefined> | null = null;
       if (seriesConfig.markerProperty !== NONE) {
         markerSizes = [];
@@ -113,13 +109,11 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
             }
           }
           if (currentMarkerSize !== undefined) {
-            const { onMouseEnter, onMouseLeave, onClick } = this.categoryHandlers.get(i);
-            markers.push({
-              key: 'marker-' + i,
-              attrs: { className: mochartCssClasses['seriesMarker'] + i, d: theSymbol, transform: translate(cx, cy),
-                stroke: markerStrokeColor, fill: markerFillColor, strokeWidth: markerStrokeWidth, strokeDasharray: markerStrokeDashArray, strokeOpacity: markerStrokeOpacity, fillOpacity: markerFillOpacity,
-                onMouseEnter, onMouseLeave, onClick }
-            });
+            const marker = this.markerShapes.get(i);
+            marker.attrs = { className: marker.className, d: theSymbol, transform: translate(cx, cy),
+              stroke: markerStrokeColor, fill: markerFillColor, strokeWidth: markerStrokeWidth, strokeDasharray: markerStrokeDashArray, strokeOpacity: markerStrokeOpacity, fillOpacity: markerFillOpacity,
+              onMouseEnter: marker.onMouseEnter, onMouseLeave: marker.onMouseLeave, onClick: marker.onClick };
+            markers.push(marker);
           }
         }
       }

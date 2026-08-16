@@ -1,16 +1,17 @@
 /**
- * Per-category shape handlers: bars, markers and labels keep the same handler functions across
- * syncs (no per-frame closures), while still routing to the series' current callbacks.
+ * Per-category shape records: bars, markers and labels keep the same key, class name and handler
+ * functions across syncs (no per-frame closures or strings), while still routing to the series'
+ * current callbacks.
  */
 import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { mountContainer, trackHandle, mockBoundingClientRect } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
-import { CategoryHandlerCache } from '../../src/utils/CategoryHandlers';
-import type { CategoryCallbacks } from '../../src/utils/CategoryHandlers';
+import { CategoryShapeCache } from '../../src/utils/CategoryShapes';
+import type { CategoryCallbacks, CategoryShape } from '../../src/utils/CategoryShapes';
 import type { ChartFocus, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
-import { getIdCssSelector } from '../../src/utils/ChartDom';
+import { getIdCssSelector, mochartCssClasses } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -63,25 +64,38 @@ beforeAll(() => {
   mockBoundingClientRect(WIDTH, HEIGHT);
 });
 
-describe('CategoryHandlerCache', () => {
-  it('returns the same handlers per index and calls the current callbacks', () => {
+describe('CategoryShapeCache', () => {
+  it('returns the same record per index, keyed and classed by that index, and calls the current callbacks', () => {
     const first: CategoryCallbacks = { onCategoryEnter: vi.fn(), onCategoryLeave: vi.fn(), onCategoryClick: vi.fn() };
     const second: CategoryCallbacks = { onCategoryEnter: vi.fn(), onCategoryLeave: vi.fn(), onCategoryClick: vi.fn() };
     let current = first;
-    const cache = new CategoryHandlerCache(() => current);
+    const cache = new CategoryShapeCache('seriesBar', () => current);
 
-    const handlers = cache.get(2);
-    expect(cache.get(2)).toBe(handlers);
-    expect(cache.get(1)).not.toBe(handlers);
+    const shape = cache.get(2);
+    expect(cache.get(2)).toBe(shape);
+    expect(cache.get(1)).not.toBe(shape);
+    expect(shape.key).toBe(2);
+    expect(shape.className).toBe(mochartCssClasses['seriesBar'] + 2);
 
     const event = new Event('click');
-    handlers.onMouseEnter(event);
+    shape.onMouseEnter(event);
     expect(first.onCategoryEnter).toHaveBeenCalledWith(2);
 
     current = second;
-    handlers.onClick(event);
+    shape.onClick(event);
     expect(second.onCategoryClick).toHaveBeenCalledWith(2, event);
     expect(first.onCategoryClick).not.toHaveBeenCalled();
+  });
+
+  it('extends each record once through the given factory', () => {
+    const callbacks: CategoryCallbacks = { onCategoryEnter: vi.fn(), onCategoryLeave: vi.fn(), onCategoryClick: vi.fn() };
+    const extend = vi.fn((shape: CategoryShape) => ({ ...shape, text: '' }));
+    const cache = new CategoryShapeCache('seriesLabel', () => callbacks, extend);
+
+    const label = cache.get(0);
+    label.text = 'a';
+    expect(cache.get(0).text).toBe('a');
+    expect(extend).toHaveBeenCalledTimes(1);
   });
 });
 

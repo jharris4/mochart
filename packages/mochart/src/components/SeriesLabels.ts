@@ -13,7 +13,8 @@ import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { FocusData } from '../types/animation';
 import type { AxisScale, NullableDomain, SeriesPositionData, SeriesValueObject } from '../types/data';
 import type { LabelPosition } from '../config/core/constants';
-import { CategoryHandlerCache } from '../utils/CategoryHandlers';
+import { CategoryShapeCache } from '../utils/CategoryShapes';
+import type { CategoryShape } from '../utils/CategoryShapes';
 
 const getLabelPosition = (isAboveBase: boolean, hasBase: boolean, seriesConfig: EnhancedSeriesConfig): LabelPosition => {
   let { labelPosition } = seriesConfig;
@@ -39,18 +40,18 @@ const getDY = (inverted: boolean, isAboveBase: boolean, position: LabelPosition)
     (position === LABEL_POSITION_INSIDE ? (isAboveBase ? '1.35em' : '-0.65em') : (isAboveBase ? '-0.65em' : '1.35em'));
 };
 
-interface SeriesLabelData { key: string; attrs: Record<string, unknown>; text: string | number }
+interface SeriesLabelShape extends CategoryShape { text: string }
 interface SeriesLabelHandle { root: El; value: TextEl }
 
-const labelAdapter: ElListAdapter<SeriesLabelData, SeriesLabelHandle> = {
-  key: (label: SeriesLabelData) => label.key,
+const labelAdapter: ElListAdapter<SeriesLabelShape, SeriesLabelHandle> = {
+  key: (label: SeriesLabelShape) => label.key,
   create: () => {
     const root = svgEl('text');
     const value = textEl();
     root.append(value);
     return { root, value };
   },
-  update: (handle: SeriesLabelHandle, label: SeriesLabelData) => {
+  update: (handle: SeriesLabelHandle, label: SeriesLabelShape) => {
     handle.root.set(label.attrs);
     handle.value.set(label.text);
   }
@@ -74,8 +75,8 @@ interface SeriesLabelsProps {
 
 export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
   root = svgEl('g');
-  labels = this.elList<SeriesLabelData, SeriesLabelHandle>(this.root);
-  categoryHandlers = new CategoryHandlerCache(() => this.props);
+  labels = this.elList<SeriesLabelShape, SeriesLabelHandle>(this.root);
+  labelShapes = new CategoryShapeCache<SeriesLabelShape>('seriesLabel', () => this.props, shape => ({ ...shape, text: '' }));
 
   create() {
     return this.root.node;
@@ -93,7 +94,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
       if (domainMin !== null && domainMax !== null) {
         const domainExtent = domainMax - domainMin;
         const base = hasBase ? Math.min(Math.max(valueAxisConfig.base!, domainMin), domainMax) : domainMin;
-        const labels: SeriesLabelData[] = [];
+        const labels: SeriesLabelShape[] = [];
         const { max: maxValuesNullable, min: minValues, label: labelValuesNullable } = filteredValues;
         const maxValues = maxValuesNullable!;
         const labelValues = labelValuesNullable!;
@@ -244,14 +245,12 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             seriesPosition = getSeriesPosition(null, i)! + getOffset(aboveBase);
             x = inverted ? seriesPosition : getCategoryPosition(null, i)!;
             y = inverted ? getCategoryPosition(null, i)! : seriesPosition;
-            const { onMouseEnter, onMouseLeave, onClick } = this.categoryHandlers.get(i);
-            labels.push({
-              key: 'label-' + i,
-              attrs: { className: mochartCssClasses['seriesLabel'] + i, transform: translate(x, y),
-                textAnchor, dy, stroke: labelStrokeColor, fill: labelFillColor, fillOpacity: labelFillOpacity, strokeOpacity: labelStrokeOpacity,
-                strokeWidth: labelStrokeWidth, onMouseEnter, onMouseLeave, onClick },
-              text: String(valueFormat(labelValues[skipI]!))
-            });
+            const label = this.labelShapes.get(i);
+            label.attrs = { className: label.className, transform: translate(x, y),
+              textAnchor, dy, stroke: labelStrokeColor, fill: labelFillColor, fillOpacity: labelFillOpacity, strokeOpacity: labelStrokeOpacity,
+              strokeWidth: labelStrokeWidth, onMouseEnter: label.onMouseEnter, onMouseLeave: label.onMouseLeave, onClick: label.onClick };
+            label.text = String(valueFormat(labelValues[skipI]!));
+            labels.push(label);
           }
         }
         this.setPresent(true);
