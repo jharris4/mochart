@@ -173,12 +173,29 @@ function textUnits(text: string): string[] {
     : Array.from(graphemeSegmenter.segment(text), segment => segment.segment);
 }
 
-function unitLength(text: string): number {
-  return textUnits(text).length;
+function joinUnits(units: string[], unitCount: number): string {
+  return units.slice(0, unitCount).join('');
 }
 
-function sliceUnits(text: string, unitCount: number): string {
-  return textUnits(text).slice(0, unitCount).join('');
+// truncatedText is always a unit-boundary prefix of text, so its unit count comes from text's units without re-segmenting
+function prefixUnitCount(units: string[], prefix: string): number {
+  let unitCount = 0;
+  for (let charCount = 0; charCount < prefix.length; unitCount++) {
+    charCount += units[unitCount].length;
+  }
+  return unitCount;
+}
+
+// the suffix is the same string for every label of a component, so its unit count is segmented once
+let cachedSuffixText: string | undefined;
+let cachedSuffixUnitCount = 0;
+
+function suffixUnitLength(truncationText: string): number {
+  if (truncationText !== cachedSuffixText) {
+    cachedSuffixText = truncationText;
+    cachedSuffixUnitCount = textUnits(truncationText).length;
+  }
+  return cachedSuffixUnitCount;
 }
 
 export function truncateSVGText(textElement: SVGTextContentElement, maxTextLength: number, truncationText: string, truncationData: TruncationData): TruncationData {
@@ -195,21 +212,23 @@ export function truncateSVGText(textElement: SVGTextContentElement, maxTextLengt
   }
   const textLength = textElement.getComputedTextLength();
   if (textLength > maxTextLength) {
+    const textUnitList = textUnits(text);
     if (lastText === undefined) {
+      const suffixUnitCount = suffixUnitLength(truncationText);
       // ratio against what is actually rendered (truncatedText + suffix after a reset, not the full text)
-      const renderedLength = truncatedText === text ? unitLength(text) : unitLength(truncatedText) + unitLength(truncationText);
-      const initialTruncatedLength = Math.min(unitLength(text) - 1,
-        Math.max(0, Math.floor((maxTextLength / textLength) * renderedLength) - unitLength(truncationText)));
+      const renderedLength = truncatedText === text ? textUnitList.length : prefixUnitCount(textUnitList, truncatedText) + suffixUnitCount;
+      const initialTruncatedLength = Math.min(textUnitList.length - 1,
+        Math.max(0, Math.floor((maxTextLength / textLength) * renderedLength) - suffixUnitCount));
       return {
         text,
-        truncatedText: sliceUnits(text, initialTruncatedLength),
+        truncatedText: joinUnits(textUnitList, initialTruncatedLength),
         lastText: text
       };
     }
     else {
       return {
         text,
-        truncatedText: sliceUnits(truncatedText, unitLength(truncatedText) - 1),
+        truncatedText: joinUnits(textUnitList, prefixUnitCount(textUnitList, truncatedText) - 1),
         lastText: truncatedText
       };
     }
@@ -223,10 +242,12 @@ export function truncateSVGText(textElement: SVGTextContentElement, maxTextLengt
       }
     }
     else {
-      if (lastText === undefined || unitLength(lastText) < unitLength(truncatedText)) {
+      // both are unit-boundary prefixes of text, so the shorter string is also the one with fewer units
+      if (lastText === undefined || lastText.length < truncatedText.length) {
+        const textUnitList = textUnits(text);
         return {
           text,
-          truncatedText: sliceUnits(text, unitLength(truncatedText) + 1),
+          truncatedText: joinUnits(textUnitList, prefixUnitCount(textUnitList, truncatedText) + 1),
           lastText: truncatedText
         };
       }
