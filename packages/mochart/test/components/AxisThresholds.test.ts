@@ -50,12 +50,29 @@ function categoryThreshold(threshold: Record<string, unknown>, axisExtra: Record
   }, linearRows);
 }
 
-function titlePosition(container: Element): { x: number; y: number } {
-  const title = container.querySelector(getCssSelector('axisThresholdTitle'));
-  expect(title).not.toBeNull();
-  const match = /translate\(([^,]+),([^)]+)\)/.exec(title!.getAttribute('transform') ?? '');
+function translation(element: Element | null): { x: number; y: number } {
+  expect(element).not.toBeNull();
+  const match = /translate\(([^,]+),([^)]+)\)/.exec(element!.getAttribute('transform') ?? '');
   expect(match).not.toBeNull();
   return { x: Number(match![1]), y: Number(match![2]) };
+}
+
+function titlePosition(container: Element): { x: number; y: number } {
+  return translation(container.querySelector(getCssSelector('axisThresholdTitle')));
+}
+
+/** Plot-local translate of the threshold line's group. */
+function linePosition(container: Element): { x: number; y: number } {
+  return translation(container.querySelector(getCssSelector('axisThreshold') + ' line')?.parentElement ?? null);
+}
+
+/** Each upright bar as `{ top, bottom }` in the series group's coordinates. */
+function bars(container: Element): { top: number; bottom: number }[] {
+  return [...container.querySelectorAll(getCssSelector('series') + ' path')].map((path) => {
+    const match = /^M(-?[\d.]+),(-?[\d.]+)h(-?[\d.]+)v(-?[\d.]+)/.exec(path.getAttribute('d') ?? '');
+    expect(match, `unexpected bar path: ${path.getAttribute('d')}`).not.toBeNull();
+    return { top: Number(match![2]), bottom: Number(match![2]) + Number(match![4]) };
+  });
 }
 
 beforeAll(() => {
@@ -333,5 +350,70 @@ describe('inverted plots', () => {
       series: [{ property: 'sales', renderer: 'line' }]
     }, linearRows);
     expect(container.textContent).toContain('T');
+  });
+});
+
+describe('reversed axes', () => {
+  // reversing flips only the pixel direction, so a threshold at v on a reversed axis
+  // lands where max + min - v lands on the normal one
+  it('mirrors a value axis threshold', () => {
+    const normal = linePosition(valueThreshold({ value: 25 }));
+    const reversed = linePosition(valueThreshold({ value: 25 }, { reversed: true }));
+    const mirrored = linePosition(valueThreshold({ value: 75 }));
+    expect(reversed.y).toBeLessThan(normal.y);
+    expect(reversed.y).toBeCloseTo(mirrored.y, 5);
+    expect(reversed.x).toBe(normal.x);
+  });
+
+  it('mirrors a category axis threshold', () => {
+    const normal = linePosition(categoryThreshold({ value: 25 }));
+    const reversed = linePosition(categoryThreshold({ value: 25 }, { reversed: true }));
+    const mirrored = linePosition(categoryThreshold({ value: 75 }));
+    expect(reversed.x).toBeGreaterThan(normal.x);
+    expect(reversed.x).toBeCloseTo(mirrored.x, 5);
+    expect(reversed.y).toBe(normal.y);
+  });
+
+  // the line must sit on the data it marks: a reversed bar hangs from the ceiling, its far end at its value
+  it('keeps a reversed value axis threshold level with the bar of the same value', () => {
+    const container = mount({ valueAxes: [{ min: 0, max: 100, reversed: true, thresholds: [{ value: 20 }] }] },
+      [{ month: 'Jan', sales: 20 }, { month: 'Feb', sales: 80 }]);
+    const [jan, feb] = bars(container);
+    const seriesOffset = translation(container.querySelector(getCssSelector('series')));
+    expect(jan.top).toBe(feb.top);
+    expect(linePosition(container).y - seriesOffset.y).toBeCloseTo(jan.bottom, 5);
+  });
+
+  it('mirrors a value axis threshold on an inverted plot', () => {
+    const inverted = (threshold: Record<string, unknown>, axisExtra: Record<string, unknown> = {}) =>
+      linePosition(mount({ plot: { inverted: true }, valueAxes: [{ min: 0, max: 100, thresholds: [threshold], ...axisExtra }] }));
+    const normal = inverted({ value: 25 });
+    const reversed = inverted({ value: 25 }, { reversed: true });
+    const mirrored = inverted({ value: 75 });
+    expect(reversed.x).toBeGreaterThan(normal.x);
+    expect(reversed.x).toBeCloseTo(mirrored.x, 5);
+    expect(reversed.y).toBe(normal.y);
+  });
+
+  it('mirrors a category axis threshold on an inverted plot', () => {
+    const inverted = (threshold: Record<string, unknown>, axisExtra: Record<string, unknown> = {}) =>
+      linePosition(mount({
+        plot: { inverted: true },
+        categoryAxis: { property: 'x', type: 'number', scale: 'linear', min: 0, max: 100, thresholds: [threshold], ...axisExtra },
+        series: [{ property: 'sales', renderer: 'line' }]
+      }, linearRows));
+    const normal = inverted({ value: 25 });
+    const reversed = inverted({ value: 25 }, { reversed: true });
+    const mirrored = inverted({ value: 75 });
+    expect(reversed.y).toBeGreaterThan(normal.y);
+    expect(reversed.y).toBeCloseTo(mirrored.y, 5);
+    expect(reversed.x).toBe(normal.x);
+  });
+
+  // snapping follows the pixel edge, not the value: a low value on a reversed axis is near the ceiling
+  it('snaps a high title below a low-value line on a reversed value axis', () => {
+    const snapped = titlePosition(valueThreshold({ value: 2, title: 'T', titleSide: 'high', titleSnapToValue: true }, { reversed: true }));
+    const clamped = titlePosition(valueThreshold({ value: 2, title: 'T', titleSide: 'high', titleSnapToValue: false }, { reversed: true }));
+    expect(snapped.y).toBeGreaterThan(clamped.y);
   });
 });
