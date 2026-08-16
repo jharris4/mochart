@@ -215,3 +215,288 @@ describe('getTransitionValueChangeData for a stacked series legend toggle', () =
     });
   });
 });
+
+type DeltaMap = Record<string, Record<string, { deltaPercentage: number; deltaFactor?: number; deltaCopied?: boolean; deltas: number[] | null }> & { deltaPercentage: number }>;
+
+const ordinalNumberAxis = { property: 'g', type: 'number', scale: 'ordinal' };
+
+// Duration sync across raw and filtered maps per stack (adjustDeltaPercentagesForStackedCategories).
+describe('stack duration sync across the raw and filtered maps', () => {
+  const rows = [
+    { g: 0, a: 5, b: 3, c: 2, x: 1, y: 1 },
+    { g: 1, a: 4, b: 6, c: 1, x: 1, y: 1 }
+  ];
+  const stackConfig = (extraSeries: Record<string, unknown>[] = [], extraStacks: Record<string, unknown>[] = []) => makeConfig({
+    categoryAxis: ordinalNumberAxis,
+    series: [
+      { stack: 'SS0', property: 'a', renderer: 'bar' },
+      { stack: 'SS0', property: 'b', renderer: 'bar' },
+      { stack: 'SS0', property: 'c', renderer: 'bar' },
+      ...extraSeries
+    ],
+    seriesStacks: [{ id: 'SS0' }, ...extraStacks]
+  });
+  const transition = (config: ReturnType<typeof makeConfig>, prevRows: Record<string, number>[], prevFiltered: Record<string, boolean>, nextRows: Record<string, number>[], nextFiltered: Record<string, boolean>) => {
+    const prev = getChartData(config, new ArrayOfObjectsDataProvider(prevRows), prevFiltered);
+    const next = getChartData(config, new ArrayOfObjectsDataProvider(nextRows), nextFiltered);
+    return getTransitionValueChangeData(config, prev, next, getCategoryDeltaData(config.categoryAxis, prev.categoryData, next.categoryData));
+  };
+
+  it('paces the raw and filtered stack edges of one stack together when data changes while a series filters', () => {
+    const changedRows = [
+      { g: 0, a: 1, b: 3, c: 9, x: 1, y: 1 },
+      { g: 1, a: 8, b: 6, c: 1, x: 1, y: 1 }
+    ];
+    const vcd = transition(stackConfig(), rows, {}, changedRows, { S1: true });
+    const raw = vcd.deltas.raw.deltas as DeltaMap;
+    const filtered = vcd.deltas.filtered.deltas as DeltaMap;
+    const shared = raw.S0.stack.deltaPercentage;
+    expect(shared).toBeGreaterThan(0);
+    // S0's filtered stack is a raw copy, so it inherits the raw percentage
+    expect(filtered.S0.stack.deltaCopied).toBe(true);
+    for (const delta of [raw.S1.stack, raw.S1.prior, raw.S2.stack, raw.S2.prior,
+      filtered.S0.stack, filtered.S1.stack, filtered.S1.prior, filtered.S2.stack, filtered.S2.prior]) {
+      expect(delta.deltaPercentage).toBe(shared);
+    }
+    // the deltas themselves keep their own magnitudes; only the pacing is shared
+    expect(raw.S0.stack.deltas).toEqual([-4, 4]);
+    expect(filtered.S2.stack.deltas).toEqual([0, -2]);
+    // neither map reports done before its stack entries finish
+    expect(vcd.deltas.raw.deltaPercentage).toBeGreaterThanOrEqual(shared);
+    expect(vcd.deltas.filtered.deltaPercentage).toBeGreaterThanOrEqual(shared);
+    for (const seriesId of ['S1', 'S2']) {
+      expect(raw[seriesId].deltaPercentage).toBeGreaterThanOrEqual(shared);
+      expect(filtered[seriesId].deltaPercentage).toBeGreaterThanOrEqual(shared);
+    }
+  });
+
+  it('leaves stack entries that did not move at zero', () => {
+    // only the top series changes, so S0's stack and S1's prior are untouched
+    const changedRows = rows.map(row => ({ ...row, c: row.c + 5 }));
+    const vcd = transition(stackConfig(), rows, {}, changedRows, {});
+    const raw = vcd.deltas.raw.deltas as DeltaMap;
+    expect(raw.S2.stack.deltaPercentage).toBeGreaterThan(0);
+    expect(raw.S0.stack.deltaPercentage).toBe(0);
+    expect(raw.S1.stack.deltaPercentage).toBe(0);
+    expect(raw.S1.prior.deltaPercentage).toBe(0);
+    expect(raw.S2.prior.deltaPercentage).toBe(0);
+    expect(raw.S0.deltaPercentage).toBe(0);
+  });
+
+  it('paces independent stacks separately', () => {
+    const config = stackConfig([
+      { stack: 'SS1', property: 'x', renderer: 'bar' },
+      { stack: 'SS1', property: 'y', renderer: 'bar' }
+    ], [{ id: 'SS1' }]);
+    // SS0 moves a lot (a: 5→9), SS1 barely (x: 1→1.5)
+    const changedRows = rows.map(row => ({ ...row, a: row.a + 4, x: row.x + 0.5 }));
+    const vcd = transition(config, rows, {}, changedRows, {});
+    const raw = vcd.deltas.raw.deltas as DeltaMap;
+    const bigStack = raw.S0.stack.deltaPercentage;
+    const smallStack = raw.S3.stack.deltaPercentage;
+    expect(smallStack).toBeGreaterThan(0);
+    expect(smallStack).toBeLessThan(bigStack);
+    for (const delta of [raw.S1.stack, raw.S1.prior, raw.S2.stack, raw.S2.prior]) {
+      expect(delta.deltaPercentage).toBe(bigStack);
+    }
+    for (const delta of [raw.S4.stack, raw.S4.prior]) {
+      expect(delta.deltaPercentage).toBe(smallStack);
+    }
+    // the small stack finishes early instead of stretching to the big stack's duration
+    expect(raw.S4.prior.deltaFactor).toBeGreaterThan(1);
+    expect(raw.S1.prior.deltaFactor).toBe(1);
+  });
+});
+
+// Error-bar duration sync (adjustDeltaPercentagesForErrorBarSeries): plain/range/errorLow/errorHigh share a duration.
+describe('error-bar duration sync', () => {
+  // the second row spreads the value axis so the moves below are small fractions of its extent
+  const rows = [
+    { g: 0, v: 5, lo: 4, hi: 6, r: 2, p: 5 },
+    { g: 1, v: 15, lo: 12, hi: 18, r: 8, p: 15 }
+  ];
+  const errorBarConfig = (extraSeriesProps: Record<string, unknown> = {}) => makeConfig({
+    categoryAxis: ordinalNumberAxis,
+    series: [
+      { id: 'V', property: 'v', renderer: 'bar', errorLowProperty: 'lo', errorHighProperty: 'hi', ...extraSeriesProps },
+      { id: 'P', property: 'p', renderer: 'bar' }
+    ]
+  });
+  const transition = (config: ReturnType<typeof makeConfig>, prevRows: Record<string, number>[], prevFiltered: Record<string, boolean>, nextRows: Record<string, number>[], nextFiltered: Record<string, boolean>) => {
+    const prev = getChartData(config, new ArrayOfObjectsDataProvider(prevRows), prevFiltered);
+    const next = getChartData(config, new ArrayOfObjectsDataProvider(nextRows), nextFiltered);
+    return getTransitionValueChangeData(config, prev, next, getCategoryDeltaData(config.categoryAxis, prev.categoryData, next.categoryData));
+  };
+
+  it('stretches a small whisker move to the bar move on the same series', () => {
+    // v moves 4, lo moves 1, hi stays; the control series P moves 1 like lo
+    const changedRows = [{ ...rows[0], v: 9, lo: 3, p: 6 }, rows[1]];
+    const config = errorBarConfig();
+    const vcd = transition(config, rows, {}, changedRows, {});
+    const raw = vcd.deltas.raw.deltas as DeltaMap;
+    expect(raw.V.plain.deltas).toEqual([4, 0]);
+    expect(raw.V.errorLow.deltas).toEqual([-1, 0]);
+    expect(raw.V.plain.deltaPercentage).toBeGreaterThan(0);
+    expect(raw.V.errorLow.deltaPercentage).toBe(raw.V.plain.deltaPercentage);
+    // the untouched bound and the absent range are zero entries and stay zero
+    expect(raw.V.errorHigh.deltaPercentage).toBe(0);
+    expect(raw.V.range.deltaPercentage).toBe(0);
+    // the same 1-unit move on an unrelated series keeps its own, smaller percentage
+    expect(raw.P.plain.deltaPercentage).toBeLessThan(raw.V.errorLow.deltaPercentage);
+    expect(raw.V.errorLow.deltaFactor).toBe(raw.V.plain.deltaFactor);
+    expect(raw.P.plain.deltaFactor).toBeGreaterThan(raw.V.errorLow.deltaFactor!);
+  });
+
+  it('keeps the whisker halfway when the bar is halfway', () => {
+    const changedRows = [{ ...rows[0], v: 9, lo: 3, hi: 8 }, rows[1]];
+    const config = errorBarConfig();
+    const prev = getChartData(config, new ArrayOfObjectsDataProvider(rows), {});
+    const next = getChartData(config, new ArrayOfObjectsDataProvider(changedRows), {});
+    const cad = getChartAnimationData(config, prev, next);
+    for (const percentage of [0.25, 0.5, 0.75]) {
+      const values = getChartDataForValueDelta(config, cad, percentage).seriesData.raw.values;
+      expect(values['V'].plain![0]).toBeCloseTo(5 + 4 * percentage, 9);
+      expect(values['V'].errorLow![0]).toBeCloseTo(4 - 1 * percentage, 9);
+      expect(values['V'].errorHigh![0]).toBeCloseTo(6 + 2 * percentage, 9);
+    }
+  });
+
+  it('syncs the range edge of a ranged error-bar series too', () => {
+    // v moves 4, r moves 1, lo moves 1, hi stays
+    const changedRows = [{ ...rows[0], v: 9, r: 3, lo: 3 }, rows[1]];
+    const config = errorBarConfig({ rangeProperty: 'r' });
+    const vcd = transition(config, rows, {}, changedRows, {});
+    const raw = vcd.deltas.raw.deltas as DeltaMap;
+    const shared = raw.V.plain.deltaPercentage;
+    expect(shared).toBeGreaterThan(0);
+    expect(raw.V.range.deltaPercentage).toBe(shared);
+    expect(raw.V.errorLow.deltaPercentage).toBe(shared);
+    expect(raw.V.errorHigh.deltaPercentage).toBe(0);
+  });
+
+  it('does not touch a series that has no moving synced key', () => {
+    // only the control series moves; the error-bar series has nothing to sync
+    const changedRows = [{ ...rows[0], p: 9 }, rows[1]];
+    const vcd = transition(errorBarConfig(), rows, {}, changedRows, {});
+    const raw = vcd.deltas.raw.deltas as DeltaMap;
+    for (const key of ['plain', 'range', 'errorLow', 'errorHigh']) {
+      expect(raw.V[key].deltaPercentage).toBe(0);
+    }
+    expect(raw.V.deltaPercentage).toBe(0);
+  });
+
+  it('syncs the filtered map when the error-bar series is being unfiltered', () => {
+    const config = errorBarConfig();
+    const vcd = transition(config, rows, { V: true }, rows, {});
+    const filtered = vcd.deltas.filtered.deltas as DeltaMap;
+    expect(vcd.deltas.raw.deltaPercentage).toBe(0);
+    const shared = filtered.V.plain.deltaPercentage;
+    expect(shared).toBeGreaterThan(0);
+    for (const key of ['plain', 'errorLow', 'errorHigh']) {
+      expect(filtered.V[key].deltaCopied).toBe(false);
+      expect(filtered.V[key].deltaPercentage).toBe(shared);
+    }
+    // the unrelated series is an untouched raw copy
+    expect(filtered.P.deltaCopied).toBe(true);
+  });
+});
+
+// Follower duration sync (adjustDeltaPercentagesForFollowerCategories): a leader and its followers share a duration.
+describe('follower duration sync', () => {
+  // the second row spreads the value axis so the moves below are small fractions of its extent
+  const rows = [
+    { g: 0, l: 5, f: 5, f2: 5, c: 5 },
+    { g: 1, l: 15, f: 12, f2: 15, c: 15 }
+  ];
+  const followerConfig = (extraSeries: Record<string, unknown>[] = []) => makeConfig({
+    categoryAxis: ordinalNumberAxis,
+    series: [
+      { id: 'F', property: 'f', renderer: 'bar', followSeries: 'L' },
+      { id: 'L', property: 'l', renderer: 'bar' },
+      { id: 'C', property: 'c', renderer: 'bar' },
+      ...extraSeries
+    ]
+  });
+  const transition = (config: ReturnType<typeof makeConfig>, prevRows: Record<string, number>[], prevFiltered: Record<string, boolean>, nextRows: Record<string, number>[], nextFiltered: Record<string, boolean>) => {
+    const prev = getChartData(config, new ArrayOfObjectsDataProvider(prevRows), prevFiltered);
+    const next = getChartData(config, new ArrayOfObjectsDataProvider(nextRows), nextFiltered);
+    return getTransitionValueChangeData(config, prev, next, getCategoryDeltaData(config.categoryAxis, prev.categoryData, next.categoryData));
+  };
+
+  it('stretches a small follower move to the leader move', () => {
+    // l moves 4, f moves 1, the unrelated control moves 1 like f
+    const changedRows = [{ ...rows[0], l: 9, f: 6, c: 6 }, rows[1]];
+    const config = followerConfig();
+    const vcd = transition(config, rows, {}, changedRows, {});
+    const raw = vcd.deltas.raw.deltas as DeltaMap;
+    expect(raw.L.plain.deltas).toEqual([4, 0]);
+    expect(raw.F.plain.deltas).toEqual([1, 0]);
+    expect(raw.L.plain.deltaPercentage).toBeGreaterThan(0);
+    expect(raw.F.plain.deltaPercentage).toBe(raw.L.plain.deltaPercentage);
+    // the follower's series-level percentage is raised so it does not report done early
+    expect(raw.F.deltaPercentage).toBe(raw.L.deltaPercentage);
+    expect(raw.C.plain.deltaPercentage).toBeLessThan(raw.F.plain.deltaPercentage);
+    expect(raw.F.plain.deltaFactor).toBe(raw.L.plain.deltaFactor);
+    expect(raw.C.plain.deltaFactor).toBeGreaterThan(raw.F.plain.deltaFactor!);
+  });
+
+  it('stretches a small leader move to the follower move', () => {
+    const changedRows = [{ ...rows[0], l: 6, f: 9 }, rows[1]];
+    const vcd = transition(followerConfig(), rows, {}, changedRows, {});
+    const raw = vcd.deltas.raw.deltas as DeltaMap;
+    expect(raw.F.plain.deltaPercentage).toBeGreaterThan(0);
+    expect(raw.L.plain.deltaPercentage).toBe(raw.F.plain.deltaPercentage);
+    expect(raw.L.deltaPercentage).toBe(raw.F.deltaPercentage);
+  });
+
+  it('leaves a member that did not move at zero', () => {
+    const changedRows = [{ ...rows[0], l: 9 }, rows[1]];
+    const vcd = transition(followerConfig(), rows, {}, changedRows, {});
+    const raw = vcd.deltas.raw.deltas as DeltaMap;
+    expect(raw.L.plain.deltaPercentage).toBeGreaterThan(0);
+    expect(raw.F.plain.deltaPercentage).toBe(0);
+    expect(raw.F.deltaPercentage).toBe(0);
+  });
+
+  it('shares the largest move across a leader with several followers', () => {
+    const config = followerConfig([{ id: 'F2', property: 'f2', renderer: 'bar', followSeries: 'L' }]);
+    // the second follower makes the biggest move
+    const changedRows = [{ ...rows[0], l: 6, f: 7, f2: 9 }, rows[1]];
+    const vcd = transition(config, rows, {}, changedRows, {});
+    const raw = vcd.deltas.raw.deltas as DeltaMap;
+    const shared = raw.F2.plain.deltaPercentage;
+    expect(shared).toBeGreaterThan(0);
+    expect(raw.L.plain.deltaPercentage).toBe(shared);
+    expect(raw.F.plain.deltaPercentage).toBe(shared);
+    expect(raw.C.plain.deltaPercentage).toBe(0);
+  });
+
+  it('keeps the follower halfway when the leader is halfway', () => {
+    const changedRows = [{ ...rows[0], l: 9, f: 6 }, rows[1]];
+    const config = followerConfig();
+    const prev = getChartData(config, new ArrayOfObjectsDataProvider(rows), {});
+    const next = getChartData(config, new ArrayOfObjectsDataProvider(changedRows), {});
+    const cad = getChartAnimationData(config, prev, next);
+    for (const percentage of [0.25, 0.5, 0.75]) {
+      const values = getChartDataForValueDelta(config, cad, percentage).seriesData.raw.values;
+      expect(values['L'].plain![0]).toBeCloseTo(5 + 4 * percentage, 9);
+      expect(values['F'].plain![0]).toBeCloseTo(5 + 1 * percentage, 9);
+    }
+  });
+
+  it('syncs the filtered map when the leader is being unfiltered', () => {
+    const config = followerConfig();
+    // the controller filters followers with their leader, so both grow back at once
+    const vcd = transition(config, rows, { L: true, F: true }, rows, {});
+    const filtered = vcd.deltas.filtered.deltas as DeltaMap;
+    expect(vcd.deltas.raw.deltaPercentage).toBe(0);
+    const shared = filtered.L.plain.deltaPercentage;
+    expect(shared).toBeGreaterThan(0);
+    expect(filtered.L.plain.deltaCopied).toBe(false);
+    expect(filtered.F.plain.deltaCopied).toBe(false);
+    // the follower grows back less far than the leader yet shares its duration
+    expect(filtered.F.plain.deltas![1]).toBeLessThan(filtered.L.plain.deltas![1]);
+    expect(filtered.F.plain.deltaPercentage).toBe(shared);
+    expect(filtered.C.deltaCopied).toBe(true);
+  });
+});
