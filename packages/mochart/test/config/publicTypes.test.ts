@@ -1,12 +1,17 @@
 // every config union type and value constant must be exported by name; the type half is enforced at typecheck time — dropping an export fails `npm run typecheck` on this file
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, expectTypeOf } from 'vitest';
 import * as mochart from '../../src';
 import type {
-  CssStyle, MochartInputConfig,
+  CssStyle, MochartInputConfig, MochartConfig,
   Auto, Align, VerticalAlign, Anchor, Position, MissingValues, AxisSide, ThresholdTitleSide,
   ChartType, PieLabelType, PieTooltipLabelType, Scale, DataType, RendererType, CurveType,
-  PatternType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale
+  PatternType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale,
+  ChartEventPayload, ChartFocus, ChartSeriesFilter, ChartSliceClickPayload, ChartSeriesClickPayload,
+  ChartCallbacks, ChartFactories, ChartFactoryContext, ChartFactoryContent, ChartContentFactory,
+  BaseChartProps, ManagedChartProps, DefaultChartProps, ChartHandle,
+  Bounds, DataProvider, ArrayOfObjectsData, ObjectOfArraysData
 } from '../../src';
+import { createChart, createDefaultChart } from '../../src';
 
 // exactly the use the finding calls out: naming a config union in a host's own signature
 function describeSeries(renderer: RendererType, curve: CurveType, shape: MarkerShape): string {
@@ -268,5 +273,112 @@ describe('public extension-point type surface', () => {
     const marginPadding: core.MarginPadding = { top: 1, right: 1, bottom: 1, left: 1 };
     const innerOuter: core.InnerOuter = { inner: 1, outer: 2 };
     expect([bounds.width, marginPadding.top, innerOuter.inner]).toEqual([10, 1, 1]);
+  });
+});
+
+// the chart prop and factory shapes are the contract every binding builds on; these pins are compile-time (expectTypeOf), so a widened member, an added/dropped key or a loosened optionality fails `npm run typecheck`
+type Callback<TArg> = ((arg: TArg) => void) | undefined;
+
+describe('chart prop and factory type surface', () => {
+  it('pins the callback payload shapes', () => {
+    expectTypeOf<ChartEventPayload>().toEqualTypeOf<{
+      chartX: number; chartY: number;
+      categoryPosition: number; valuePosition: number;
+      categoryFraction: number; valueFraction: number;
+      categoryIndex: number;
+    }>();
+    expectTypeOf<ChartFocus>().toEqualTypeOf<{
+      focusedValueAxisId: string | null; focusedSeriesId: string | null; focusedCategoryIndex: number;
+    }>();
+    expectTypeOf<ChartSeriesFilter>().toEqualTypeOf<{ filteredSeriesIds: Record<string, boolean> }>();
+    expectTypeOf<ChartSliceClickPayload>().toEqualTypeOf<{ seriesId: string }>();
+    expectTypeOf<ChartSeriesClickPayload>().toEqualTypeOf<{
+      seriesId: string; categoryIndex: number; nearestCategoryIndex: number;
+    }>();
+  });
+
+  it('pins every callback: optional, void-returning, one typed payload', () => {
+    expectTypeOf<ChartCallbacks>().toEqualTypeOf<{
+      onChartClick?: Callback<ChartEventPayload>;
+      onSliceClick?: Callback<ChartSliceClickPayload>;
+      onSeriesClick?: Callback<ChartSeriesClickPayload>;
+      onChartMouseEnter?: Callback<ChartEventPayload>;
+      onChartMouseMove?: Callback<ChartEventPayload>;
+      onChartMouseLeave?: Callback<ChartEventPayload>;
+      onTitleClick?: (() => void) | undefined;
+      onFocus?: Callback<ChartFocus>;
+      onSeriesFilter?: Callback<ChartSeriesFilter>;
+      onSeriesLayoutBoundsChange?: Callback<Bounds>;
+    }>();
+  });
+
+  it('pins the factory context, content and factory map', () => {
+    expectTypeOf<ChartFactoryContext>().toEqualTypeOf<{
+      width: number; height: number;
+      mochartConfig: MochartConfig | null; dataProvider: DataProvider | null;
+      error: unknown; hasData: boolean;
+    }>();
+    expectTypeOf<ChartFactoryContent>().toEqualTypeOf<Node | string | number | false | null | undefined>();
+    // `true` is deliberately not content: it would render as nothing while looking like "show the default"
+    expectTypeOf<true>().not.toExtend<ChartFactoryContent>();
+    expectTypeOf<ChartContentFactory>().toEqualTypeOf<(context: ChartFactoryContext) => ChartFactoryContent>();
+    expectTypeOf<ChartFactories>().toEqualTypeOf<{
+      getLoadingComponent?: ChartContentFactory | undefined;
+      getErrorComponent?: ChartContentFactory | undefined;
+      getNoDataComponent?: ChartContentFactory | undefined;
+      getNoSizeComponent?: ChartContentFactory | undefined;
+      getNoSeriesComponent?: ChartContentFactory | undefined;
+      getConfigErrorComponent?: ChartContentFactory | undefined;
+    }>();
+  });
+
+  // expect-type does not equate `A & B & {...}` with an interface extending A and B, so the extended
+  // shapes are pinned as inherited part + own part + complete key set
+  it('pins the base props: size required, everything else optional and typed', () => {
+    type OwnBaseProps = {
+      width: number; height: number;
+      style?: string | Record<string, string | number | null | undefined> | undefined;
+      loading?: boolean | undefined;
+      error?: unknown;
+      focusedCategoryIndex?: number | undefined;
+      focusedValueAxisId?: string | null | undefined;
+      focusedSeriesId?: string | null | undefined;
+      filteredSeriesIds?: Record<string, boolean> | undefined;
+    };
+    expectTypeOf<Pick<BaseChartProps, keyof ChartCallbacks>>().toEqualTypeOf<ChartCallbacks>();
+    expectTypeOf<Pick<BaseChartProps, keyof ChartFactories>>().toEqualTypeOf<ChartFactories>();
+    expectTypeOf<Omit<BaseChartProps, keyof ChartCallbacks | keyof ChartFactories>>().toEqualTypeOf<OwnBaseProps>();
+    expectTypeOf<keyof BaseChartProps>().toEqualTypeOf<keyof ChartCallbacks | keyof ChartFactories | keyof OwnBaseProps>();
+    // @ts-expect-error width and height have no default; a binding must measure them
+    const sizeless: BaseChartProps = {};
+    expect(sizeless).toBeDefined();
+  });
+
+  it('pins the two entry-point prop sets and their factory signatures', () => {
+    expectTypeOf<Pick<ManagedChartProps, keyof BaseChartProps>>().toEqualTypeOf<BaseChartProps>();
+    expectTypeOf<Omit<ManagedChartProps, keyof BaseChartProps>>().toEqualTypeOf<{
+      mochartConfig: MochartConfig | null; dataProvider: DataProvider | null;
+    }>();
+    expectTypeOf<Pick<DefaultChartProps, keyof BaseChartProps>>().toEqualTypeOf<BaseChartProps>();
+    expectTypeOf<Omit<DefaultChartProps, keyof BaseChartProps>>().toEqualTypeOf<{
+      config: MochartInputConfig; data: ArrayOfObjectsData | ObjectOfArraysData;
+    }>();
+    // both are required: `null` says "not loaded yet", an absent key is a host bug
+    // @ts-expect-error mochartConfig and dataProvider must be passed, even as null
+    const managed: ManagedChartProps = { width: 1, height: 1 };
+    // @ts-expect-error config and data must be passed
+    const plain: DefaultChartProps = { width: 1, height: 1 };
+    expect([managed, plain]).toHaveLength(2);
+
+    expectTypeOf(createChart).toEqualTypeOf<(container: Element, props: ManagedChartProps) => ChartHandle<ManagedChartProps>>();
+    expectTypeOf(createDefaultChart).toEqualTypeOf<(container: Element, props: DefaultChartProps) => ChartHandle<DefaultChartProps>>();
+    expectTypeOf<ChartHandle<DefaultChartProps>>().toEqualTypeOf<{
+      update(nextProps: Partial<DefaultChartProps>): void;
+      replace(nextProps: DefaultChartProps): void;
+      refresh(): void;
+      destroy(): void;
+    }>();
+    // the handle's default parameter is the managed prop set
+    expectTypeOf<ChartHandle>().toEqualTypeOf<ChartHandle<ManagedChartProps>>();
   });
 });
