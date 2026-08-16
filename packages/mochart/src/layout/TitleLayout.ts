@@ -3,7 +3,6 @@ import type { VerticalAlign } from '../config/core/constants';
 import { getSpacingWidth, getSpacingOuterWidth, getSpacingOuterHeight, getSpacingHeight, getMaxSpacingHeight } from './SpacingLayoutInfo';
 import { createSpacingLayoutInfo, getSpacingLeft } from './SpacingLayoutInfo';
 import type { MarginPadding, Bounds } from '../types/geometry';
-import type { TitleConfig } from '../types/config';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { ChartTextBoundsData, LayoutInfo, SpacingLayoutInfo, TitleLayoutResult } from '../types/layout';
 
@@ -38,10 +37,7 @@ export function getTitleHeight(mochartConfig: EnhancedMochartConfig, chartTextBo
   const { titleTextRawBounds, titlePrefixBounds, titleSuffixBounds } = chartTextBoundsData;
   let titleHeight = 0;
   if (titleConfig.text !== NONE) {
-    // `prefix`/`suffix` were treated as absent from TitleConfig when types were
-    // added (hence the cast); preserved as-is.
-    const { margin, padding, textMargin, textPadding, prefix, suffix, prefixMargin, prefixPadding, suffixMargin, suffixPadding } =
-      titleConfig as TitleConfig & { prefix?: string | null; suffix?: string | null };
+    const { margin, padding, textMargin, textPadding, prefix, suffix, prefixMargin, prefixPadding, suffixMargin, suffixPadding } = titleConfig;
 
     titleHeight = getSpacingOuterHeight(titleTextRawBounds, textMargin, textPadding);
     if (prefix !== NONE) {
