@@ -15,9 +15,11 @@ import type { EnhancedValueAxisConfig } from '../types/enhanced';
 import type { AxisTick } from '../types/data';
 import type { AxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
 import type { FocusPercentage } from '../types/animation';
-import type { TruncationState } from '../utils/TextTruncation';
+import type { TruncationDataValue, TruncationState } from '../utils/TextTruncation';
+import type { Anchor } from '../config/core/constants';
 
 const emptyArray: string[] = [];
+const hiddenStyle = { visibility: 'hidden' };
 
 type AxisDisplayConfig = AxisConfigBase &
   Pick<CategoryAxisConfig, 'scale'> &
@@ -70,6 +72,12 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
   tickLabels = this.elList<AxisTick, TickLabelHandle>(this.tickLabelsGroup);
   sizeTickLabel = this.elSlot(this.tickLabelsGroup);
   truncation = new TruncationTracker();
+  // rebuilt only when the ticks array changes; sync runs every focus-tween frame
+  tickLabelStrings = emptyArray;
+  truncatedLabels = emptyArray;
+  truncatedLabelsSource: { labels: string[]; value: string; data: TruncationDataValue } | null = null;
+  tickTextStyle: { textAnchor: Anchor } | null = null;
+  hiddenTickTextStyle: { textAnchor: Anchor; visibility: string } | null = null;
 
   constructor() {
     super();
@@ -77,6 +85,9 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
   }
 
   derive(props: AxisTickLabelsProps, _state: AxisTickLabelsState, prevProps: AxisTickLabelsProps | null): Partial<AxisTickLabelsState> | null {
+    if (prevProps === null || props.axisTicks !== prevProps.axisTicks) {
+      this.tickLabelStrings = props.axisTicks.map(tick => String(tick.label));
+    }
     if (prevProps === null) {
       return this.truncation.mount(props.axisConfig.tickLabelTruncationEnabled ?? false);
     }
@@ -97,7 +108,28 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
       integrityChanged = Array.isArray(this.truncation.data) && axisTickCount === this.truncation.data.length;
     }
     return this.truncation.prepare(truncationEnabled, truncationChanged, false, integrityChanged,
-      truncationChanged ? axisTicks.map(tick => String(tick.label)) : undefined);
+      truncationChanged ? this.tickLabelStrings : undefined);
+  }
+
+  getTruncatedLabels(truncationEnabled: boolean, truncationValue: string, truncationData: TruncationDataValue): string[] {
+    const labels = this.tickLabelStrings;
+    if (!truncationEnabled || truncationData === null) {
+      return labels;
+    }
+    const source = this.truncatedLabelsSource;
+    if (source === null || source.labels !== labels || source.value !== truncationValue || source.data !== truncationData) {
+      this.truncatedLabels = getTruncatedText(true, truncationValue, labels, truncationData);
+      this.truncatedLabelsSource = { labels, value: truncationValue, data: truncationData };
+    }
+    return this.truncatedLabels;
+  }
+
+  // stable style objects let El.set skip the style diff for every unchanged tick
+  updateTickTextStyles(tickLabelAnchor: Anchor): void {
+    if (this.tickTextStyle === null || this.tickTextStyle.textAnchor !== tickLabelAnchor) {
+      this.tickTextStyle = { textAnchor: tickLabelAnchor };
+      this.hiddenTickTextStyle = { textAnchor: tickLabelAnchor, visibility: hiddenStyle.visibility };
+    }
   }
 
   create() {
@@ -111,13 +143,9 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
     const { vertical, tickLabelAnchor, tickTextX, tickTextY } = axisLayoutInfo;
     const { tickLabelRotation } = axisConfig;
 
-    const tickTextStyle = {
-      textAnchor: tickLabelAnchor
-    };
-    const hiddenStyle = {
-      visibility: 'hidden'
-    };
-    const hiddenTickTextStyle = Object.assign({}, tickTextStyle, hiddenStyle);
+    this.updateTickTextStyles(tickLabelAnchor);
+    const tickTextStyle = this.tickTextStyle!;
+    const hiddenTickTextStyle = this.hiddenTickTextStyle!;
 
     const tickTextDY = vertical ? '0.35em' : '0.35em';
 
@@ -129,7 +157,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
     const truncationEnabled = axisConfig.tickLabelTruncationEnabled ?? false;
     const truncationValue = axisConfig.tickLabelTruncationValue ?? '';
     const useSeriesFocus = axisConfig.useSeriesFocus ?? false;
-    const tickLabels = getTruncatedText(truncationEnabled, truncationValue, axisTicks.map(tick => String(tick.label)), truncationData);
+    const tickLabels = this.getTruncatedLabels(truncationEnabled, truncationValue, truncationData);
 
     const clipPath = truncationEnabled && tickLabelClipPathUniqueId ? getClipPathReference(tickLabelClipPathUniqueId) : null;
 
@@ -160,7 +188,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
         handle.root.set({ className: mochartCssClasses['axisTickLabel'] + i,
           transform: translate(tickX + tickTextX, tickY + tickTextY), clipPath });
         // an overlap-suppressed label is not read, and an ellipsised one is read in full
-        const fullLabel = String(tick.label);
+        const fullLabel = this.tickLabelStrings[i];
         handle.text.set({ style: tick.hidden ? hiddenTickTextStyle : tickTextStyle, dy: tickTextDY, transform: tickRotationTransform,
           stroke, strokeOpacity, fill, fillOpacity, strokeWidth,
           ariaHidden: accessibility && tick.hidden ? 'true' : null,
@@ -200,13 +228,11 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
     if (this.truncation.check) {
       const domElements = this.tickLabelsGroup.node.querySelectorAll<SVGTextContentElement>(getAxisTickLabelsCssSelector());
 
-      const { axisLayoutInfo, tickSpacing, axisConfig, plotLayoutInfo, axisTicks } = this.props;
+      const { axisLayoutInfo, tickSpacing, axisConfig, plotLayoutInfo } = this.props;
       const { vertical } = axisLayoutInfo;
       const tickLabelTruncationValue = axisConfig.tickLabelTruncationValue ?? '';
-      let axisTickLabels = emptyArray; // optimization for when tick labels are not needed...
-      if (this.state.truncationData === null) {
-        axisTickLabels = axisTicks.map(tick => String(tick.label));
-      }
+      // the labels only seed fresh truncation data; an existing entry set is refined in place
+      const axisTickLabels = this.state.truncationData === null ? this.tickLabelStrings : emptyArray;
       let maxLength = tickSpacing ?? 0;
       if (!axisLayoutInfo.tickLabelParallel) {
         maxLength = Math.max(axisConfig.tickLabelTruncationMinLength ?? 0,
