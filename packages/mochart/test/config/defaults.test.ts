@@ -140,6 +140,23 @@ describe('legend defaults', () => {
   });
 });
 
+describe('color palette defaults', () => {
+  it('uses the Tol Bright palette for every element and focus state', () => {
+    const defaults = getDefaults({
+      version: '1.0.0',
+      categoryAxis: { property: 'p' }
+    }) as { colorPalette: Record<string, Record<string, { strokeColors: string[]; fillColors: string[] }>> };
+    const tolBright = ['#4477aa', '#ee6677', '#228833', '#ccbb44', '#66ccee', '#aa3377', '#bbbbbb'];
+
+    for (const palettes of Object.values(defaults.colorPalette)) {
+      for (const palette of Object.values(palettes)) {
+        expect(palette.strokeColors).toEqual(tolBright);
+        expect(palette.fillColors).toEqual(tolBright);
+      }
+    }
+  });
+});
+
 describe('series color-icon defaults', () => {
   function showColorFlags(shapeStyle?: Record<string, unknown>) {
     const defaults = getDefaults({

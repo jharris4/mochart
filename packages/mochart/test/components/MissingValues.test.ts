@@ -14,8 +14,8 @@ const WIDTH = 800;
 const HEIGHT = 600;
 
 // defaultColors from the color palette defaults
-const PALETTE_1 = '#ff7f0e';
-const PALETTE_2 = '#2ca02c';
+const PALETTE_1 = '#ee6677';
+const PALETTE_2 = '#228833';
 
 function makeConfig(seriesOverrides: Record<string, unknown>): MochartInputConfig {
   return {
