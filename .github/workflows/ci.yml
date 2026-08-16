@@ -54,7 +54,7 @@ jobs:
         run: |
           version="$(node -p "require('@playwright/test/package.json').version")"
           echo "version=$version" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           # The engine list is in the key: a cache saved for a narrower set would
