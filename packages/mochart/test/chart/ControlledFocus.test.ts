@@ -69,6 +69,41 @@ describe('controlled filteredSeriesIds', () => {
 
   // Regression: the map was read as "present" rather than "true", so a host
   // that spelled out the unfiltered series hid every one of them.
+  // A host re-rendering with a fresh but equal object (the framework norm) must not re-run
+  // getChartData: the provider read count is that pipeline's observable footprint.
+  it.each([false, true])('does not recompute data for a value-identical fresh object (animate: %s)', animate => {
+    const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
+    const dataProvider = new ArrayOfObjectsDataProvider(data);
+    const reads = vi.spyOn(dataProvider, 'getPropertyValues');
+    const container = mountContainer();
+    const chart = createChart(container, {
+      mochartConfig: enhanceConfig({
+        version: '1.0.0',
+        animation: { animate },
+        categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+        series: [
+          { id: 'sales', property: 'sales', renderer: 'line' },
+          { id: 'costs', property: 'costs', renderer: 'line' }
+        ]
+      }),
+      dataProvider, width: 300, height: 200,
+      filteredSeriesIds: { costs: true }
+    });
+    runFrames();
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales')]);
+
+    reads.mockClear();
+    chart.update({ filteredSeriesIds: { costs: true } });
+    runFrames();
+    expect(reads).not.toHaveBeenCalled();
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales')]);
+
+    chart.update({ filteredSeriesIds: {} });
+    runFrames();
+    expect(reads).toHaveBeenCalled();
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales'), getIdCssClass('series', 'costs')]);
+  });
+
   it('treats an explicit false as not filtered', () => {
     const { chart, container } = mountChart();
 

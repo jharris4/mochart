@@ -164,7 +164,8 @@ export class FocusController {
     if (focusedSeriesId !== undefined) {
       this.focusedSeriesId = focusedSeriesId;
     }
-    if (filteredSeriesIds !== undefined) {
+    // by value: a fresh but equal object (the framework norm) must not re-run the data pipeline
+    if (filteredSeriesIds !== undefined && !sameFilteredSeriesIds(filteredSeriesIds, this.filteredSeriesIds)) {
       this.filteredSeriesIds = filteredSeriesIds;
     }
   }
