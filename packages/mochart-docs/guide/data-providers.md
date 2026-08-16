@@ -61,11 +61,12 @@ The rules the chart holds the values to:
 - **The config's category property defines the category count.** Every other
   requested property must return the same number of values; a mismatch is a
   hard data error naming both counts.
-- **Every value is a `DataValue`.** Series values must be numeric, with
-  `null` and `undefined` both reading as a missing value (`null` is how JSON
-  writes a hole in the data, and the chart normalizes it to `NaN`
-  internally). Category and display values are strings, numbers, or `Date`s
-  matching `categoryAxis.type`.
+- **Every value is a `DataValue`.** Series values must be finite numbers,
+  with `null`, `undefined` and `NaN` all reading as a missing value (`null`
+  is how JSON writes a hole in the data, `NaN` is what a failed parse leaves
+  behind; the chart normalizes every missing value to `NaN` internally).
+  Category and display values are strings, numbers, or `Date`s matching
+  `categoryAxis.type`.
 - **`undefined` in place of the array means "not in the data".** That is
   distinct from an array of missing values, and `getDataErrors` reports
   which problem you have.
@@ -141,7 +142,7 @@ The config decides which properties the chart pulls from the provider:
 All of them, category and display properties included, arrive through the
 single [`getPropertyValues`](#the-provider-interface) accessor.
 
-Series values must be numeric or missing (`null`/`undefined`) — how missing
+Series values must be numeric or missing (`null`/`undefined`/`NaN`) — how missing
 values render is controlled per series with
 [`missingValues`](/reference/series#series.missingValues). Pair it with
 [`missingValueMarkers`](/reference/series#series.missingValueMarkers) to

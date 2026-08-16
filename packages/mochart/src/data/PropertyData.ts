@@ -21,7 +21,7 @@ export function readAlignedValues(dataProvider: DataProvider, property: string, 
   return values;
 }
 
-/** The numeric read for series properties: null and undefined both read as the chart's missing value (NaN); the cast trusts getDataErrors' numeric validator for the rest. */
+/** The numeric read for series properties: null and undefined become the chart's missing value (NaN, which an input NaN already is); the cast trusts getDataErrors' numeric validator for the rest. */
 export function readNumericValues(dataProvider: DataProvider, property: string, categoryCount: number): NumericValues {
   const propertyValues = dataProvider.getPropertyValues(property);
   const values: NumericValues = [];

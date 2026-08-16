@@ -125,6 +125,11 @@ describe('property-values readers', () => {
     expect(readNumericValues(provider, 'missing', 3)).toEqual([NaN, NaN, NaN]);
   });
 
+  it('readNumericValues passes an input NaN through as the missing value', () => {
+    const nanProvider: DataProvider = new ObjectOfArraysDataProvider({ sales: [1, NaN] } as Record<string, readonly DataValue[]>);
+    expect(readNumericValues(nanProvider, 'sales', 2)).toEqual([1, NaN]);
+  });
+
 
   it('readAlignedValues snapshots exactly categoryCount values', () => {
     // short values pad with missing; extra cells are never read (getDataErrors flags the mismatch)

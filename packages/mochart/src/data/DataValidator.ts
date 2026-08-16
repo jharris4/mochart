@@ -54,14 +54,14 @@ function checkPropertyValues(dataErrors: string[], values: readonly DataValue[] 
   return true;
 }
 
-/** Series values must be numeric; null and undefined both read as missing. categoryAxis.displayProperty is checked against the axis type instead. */
+/** Series values must be numeric; null, undefined and NaN all read as missing. categoryAxis.displayProperty is checked against the axis type instead. */
 function checkSeriesProperty(dataErrors: string[], dataProvider: DataProvider, categoryCount: number, property: string, allowAbsentDataProperties: boolean): void {
   const values = dataProvider.getPropertyValues(property);
   if (values === undefined && allowAbsentDataProperties) {
     return; // the series reads as all-missing values
   }
   if (checkPropertyValues(dataErrors, values, categoryCount, property)) {
-    const numberValidator = validators.number().orEqual(undefined).orEqual(null);
+    const numberValidator = validators.number().orOneOf([undefined, null, NaN]);
     if (values.some(value => !numberValidator(value))) {
       dataErrors.push('series values must be numeric or missing for property: ' + property);
     }

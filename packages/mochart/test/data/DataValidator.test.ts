@@ -83,6 +83,29 @@ describe('getDataErrors', () => {
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
+  // a NaN is what a failed upstream parse or computation leaves behind; it reads as missing, like null
+  it('allows NaN series values', () => {
+    const config = stringConfig();
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { month: 'Jan', sales: 10 },
+        { month: 'Feb', sales: NaN }
+      ]);
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
+  it('still flags an infinite series value', () => {
+    const config = stringConfig();
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { month: 'Jan', sales: 10 },
+        { month: 'Feb', sales: Infinity }
+      ]);
+    expect(getDataErrors(config, provider)).toEqual([
+      'series values must be numeric or missing for property: sales'
+    ]);
+  });
+
   it('flags a series property absent from the data', () => {
     const config = stringConfig();
     const provider = new ArrayOfObjectsDataProvider(
