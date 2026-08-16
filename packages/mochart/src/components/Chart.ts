@@ -292,6 +292,9 @@ class ChartBody extends Renderer<ChartBodyProps> {
   loadingSlot!: ElSlot;
   tooltip!: Slot;
   liveRegionSlot!: ElSlot;
+  // inputs of the last gradient/pattern defs sync; they only change with the config
+  defsConfig: EnhancedMochartConfig | null = null;
+  defsUniqueIds: ChartUniqueIds | null = null;
   create() {
     this.svg = svgEl('svg');
     this.defs = svgEl('defs');
@@ -1240,6 +1243,53 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     };
   }
 
+  /** Sync the config-only <defs> lists: series color gradients, linear/radial gradients and patterns. */
+  syncConfigDefs(body: ChartBody, mochartConfig: EnhancedMochartConfig, uniqueIds: ChartUniqueIds): void {
+    const { seriesColorGradientUniqueIds, linearGradientIdMap, radialGradientIdMap, patternIdMap } = uniqueIds;
+
+    const seriesColorGradients: RendererItem[] = [];
+    mochartConfig.series.forEach((seriesConfig: EnhancedSeriesConfig) => {
+      if (getSeriesGradientColors(seriesConfig)) {
+        seriesColorGradients.push({
+          key: seriesConfig.id, ctor: SeriesColorGradient,
+          props: { uniqueId: seriesColorGradientUniqueIds[seriesConfig.id], seriesConfig }
+        });
+      }
+    });
+
+    const linearGradients: RendererItem[] = mochartConfig.linearGradients.map((linearGradientConfig: LinearGradientConfig) => ({
+      key: linearGradientConfig.id, ctor: LinearGradient,
+      props: { uniqueId: linearGradientIdMap[linearGradientConfig.id], linearGradientConfig }
+    }));
+
+    const radialGradients: RendererItem[] = mochartConfig.radialGradients.map((radialGradientConfig: RadialGradientConfig) => ({
+      key: radialGradientConfig.id, ctor: RadialGradient,
+      props: { uniqueId: radialGradientIdMap[radialGradientConfig.id], radialGradientConfig }
+    }));
+
+    const patterns: RendererItem[] = [];
+    const fillPalette = mochartConfig.colorPalette.series.normal.fillColors;
+    mochartConfig.series.forEach((seriesConfig: EnhancedSeriesConfig, seriesIndex: number) => {
+      if (seriesConfig.patternConfig !== undefined) {
+        const fallbackColor = fillPalette[seriesIndex % fillPalette.length] ?? null;
+        patterns.push({
+          key: seriesConfig.id,
+          ctor: Pattern,
+          props: {
+            uniqueId: patternIdMap[seriesConfig.id],
+            patternConfig: seriesConfig.patternConfig as PatternConfig,
+            seriesColor: getSeriesFillColor(mochartConfig.colorPalette, seriesConfig, seriesIndex, null, fallbackColor)
+          }
+        });
+      }
+    });
+
+    body.seriesColorGradients.sync(seriesColorGradients);
+    body.linearGradients.sync(linearGradients);
+    body.radialGradients.sync(radialGradients);
+    body.patterns.sync(patterns);
+  }
+
   /** Fill in the ChartBody's slots — called from ChartBody.sync with the body renderer. */
   syncBody(body: ChartBody): void {
     const {
@@ -1257,7 +1307,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const {
       svgUniqueId, tooltipClipPathUniqueId, titleClipPathUniqueId, legendClipPathUniqueId, categoryAxisTitleClipPathUniqueId,
       categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, seriesClipPathUniqueId,
-      clipIndicatorPatternUniqueId, seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap, patternIdMap
+      clipIndicatorPatternUniqueId, gradientIdMap, patternIdMap
     } = uniqueIds!;
     const {
       chartContentLayoutInfo, titleLayoutInfo, titlePrefixLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo, titleSuffixLayoutInfo,
@@ -1314,43 +1364,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         axisTitleClipPathUniqueId: valueAxisTitleClipPathUniqueIds[valueAxisConfig.id] }
     })));
 
-    const seriesGradientColors = mochartConfig.series.map((seriesConfig: EnhancedSeriesConfig) => getSeriesGradientColors(seriesConfig));
-    const seriesColorGradients: RendererItem[] = [];
-    mochartConfig.series.forEach((seriesConfig: EnhancedSeriesConfig, i: number) => {
-      if (seriesGradientColors[i]) {
-        seriesColorGradients.push({
-          key: seriesConfig.id, ctor: SeriesColorGradient,
-          props: { uniqueId: seriesColorGradientUniqueIds[seriesConfig.id], seriesConfig }
-        });
-      }
-    });
-
-    const linearGradients: RendererItem[] = mochartConfig.linearGradients.map((linearGradientConfig: LinearGradientConfig) => ({
-      key: linearGradientConfig.id, ctor: LinearGradient,
-      props: { uniqueId: linearGradientIdMap[linearGradientConfig.id], linearGradientConfig }
-    }));
-
-    const radialGradients: RendererItem[] = mochartConfig.radialGradients.map((radialGradientConfig: RadialGradientConfig) => ({
-      key: radialGradientConfig.id, ctor: RadialGradient,
-      props: { uniqueId: radialGradientIdMap[radialGradientConfig.id], radialGradientConfig }
-    }));
-
-    const patterns: RendererItem[] = [];
-    const fillPalette = mochartConfig.colorPalette.series.normal.fillColors;
-    mochartConfig.series.forEach((seriesConfig: EnhancedSeriesConfig, seriesIndex: number) => {
-      if (seriesConfig.patternConfig !== undefined) {
-        const fallbackColor = fillPalette[seriesIndex % fillPalette.length] ?? null;
-        patterns.push({
-          key: seriesConfig.id,
-          ctor: Pattern,
-          props: {
-            uniqueId: patternIdMap[seriesConfig.id],
-            patternConfig: seriesConfig.patternConfig as PatternConfig,
-            seriesColor: getSeriesFillColor(mochartConfig.colorPalette, seriesConfig, seriesIndex, null, fallbackColor)
-          }
-        });
-      }
-    });
+    // gradients and patterns read only the config and its ids, so skip them on tooltip/animation syncs
+    if (body.defsConfig !== mochartConfig || body.defsUniqueIds !== uniqueIds) {
+      body.defsConfig = mochartConfig;
+      body.defsUniqueIds = uniqueIds;
+      this.syncConfigDefs(body, mochartConfig, uniqueIds!);
+    }
 
     body.svgSlot.set('svg', () => body.svg);
     const { accessibility: accessibilityConfig } = mochartConfig;
@@ -1365,10 +1384,6 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     liveRegion?.set({ role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true', style: liveRegionStyle });
     this.liveRegionNode = liveRegion !== null ? liveRegion.node : null;
     body.clips.sync(clips);
-    body.seriesColorGradients.sync(seriesColorGradients);
-    body.linearGradients.sync(linearGradients);
-    body.radialGradients.sync(radialGradients);
-    body.patterns.sync(patterns);
     body.background.set(Background, { config: mochartConfig.chart, classKey: 'background', spacingRelative: false, spacingLayoutInfo: chartContentLayoutInfo });
     body.title.set(Title, { mochartConfig, titleLayoutInfo, titlePrefixLayoutInfo,
       titleTextLayoutInfo, titleTextRawLayoutInfo, titleSuffixLayoutInfo,
