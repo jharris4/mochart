@@ -676,6 +676,55 @@ describe('followSeries depth validation', () => {
   });
 });
 
+// a stack's members must share a group: sub-slots are assigned per group, so a stack spanning
+// two groups would accumulate values across different columns
+describe('stack group validation', () => {
+  const stackGroupError = expect.stringContaining('whose series all share this series\' group property');
+  const withSeries = (series: unknown[], seriesStacks: unknown[] = [{ id: 'A' }]) => errorsFor({
+    version: V, categoryAxis: { property: 'p' }, seriesGroups: [{ id: 'g1' }, { id: 'g2' }], seriesStacks, series
+  });
+
+  it('accepts one stack per group', () => {
+    expect(withSeries([
+      { id: 's1', property: 'a', stack: 'A', group: 'g1' },
+      { id: 's2', property: 'b', stack: 'A', group: 'g1' },
+      { id: 's3', property: 'c', stack: 'B', group: 'g2' },
+      { id: 's4', property: 'd', stack: 'B', group: 'g2' }
+    ], [{ id: 'A' }, { id: 'B' }])).toEqual([]);
+  });
+
+  it('accepts a stack whose members are all ungrouped', () => {
+    expect(errorsFor({
+      version: V, categoryAxis: { property: 'p' }, seriesStacks: [{ id: 'A' }],
+      series: [{ id: 's1', property: 'a' }, { id: 's2', property: 'b' }]
+    })).toEqual([]);
+  });
+
+  it('rejects a stack spanning two groups, reporting the later member', () => {
+    const errors = withSeries([
+      { id: 's1', property: 'a', stack: 'A', group: 'g1' },
+      { id: 'other', property: 'b', stack: null, group: 'g2' },
+      { id: 's2', property: 'c', stack: 'A', group: 'g2' }
+    ]);
+    expect(errors).toEqual([expect.stringContaining('series[2] - stack')]);
+    expect(errors).toContainEqual(stackGroupError);
+  });
+
+  it('rejects a grouped member alongside an ungrouped one', () => {
+    expect(withSeries([
+      { id: 's1', property: 'a', stack: 'A', group: null },
+      { id: 's2', property: 'b', stack: 'A', group: 'g1' }
+    ])).toContainEqual(stackGroupError);
+  });
+
+  it('catches the defaulted case: a sole stack fills in on series spread across groups', () => {
+    expect(withSeries([
+      { id: 's1', property: 'a', group: 'g1' },
+      { id: 's2', property: 'b', group: 'g2' }
+    ])).toContainEqual(stackGroupError);
+  });
+});
+
 // Regression: uniqueness was checked on the raw config and the defaults separately, so an explicit
 // id colliding with another entry's defaulted id passed and collapsed the id-lookup maps.
 describe('merged unique-key validation', () => {

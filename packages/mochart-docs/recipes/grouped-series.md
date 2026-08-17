@@ -25,7 +25,8 @@ import * as groupedSeries from '../examples/groupedSeries'
 - Grouping and [stacking](/recipes/stacked-bars) can coexist: series in the
   same stack occupy one slot of the cluster, so two stacks side by side make
   paired stacked bars. Put every series of both stacks in one group — the
-  Stacked & Grouped demo in the gallery shows the result.
+  Stacked & Grouped demo in the gallery shows the result. A stack cannot span
+  groups: its series must all share one `group`, which validation enforces.
 - To overlay a narrower bar on a full-width one instead (a measure over its
   backing range), leave the series ungrouped and shrink the overlay with
   [`barWidthFraction`](/reference/series#series.barWidthFraction);

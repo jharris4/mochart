@@ -2651,8 +2651,11 @@ export interface SeriesConfig {
    *
    * Series sharing the same stack id (an `id` from `seriesStacks`) are drawn
    * stacked on one another and animate as a single unit, so the stack stays
-   * gapless mid-transition. Defaults to the sole stack id when exactly one
-   * stack is configured; use `null` to opt a series out.
+   * gapless mid-transition. All series of a stack must share the same `axis`
+   * and the same `group` (or all be ungrouped) — a stack cannot span groups,
+   * since each group lays its stacks out in its own sub-slots. Defaults to the
+   * sole stack id when exactly one stack is configured; use `null` to opt a
+   * series out.
    *
    * Default:
    * - `sole stack id` — series stack

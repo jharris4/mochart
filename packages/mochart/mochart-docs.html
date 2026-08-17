@@ -3752,6 +3752,7 @@ table thead td { border-bottom-width: 2px; }
 <tr id="series.followSeries">
 <td><a href="#series.followSeries">followSeries</a></td><td>the unique identifier of another series whose legend filtering and focus this series follows (use null for none)<br/><br/>When the referenced series is toggled out of (or back into) the chart via the legend, this series follows it, and it shares the referenced series’ focus state both ways: focusing the leader highlights this series too, and focus interactions on this series target the leader. For companion series hidden from the legend (`showInLegend: false`) that visually belong to a legend series — e.g. a candlestick wick following its body — so filtering or focusing treats the whole mark as one.</td><td><p>should be a string or be equal to null</p>
 <p>should equal the id property of one of the series</p>
+<p>should equal the id property of a series that does not itself set followSeries</p>
 </td><td><div>null</div>
 </td>
 </tr>
@@ -4222,9 +4223,10 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.stack">
-<td><a href="#series.stack">stack</a></td><td>the unique identifier of the series stack that the series belongs to (use null for none)<br/><br/>Series sharing the same stack id (an `id` from `seriesStacks`) are drawn stacked on one another and animate as a single unit, so the stack stays gapless mid-transition. Defaults to the sole stack id when exactly one stack is configured; use `null` to opt a series out.</td><td><p>should be a string or be equal to null</p>
+<td><a href="#series.stack">stack</a></td><td>the unique identifier of the series stack that the series belongs to (use null for none)<br/><br/>Series sharing the same stack id (an `id` from `seriesStacks`) are drawn stacked on one another and animate as a single unit, so the stack stays gapless mid-transition. All series of a stack must share the same `axis` and the same `group` (or all be ungrouped) — a stack cannot span groups, since each group lays its stacks out in its own sub-slots. Defaults to the sole stack id when exactly one stack is configured; use `null` to opt a series out.</td><td><p>should be a string or be equal to null</p>
 <p>should equal the id property of one of the seriesStacks</p>
 <p>should equal the id property of one of the seriesStacks that has the same axis property</p>
+<p>should equal the id property of a series stack whose series all share this series' group property</p>
 </td><td><div>sole stack id (series stack)</div>
 </td>
 </tr>

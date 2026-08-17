@@ -28,6 +28,9 @@ shows gaps mid-transition (see
   defaulting to the sole axis); a series whose `axis` differs from its
   stack's is a validation error. Several stacks can sit on
   [different axes](/recipes/dual-axes).
+- Likewise a stack cannot span [series groups](/recipes/grouped-series): all
+  its series must share one [`group`](/reference/series#series.group) (or all
+  be ungrouped), otherwise its members would land in different sub-slots.
 - Cap only the outer end of the whole stack with
   [`outerCapType`](/reference/seriesStacks#seriesStacks.outerCapType)
   — see the [bar caps recipe](/recipes/bar-caps#capping-a-stack).

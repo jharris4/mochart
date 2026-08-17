@@ -40,6 +40,7 @@ interface ConfigSectionValidator {
   allExcludedKeys?: string[];
   references?: Record<string, SectionReference>;
   commonReferences?: Record<string, SectionReference>;
+  crossRules?: Record<string, () => string>; // rules checked by dedicated passes below, listed here so the reference docs show them
   allKey?: string;
 }
 
@@ -81,6 +82,10 @@ export function getCommonReferenceMessage(sourceSectionKey: string | string[], s
 
 export function getFollowSeriesMessage(): string {
   return 'should equal the id property of a series that does not itself set followSeries';
+}
+
+export function getStackGroupMessage(): string {
+  return 'should equal the id property of a series stack whose series all share this series\' group property';
 }
 
 export const configWithoutAllValidators: Record<string, ConfigSectionValidator> = {
@@ -175,6 +180,10 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
     },
     commonReferences: {
       stack: { section: 'seriesStacks', key: 'id', commonKey: 'axis' }
+    },
+    crossRules: {
+      stack: getStackGroupMessage,
+      followSeries: getFollowSeriesMessage
     }
   },
   seriesGroups: {
@@ -310,6 +319,7 @@ function validateConfigInternal(configWithoutDefaults: unknown, configDefaults: 
       }
     }
     validateFollowSeries(config, configWithoutDefaults, errors, errorDetails);
+    validateStackGroups(config, configWithoutDefaults, errors, errorDetails);
     validateAxisBounds(config, configWithoutDefaults, errors, errorDetails);
     validateOrdinalThresholds(config, errors, errorDetails);
   }
@@ -520,6 +530,39 @@ function validateFollowSeries(config: ConfigRecord, configWithoutDefaults: Confi
     const reportIndex = rawIndices?.[i] ?? i;
     errors.push(getPropertyMessage('series', 'followSeries', message, reportIndex));
     errorDetails.push({ path: ['series', reportIndex, 'followSeries'], message });
+  }
+}
+
+// a stack's members share one column, but sub-slots are assigned per group, so a stack spanning groups would staircase
+function validateStackGroups(config: ConfigRecord, configWithoutDefaults: ConfigRecord, errors: string[], errorDetails: LocatedValidationMessage[]): void {
+  const seriesSections = config['series'];
+  if (!Array.isArray(seriesSections)) {
+    return;
+  }
+  const stackGroups: Record<string, unknown> = Object.create(null); // null proto: ids like "__proto__" must be storable
+  const rawIndices = getRawIndices(configWithoutDefaults['series']);
+  for (let i = 0; i < seriesSections.length; i++) {
+    const section = seriesSections[i];
+    if (!isConfigRecord(section)) {
+      continue;
+    }
+    const stack = section['stack'];
+    const group = section['group'];
+    if (stack === undefined || stack === NONE || group === undefined) {
+      continue;
+    }
+    const stackKey = String(stack);
+    if (!(stackKey in stackGroups)) {
+      stackGroups[stackKey] = group;
+      continue;
+    }
+    if (stackGroups[stackKey] === group) {
+      continue;
+    }
+    const message = getStackGroupMessage() + ': ' + JSON.stringify(stackGroups[stackKey]) + ' vs  ' + JSON.stringify(group);
+    const reportIndex = rawIndices?.[i] ?? i;
+    errors.push(getPropertyMessage('series', 'stack', message, reportIndex));
+    errorDetails.push({ path: ['series', reportIndex, 'stack'], message });
   }
 }
 

@@ -148,6 +148,7 @@ interface SectionValidatorInfo {
   allExcludedKeys?: string[];
   references?: Record<string, SectionReference>;
   commonReferences?: Record<string, SectionReference>;
+  crossRules?: Record<string, () => string>;
 }
 type SectionValidatorMap = Record<string, SectionValidatorInfo>;
 
@@ -559,6 +560,12 @@ function getSectionKeyRules(sectionValidator: SectionValidatorInfo): Record<stri
       const commonReference = commonReferences[commonReferenceKey]!;
       safeAdd(sectionKeyRules, commonReferenceKey, getCommonReferenceMessage(
         commonReference.section, commonReference.key, commonReference.commonKey!));
+    });
+  }
+  const crossRules = sectionValidator.crossRules;
+  if (crossRules) {
+    Object.keys(crossRules).forEach(crossRuleKey => {
+      safeAdd(sectionKeyRules, crossRuleKey, crossRules[crossRuleKey]!());
     });
   }
   return sectionKeyRules;
