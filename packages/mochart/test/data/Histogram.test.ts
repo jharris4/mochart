@@ -265,6 +265,20 @@ describe('bin membership on floating-point edges', () => {
     }
   });
 
+  // Regression: the raw (max - start) / width quotient landing one ulp past an integer (2.1 / 0.3)
+  // opened an empty extra bin beyond the max instead of closing the last bin on it
+  it('closes the last bin on a max that is a whole number of widths from the start', () => {
+    expect(binValues([0, 2.1], { binWidth: 0.3 }).map(bin => bin.end)).toEqual([0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.1]);
+    expect(binValues([0, 0.07], { binCount: 7 })).toHaveLength(7);
+    for (const binWidth of [0.3, 0.6, 0.7, 0.01, 0.02, 0.05]) {
+      for (let k = 1; k < 40; k++) {
+        const bins = binValues([0, k * binWidth], { binWidth });
+        expect(bins).toHaveLength(k);
+        expect(bins[k - 1].count).toBe(k === 1 ? 2 : 1); // a single bin holds both values
+      }
+    }
+  });
+
   // a custom binLabel can collapse distinct bins onto one category value
   it('throws when a custom binLabel produces duplicates', () => {
     expect(() => createHistogram([1, 2, 3, 4, 5, 6], { binCount: 3, binLabel: () => 'bin' }))

@@ -234,9 +234,14 @@ function getBinLayout(
   }
 
   const start = nice ? roundToPrecision(Math.floor(domainMin / width) * width, width) : domainMin;
-  const spanned = (domainMax - start) / width;
-  // A max landing exactly on an edge still needs a bin to fall into.
-  const binCount = Math.max(1, spanned % 1 === 0 && spanned > 0 ? spanned : Math.ceil(spanned));
+  // Count by the rounded edges the bins report, with the max read at the same precision: the raw
+  // quotient (2.1 / 0.3) or the max itself (3 * 0.05) can land one ulp past an edge, which would open
+  // an empty bin beyond the max instead of closing the last bin on it.
+  const roundedMax = roundToPrecision(domainMax, width);
+  let binCount = Math.max(1, Math.ceil((domainMax - start) / width));
+  while (binCount > 1 && roundToPrecision(start + (binCount - 1) * width, width) >= roundedMax) {
+    binCount--;
+  }
   return { start, width, binCount };
 }
 
