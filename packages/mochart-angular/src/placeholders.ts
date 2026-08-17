@@ -47,8 +47,8 @@ export function createPlaceholderAdapter(environmentInjector: EnvironmentInjecto
       slot.container.textContent = '';
     }
     if (slot.ref === null) {
+      // the div becomes the component's own host element, so it keeps no inline style that would beat its :host rules
       const hostElement = document.createElement('div');
-      hostElement.style.display = 'contents';
       slot.container.appendChild(hostElement);
       slot.ref = createComponent(slot.component, { environmentInjector, hostElement });
       slot.refComponent = slot.component;

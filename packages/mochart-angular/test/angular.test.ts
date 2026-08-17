@@ -215,6 +215,21 @@ describe('placeholder components', () => {
     fixture.destroy();
   });
 
+  // Regression: the placeholder's own host element carried an inline display: contents that beat the
+  // component's :host rules, dropping its layout, size and background
+  it('leaves the placeholder host element free of inline display so :host styles apply', () => {
+    const fixture = createWith(Chart, {
+      mochartConfig: null, dataProvider: null, loading: true, loadingComponent: Loading, width: 400, height: 300
+    });
+    const el: HTMLElement = fixture.nativeElement;
+    // the template root's parent is the element createComponent was handed as the host
+    const templateRoot = [...el.querySelectorAll('div')].find(div => div.children.length === 0 && div.textContent === 'Loading 400x300')!;
+    const hostElement = templateRoot.parentElement!;
+    expect(hostElement.style.display).toBe('');
+    expect(hostElement.parentElement!.style.display).toBe('contents');
+    fixture.destroy();
+  });
+
   // Regression: a component swap only reached the slot on the next factory call, which the core's
   // factory gate skips while nothing else about the state changed
   it('re-renders the placeholder when only the component input changes', () => {
