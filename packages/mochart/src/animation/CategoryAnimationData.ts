@@ -19,15 +19,16 @@ type CategoryIndexMap = Record<CategoryMapKey, number | undefined>;
 type CategoryMergedValuesWithoutDisplay = Omit<CategoryMergedValuesData, 'displayMerged'>;
 type ChartDataWithCategories = { categoryData: CategoryData };
 
-function categoryMapKey(value: CategoryValue): CategoryMapKey {
-  return getCategoryValueKey(value);
+function categoryMapKeyFor(categoryAxisConfig: CategoryAxisConfig): CategoryMapKeyAccessor {
+  return value => getCategoryValueKey(categoryAxisConfig, value);
 }
 
-/** indexOf by the merge keying: Date category values compare by value, not identity. */
-export function indexOfCategoryValue(values: readonly CategoryValue[], value: CategoryValue): number {
-  const key = categoryMapKey(value);
+/** indexOf by the merge keying: date category values compare by instant, not representation or identity. */
+export function indexOfCategoryValue(categoryAxisConfig: CategoryAxisConfig, values: readonly CategoryValue[], value: CategoryValue): number {
+  const getMapKey = categoryMapKeyFor(categoryAxisConfig);
+  const key = getMapKey(value);
   for (let i = 0; i < values.length; i++) {
-    if (categoryMapKey(values[i]) === key) {
+    if (getMapKey(values[i]) === key) {
       return i;
     }
   }
@@ -79,8 +80,9 @@ export function getCategoryDeltaData(categoryAxisConfig: CategoryAxisConfig, old
   const categoryValuesOld = oldCategoryData.values.raw;
   const categoryValuesNew = newCategoryData.values.raw;
 
-  const mergedValuesWithoutDisplay = getCategoryMergedValuesData(categoryValuesOld, categoryValuesNew, categoryAxisConfig.scale !== SCALE_ORDINAL, categoryMapKey);
-  const mergedIndicesData = getCategoryMergedIndicesData(categoryValuesOld, categoryValuesNew, mergedValuesWithoutDisplay, categoryMapKey);
+  const getMapKey = categoryMapKeyFor(categoryAxisConfig);
+  const mergedValuesWithoutDisplay = getCategoryMergedValuesData(categoryValuesOld, categoryValuesNew, categoryAxisConfig.scale !== SCALE_ORDINAL, getMapKey);
+  const mergedIndicesData = getCategoryMergedIndicesData(categoryValuesOld, categoryValuesNew, mergedValuesWithoutDisplay, getMapKey);
   const mergedOuterCounts = getCategoryMergedOuterCountsData(mergedIndicesData);
   const mergedValuesData: CategoryMergedValuesData = {
     ...mergedValuesWithoutDisplay,
@@ -98,16 +100,17 @@ export function mergedIndexForNewIndex(categoryDeltaData: CategoryDeltaData, new
   return categoryDeltaData.indices.new[newCategoryIndex];
 }
 
+// the merged indices already carry the keyed old/new matching, so these need no re-keying
 export function oldIndexForNewIndex(categoryDeltaData: CategoryDeltaData, newCategoryIndex: number): number {
-  return indexOfCategoryValue(categoryDeltaData.values.old, categoryDeltaData.values.new[newCategoryIndex]);
+  return categoryDeltaData.indices.old.indexOf(categoryDeltaData.indices.new[newCategoryIndex]);
 }
 
 export function newIndexForMergedIndex(categoryDeltaData: CategoryDeltaData, mergedCategoryIndex: number): number {
-  return indexOfCategoryValue(categoryDeltaData.values.new, categoryDeltaData.values.merged[mergedCategoryIndex]);
+  return categoryDeltaData.indices.new.indexOf(mergedCategoryIndex);
 }
 
 export function newIndexForOldIndex(categoryDeltaData: CategoryDeltaData, oldCategoryIndex: number): number {
-  return indexOfCategoryValue(categoryDeltaData.values.new, categoryDeltaData.values.old[oldCategoryIndex]);
+  return categoryDeltaData.indices.new.indexOf(categoryDeltaData.indices.old[oldCategoryIndex]);
 }
 
 function getCategoryMergedDisplayValues(

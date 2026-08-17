@@ -3,6 +3,7 @@ import { getCategoryData, getCategoryDataWithNumericValues } from '../../src/dat
 import {
   getInitialCategoryDeltaData,
   getCategoryDeltaData,
+  indexOfCategoryValue,
   getMergedNumericValues,
   mergedIndexForNewIndex,
   oldIndexForNewIndex,
@@ -245,6 +246,30 @@ describe('getCategoryDeltaData with a linear axis (sorted merge)', () => {
     expect(delta.values.added).toEqual([day(3)]);
     expect(delta.indices).toEqual({ old: [0, 1, 2], new: [1, 3], added: [3], removed: [0, 2], reordered: false });
     expect(delta.outerCounts).toEqual({ added: { before: 0, after: 1 }, removed: { before: 1, after: 0 } });
+  });
+
+  it('matches one instant across Date, ISO string and epoch representations', () => {
+    const delta = deltaFor(linearDate, [day(0), day(1), day(2)], [day(0).toISOString(), day(1).getTime(), day(3)]);
+    expect(delta.values.removed).toEqual([day(2)]);
+    expect(delta.values.added).toEqual([day(3)]);
+    expect(delta.indices).toEqual({ old: [0, 1, 2], new: [0, 1, 3], added: [3], removed: [2], reordered: false });
+    expect(oldIndexForNewIndex(delta, 1)).toBe(1);
+    expect(newIndexForOldIndex(delta, 0)).toBe(0);
+    expect(newIndexForOldIndex(delta, 2)).toBe(-1);
+    expect(newIndexForMergedIndex(delta, 3)).toBe(2);
+  });
+});
+
+describe('indexOfCategoryValue', () => {
+  it('matches date category values by instant on a date axis', () => {
+    expect(indexOfCategoryValue(linearDate.categoryAxis, [day(0), day(1)], day(1).toISOString())).toBe(1);
+    expect(indexOfCategoryValue(ordinalDate.categoryAxis, [day(0).getTime(), day(1).toISOString()], day(0))).toBe(0);
+    expect(indexOfCategoryValue(linearDate.categoryAxis, [day(0)], day(2))).toBe(-1);
+  });
+
+  it('matches by string form on other axes', () => {
+    expect(indexOfCategoryValue(ordinalString.categoryAxis, ['a', 'b'], 'b')).toBe(1);
+    expect(indexOfCategoryValue(ordinalDisplay.categoryAxis, [1, 2], '2')).toBe(1);
   });
 });
 

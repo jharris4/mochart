@@ -699,7 +699,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
               const newCategoryValues = chartData.categoryData.values.raw;
               if (oldCategoryValues && newCategoryValues) {
                 const categoryValue = oldCategoryValues[tooltipCategoryIndex];
-                tooltipCategoryIndex = indexOfCategoryValue(newCategoryValues, categoryValue);
+                tooltipCategoryIndex = indexOfCategoryValue(mochartConfig.categoryAxis, newCategoryValues, categoryValue);
                 if (tooltipCategoryIndex >= 0) {
                   tooltipValueObject = getCategorySeriesValueObject(chartData, tooltipCategoryIndex);
                   tooltipStateSource = { ...this.state, tooltipCategoryIndex, tooltipValueObject };

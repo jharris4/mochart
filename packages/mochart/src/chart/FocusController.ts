@@ -89,7 +89,7 @@ export class FocusController {
               : undefined;
             if (renderedCategoryValues && newCategoryValues) {
               const categoryValue = renderedCategoryValues[this.focusedCategoryIndex];
-              this.focusedCategoryIndex = indexOfCategoryValue(newCategoryValues, categoryValue);
+              this.focusedCategoryIndex = indexOfCategoryValue(mochartConfig!.categoryAxis, newCategoryValues, categoryValue);
             }
             else {
               this.focusedCategoryIndex = -1;

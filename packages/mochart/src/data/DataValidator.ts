@@ -2,18 +2,18 @@ import validators from '@mochart/movalid';
 import { isDataProviderValid, getMissingDataProviderMembers } from './ChartData';
 import { getCategoryValueKey } from './CategoryValue';
 import { NONE, TYPE_DATE, TYPE_NUMBER, SCALE_LINEAR, RENDERER_LINE, RENDERER_AREA } from '../config/core/constants';
-import type { MochartConfig } from '../types/config';
+import type { CategoryAxisConfig, MochartConfig } from '../types/config';
 import type { DataProvider, CategoryValue, DataValue } from '../types/data';
 
-function getDuplicates(values: readonly CategoryValue[]): CategoryValue[] {
+function getDuplicates(categoryAxisConfig: CategoryAxisConfig, values: readonly CategoryValue[]): CategoryValue[] {
   const valueMap: Record<string, number> = Object.create(null); // null proto: keyed by user data category values
   for (const value of values) {
-    const key = getCategoryValueKey(value);
+    const key = getCategoryValueKey(categoryAxisConfig, value);
     valueMap[key] = (valueMap[key] ?? 0) + 1;
   }
   const duplicates: CategoryValue[] = [];
   for (const value of values) {
-    const key = getCategoryValueKey(value);
+    const key = getCategoryValueKey(categoryAxisConfig, value);
     if (valueMap[key] > 1) {
       duplicates.push(value);
       valueMap[key] = 1; // only push duplicates once
@@ -118,7 +118,7 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
         : 'category values must all match the specified type');
     }
     if (dataErrors.length === 0) { // duplicate matching needs all the values to be primitives...
-      const duplicates = getDuplicates(categoryValues);
+      const duplicates = getDuplicates(categoryAxisConfig, categoryValues);
       if (duplicates.length > 0) {
         dataErrors.push('category values must be unique, duplicates: ' + duplicates.join(', '));
       }

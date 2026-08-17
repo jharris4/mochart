@@ -1,4 +1,12 @@
-/** Stable lookup key for category values; Dates key by epoch ms because Date#toString() drops milliseconds. */
-export function getCategoryValueKey(value: unknown): string {
-  return value instanceof Date ? String(value.getTime()) : String(value);
+import { NONE, TYPE_DATE } from '../config/core/constants';
+import type { CategoryAxisConfig } from '../types/config';
+
+export type CategoryKeyAxisConfig = Pick<CategoryAxisConfig, 'type' | 'displayProperty'>;
+
+/** Stable lookup key for category values; date axes key by epoch ms so Date, ISO string and epoch forms of one instant match. */
+export function getCategoryValueKey(categoryAxisConfig: CategoryKeyAxisConfig, value: unknown): string {
+  if (categoryAxisConfig.type === TYPE_DATE && categoryAxisConfig.displayProperty === NONE) {
+    return String(new Date(value as string | number | Date).getTime());
+  }
+  return String(value);
 }

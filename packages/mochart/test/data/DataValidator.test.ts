@@ -285,6 +285,35 @@ describe('getDataErrors', () => {
     ]);
   });
 
+  it('flags one instant given as a Date, an ISO string and an epoch number as duplicates on a date axis', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'd', type: 'date', scale: 'linear' },
+      series: [{ property: 'y' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { d: new Date(0), y: 5 },
+        { d: '1970-01-01T00:00:00.000Z', y: 6 },
+        { d: 0, y: 7 }
+      ]);
+    expect(getDataErrors(config, provider)).toEqual([
+      'category values must be unique, duplicates: ' + String(new Date(0))
+    ]);
+  });
+
+  it('keys displayProperty raw ids by their string form, not as dates', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'id', displayProperty: 'd', type: 'date', scale: 'ordinal' },
+      series: [{ property: 'y' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { id: 0, d: '2020-01-01', y: 5 },
+        { id: '1970-01-01T00:00:00.000Z', d: '2020-01-02', y: 6 }
+      ]);
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
   it('does not flag Date values that differ only in milliseconds as duplicates', () => {
     const config = makeConfig({
       categoryAxis: { property: 'd', type: 'date', scale: 'linear' },
