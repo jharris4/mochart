@@ -246,4 +246,16 @@ describe('getDefaults with malformed seriesStackConfigs', () => {
     }) as { valueAxes: { base: unknown }[] };
     expect(defaults.valueAxes[0].base).toBe(0);
   });
+
+  // Regression: a stack whose axis came from seriesStackDefaults read as axis-less and marked the
+  // first value axis stacked, so the actually stacked axis got the no-stack base default
+  it('marks the axis named by seriesStackDefaults as the stacked one', () => {
+    const defaults = getDefaults({
+      valueAxes: [{ id: 'A' }, { id: 'B' }],
+      seriesStackDefaults: { axis: 'B' },
+      seriesStacks: [{ id: 's' }],
+      series: [{ property: 'v', axis: 'B', stack: 's' }]
+    }) as { valueAxes: { base: unknown }[] };
+    expect(defaults.valueAxes.map(axis => axis.base)).toEqual([null, 0]);
+  });
 });

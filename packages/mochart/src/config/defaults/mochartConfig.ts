@@ -124,7 +124,10 @@ function getValueAxisListOrSingleDefaults(config: MochartInputConfig, singleDefa
   const configs = ((!Array.isArray(rawConfigs) && filterConfig(rawConfigs)) ? [rawConfigs] : filterConfigs(rawConfigs)) as DeepPartial<ValueAxisConfig>[];
   const allConfig = config.valueAxisDefaults;
   const rawStackConfigs = config.seriesStacks;
-  const stackConfigs = ((!Array.isArray(rawStackConfigs) && filterConfig(rawStackConfigs)) ? [rawStackConfigs] : filterConfigs(rawStackConfigs)) as DeepPartial<SeriesStackConfig>[];
+  // merged with seriesStackDefaults: an axis set there stacks that axis just as one set on the entry does
+  const stackConfigs = configWithAll(
+    (!Array.isArray(rawStackConfigs) && filterConfig(rawStackConfigs)) ? [rawStackConfigs] : filterConfigs(rawStackConfigs),
+    config.seriesStackDefaults) as DeepPartial<SeriesStackConfig>[];
   const stackMap: Record<string, boolean> = {};
   for (const stackConfig of stackConfigs) {
     const { axis } = stackConfig;
