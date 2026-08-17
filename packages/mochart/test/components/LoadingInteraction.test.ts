@@ -115,7 +115,7 @@ describe('while loading, ids keep working', () => {
     handle.update({ loading: true } as Partial<DefaultChartProps>);
 
     const axisInner = container.querySelector(getCssSelector('valueAxis') + ' > g')!;
-    mouse(axisInner, 'mouseenter', 40, 300);
+    mouse(axisInner, 'pointerenter', 40, 300);
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedValueAxisId: 'VA0' });
   });
 });

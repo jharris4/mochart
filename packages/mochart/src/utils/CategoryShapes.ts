@@ -1,4 +1,5 @@
 import { mochartCssClasses } from './ChartDom';
+import { isHoverPointer } from './utils';
 import type { MochartCssClassKey } from './ChartDom';
 import type { ElProps } from '../render';
 
@@ -13,8 +14,8 @@ export interface CategoryCallbacks {
 export interface CategoryShape {
   key: number;
   className: string;
-  onMouseEnter: (event: Event) => void;
-  onMouseLeave: (event: Event) => void;
+  onPointerEnter: (event: Event) => void;
+  onPointerLeave: (event: Event) => void;
   onClick: (event: Event) => void;
   /** Rewritten every sync (El.set keeps the previous object for diffing, so it is never mutated in place). */
   attrs: ElProps;
@@ -41,8 +42,8 @@ export class CategoryShapeCache<S extends CategoryShape = CategoryShape> {
       shape = this.shapes[categoryIndex] = this.extend({
         key: categoryIndex,
         className: mochartCssClasses[this.classKey] + categoryIndex,
-        onMouseEnter: () => { callbacks().onCategoryEnter(categoryIndex); },
-        onMouseLeave: () => { callbacks().onCategoryLeave(categoryIndex); },
+        onPointerEnter: (event: Event) => { if (isHoverPointer(event)) { callbacks().onCategoryEnter(categoryIndex); } },
+        onPointerLeave: () => { callbacks().onCategoryLeave(categoryIndex); },
         onClick: (event: Event) => { callbacks().onCategoryClick(categoryIndex, event); },
         attrs: {}
       });

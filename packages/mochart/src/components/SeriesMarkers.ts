@@ -112,7 +112,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
             const marker = this.markerShapes.get(i);
             marker.attrs = { className: marker.className, d: theSymbol, transform: translate(cx, cy),
               stroke: markerStrokeColor, fill: markerFillColor, strokeWidth: markerStrokeWidth, strokeDasharray: markerStrokeDashArray, strokeOpacity: markerStrokeOpacity, fillOpacity: markerFillOpacity,
-              onMouseEnter: marker.onMouseEnter, onMouseLeave: marker.onMouseLeave, onClick: marker.onClick };
+              onPointerEnter: marker.onPointerEnter, onPointerLeave: marker.onPointerLeave, onClick: marker.onClick };
             markers.push(marker);
           }
         }

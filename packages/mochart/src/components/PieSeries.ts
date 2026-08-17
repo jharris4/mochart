@@ -11,7 +11,7 @@ import { sliceIsInteractive } from '../utils/RovingFocus';
 import { getFocusStyle } from '../utils/FocusValue';
 import { getGradientReference, getPatternReference } from '../utils/svgUtils';
 import { mochartCssClasses } from '../utils/ChartDom';
-import { translate, textDY } from '../utils/utils';
+import { translate, textDY, isHoverPointer } from '../utils/utils';
 import { NONE } from '../config/core/constants';
 import { formatPieLabelType, getPieLabelFormats } from '../data/PieLabel';
 import type { PieLabelFormats } from '../data/PieLabel';
@@ -65,7 +65,7 @@ interface PieSeriesProps {
 }
 
 interface PieSeriesState {
-  onSeriesEnter: () => void;
+  onSeriesEnter: (event: Event) => void;
   onSeriesLeave: () => void;
   onSeriesClick: () => void;
 }
@@ -106,11 +106,11 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     const seriesId = seriesConfig.followSeries ?? seriesConfig.id;
     const focusedSeriesId = focusData ? focusData.focusedSeriesId : null;
 
-    let onSeriesEnter = noOp;
+    let onSeriesEnter: PieSeriesState['onSeriesEnter'] = noOp;
     let onSeriesLeave = noOp;
     let onSeriesClick = noOp;
     if (seriesConfig.focusOnMouseOver) {
-      onSeriesEnter = () => { onFocus({ seriesId }); };
+      onSeriesEnter = (event: Event) => { if (isHoverPointer(event)) { onFocus({ seriesId }); } };
       onSeriesLeave = () => { onFocus({ seriesId: null }); };
     }
     if (seriesConfig.focusOnClick || onSliceClick) {
@@ -193,7 +193,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
 
     this.shape.set('slice', () => svgEl('path'))!.set({
       d: arcPath, className: mochartCssClasses['seriesSlice'],
-      onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick,
+      onPointerEnter: onSeriesEnter, onPointerLeave: onSeriesLeave, onClick: onSeriesClick,
       stroke: strokeColor, strokeWidth, strokeDasharray: strokeDashArray, strokeOpacity,
       fill: fillColor, fillOpacity });
 

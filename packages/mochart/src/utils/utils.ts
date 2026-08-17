@@ -38,6 +38,19 @@ export function focusRestored(node: SVGElement | HTMLElement | null | undefined)
   node.focus();
 }
 
+/** A tap emulates hover (pointerenter, then the mouse burst) right before its click, so touch never counts as hovering. */
+export function isHoverPointer(event: Event): boolean {
+  return (event as Partial<PointerEvent>).pointerType !== 'touch';
+}
+
+/** Focus reached by keyboard (or moved by script after keyboard use); a click or tap focuses without it. */
+export function isKeyboardFocus(event: Event): boolean {
+  // environments without selector() support (jsdom) cannot tell, so they keep mirroring every focus
+  const supported = typeof CSS !== 'undefined' && typeof CSS.supports === 'function' && CSS.supports('selector(:focus-visible)');
+  const target = event.target as Element | null;
+  return !supported || target === null || typeof target.matches !== 'function' || target.matches(':focus-visible');
+}
+
 export function translate(x: number, y: number): string {
   return 'translate(' + x + ',' + y + ')';
 }

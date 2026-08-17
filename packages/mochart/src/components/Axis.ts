@@ -27,8 +27,8 @@ interface AxisProps {
   tickSpacing?: number | null;
   titleClipPathUniqueId: string;
   tickLabelClipPathUniqueId?: string;
-  onMouseEnter?: (() => void) | null;
-  onMouseLeave?: (() => void) | null;
+  onPointerEnter?: ((event: Event) => void) | null;
+  onPointerLeave?: (() => void) | null;
   onClick?: (() => void) | null;
   accessibility: boolean;
   accessibleLabel: string;
@@ -53,7 +53,7 @@ export default class Axis extends Renderer<AxisProps> {
   sync() {
     const { front, axisConfig, axisLayoutInfo, plotLayoutInfo, axisClass, axisTicks, axisFocusPercentage, seriesFocusPercentage,
       focusPercentages, tickSpacing, titleClipPathUniqueId, tickLabelClipPathUniqueId,
-      onMouseEnter, onMouseLeave, onClick, accessibility, accessibleLabel } = this.props;
+      onPointerEnter, onPointerLeave, onClick, accessibility, accessibleLabel } = this.props;
     if (axisConfig.visible) {
       const { backgroundFront, axisLineFront, focusRangeFront, focusTickMarkFront, tickLabelFront, tickMarkFront, titleFront } = axisConfig;
 
@@ -64,7 +64,7 @@ export default class Axis extends Renderer<AxisProps> {
       this.root.set({ className: axisClass,
         role: accessibility && namedGroup ? 'group' : null,
         ariaLabel: accessibility && namedGroup ? accessibleLabel : null });
-      this.inner.set({ transform: translateObject(axisLayoutInfo), onMouseEnter, onMouseLeave, onClick });
+      this.inner.set({ transform: translateObject(axisLayoutInfo), onPointerEnter, onPointerLeave, onClick });
 
       if (front !== backgroundFront) {
         this.backgroundSlot.set(null);

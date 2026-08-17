@@ -192,9 +192,9 @@ describe('tooltip row keyboard semantics', () => {
     openTooltip(container);
 
     const rowS0 = container.querySelector(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getIdCssClass('tooltipSeriesLine', 'S0')))!;
-    rowS0.dispatchEvent(new MouseEvent('mouseenter'));
+    rowS0.dispatchEvent(new MouseEvent('pointerenter'));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S0');
-    rowS0.dispatchEvent(new MouseEvent('mouseleave'));
+    rowS0.dispatchEvent(new MouseEvent('pointerleave'));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBe(null);
 
     // keyboard focus mirrors hover
@@ -389,9 +389,9 @@ describe('tooltip row pointer focus', () => {
     });
     openTooltip(container);
 
-    categoryLine(container).dispatchEvent(new MouseEvent('mouseenter'));
+    categoryLine(container).dispatchEvent(new MouseEvent('pointerenter'));
     expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(0);
-    categoryLine(container).dispatchEvent(new MouseEvent('mouseleave'));
+    categoryLine(container).dispatchEvent(new MouseEvent('pointerleave'));
     expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(-1);
   });
 
@@ -402,16 +402,16 @@ describe('tooltip row pointer focus', () => {
     });
     openTooltip(container);
 
-    categoryLine(container).dispatchEvent(new MouseEvent('mouseenter'));
+    categoryLine(container).dispatchEvent(new MouseEvent('pointerenter'));
     expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(0);
-    categoryLine(container).dispatchEvent(new MouseEvent('mouseleave'));
+    categoryLine(container).dispatchEvent(new MouseEvent('pointerleave'));
     expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(-1);
 
     // focus mode hands the category row over to click-to-focus, so hover stops acting
     modeButton(container).dispatchEvent(new MouseEvent('click', { bubbles: true }));
     const before = focuses.length;
-    categoryLine(container).dispatchEvent(new MouseEvent('mouseenter'));
-    categoryLine(container).dispatchEvent(new MouseEvent('mouseleave'));
+    categoryLine(container).dispatchEvent(new MouseEvent('pointerenter'));
+    categoryLine(container).dispatchEvent(new MouseEvent('pointerleave'));
     expect(focuses.length).toBe(before);
   });
 
@@ -423,8 +423,8 @@ describe('tooltip row pointer focus', () => {
     openTooltip(container);
 
     const before = focuses.length;
-    categoryLine(container).dispatchEvent(new MouseEvent('mouseenter'));
-    categoryLine(container).dispatchEvent(new MouseEvent('mouseleave'));
+    categoryLine(container).dispatchEvent(new MouseEvent('pointerenter'));
+    categoryLine(container).dispatchEvent(new MouseEvent('pointerleave'));
     expect(focuses.length).toBe(before);
   });
 
@@ -460,7 +460,7 @@ describe('tooltip row pointer focus', () => {
     openTooltip(container);
 
     const before = focuses.length;
-    seriesLine(container, 'S0').dispatchEvent(new MouseEvent('mouseenter'));
+    seriesLine(container, 'S0').dispatchEvent(new MouseEvent('pointerenter'));
     expect(focuses.length).toBe(before);
   });
 
@@ -472,8 +472,8 @@ describe('tooltip row pointer focus', () => {
     openTooltip(container);
 
     const before = focuses.length;
-    seriesLine(container, 'S0').dispatchEvent(new MouseEvent('mouseenter'));
-    seriesLine(container, 'S0').dispatchEvent(new MouseEvent('mouseleave'));
+    seriesLine(container, 'S0').dispatchEvent(new MouseEvent('pointerenter'));
+    seriesLine(container, 'S0').dispatchEvent(new MouseEvent('pointerleave'));
     expect(focuses.length).toBe(before);
   });
 

@@ -1,6 +1,7 @@
 import { Renderer, Slot } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
+import { isHoverPointer } from '../utils/utils';
 
 import Axis from './Axis';
 import type { EnhancedValueAxisConfig } from '../types/enhanced';
@@ -25,7 +26,7 @@ interface ValueAxisProps {
   accessibleLabel: string;
 }
 interface ValueAxisState {
-  onValueAxisEnter: () => void;
+  onValueAxisEnter: (event: Event) => void;
   onValueAxisLeave: () => void;
   onValueAxisClick: () => void;
 }
@@ -55,12 +56,12 @@ export default class ValueAxis extends Renderer<ValueAxisProps, ValueAxisState> 
     const { valueAxisConfig, onFocus, focusedValueAxisId } = props;
     const valueAxisId = valueAxisConfig.id;
 
-    let onValueAxisEnter = noOp;
+    let onValueAxisEnter: ValueAxisState['onValueAxisEnter'] = noOp;
     let onValueAxisLeave = noOp;
     let onValueAxisClick = noOp;
 
     if (valueAxisConfig.focusOnMouseOver) {
-      onValueAxisEnter = () => { onFocus({ valueAxisId }); };
+      onValueAxisEnter = (event: Event) => { if (isHoverPointer(event)) { onFocus({ valueAxisId }); } };
       onValueAxisLeave = () => { onFocus({ valueAxisId: null }); };
     }
     if (valueAxisConfig.focusOnClick) {
@@ -86,8 +87,8 @@ export default class ValueAxis extends Renderer<ValueAxisProps, ValueAxisState> 
         axisLayoutInfo: valueAxisLayoutInfo, plotLayoutInfo,
         focusPercentages, axisTicks: valueAxisData.axisTickData[axisId],
         axisFocusPercentage, seriesFocusPercentage,
-        titleClipPathUniqueId, onMouseEnter: onValueAxisEnter,
-        onMouseLeave: onValueAxisLeave, onClick: onValueAxisClick, accessibility, accessibleLabel });
+        titleClipPathUniqueId, onPointerEnter: onValueAxisEnter,
+        onPointerLeave: onValueAxisLeave, onClick: onValueAxisClick, accessibility, accessibleLabel });
     }
     else {
       this.axis!.set(null);

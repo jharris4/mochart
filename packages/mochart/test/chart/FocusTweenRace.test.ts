@@ -102,7 +102,7 @@ describe('mid-tween focus remap', () => {
   function hoverBar(container: Element, index: number): void {
     const bar = container.querySelector(getIdCssSelector('series', 'sales') + ' ' + getIdCssSelector('seriesBar', index));
     expect(bar, 'bar ' + index).not.toBeNull();
-    bar!.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    bar!.dispatchEvent(new MouseEvent('pointerenter', { bubbles: true }));
   }
 
   /** Step frames until the rendered categories match; fails rather than spinning past the tween. */

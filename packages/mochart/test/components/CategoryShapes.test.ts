@@ -78,7 +78,7 @@ describe('CategoryShapeCache', () => {
     expect(shape.className).toBe(mochartCssClasses['seriesBar'] + 2);
 
     const event = new Event('click');
-    shape.onMouseEnter(event);
+    shape.onPointerEnter(event);
     expect(first.onCategoryEnter).toHaveBeenCalledWith(2);
 
     current = second;
@@ -108,8 +108,8 @@ describe('series shape handlers across syncs', () => {
 
     (['seriesBar', 'seriesMarker', 'seriesLabel'] as const).forEach((key, i) => {
       const after = listeners(shape(container, key, 1));
-      expect(after.mouseenter, key).toBe(before[i].mouseenter);
-      expect(after.mouseleave, key).toBe(before[i].mouseleave);
+      expect(after.pointerenter, key).toBe(before[i].pointerenter);
+      expect(after.pointerleave, key).toBe(before[i].pointerleave);
       expect(after.click, key).toBe(before[i].click);
     });
   });
@@ -118,16 +118,16 @@ describe('series shape handlers across syncs', () => {
     const focuses: ChartFocus[] = [];
     const { container, handle } = mountChart(makeConfig(), { onFocus: focus => focuses.push(focus) });
     const bar = shape(container, 'seriesBar', 1);
-    const handler = listeners(bar).mouseenter;
+    const handler = listeners(bar).pointerenter;
 
     // no hover focus configured: the handler is wired but the series callback is a no-op
-    mouse(bar, 'mouseenter');
+    mouse(bar, 'pointerenter');
     expect(focuses).toEqual([]);
 
     handle.update({ config: makeConfig({ focusCategoryOnMouseOver: true }) } as Partial<DefaultChartProps>);
 
-    expect(listeners(shape(container, 'seriesBar', 1)).mouseenter).toBe(handler);
-    mouse(shape(container, 'seriesBar', 1), 'mouseenter');
+    expect(listeners(shape(container, 'seriesBar', 1)).pointerenter).toBe(handler);
+    mouse(shape(container, 'seriesBar', 1), 'pointerenter');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedCategoryIndex: 1 });
   });
 });

@@ -52,8 +52,8 @@ describe('series shape hover focus', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart({}, { onFocus: focus => focuses.push(focus) });
 
-    mouse(bar(container, 1), 'mouseenter');
-    mouse(bar(container, 1), 'mouseleave');
+    mouse(bar(container, 1), 'pointerenter');
+    mouse(bar(container, 1), 'pointerleave');
 
     expect(focuses).toEqual([]);
   });
@@ -63,8 +63,8 @@ describe('series shape hover focus', () => {
     const container = mountChart({ renderer: 'line' }, { onFocus: focus => focuses.push(focus) });
     const line = container.querySelector(getCssSelector('seriesLine'))!;
 
-    mouse(line, 'mouseenter');
-    mouse(line, 'mouseleave');
+    mouse(line, 'pointerenter');
+    mouse(line, 'pointerleave');
     mouse(line, 'click');
 
     expect(focuses).toEqual([]);
@@ -76,10 +76,10 @@ describe('series shape hover focus', () => {
       { id: 'sales', focusOnMouseOver: true, focusCategoryOnMouseOver: true },
       { onFocus: focus => focuses.push(focus) });
 
-    mouse(bar(container, 1), 'mouseenter');
+    mouse(bar(container, 1), 'pointerenter');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: 'sales', focusedCategoryIndex: 1 });
 
-    mouse(bar(container, 1), 'mouseleave');
+    mouse(bar(container, 1), 'pointerleave');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: null, focusedCategoryIndex: -1 });
   });
 
@@ -89,10 +89,10 @@ describe('series shape hover focus', () => {
       { id: 'sales', focusOnMouseOver: true, focusCategoryOnMouseOver: false },
       { onFocus: focus => focuses.push(focus) });
 
-    mouse(bar(container, 2), 'mouseenter');
+    mouse(bar(container, 2), 'pointerenter');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: 'sales', focusedCategoryIndex: -1 });
 
-    mouse(bar(container, 2), 'mouseleave');
+    mouse(bar(container, 2), 'pointerleave');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: null });
   });
 
@@ -102,10 +102,10 @@ describe('series shape hover focus', () => {
       { id: 'sales', focusOnMouseOver: false, focusCategoryOnMouseOver: true },
       { onFocus: focus => focuses.push(focus) });
 
-    mouse(bar(container, 0), 'mouseenter');
+    mouse(bar(container, 0), 'pointerenter');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: null, focusedCategoryIndex: 0 });
 
-    mouse(bar(container, 0), 'mouseleave');
+    mouse(bar(container, 0), 'pointerleave');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedCategoryIndex: -1 });
   });
 
@@ -119,10 +119,10 @@ describe('series shape hover focus', () => {
     const marker = container.querySelector(getIdCssSelector('seriesMarker', '1'))!;
     expect(marker).not.toBeNull();
 
-    mouse(marker, 'mouseenter');
+    mouse(marker, 'pointerenter');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedCategoryIndex: 1 });
 
-    mouse(marker, 'mouseleave');
+    mouse(marker, 'pointerleave');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedCategoryIndex: -1 });
 
     mouse(marker, 'click');
@@ -139,10 +139,10 @@ describe('series shape hover focus', () => {
     const label = container.querySelector(getIdCssSelector('seriesLabel', '2'))!;
     expect(label).not.toBeNull();
 
-    mouse(label, 'mouseenter');
+    mouse(label, 'pointerenter');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedCategoryIndex: 2 });
 
-    mouse(label, 'mouseleave');
+    mouse(label, 'pointerleave');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedCategoryIndex: -1 });
 
     mouse(label, 'click');
@@ -158,10 +158,10 @@ describe('series shape hover focus', () => {
     const line = container.querySelector(getCssSelector('seriesLine'))!;
     expect(line).not.toBeNull();
 
-    mouse(line, 'mouseenter');
+    mouse(line, 'pointerenter');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: 'sales' });
 
-    mouse(line, 'mouseleave');
+    mouse(line, 'pointerleave');
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: null });
   });
 });

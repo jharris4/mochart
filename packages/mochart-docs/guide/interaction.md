@@ -31,6 +31,14 @@ same focus via
 by default) and
 [`legend.focusOnClick`](/reference/legend#legend.focusOnClick).
 
+The `*OnMouseOver` configs act on hovering pointers only — a mouse, a
+trackpad, or a pen held over the chart. A touch tap never counts as a hover
+(browsers emulate one right before the tap's click), so on touch screens a
+tap does only what the matching `*OnClick` config says; give touch users
+[`focusOnClick`](/reference/series#series.focusOnClick) or
+[`legend.focusOnClick`](/reference/legend#legend.focusOnClick) where they
+should be able to focus.
+
 Category focus has knobs of its own: the series'
 [`focusCategoryOnMouseOver`](/reference/series#series.focusCategoryOnMouseOver)
 and [`focusCategoryOnClick`](/reference/series#series.focusCategoryOnClick)

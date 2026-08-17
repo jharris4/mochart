@@ -6,7 +6,7 @@ import { getSeriesText } from '../utils/TooltipFormat';
 import type { PieTooltipValues } from '../utils/TooltipFormat';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { mochartCssClasses } from '../utils/ChartDom';
-import { accessibilityActive, focusRestored } from '../utils/utils';
+import { accessibilityActive, focusRestored, isHoverPointer, isKeyboardFocus } from '../utils/utils';
 import { moveRovingFocus } from '../utils/RovingFocus';
 import { getPieSliceFractionMap } from '../data/PieData';
 import { getPieTooltipPercentFormat, pieLabelTypeUsesPercent } from '../data/PieLabel';
@@ -41,8 +41,8 @@ interface TooltipCategoryLineProps {
   rowKey: string;
   interactive: boolean;
   tabStop: boolean;
-  onMouseEnter: (event: Event) => void;
-  onMouseLeave: (event: Event) => void;
+  onPointerEnter: (event: Event) => void;
+  onPointerLeave: (event: Event) => void;
   onClick: (event: Event) => void;
 }
 
@@ -67,8 +67,8 @@ interface TooltipSeriesLineProps {
   showsFilterState: boolean;
   /** the series the row acts on: a follower's leader (followSeries), else itself */
   focusSeriesId: string;
-  onMouseEnter: (event: Event, seriesId: string) => void;
-  onMouseLeave: (event: Event) => void;
+  onPointerEnter: (event: Event, seriesId: string) => void;
+  onPointerLeave: (event: Event) => void;
   onClick: (event: Event, seriesId: string) => void;
 }
 
@@ -124,13 +124,22 @@ export class TooltipCategoryLine extends Renderer<TooltipCategoryLineProps> {
     }
   }
 
-  // keyboard focus mirrors hover, so the focused row highlights the same way
+  onPointerEnter = (event: Event) => {
+    if (isHoverPointer(event)) {
+      this.props.onPointerEnter(event);
+    }
+  }
+
+  // keyboard focus mirrors hover, so the focused row highlights the same way; a tap or click
+  // focuses too, but that focus is not visible and its hover (if any) came from the pointer
   onFocusIn = (event: Event) => {
-    this.props.onMouseEnter(event);
+    if (isKeyboardFocus(event)) {
+      this.props.onPointerEnter(event);
+    }
   }
 
   onFocusOut = (event: Event) => {
-    this.props.onMouseLeave(event);
+    this.props.onPointerLeave(event);
   }
 
   create() {
@@ -139,12 +148,12 @@ export class TooltipCategoryLine extends Renderer<TooltipCategoryLineProps> {
   }
 
   sync() {
-    const { lineStyle, categoryLabel, categoryText, rowKey, interactive, tabStop, onMouseEnter, onMouseLeave, onClick } = this.props;
+    const { lineStyle, categoryLabel, categoryText, rowKey, interactive, tabStop, onPointerLeave, onClick } = this.props;
     this.root.set({ className: mochartCssClasses['tooltipCategoryLine'], style: lineStyle,
       'data-row-key': interactive ? rowKey : null,
       tabindex: interactive ? (tabStop ? '0' : '-1') : null,
       role: interactive ? 'button' : null,
-      onMouseEnter, onMouseLeave, onClick,
+      onPointerEnter: this.onPointerEnter, onPointerLeave, onClick,
       onKeyDown: interactive ? this.onKeyDown : null,
       onFocusIn: interactive ? this.onFocusIn : null,
       onFocusOut: interactive ? this.onFocusOut : null });
@@ -160,8 +169,10 @@ export class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
   valueValue: TextEl | null = null;
 
   // stable per row, so the content's shared handlers never force a row re-sync
-  onRootMouseEnter = (event: Event) => {
-    this.props.onMouseEnter(event, this.props.focusSeriesId);
+  onRootPointerEnter = (event: Event) => {
+    if (isHoverPointer(event)) {
+      this.props.onPointerEnter(event, this.props.focusSeriesId);
+    }
   }
 
   onRootClick = (event: Event) => {
@@ -185,13 +196,16 @@ export class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
     }
   }
 
-  // keyboard focus mirrors hover, so the focused row highlights its series
+  // keyboard focus mirrors hover, so the focused row highlights its series; a tap or click
+  // focuses too, but that focus is not visible and its hover (if any) came from the pointer
   onFocusIn = (event: Event) => {
-    this.onRootMouseEnter(event);
+    if (isKeyboardFocus(event)) {
+      this.props.onPointerEnter(event, this.props.focusSeriesId);
+    }
   }
 
   onFocusOut = (event: Event) => {
-    this.props.onMouseLeave(event);
+    this.props.onPointerLeave(event);
   }
 
   create() {
@@ -232,7 +246,7 @@ export class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
   sync() {
     const { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsFiltered, seriesFocusPercentage,
       colorPaletteConfig, svgUniqueId, visible, labelText, valueText, style, rowKey, interactive, tabStop, showsFilterState,
-      onMouseLeave } = this.props;
+      onPointerLeave } = this.props;
     const { tooltip: tooltipConfig } = mochartConfig;
 
     this.root.set({ className: mochartCssClasses['tooltipSeriesLine'] + seriesConfig.id, style,
@@ -241,7 +255,7 @@ export class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
       role: interactive ? 'button' : null,
       // pressed = series shown; toggling filters it out
       'aria-pressed': showsFilterState ? String(!seriesIsFiltered) : null,
-      onMouseEnter: this.onRootMouseEnter, onMouseLeave, onClick: this.onRootClick,
+      onPointerEnter: this.onRootPointerEnter, onPointerLeave, onClick: this.onRootClick,
       onKeyDown: interactive ? this.onKeyDown : null,
       onFocusIn: interactive ? this.onFocusIn : null,
       onFocusOut: interactive ? this.onFocusOut : null });
@@ -334,9 +348,9 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     this.setState({ mode });
   }
 
-  // the category row's hover-focus stays opt-in (focusCategoryOnMouseOver): its mouseleave
+  // the category row's hover-focus stays opt-in (focusCategoryOnMouseOver): its pointerleave
   // clears the category focus, which would break the applyFocus pin as the pointer crosses the tooltip
-  onCategoryMouseEnter = (_event: Event) => {
+  onCategoryPointerEnter = (_event: Event) => {
     const { mochartConfig, tooltipCategoryIndex, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltip: tooltipConfig } = mochartConfig;
@@ -347,7 +361,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     }
   }
 
-  onCategoryMouseLeave = (_event: Event) => {
+  onCategoryPointerLeave = (_event: Event) => {
     const { mochartConfig, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltip: tooltipConfig } = mochartConfig;
@@ -370,7 +384,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     }
   }
 
-  onSeriesMouseEnter = (_event: Event, seriesId: string) => {
+  onSeriesPointerEnter = (_event: Event, seriesId: string) => {
     const { mochartConfig, tooltipValueObject, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltip: tooltipConfig } = mochartConfig;
@@ -387,7 +401,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
   // cannot gate the leave, and clearing unconditionally wipes focus set elsewhere
   hoverActive = false;
 
-  onSeriesMouseLeave = (_event: Event) => {
+  onSeriesPointerLeave = (_event: Event) => {
     const { onFocus } = this.props;
     if (this.hoverActive) {
       this.hoverActive = false;
@@ -533,7 +547,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
         ctor: TooltipCategoryLine,
         props: { lineStyle: categoryRowClickable ? targetLineStyle : lineStyle, categoryLabel, categoryText: categoryFormat(categoryText!),
           rowKey: 'category', interactive: categoryRowInteractive, tabStop: false,
-          onMouseEnter: this.onCategoryMouseEnter, onMouseLeave: this.onCategoryMouseLeave, onClick: this.onCategoryClick }
+          onPointerEnter: this.onCategoryPointerEnter, onPointerLeave: this.onCategoryPointerLeave, onClick: this.onCategoryClick }
       });
     }
 
@@ -580,7 +594,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
               style: rowIsTarget ? targetLineStyle : lineStyle,
               rowKey, interactive: rowInteractive, tabStop: false,
               showsFilterState: a11yRows && rowFilters, focusSeriesId,
-              onMouseEnter: this.onSeriesMouseEnter, onMouseLeave: this.onSeriesMouseLeave, onClick: this.onSeriesClick }
+              onPointerEnter: this.onSeriesPointerEnter, onPointerLeave: this.onSeriesPointerLeave, onClick: this.onSeriesClick }
           });
         }
       }

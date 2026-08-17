@@ -168,10 +168,10 @@ describe('value axis hover focus', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig(), { onFocus: focus => { focuses.push(focus); } });
 
-    mouse(axisInner(container), 'mouseenter', 40, 300);
+    mouse(axisInner(container), 'pointerenter', 40, 300);
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedValueAxisId: 'VA0' });
 
-    mouse(axisInner(container), 'mouseleave', 40, 300);
+    mouse(axisInner(container), 'pointerleave', 40, 300);
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedValueAxisId: null });
   });
 
@@ -181,8 +181,8 @@ describe('value axis hover focus', () => {
       makeConfig({ valueAxes: [{ focusOnMouseOver: false }] }),
       { onFocus: focus => { focuses.push(focus); } });
 
-    mouse(axisInner(container), 'mouseenter', 40, 300);
-    mouse(axisInner(container), 'mouseleave', 40, 300);
+    mouse(axisInner(container), 'pointerenter', 40, 300);
+    mouse(axisInner(container), 'pointerleave', 40, 300);
     mouse(axisInner(container), 'click', 40, 300);
 
     // the chart still tracks the pointer for category focus; only the axis id stays null
@@ -640,9 +640,9 @@ describe('tooltip', () => {
     mouse(root, 'click', 100, 100);
 
     const line = container.querySelector(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getIdCssClass('tooltipSeriesLine', 'S1')))!;
-    line.dispatchEvent(new MouseEvent('mouseenter', {}));
+    line.dispatchEvent(new MouseEvent('pointerenter', {}));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S1');
-    line.dispatchEvent(new MouseEvent('mouseleave', {}));
+    line.dispatchEvent(new MouseEvent('pointerleave', {}));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBeNull();
   });
 
@@ -663,8 +663,8 @@ describe('tooltip', () => {
 
     const filteredRow = container.querySelector(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getIdCssClass('tooltipSeriesLine', 'S1')))!;
     const before = focuses.length;
-    filteredRow.dispatchEvent(new MouseEvent('mouseenter', {}));
-    filteredRow.dispatchEvent(new MouseEvent('mouseleave', {}));
+    filteredRow.dispatchEvent(new MouseEvent('pointerenter', {}));
+    filteredRow.dispatchEvent(new MouseEvent('pointerleave', {}));
     expect(focuses.length).toBe(before);
   });
 
@@ -742,14 +742,14 @@ describe('tooltip', () => {
     });
 
     const item = container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', 'S1')))!;
-    item.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    item.dispatchEvent(new MouseEvent('pointerenter', { bubbles: true }));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S1');
 
     // filtering the hovered series must not strand focus on it
     item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBe(null);
 
-    item.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+    item.dispatchEvent(new MouseEvent('pointerleave', { bubbles: true }));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBe(null);
   });
 
@@ -763,13 +763,13 @@ describe('tooltip', () => {
     });
 
     const item = container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', 'S1')))!;
-    item.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    item.dispatchEvent(new MouseEvent('pointerenter', { bubbles: true }));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S1');
 
     // the host filters the hovered series through the controlled prop; the
     // leave must still fire even though the series is filtered by then
     lastHandle().update({ filteredSeriesIds: { S1: true } } as Partial<DefaultChartProps>);
-    item.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+    item.dispatchEvent(new MouseEvent('pointerleave', { bubbles: true }));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBe(null);
   });
 
@@ -828,7 +828,7 @@ describe('tooltip', () => {
     expect(seriesLines().length).toBe(0);
 
     const line = container.querySelector(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getIdCssClass('tooltipSeriesLine', 'S0')))!;
-    line.dispatchEvent(new MouseEvent('mouseenter', {}));
+    line.dispatchEvent(new MouseEvent('pointerenter', {}));
     expect(seriesLines().length).toBeGreaterThan(0);
   });
 
@@ -1328,5 +1328,102 @@ describe('tooltip last-line style', () => {
     expect(rows.length).toBe(2);
     expect(rows[0].style.paddingBottom).toBe('3px');
     expect(rows[1].style.paddingBottom).toBe('2px');
+  });
+});
+
+// A tap emulates hover before its click (pointerenter, then the mouse burst that also DOM-focuses
+// the target), which used to focus the series for a frame before the click's filter cleared it.
+describe('touch and pointer focus never count as hover', () => {
+  function touch(target: Element, type: string): void {
+    target.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerType: 'touch' }));
+  }
+
+  function withFocusVisible(matches: boolean, run: () => void): void {
+    vi.stubGlobal('CSS', { supports: (query: string) => query === 'selector(:focus-visible)' });
+    const spy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function (this: Element, selector: string) {
+      return selector === ':focus-visible' ? matches : false;
+    });
+    try {
+      run();
+    }
+    finally {
+      spy.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  }
+
+  const twoSeries = { series: [{ property: 'sales' }, { property: 'costs' }] };
+
+  it('filters on a legend tap without focusing the series first', () => {
+    const focuses: ChartFocus[] = [];
+    const filters: unknown[] = [];
+    const container = mountChart(makeConfig({ legend: { visible: true }, ...twoSeries }), {
+      onFocus: focus => { focuses.push(focus); },
+      onSeriesFilter: filter => { filters.push(filter); }
+    });
+    const item = container.querySelector(getIdCssSelector('legendItem', 'S1'))!;
+
+    touch(item, 'pointerenter');
+    item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    touch(item, 'pointerleave');
+
+    expect(filters.length).toBe(1);
+    expect(focuses).toEqual([]);
+  });
+
+  it('mirrors keyboard focus on a legend item into series focus, but not pointer focus', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ legend: { visible: true }, ...twoSeries }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    const item = container.querySelector(getIdCssSelector('legendItem', 'S1'))!;
+
+    withFocusVisible(false, () => {
+      item.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    });
+    expect(focuses).toEqual([]);
+
+    withFocusVisible(true, () => {
+      item.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    });
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S1');
+  });
+
+  it('ignores touch on series shapes and the value axis', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({
+      series: [{ property: 'sales', renderer: 'bar', focusOnMouseOver: true, focusCategoryOnMouseOver: true }]
+    }), { onFocus: focus => { focuses.push(focus); } });
+
+    touch(container.querySelector(getIdCssSelector('seriesBar', 1))!, 'pointerenter');
+    touch(container.querySelector(getCssSelector('valueAxis') + ' > g')!, 'pointerenter');
+    expect(focuses).toEqual([]);
+
+    mouse(container.querySelector(getIdCssSelector('seriesBar', 1))!, 'pointerenter', 100, 100);
+    expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: 'S0', focusedCategoryIndex: 1 });
+  });
+
+  it('ignores touch and pointer focus on tooltip rows', () => {
+    const focuses: ChartFocus[] = [];
+    // the controls' filter mode makes the rows interactive (focusable) and hover-focusing
+    const container = mountChart(makeConfig({ ...twoSeries, tooltip: { showControls: true } }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    const root = chartRoot(container);
+    mouse(root, 'mouseenter', 100, 100);
+    mouse(root, 'click', 100, 100);
+    const before = focuses.length;
+
+    const row = container.querySelector(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getIdCssClass('tooltipSeriesLine', 'S1')))!;
+    touch(row, 'pointerenter');
+    withFocusVisible(false, () => {
+      row.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    });
+    expect(focuses.length).toBe(before);
+
+    withFocusVisible(true, () => {
+      row.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    });
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S1');
   });
 });

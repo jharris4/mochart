@@ -7,7 +7,7 @@ import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { getSeriesTitle } from '../utils/SeriesTitle';
 import { seriesIsInteractive } from '../utils/RovingFocus';
 import { mochartCssClasses } from '../utils/ChartDom';
-import { areArraysAndEqual, translateObject } from '../utils/utils';
+import { areArraysAndEqual, translateObject, isHoverPointer } from '../utils/utils';
 import { NONE, RENDERER_AREA, RENDERER_LINE, RENDERER_BAR } from '../config/core/constants';
 import { COLOR_CATEGORY_INDEX } from '../config/core/constants';
 import { getSeriesFillColor, getSeriesStrokeColor } from '../utils/SeriesColors';
@@ -60,7 +60,7 @@ interface SeriesProps {
 
 interface SeriesState {
   seriesPositionData: SeriesPositionData | null;
-  onSeriesEnter: () => void;
+  onSeriesEnter: (event: Event) => void;
   onSeriesLeave: () => void;
   onSeriesClick: (event: Event) => void;
   onCategoryEnter: (categoryIndex: number) => void;
@@ -155,7 +155,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
     const skipCategoryIndexMap = seriesPositionData ? seriesPositionData.skipCategoryIndexMap : {};
     const getCategoryIndex = seriesPositionData?.skipped ? (categoryIndex: number) => skipCategoryIndexMap[categoryIndex] : (categoryIndex: number) => categoryIndex;
 
-    let onSeriesEnter = noOp;
+    let onSeriesEnter: SeriesState['onSeriesEnter'] = noOp;
     let onSeriesLeave = noOp;
     let onSeriesClick: SeriesState['onSeriesClick'] = noOp;
     let onCategoryEnter = noOpCategory;
@@ -163,7 +163,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
     let onCategoryClick: SeriesState['onCategoryClick'] = noOpCategory;
 
     if (seriesConfig.focusOnMouseOver) {
-      onSeriesEnter = () => { onFocus({ seriesId }); };
+      onSeriesEnter = (event: Event) => { if (isHoverPointer(event)) { onFocus({ seriesId }); } };
       onSeriesLeave = () => { onFocus({ seriesId: null }); };
       if (seriesConfig.focusCategoryOnMouseOver) {
         onCategoryEnter = (categoryIndex: number) => { onFocus({ seriesId, categoryIndex: getCategoryIndex(categoryIndex) }); };
@@ -253,13 +253,13 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         this.shape.set('line', () => svgEl('path'))!.set({
           d: lineGenerator(), className: mochartCssClasses['seriesLine'], strokeWidth: seriesStrokeWidth,
           strokeDasharray: seriesStrokeDashArray, stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor,
-          onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick });
+          onPointerEnter: onSeriesEnter, onPointerLeave: onSeriesLeave, onClick: onSeriesClick });
         if (seriesConfig.rangeProperty !== NONE) { // a ranged line series draws its rangeProperty bound as a second line
           const rangeLineGenerator = getRangeLineGenerator(seriesConfig, seriesPositionData, inverted);
           this.rangeShape.set('line', () => svgEl('path'))!.set({
             d: rangeLineGenerator(), className: mochartCssClasses['seriesLine'], strokeWidth: seriesStrokeWidth,
             strokeDasharray: seriesStrokeDashArray, stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor,
-            onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick });
+            onPointerEnter: onSeriesEnter, onPointerLeave: onSeriesLeave, onClick: onSeriesClick });
         }
         else {
           this.rangeShape.set(null);
@@ -277,7 +277,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
           d: areaGenerator(), className: mochartCssClasses['seriesArea'], strokeWidth: seriesStrokeWidth,
           strokeDasharray: seriesStrokeDashArray,
           stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor, fillOpacity: seriesFillOpacity,
-          onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick });
+          onPointerEnter: onSeriesEnter, onPointerLeave: onSeriesLeave, onClick: onSeriesClick });
         this.rangeShape.set(null);
       }
       else if (seriesConfig.renderer === RENDERER_BAR) {
@@ -335,7 +335,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
             const { strokeWidth: barStrokeWidth, strokeDashArray: barStrokeDashArray, strokeOpacity: barStrokeOpacity, fillOpacity: barFillOpacity } = getFocusStyle(focusPercentage, seriesConfig.shapeStyle);
             const bar = this.barShapes.get(i);
             bar.attrs = { d: columnGenerator(i), className: bar.className,
-              onMouseEnter: bar.onMouseEnter, onMouseLeave: bar.onMouseLeave, onClick: bar.onClick,
+              onPointerEnter: bar.onPointerEnter, onPointerLeave: bar.onPointerLeave, onClick: bar.onClick,
               stroke: barStrokeColor, strokeWidth: barStrokeWidth, strokeOpacity: barStrokeOpacity,
               strokeDasharray: barStrokeDashArray, fill: barFillColor, fillOpacity: barFillOpacity };
             bars.push(bar);

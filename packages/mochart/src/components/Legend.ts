@@ -5,7 +5,7 @@ import { mochartCssClasses } from '../utils/ChartDom';
 import { layoutInfoExtentChanged } from '../layout/LayoutInfo';
 import { resolveLegendIconSize, legendItemClickable } from '../layout/LegendLayout';
 import { getTruncatedText, TruncationTracker } from '../utils/TextTruncation';
-import { accessibilityActive, translate, translateObject, centerTextY } from '../utils/utils';
+import { accessibilityActive, translate, translateObject, centerTextY, isHoverPointer, isKeyboardFocus } from '../utils/utils';
 import { moveRovingFocus, resolveRovingId, focusedSeriesNode, restoreSeriesFocus } from '../utils/RovingFocus';
 import { getClipPathReference } from '../utils/svgUtils';
 import { getSeriesTitle } from '../utils/SeriesTitle';
@@ -63,8 +63,8 @@ interface LegendItemProps {
   /** filtering applies, so the item exposes aria-pressed (pressed = series shown) */
   showsFilterState: boolean;
   onClick: (seriesId: string) => void;
-  onMouseEnter: (seriesId: string) => void;
-  onMouseLeave: (seriesId: string) => void;
+  onPointerEnter: (seriesId: string) => void;
+  onPointerLeave: (seriesId: string) => void;
 }
 
 type LegendItemState = TruncationState;
@@ -99,14 +99,14 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
     moveRovingFocus(event, this.interactiveItemNodes());
   }
 
-  legendItemMouseEnter = (seriesId: string) => {
+  legendItemPointerEnter = (seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
     if (mochartConfig.legend.focusOnMouseOver) {
       onFocus({ seriesId });
     }
   }
 
-  legendItemMouseLeave = (_seriesId: string) => {
+  legendItemPointerLeave = (_seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
     if (mochartConfig.legend.focusOnMouseOver) {
       onFocus({ seriesId: null });
@@ -188,7 +188,7 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
               tabStop: id === effectiveRovingId,
               showsFilterState: accessibility && legendConfig.filterOnClick && seriesConfig.filterable,
               onClick: this.legendItemClick,
-              onMouseEnter: this.legendItemMouseEnter, onMouseLeave: this.legendItemMouseLeave }
+              onPointerEnter: this.legendItemPointerEnter, onPointerLeave: this.legendItemPointerLeave }
           });
         }
       });
@@ -238,29 +238,42 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
     }
   }
 
-  onMouseEnter = () => {
-    const { onMouseEnter, seriesConfig, seriesIsFiltered } = this.props;
+  onPointerEnter = (event: Event) => {
+    if (isHoverPointer(event)) {
+      this.hoverEnter();
+    }
+  }
+
+  onPointerLeave = () => {
+    this.hoverLeave();
+  }
+
+  hoverEnter(): void {
+    const { onPointerEnter, seriesConfig, seriesIsFiltered } = this.props;
     if (!seriesIsFiltered) {
       this.hoverActive = true;
-      onMouseEnter(seriesConfig.id);
+      onPointerEnter(seriesConfig.id);
     }
   }
 
-  onMouseLeave = () => {
-    const { onMouseLeave, seriesConfig } = this.props;
+  hoverLeave(): void {
+    const { onPointerLeave, seriesConfig } = this.props;
     if (this.hoverActive) {
       this.hoverActive = false;
-      onMouseLeave(seriesConfig.id);
+      onPointerLeave(seriesConfig.id);
     }
   }
 
-  // keyboard focus mirrors hover, so the focused series highlights the same way
-  onFocusIn = () => {
-    this.onMouseEnter();
+  // keyboard focus mirrors hover, so the focused series highlights the same way; a tap or click
+  // focuses too, but that focus is not visible and its hover (if any) came from the pointer
+  onFocusIn = (event: Event) => {
+    if (isKeyboardFocus(event)) {
+      this.hoverEnter();
+    }
   }
 
   onFocusOut = () => {
-    this.onMouseLeave();
+    this.hoverLeave();
   }
 
   derive(props: LegendItemProps, _state: LegendItemState, prevProps: LegendItemProps | null): Partial<LegendItemState> | null {
@@ -317,7 +330,7 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
       ariaLabel: interactive ? seriesLabel : null,
       // pressed = series shown; toggling filters it out
       ariaPressed: showsFilterState ? String(!seriesIsFiltered) : null,
-      onClick: this.onClick, onMouseEnter: this.onMouseEnter, onMouseLeave: this.onMouseLeave,
+      onClick: this.onClick, onPointerEnter: this.onPointerEnter, onPointerLeave: this.onPointerLeave,
       onKeyDown: interactive ? this.onKeyDown : null,
       onFocusIn: interactive ? this.onFocusIn : null,
       onFocusOut: interactive ? this.onFocusOut : null });

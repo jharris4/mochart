@@ -392,10 +392,10 @@ describe('pie slice hover focus', () => {
     const { config, data } = pieChartProps(ITEMS, {}, { seriesDefaults: { focusOnMouseOver: true } });
     const { container } = mountChart(config, data, { onFocus: focus => { focuses.push(focus); } });
 
-    slice(container, 1).dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    slice(container, 1).dispatchEvent(new MouseEvent('pointerenter', { bubbles: true }));
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: 'slice1' });
 
-    slice(container, 1).dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+    slice(container, 1).dispatchEvent(new MouseEvent('pointerleave', { bubbles: true }));
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: null });
   });
 
@@ -404,8 +404,8 @@ describe('pie slice hover focus', () => {
     const { config, data } = pieChartProps(ITEMS);
     const { container } = mountChart(config, data, { onFocus: focus => { focuses.push(focus); } });
 
-    slice(container, 0).dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
-    slice(container, 0).dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+    slice(container, 0).dispatchEvent(new MouseEvent('pointerenter', { bubbles: true }));
+    slice(container, 0).dispatchEvent(new MouseEvent('pointerleave', { bubbles: true }));
     slice(container, 0).dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(focuses).toEqual([]);

@@ -85,7 +85,7 @@ function focusSeries(container: Element, seriesId: string): void {
   const line = container.querySelector(getCssSelector('tooltip') + ' '
     + getCssClassMatchSelector(getIdCssClass('tooltipSeriesLine', seriesId)));
   expect(line).not.toBeNull();
-  line!.dispatchEvent(new MouseEvent('mouseenter', {}));
+  line!.dispatchEvent(new MouseEvent('pointerenter', {}));
 }
 
 beforeAll(() => {

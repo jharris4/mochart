@@ -248,7 +248,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             const label = this.labelShapes.get(i);
             label.attrs = { className: label.className, transform: translate(x, y),
               textAnchor, dy, stroke: labelStrokeColor, fill: labelFillColor, fillOpacity: labelFillOpacity, strokeOpacity: labelStrokeOpacity,
-              strokeWidth: labelStrokeWidth, onMouseEnter: label.onMouseEnter, onMouseLeave: label.onMouseLeave, onClick: label.onClick };
+              strokeWidth: labelStrokeWidth, onPointerEnter: label.onPointerEnter, onPointerLeave: label.onPointerLeave, onClick: label.onClick };
             label.text = String(valueFormat(labelValues[skipI]!));
             labels.push(label);
           }

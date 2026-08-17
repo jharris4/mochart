@@ -100,7 +100,7 @@ describe('tooltip row sync', () => {
     openTooltip(container);
 
     const row = tooltipRow(container, 'S1');
-    row.dispatchEvent(new MouseEvent('mouseenter'));
+    row.dispatchEvent(new MouseEvent('pointerenter'));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S1');
 
     row.dispatchEvent(new MouseEvent('click', { bubbles: true }));
