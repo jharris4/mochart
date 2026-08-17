@@ -404,10 +404,16 @@ function validateSection(sectionKey: string, allKey: string | undefined, section
   const messages = getMessages(sectionKey, allKey, uniqueKeys, sectionWithoutDefaults, sectionDefaults, all,
     sectionValidators(isConfigRecord(sectionAll) ? sectionAll : {}, config), onlyAll, i, first, allExcludedKeys);
   const { errorMessages, warningMessages } = messages;
-  pushAll(errors, errorMessages);
+  // an all-config value failing the same rule under several entries reports once
+  pushAll(errors, errorMessages.filter(message => errors.indexOf(message) === -1));
   pushAll(warnings, warningMessages);
-  errorDetails.push(...messages.errorDetails);
+  errorDetails.push(...messages.errorDetails.filter(detail =>
+    !errorDetails.some(existing => existing.message === detail.message && sameMessagePath(existing.path, detail.path))));
   warningDetails.push(...messages.warningDetails);
+}
+
+function sameMessagePath(a: LocatedValidationMessage['path'], b: LocatedValidationMessage['path']): boolean {
+  return a.length === b.length && a.every((segment, index) => segment === b[index]);
 }
 
 function validateUnique(config: ConfigRecord, configWithoutDefaults: ConfigRecord, _configDefaults: ConfigRecord, sectionKey: string, _allKey: string | undefined, property: string, errors: string[], errorDetails: LocatedValidationMessage[]): void {

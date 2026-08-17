@@ -217,6 +217,31 @@ describe('explicit undefined members', () => {
   });
 });
 
+// Regression: all-config values were validated only under the first entry's conditional rules, so a
+// seriesDefaults gradient (or errorLowProperty, colorScale) that a later entry's renderer/stack forbids passed
+describe('all-config values under later entries\' conditional rules', () => {
+  it('reports a seriesDefaults gradient a later line series cannot take, once', () => {
+    const errors = errorsFor({
+      version: V, categoryAxis: { property: 'c' },
+      linearGradients: [{ id: 'LG0', stops: [{ offset: 0, color: 'red', opacity: 1 }, { offset: 1, color: 'blue', opacity: 1 }] }],
+      seriesDefaults: { gradient: 'LG0' },
+      series: [{ property: 'p', renderer: 'bar' }, { property: 'q', renderer: 'line' }, { property: 'r', renderer: 'line' }]
+    });
+    const gradientErrors = errors.filter(error => error.includes('gradient'));
+    expect(gradientErrors).toHaveLength(1);
+    expect(gradientErrors[0]).toMatch(/^seriesDefaults - gradient/);
+  });
+
+  it('does not report an inherited value the entry itself overrides', () => {
+    expect(errorsFor({
+      version: V, categoryAxis: { property: 'c' },
+      linearGradients: [{ id: 'LG0', stops: [{ offset: 0, color: 'red', opacity: 1 }, { offset: 1, color: 'blue', opacity: 1 }] }],
+      seriesDefaults: { gradient: 'LG0' },
+      series: [{ property: 'p', renderer: 'bar' }, { property: 'q', renderer: 'line', gradient: null }]
+    })).toEqual([]);
+  });
+});
+
 describe('non-strict validation', () => {
   it('treats warnings as acceptable when strict is false', () => {
     // an unknown extra property produces a warning, not an error

@@ -215,6 +215,15 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
       addErrorMessagesInternal(allKey ?? sectionKey, all, allValidators, errorMessages, errorDetails);
       addWarningMessagesInternal(allKey ?? sectionKey, all, validatorMap, warningMessages, warningDetails);
     }
+    else if (!onlyAll) {
+      // later entries carry their own conditional rules (renderer, stack, colorProperty…), so the all-config
+      // values they inherit are checked under them too; the caller drops repeats of a message already reported
+      const overriddenKeys = objectValidator(section) && isConfigObject(section) ? definedKeys(section) : [];
+      const inheritedKeys = definedKeys(all).filter(key => overriddenKeys.indexOf(key) === -1 &&
+        (!Array.isArray(uniqueKeys) || uniqueKeys.indexOf(key) === -1) &&
+        (!Array.isArray(allExcludedKeys) || allExcludedKeys.indexOf(key) === -1));
+      addErrorMessagesInternal(allKey ?? sectionKey, all, objectWithKeys(validatorMap, inheritedKeys), errorMessages, errorDetails);
+    }
   }
   if (!onlyAll && objectValidator(section) && isConfigObject(section)) {
     providedKeyMap = { ...providedKeyMap, ...withDefinedKeys(section) };
