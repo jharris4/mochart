@@ -20,11 +20,15 @@ export function getAxisDomain(axisConfig: AxisDomainConfig, axisDomainCalculator
   return axisDomain;
 }
 
+/** True when both bounds are set and equal: a zero-extent domain (one category, or all values alike). */
+export function isCollapsedDomain(axisDomain: CategoryAxisDomain): boolean {
+  const [min, max] = axisDomain;
+  return min !== null && max !== null && numericValue(min) === numericValue(max);
+}
+
 /** True when both bounds are explicit and equal: the user asked for this zero-extent domain. */
 export function isExplicitCollapsedDomain(axisConfig: AxisDomainConfig, axisDomain: CategoryAxisDomain): boolean {
-  const [min, max] = axisDomain;
-  return axisConfig.min !== AUTO && axisConfig.max !== AUTO &&
-    min !== null && max !== null && numericValue(min) === numericValue(max);
+  return axisConfig.min !== AUTO && axisConfig.max !== AUTO && isCollapsedDomain(axisDomain);
 }
 
 /** The domain scales/ticks are built from: the semantic domain itself (same reference) unless collapsed,

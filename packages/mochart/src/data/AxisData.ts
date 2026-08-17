@@ -3,7 +3,7 @@ import { format } from 'd3-format';
 import { timeFormat, utcFormat } from 'd3-time-format';
 
 import { getWithMutations } from '../utils/WithMutations';
-import { isExplicitCollapsedDomain } from './AxisDomainData';
+import { isCollapsedDomain, isExplicitCollapsedDomain } from './AxisDomainData';
 import { areArraysAndEqual, arrayToMap, idAccessor } from '../utils/utils';
 import { AUTO, NONE, SCALE_ORDINAL, SCALE_LINEAR, TYPE_DATE, TYPE_NUMBER, ANCHOR_START, ANCHOR_END, ANCHOR_MIDDLE } from '../config/core/constants';
 import type { AxisConfigBase, CategoryAxisConfig, PlotConfig } from '../types/config';
@@ -76,8 +76,8 @@ function getCategoryAxisData(categoryAxisConfig: CategoryAxisConfig, axisLayoutI
     const spacingInfo = getCategorySpacingInfo(categoryAxisConfig, categoryData.renderAxisDomain, axisLayoutInfo.categoryExtent);
     const axisScale = getCategoryAxisScale(categoryAxisConfig, categoryData.renderAxisDomain, spacingInfo);
     const positions = getCategoryValuePositions(categoryAxisConfig, axisScale, categoryData.values);
-    // explicit min === max: the single tick belongs at the configured value, not at the widened render bounds
-    const tickDomain = isExplicitCollapsedDomain(categoryAxisConfig, categoryData.axisDomain) ? categoryData.axisDomain : categoryData.renderAxisDomain;
+    // a collapsed domain (one category, or explicit min === max) draws its single tick at the value, not at the widened render bounds
+    const tickDomain = isCollapsedDomain(categoryData.axisDomain) ? categoryData.axisDomain : categoryData.renderAxisDomain;
     const axisTickData = getCategoryAxisTickData(categoryAxisConfig, axisLayoutInfo, axisScale, tickDomain, categoryData.values.parsed, positions);
     const maxTickLabelLength = getMaxTickLabelLength(categoryAxisConfig, categoryData.values.parsed, axisTickData, spacingInfo);
 
