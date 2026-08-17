@@ -41,6 +41,7 @@ export function mountChartHost(create: CreateChartFn, container: HTMLElement, pr
   let lastProps = placeholders.transform(props);
   let measured = measure(container);
   const chart = create(container, withSize(lastProps, measured));
+  const detachPlaceholders = placeholders.attach(container);
 
   let observer: ResizeObserver | null = null;
   if (typeof ResizeObserver !== 'undefined') {
@@ -71,6 +72,7 @@ export function mountChartHost(create: CreateChartFn, container: HTMLElement, pr
         observer = null;
       }
       chart.destroy();
+      detachPlaceholders();
       placeholders.destroy();
     }
   };

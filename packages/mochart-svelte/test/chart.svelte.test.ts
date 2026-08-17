@@ -301,6 +301,38 @@ describe('removed props', () => {
 });
 
 // Regression: clearing the prop left the mounted instance alive in its detached container, so its onDestroy never ran.
+// Regression: the slot's instance stayed mounted in the detached container after the chart left the
+// state, so its effects kept running and re-entry reused the stale instance
+describe('placeholder instances across chart states', () => {
+  it('destroys the placeholder when the chart leaves the state and mounts a fresh one on re-entry', async () => {
+    const el = target();
+    const before = destroyLog.destroyed;
+    const props = $state({
+      config: rawConfig(), data: rows, loading: true, loadingComponent: TrackedLoading, width: 400, height: 300
+    });
+    const instance = mount(DefaultChart, { target: el, props });
+    flushSync();
+    expect(el.textContent).toContain('Custom loading');
+
+    props.loading = false;
+    flushSync();
+    await Promise.resolve();
+    expect(el.textContent).not.toContain('Custom loading');
+    expect(destroyLog.destroyed).toBe(before + 1);
+
+    props.loading = true;
+    flushSync();
+    await Promise.resolve();
+    expect(el.textContent).toContain('Custom loading');
+    expect(destroyLog.destroyed).toBe(before + 1);
+
+    void unmount(instance);
+    flushSync();
+    expect(destroyLog.destroyed).toBe(before + 2);
+    el.remove();
+  });
+});
+
 describe('removed placeholder components', () => {
   it('destroys the placeholder instance when the component is cleared', () => {
     const el = target();

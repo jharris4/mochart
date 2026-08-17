@@ -42,6 +42,18 @@ class PlaceholderSlot {
     return this.container;
   }
 
+  /** Mounted or unmounted to match whether the core still holds the container in the chart. */
+  syncAttached(host: Element): void {
+    const attached = host.contains(this.container);
+    if (attached && !this.instance && this.mounted !== null) {
+      this.mountCurrent();
+    }
+    else if (!attached && this.instance) {
+      void unmount(this.instance);
+      this.instance = null;
+    }
+  }
+
   /** Mount the current component, replacing an instance of a previous one. */
   private mountCurrent(): void {
     if (this.instance && this.mounted !== this.component) {
@@ -75,6 +87,8 @@ class PlaceholderSlot {
 
 export interface PlaceholderAdapter {
   transform(props: Record<string, any>): Record<string, any>;
+  /** Watches the chart host so a slot the core detaches (chart left that state) unmounts its instance; returns the stop function. */
+  attach(host: Element): () => void;
   destroy(): void;
 }
 
@@ -119,6 +133,18 @@ export function createPlaceholderAdapter(componentContext?: Map<any, any>): Plac
         }
       }
       return out;
+    },
+    attach(host: Element): () => void {
+      if (typeof MutationObserver === 'undefined') {
+        return () => {};
+      }
+      const observer = new MutationObserver(() => {
+        for (const slot of slots.values()) {
+          slot.syncAttached(host);
+        }
+      });
+      observer.observe(host, { childList: true, subtree: true });
+      return () => observer.disconnect();
     },
     destroy(): void {
       for (const propName of [...slots.keys()]) {
