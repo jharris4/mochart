@@ -88,6 +88,8 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
   barsGroup = svgEl('g');
   bars = new ElList<CategoryShape, BarHandle>(this.barsGroup.node, null);
   barShapes = new CategoryShapeCache('seriesBar', () => this.state);
+  // leave mirrors the enter that actually fired: an ignored touch enter must not clear focus set elsewhere
+  hoverActive = false;
 
   constructor() {
     super();
@@ -163,8 +165,8 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
     let onCategoryClick: SeriesState['onCategoryClick'] = noOpCategory;
 
     if (seriesConfig.focusOnMouseOver) {
-      onSeriesEnter = (event: Event) => { if (isHoverPointer(event)) { onFocus({ seriesId }); } };
-      onSeriesLeave = () => { onFocus({ seriesId: null }); };
+      onSeriesEnter = (event: Event) => { if (isHoverPointer(event)) { this.hoverActive = true; onFocus({ seriesId }); } };
+      onSeriesLeave = () => { if (this.hoverActive) { this.hoverActive = false; onFocus({ seriesId: null }); } };
       if (seriesConfig.focusCategoryOnMouseOver) {
         onCategoryEnter = (categoryIndex: number) => { onFocus({ seriesId, categoryIndex: getCategoryIndex(categoryIndex) }); };
         onCategoryLeave = (_categoryIndex: number) => { onFocus({ seriesId: null, categoryIndex: null }); };

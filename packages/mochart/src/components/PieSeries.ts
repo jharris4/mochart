@@ -85,6 +85,8 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
   shape = this.elSlot(this.root);
   label = this.elSlot(this.root);
   labelText = textEl();
+  // leave mirrors the enter that actually fired: an ignored touch enter must not clear focus set elsewhere
+  hoverActive = false;
 
   constructor() {
     super();
@@ -110,8 +112,8 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     let onSeriesLeave = noOp;
     let onSeriesClick = noOp;
     if (seriesConfig.focusOnMouseOver) {
-      onSeriesEnter = (event: Event) => { if (isHoverPointer(event)) { onFocus({ seriesId }); } };
-      onSeriesLeave = () => { onFocus({ seriesId: null }); };
+      onSeriesEnter = (event: Event) => { if (isHoverPointer(event)) { this.hoverActive = true; onFocus({ seriesId }); } };
+      onSeriesLeave = () => { if (this.hoverActive) { this.hoverActive = false; onFocus({ seriesId: null }); } };
     }
     if (seriesConfig.focusOnClick || onSliceClick) {
       onSeriesClick = () => {

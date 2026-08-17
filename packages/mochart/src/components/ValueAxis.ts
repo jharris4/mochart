@@ -35,6 +35,8 @@ const noOp = () => {};
 
 export default class ValueAxis extends Renderer<ValueAxisProps, ValueAxisState> {
   axis: Slot | null = null;
+  // leave mirrors the enter that actually fired: an ignored touch enter must not clear focus set elsewhere
+  hoverActive = false;
 
   constructor() {
     super();
@@ -61,8 +63,8 @@ export default class ValueAxis extends Renderer<ValueAxisProps, ValueAxisState> 
     let onValueAxisClick = noOp;
 
     if (valueAxisConfig.focusOnMouseOver) {
-      onValueAxisEnter = (event: Event) => { if (isHoverPointer(event)) { onFocus({ valueAxisId }); } };
-      onValueAxisLeave = () => { onFocus({ valueAxisId: null }); };
+      onValueAxisEnter = (event: Event) => { if (isHoverPointer(event)) { this.hoverActive = true; onFocus({ valueAxisId }); } };
+      onValueAxisLeave = () => { if (this.hoverActive) { this.hoverActive = false; onFocus({ valueAxisId: null }); } };
     }
     if (valueAxisConfig.focusOnClick) {
       // second click on the focused axis toggles the focus off, matching series/legend clicks

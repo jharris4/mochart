@@ -1426,4 +1426,86 @@ describe('touch and pointer focus never count as hover', () => {
     });
     expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S1');
   });
+
+  // a tap's ignored enter is followed by a leave (before the click) that used to clear focus unconditionally
+  it('keeps a pinned series focus across a tap on bars, the series group and the value axis', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({
+      series: [{ property: 'sales', renderer: 'bar', focusOnMouseOver: true, focusCategoryOnMouseOver: true, focusOnClick: true }],
+      valueAxes: [{ focusOnClick: true }]
+    }), { onFocus: focus => { focuses.push(focus); } });
+    const bar = container.querySelector(getIdCssSelector('seriesBar', 1))!;
+    const series = container.querySelector(getIdCssSelector('series', 'S0'))!;
+    const axis = container.querySelector(getCssSelector('valueAxis') + ' > g')!;
+
+    bar.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S0');
+    const pinned = focuses.length;
+
+    for (const target of [bar, series, axis]) {
+      touch(target, 'pointerenter');
+      touch(target, 'pointerleave');
+    }
+    expect(focuses.length).toBe(pinned);
+
+    // the tap's click then toggles the focus off, instead of re-focusing what its leave cleared
+    bar.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBeNull();
+
+    // a hover leave still clears
+    mouse(bar, 'pointerenter', 100, 100);
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S0');
+    bar.dispatchEvent(new PointerEvent('pointerleave', { bubbles: true, pointerType: 'mouse' }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBeNull();
+  });
+
+  it('keeps a pinned value axis focus across a tap on the axis', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ valueAxes: [{ focusOnClick: true }] }), { onFocus: focus => { focuses.push(focus); } });
+    const axis = container.querySelector(getCssSelector('valueAxis') + ' > g')!;
+
+    axis.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedValueAxisId).toBe('VA0');
+    touch(axis, 'pointerenter');
+    touch(axis, 'pointerleave');
+    expect(focuses[focuses.length - 1].focusedValueAxisId).toBe('VA0');
+    axis.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedValueAxisId).toBeNull();
+  });
+
+  it('keeps a pinned slice focus across a tap on a pie slice', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({
+      chart: { type: 'pie' },
+      series: [{ property: 'sales', focusOnMouseOver: true, focusOnClick: true }, { property: 'costs' }]
+    }), { onFocus: focus => { focuses.push(focus); } });
+    const slice = container.querySelector(getIdCssSelector('series', 'S0') + ' ' + getCssSelector('seriesSlice'))!;
+
+    slice.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S0');
+    touch(slice, 'pointerenter');
+    touch(slice, 'pointerleave');
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S0');
+    slice.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBeNull();
+  });
+
+  it('keeps the pinned category focus across a tap on the tooltip category row', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ ...twoSeries, tooltip: { focusCategoryOnMouseOver: true } }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    const root = chartRoot(container);
+    mouse(root, 'mouseenter', 100, 100);
+    mouse(root, 'click', 100, 100);
+    const pinnedIndex = focuses[focuses.length - 1].focusedCategoryIndex;
+    expect(pinnedIndex).toBeGreaterThanOrEqual(0);
+    const before = focuses.length;
+
+    const row = container.querySelector(getDescendantCssSelector('tooltip', 'tooltipCategoryLine'))!;
+    touch(row, 'pointerenter');
+    touch(row, 'pointerleave');
+    expect(focuses.length).toBe(before);
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(pinnedIndex);
+  });
 });

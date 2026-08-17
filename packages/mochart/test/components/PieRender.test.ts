@@ -392,10 +392,12 @@ describe('pie slice hover focus', () => {
     const { config, data } = pieChartProps(ITEMS, {}, { seriesDefaults: { focusOnMouseOver: true } });
     const { container } = mountChart(config, data, { onFocus: focus => { focuses.push(focus); } });
 
-    slice(container, 1).dispatchEvent(new MouseEvent('pointerenter', { bubbles: true }));
+    // focusing moves the slice to the end of the DOM, so keep the node rather than re-querying by index
+    const hovered = slice(container, 1);
+    hovered.dispatchEvent(new MouseEvent('pointerenter', { bubbles: true }));
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: 'slice1' });
 
-    slice(container, 1).dispatchEvent(new MouseEvent('pointerleave', { bubbles: true }));
+    hovered.dispatchEvent(new MouseEvent('pointerleave', { bubbles: true }));
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: null });
   });
 

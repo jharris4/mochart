@@ -39,11 +39,13 @@ export class CategoryShapeCache<S extends CategoryShape = CategoryShape> {
     let shape = this.shapes[categoryIndex];
     if (shape === undefined) {
       const { callbacks } = this;
+      // leave mirrors the enter that actually fired: an ignored touch enter must not clear focus set elsewhere
+      let hoverActive = false;
       shape = this.shapes[categoryIndex] = this.extend({
         key: categoryIndex,
         className: mochartCssClasses[this.classKey] + categoryIndex,
-        onPointerEnter: (event: Event) => { if (isHoverPointer(event)) { callbacks().onCategoryEnter(categoryIndex); } },
-        onPointerLeave: () => { callbacks().onCategoryLeave(categoryIndex); },
+        onPointerEnter: (event: Event) => { if (isHoverPointer(event)) { hoverActive = true; callbacks().onCategoryEnter(categoryIndex); } },
+        onPointerLeave: () => { if (hoverActive) { hoverActive = false; callbacks().onCategoryLeave(categoryIndex); } },
         onClick: (event: Event) => { callbacks().onCategoryClick(categoryIndex, event); },
         attrs: {}
       });

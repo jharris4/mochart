@@ -357,17 +357,18 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { showControls, focusCategoryOnMouseOver } = tooltipConfig;
     const shouldFocus = focusCategoryOnMouseOver && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
+      this.categoryHoverActive = true;
       onFocus({ categoryIndex: tooltipCategoryIndex });
     }
   }
 
+  // leave mirrors the enter that actually fired, like the series rows below
+  categoryHoverActive = false;
+
   onCategoryPointerLeave = (_event: Event) => {
-    const { mochartConfig, onFocus } = this.props;
-    const { mode } = this.state;
-    const { tooltip: tooltipConfig } = mochartConfig;
-    const { showControls, focusCategoryOnMouseOver } = tooltipConfig;
-    const shouldFocus = focusCategoryOnMouseOver && (showControls ? mode === MODE_FILTER : true);
-    if (shouldFocus) {
+    const { onFocus } = this.props;
+    if (this.categoryHoverActive) {
+      this.categoryHoverActive = false;
       onFocus({ categoryIndex: null });
     }
   }
