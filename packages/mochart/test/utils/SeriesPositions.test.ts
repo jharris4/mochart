@@ -329,6 +329,21 @@ describe('getSeriesPositionData', () => {
       expect(data.getCurrentSeriesPosition(null, 1)).toBe(100);
       expect(data.getPriorSeriesPosition(null, 1)).toBe(160);
     });
+
+    // Regression: the connect path sorted stack tops against priors like unstacked ranges, so a
+    // negative segment (top below its prior) rendered at the prior and its cap pointed at the base
+    it('keeps a negative stack segment\'s top and prior in place under missingValues connect', () => {
+      const config = stacked({ missingValues: 'connect' });
+      // scale spans -100..100 across 200px so negative stack values map below the base
+      const signedScale = makeScale(value => 100 - value, [-100, 100], [200, 0]);
+      const negativeStackValues = values([-30, NA, -50, -60, -70], [-10, NA, -20, -40, -60]);
+      const data = getSeriesPositionData(config.categoryAxis, config.series[1], categoryValueData, signedScale,
+        negativeStackValues, upright);
+      expect(data.seriesDefinedPositions).toEqual([130, 150, 160, 170]);
+      expect(data.seriesPriorDefinedPositions).toEqual([110, 120, 140, 160]);
+      expect(data.getCurrentSeriesPosition(null, 0)).toBe(130);
+      expect(data.getPriorSeriesPosition(null, 0)).toBe(110);
+    });
   });
 
   describe('series groups', () => {

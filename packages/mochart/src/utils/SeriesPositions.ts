@@ -5,7 +5,7 @@ import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { AxisScale, CategoryAxisData, SeriesPosition, SeriesPositionAccessor, SeriesPositionData, SeriesValueObject } from '../types/data';
 import type { LayoutInfo } from '../types/layout';
 
-function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorPositions: SeriesPosition[] | null, seriesBasePosition: number, inverted: boolean): void {
+function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorPositions: SeriesPosition[] | null, seriesBasePosition: number, inverted: boolean, sort: boolean): void {
   const length = seriesPositions.length;
   if (seriesPriorPositions !== null) {
     for (let i = 0; i < length; i++) {
@@ -20,7 +20,7 @@ function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorP
       else if (seriesPriorPositions[i] === undefined) {
         seriesPriorPositions[i] = seriesPositions[i];
       }
-      else {
+      else if (sort) {
         const swapPosition = inverted ? seriesPositions[i]! < seriesPriorPositions[i]! : seriesPositions[i]! > seriesPriorPositions[i]!
         if(swapPosition) {
           const temp = seriesPositions[i];
@@ -107,7 +107,8 @@ export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, se
   }
 
   if (stack === NONE || skip) {
-    normalizePriorPositions(seriesPositions, seriesPriorPositions, seriesBasePosition, inverted); // if there are prior positions, normalize and sort them per category value
+    // back-fill either side per category value; only unstacked pairs get sorted, a stack top below its prior is a negative segment
+    normalizePriorPositions(seriesPositions, seriesPriorPositions, seriesBasePosition, inverted, stack === NONE);
   }
 
   const skipCategoryIndexMap: Record<number, number> = {};
