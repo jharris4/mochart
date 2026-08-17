@@ -1448,6 +1448,16 @@ describe("validators", () => {
 
   describe("compound validators", () => {
     describe("array of", () => {
+      // Regression: elements were checked with some(), which never visits holes, so a sparse array validated
+      it("should validate the holes of a sparse array as undefined", () => {
+        expect(baseValidators.arrayOf(baseValidators.number())(new Array(3))).toBe(false);
+        const holeThenNumber: number[] = [];
+        holeThenNumber[1] = 1;
+        expect(baseValidators.arrayOf(baseValidators.number())(holeThenNumber)).toBe(false);
+        expect(baseValidators.arrayOf(baseValidators.object(), false)(new Array(2))).toBe(false);
+        expect(baseValidators.arrayOf(baseValidators.number())([0, 1])).toBe(true);
+      });
+
       it("exposes the item validator as metadata", () => {
         const itemValidator = baseValidators.string();
         expect(baseValidators.arrayOf(itemValidator).itemValidator).toBe(itemValidator);

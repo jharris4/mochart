@@ -354,13 +354,13 @@ const compoundValidatorDefinitions = {
       if (!typeValidators.array(v) || (v.length === 0 && allowEmpty === false)) {
         return false;
       }
-      const someInvalid = v.some((av: any) => {
-        if (!elementValidator(av)) {
-          return true;
+      // by index, not some(): holes in a sparse array are skipped by some() yet read as undefined
+      for (let i = 0; i < v.length; i++) {
+        if (!elementValidator(v[i])) {
+          return false;
         }
-        return false;
-      });
-      return !someInvalid;
+      }
+      return true;
     },
     message: (elementValidator: Validator, allowEmpty: boolean = false) =>
       "should be " + (allowEmpty ? "an" : "a non-empty") + " array with elements that " + elementValidator.errorMessage
