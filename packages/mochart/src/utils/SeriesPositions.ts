@@ -67,9 +67,9 @@ export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, se
   let { categoryValueExtent, categoryValueOffset } = spacingInfo;
   categoryValueOffset*= -1;
   if (group !== NONE) {
-    const categoryExtentAndMargins = categoryValueExtent / seriesGroupConfig!.seriesConfigs!.length;
+    const categoryExtentAndMargins = categoryValueExtent / seriesGroupConfig!.subSlotCount!;
     categoryValueExtent = categoryExtentAndMargins * (1.0 - categoryAxisConfig.categoryPaddingFraction.inner);
-    categoryValueOffset = categoryValueOffset + (seriesGroupConfig!.seriesConfigIndicesById![seriesConfig.id]! * categoryExtentAndMargins) + ((categoryExtentAndMargins - categoryValueExtent) / 2.0);
+    categoryValueOffset = categoryValueOffset + (seriesGroupConfig!.subSlotIndicesById![seriesConfig.id]! * categoryExtentAndMargins) + ((categoryExtentAndMargins - categoryValueExtent) / 2.0);
   }
   if (barWidthFraction !== 1) {
     const fullValueExtent = categoryValueExtent;

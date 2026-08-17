@@ -162,8 +162,8 @@ describe('followSeries followers', () => {
   });
 });
 
-// Four bar series divisible two ways, as in the stacked-grouped demo: stacks SA
-// and SB, groups GA and GB, each holding two series and cutting across the other.
+// Four bar series divisible two ways: stacks SA and SB, groups GA and GB, each
+// holding two series and cutting across the other.
 // Dropping a division lets one propagation branch run on its own.
 function makeStackedGroupedChart(divisions: 'stacks' | 'groups' | 'both') {
   const withStacks = divisions !== 'groups';

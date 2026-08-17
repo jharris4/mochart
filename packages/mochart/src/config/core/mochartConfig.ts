@@ -103,6 +103,30 @@ const assignConfigListIndexReferences = (configs: ConfigRecord[], referenceName:
   }
 }
 
+// a group lays its series out side by side, one sub-slot per stack (stack-mates share one) or per unstacked series
+const assignGroupSubSlots = (groupConfigs: ConfigRecord[]): void => {
+  if (Array.isArray(groupConfigs)) {
+    for (const groupConfig of groupConfigs) {
+      if (isObject(groupConfig)) {
+        const subSlotIndicesById: Record<string, number> = Object.create(null);
+        const subSlotIndicesByKey: Record<string, number> = Object.create(null);
+        let subSlotCount = 0;
+        for (const seriesConfig of Array.isArray(groupConfig.seriesConfigs) ? groupConfig.seriesConfigs as ConfigRecord[] : []) {
+          if (isObject(seriesConfig) && isString(seriesConfig.id)) {
+            const key = isString(seriesConfig.stack) && seriesConfig.stack !== NONE ? 'stack:' + seriesConfig.stack : 'series:' + seriesConfig.id;
+            if (subSlotIndicesByKey[key] === undefined) {
+              subSlotIndicesByKey[key] = subSlotCount++;
+            }
+            subSlotIndicesById[seriesConfig.id] = subSlotIndicesByKey[key];
+          }
+        }
+        groupConfig.subSlotIndicesById = subSlotIndicesById;
+        groupConfig.subSlotCount = subSlotCount;
+      }
+    }
+  }
+};
+
 const arrayToIdIndexMap = (configs: unknown): Record<string, number> => {
   const map: Record<string, number> = Object.create(null);
   if (Array.isArray(configs)) {
@@ -367,6 +391,7 @@ export default function buildMochartConfig(configWithoutDefaults: unknown, confi
   assignConfigListIndexReferences(valueAxisConfigs, 'seriesConfigIndicesById', 'seriesConfigs', 'valueAxisConfigs');
   assignConfigListIndexReferences(seriesStackConfigs, 'seriesConfigIndicesById', 'seriesConfigs', 'seriesStacks');
   assignConfigListIndexReferences(seriesGroupConfigs, 'seriesConfigIndicesById', 'seriesConfigs', 'seriesGroups');
+  assignGroupSubSlots(seriesGroupConfigs);
 
   return {
     ...config,

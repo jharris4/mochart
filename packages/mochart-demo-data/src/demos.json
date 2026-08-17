@@ -250,7 +250,7 @@
       "id": "stacked-grouped",
       "title": "Stacked & Grouped",
       "description": "Stacking and grouping composed: four series in two stacks, placed side by side within each category.",
-      "notes": "Every series names both a stack (SS0/SS1) and a group (SG0/SG1): the group id decides which sub-slot of the category slot the bar occupies, the stack id decides what it accumulates on. Each category slot therefore holds two side-by-side columns, each a two-segment stack, all sharing one value axis with min 0.",
+      "notes": "Every series names a stack (SS0/SS1) and the one group (SG0): a group lays its series out side by side within the category slot, and series that also share a stack share one sub-slot, so the stack id decides both what a bar accumulates on and which column it lands in. Each category slot therefore holds two side-by-side columns, each a two-segment stack, all sharing one value axis with min 0.",
       "config": "stacked-grouped-config.json",
       "data": "mixed-categories-positive-values-data.json",
       "random": "positive-random.json"

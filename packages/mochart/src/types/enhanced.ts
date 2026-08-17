@@ -32,6 +32,9 @@ export interface EnhancedSeriesStackConfig extends SeriesStackConfig {
 export interface EnhancedSeriesGroupConfig extends SeriesGroupConfig {
   seriesConfigs?: EnhancedSeriesConfig[];
   seriesConfigIndicesById?: Record<string, number>;
+  /** Side-by-side sub-slots of the category slot: one per stack in the group (stack-mates share it) or per unstacked series. */
+  subSlotIndicesById?: Record<string, number>;
+  subSlotCount?: number;
 }
 
 export interface EnhancedMochartConfig extends Omit<MochartConfig, 'valueAxes' | 'series' | 'seriesGroups' | 'seriesStacks'> {

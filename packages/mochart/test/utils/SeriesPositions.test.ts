@@ -363,6 +363,32 @@ describe('getSeriesPositionData', () => {
       expect(second.categoryValueExtent).toBe(8);
       expect(second.categoryValueOffset).toBe(6);
     });
+
+    it('gives stack-mates in a group one shared sub-slot, so two stacks make two columns', () => {
+      const config = enhance({
+        categoryAxis: { categoryPaddingFraction: { inner: 0.2, outer: 0.1 } },
+        seriesGroups: [{ id: 'G' }],
+        seriesStacks: [{ id: 'S1' }, { id: 'S2' }],
+        series: [
+          { property: 'a', stack: 'S1' }, { property: 'b', stack: 'S1' },
+          { property: 'c', stack: 'S2' }, { property: 'd', stack: 'S2' }
+        ]
+      });
+      const offsets = config.series.map(series => getSeriesPositionData(config.categoryAxis, series, categoryValueData, uprightScale,
+        values([10, 20, 30, 40, 50], [0, 0, 0, 0, 0]), upright).categoryValueOffset);
+      // two sub-slots (one per stack), same geometry as two ungrouped-stack series
+      expect(offsets).toEqual([-18, -18, 2, 2]);
+    });
+
+    it('mixes stacked and unstacked series: one sub-slot per stack plus one per lone series', () => {
+      const config = enhance({
+        seriesGroups: [{ id: 'G' }],
+        seriesStacks: [{ id: 'S1' }],
+        series: [{ property: 'a', stack: 'S1' }, { property: 'b', stack: null }, { property: 'c', stack: 'S1' }]
+      });
+      expect(config.seriesGroups[0].subSlotCount).toBe(2);
+      expect(config.seriesGroups[0].subSlotIndicesById).toEqual({ [config.series[0].id]: 0, [config.series[1].id]: 1, [config.series[2].id]: 0 });
+    });
   });
 
   describe('barWidthFraction and barAlignFraction', () => {
