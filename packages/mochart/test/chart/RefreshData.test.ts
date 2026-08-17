@@ -224,3 +224,75 @@ describe('createChart refresh', () => {
     chart.destroy();
   });
 });
+
+// Regression: the animated source read the previous provider's validity off the old read delegate,
+// which reads live after refresh(), so an in-place validity flip never routed through start()
+describe('animated createChart refresh across a provider validity flip', () => {
+  const animatedConfig = { ...config, animation: { animate: true } };
+  const rows = [{ label: 'a', value: 1 }, { label: 'b', value: 3 }];
+
+  function liveProvider(error: () => unknown) {
+    const inner = new mochart.ArrayOfObjectsDataProvider(rows);
+    return { getPropertyValues: (property: string) => inner.getPropertyValues(property), getError: error };
+  }
+
+  it('renders the data once a provider that mounted with an error clears it in place', () => {
+    let error: string | undefined = 'boom';
+    const container = mountContainer();
+    const chart = mochart.createChart(container, {
+      mochartConfig: mochart.enhanceConfig(animatedConfig as never), dataProvider: liveProvider(() => error), width: 300, height: 200
+    });
+    runFrames();
+    expect(container.textContent).toContain('boom');
+
+    error = undefined;
+    chart.refresh();
+    runFrames();
+    expect(getCategoryLabels(container).sort()).toEqual(['a', 'b']);
+    chart.destroy();
+  });
+
+  it('shows the error, then the data again, as a provider turns invalid and back in place', () => {
+    let error: string | undefined;
+    const container = mountContainer();
+    const chart = mochart.createChart(container, {
+      mochartConfig: mochart.enhanceConfig(animatedConfig as never), dataProvider: liveProvider(() => error), width: 300, height: 200
+    });
+    runFrames();
+    expect(getCategoryLabels(container).sort()).toEqual(['a', 'b']);
+
+    error = 'boom';
+    chart.refresh();
+    runFrames();
+    expect(container.textContent).toContain('boom');
+    expect(getCategoryLabels(container)).toEqual([]);
+
+    error = undefined;
+    rows.push({ label: 'c', value: 2 });
+    chart.refresh();
+    runFrames();
+    expect(getCategoryLabels(container).sort()).toEqual(['a', 'b', 'c']);
+    chart.destroy();
+  });
+
+  it('drops its chart data when the provider turns invalid behind a fresh read identity', async () => {
+    const { AnimatedDataSource } = await import('../../src/chart/AnimatedDataSource');
+    let error: string | undefined = undefined;
+    const provider = liveProvider(() => error);
+    const base = {
+      mochartConfig: mochart.enhanceConfig(animatedConfig as never) as never,
+      filteredSeriesIds: {}, focusedCategoryIndex: -1, focusedValueAxisId: null, focusedSeriesId: null
+    };
+    const source = new AnimatedDataSource(() => {});
+    const first = { ...base, dataProvider: { ...provider } };
+    source.start(first);
+    runFrames();
+    expect(source.chartData).not.toBeNull();
+
+    error = 'boom';
+    source.update(first, { ...base, dataProvider: { ...provider } });
+    expect(source.chartData).toBeNull();
+    expect(source.focusData).toBeNull();
+    source.dispose();
+  });
+});

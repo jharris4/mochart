@@ -43,6 +43,8 @@ export class AnimatedDataSource implements ChartDataSource {
   private valuesTweening = false;
   private valuesTweened = false;
   private focusTweening = false;
+  /** Validity of the provider as last read: prevInput's provider reads live after refresh(), so it can't tell us. */
+  private lastDataProviderValid = false;
   private tweenManager: ChartTweenManager;
   private emit: () => void;
 
@@ -65,7 +67,8 @@ export class AnimatedDataSource implements ChartDataSource {
     this.initialAnimationPercentage = null;
     this.initialAnimationOffset = 0;
     this.tweenManager.cancelTweens();
-    if (mochartConfig !== null && mochartConfig.validation.valid && dataProvider !== null && isDataProviderValid(dataProvider)) {
+    this.lastDataProviderValid = isDataProviderValid(dataProvider);
+    if (mochartConfig !== null && mochartConfig.validation.valid && dataProvider !== null && this.lastDataProviderValid) {
       const newChartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
       this.targetChartData = newChartData;
       this.chartAnimationData = getChartAnimationData(mochartConfig, null, newChartData);
@@ -95,7 +98,8 @@ export class AnimatedDataSource implements ChartDataSource {
     const configChanged = mochartConfig !== prevInput.mochartConfig;
     const dataProviderChanged = dataProvider !== prevInput.dataProvider;
     const dataProviderValid = isDataProviderValid(dataProvider);
-    const dataProviderValidityChanged = dataProviderChanged && dataProviderValid !== isDataProviderValid(prevInput.dataProvider);
+    const dataProviderValidityChanged = dataProviderChanged && dataProviderValid !== this.lastDataProviderValid;
+    this.lastDataProviderValid = dataProviderValid;
     const filteredSeriesChanged = filteredSeriesIds !== prevInput.filteredSeriesIds;
     const dataChanged = dataProviderChanged || filteredSeriesChanged;
     const focusCategoryChanged = focusedCategoryIndex !== prevInput.focusedCategoryIndex;
