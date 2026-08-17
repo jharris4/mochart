@@ -367,6 +367,25 @@ describe('animation.categoryDomainChange', () => {
     expect(cad.axisExpansionData.deltaPercentage).toBeGreaterThan(0);
   });
 
+  // Regression: 'combined' shrank an ordinal render domain during the value phase while the kept
+  // categories stayed at their merged indices, so the contraction saw no domain move and they snapped
+  it('leaves an ordinal axis to the union phases under combined', () => {
+    const cfg = makeConfig({
+      categoryAxis: { property: 'c', type: 'string', scale: 'ordinal' },
+      animation: { categoryDomainChange: 'combined' },
+      series: [{ property: 'a', renderer: 'bar' }]
+    });
+    const rows = (labels: string[]) => labels.map(c => ({ c, a: 5 }));
+    const cad = getChartAnimationData(cfg, dataFor(cfg, rows(['A', 'B', 'C']) as never), dataFor(cfg, rows(['A', 'C']) as never));
+    // the value phase keeps the merged domain and positions; the contraction slides C from index 2 to 1
+    expect(cad.valueChangeData.deltas.domain.category.deltaPercentage).toBe(0);
+    expect(cad.valueChangeData.final.categoryData.renderAxisDomain).toEqual([0, 2]);
+    expect(cad.valueChangeData.final.categoryData.values.numeric).toEqual([0, 2]);
+    expect(cad.axisContractionData.deltaPercentage).toBeGreaterThan(0);
+    expect(cad.axisContractionData.final!.categoryData.renderAxisDomain).toEqual([0, 1]);
+    expect(cad.axisContractionData.final!.categoryData.values.numeric).toEqual([0, 1]);
+  });
+
   it('mixes modes per axis kind: combined values, staged categories', () => {
     const cfg = configWith({ valueDomainChange: 'combined', categoryDomainChange: 'staged' });
     // the window slides while the value range grows: the category unions, the value axis merges

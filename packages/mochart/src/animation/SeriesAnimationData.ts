@@ -21,7 +21,7 @@ import { getMaxAxisDomains, getCombinedDomainAxisIds, getCombinedAxisDomainDelta
 
 import { keyPlain, positionKeys, positionOrComputedKeys, positionOrComputedOrExtraKeys, extraAndCopyKeys } from '../data/constants';
 
-import { NONE } from '../config/core/constants';
+import { NONE, SCALE_ORDINAL } from '../config/core/constants';
 
 import { mapMap } from '../utils/utils';
 import type { AnimationConfig } from '../types/config';
@@ -121,8 +121,10 @@ export function getTransitionValueChangeData(mochartConfig: EnhancedMochartConfi
     endCategoryData = getCategoryDataWithNumericValues(startCategoryData, getNumericValuesWithoutOffsets(startCategoryData));
   }
 
-  // a combined-domain category axis (e.g. a sliding window) finishes this phase on its new domain; start holds the old
-  if (shouldCombineDomainChange(mochartConfig.animation.categoryDomainChange, prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain)) {
+  // a combined-domain category axis (e.g. a sliding window) finishes this phase on its new domain; start holds the old.
+  // Not ordinal: its indices only slide with the expansion/contraction domain moves, so shrinking here would leave them off the axis and snapping later
+  if (mochartConfig.categoryAxis.scale !== SCALE_ORDINAL &&
+      shouldCombineDomainChange(mochartConfig.animation.categoryDomainChange, prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain)) {
     endCategoryData = getCategoryDataWithRenderAxisDomain(endCategoryData, newChartData.categoryData.renderAxisDomain);
     finalCategoryData = getCategoryDataWithRenderAxisDomain(finalCategoryData, newChartData.categoryData.renderAxisDomain);
   }
