@@ -5,7 +5,15 @@ import type { MochartConfig } from '../types/config';
 import type { CategoryValue, DataProvider } from '../types/data';
 import type { InternalFocus } from './ChartDataSource';
 
-export interface FocusControllerInput {
+/** Externally-controlled focus/filter values (undefined = uncontrolled). */
+export interface ExternalFocusInput {
+  focusedCategoryIndex?: number;
+  focusedValueAxisId?: string | null;
+  focusedSeriesId?: string | null;
+  filteredSeriesIds?: Record<string, boolean>;
+}
+
+export interface FocusControllerInput extends ExternalFocusInput {
   // both are null while a host is still loading: the chart renders its loading/error state
   mochartConfig: MochartConfig | null;
   dataProvider: DataProvider | null;
@@ -26,12 +34,16 @@ function sameFilteredSeriesIds(a: Record<string, boolean>, b: Record<string, boo
   return aKeys.length === bKeys.length && aKeys.every(key => a[key] === b[key]);
 }
 
-/** Externally-controlled focus/filter values (undefined = uncontrolled). */
-export interface ExternalFocusInput {
-  focusedCategoryIndex?: number;
-  focusedValueAxisId?: string | null;
-  focusedSeriesId?: string | null;
-  filteredSeriesIds?: Record<string, boolean>;
+/** Whether the host set a controlled value in this update that differs from the one it passed before. */
+function hostChanged<K extends keyof ExternalFocusInput>(prev: ExternalFocusInput, next: ExternalFocusInput, key: K): boolean {
+  const nextValue = next[key];
+  const prevValue = prev[key];
+  if (nextValue === undefined) {
+    return false;
+  }
+  return key === 'filteredSeriesIds'
+    ? prevValue === undefined || !sameFilteredSeriesIds(nextValue as Record<string, boolean>, prevValue as Record<string, boolean>)
+    : nextValue !== prevValue;
 }
 
 /**
@@ -60,8 +72,10 @@ export class FocusController {
    * Reconcile focus/filter state with a config or provider change: structural resets everything, a
    * followSeries change re-derives follower filtering, a data change remaps the focused category by
    * value (dropped when gone). `renderedCategoryValues` is the last committed ordering — the old
-   * provider can't be re-read after an in-place refresh(). Fires no callbacks: the caller commits
-   * first, then notifies re-entrancy-safely from the returned changes.
+   * provider can't be re-read after an in-place refresh(). A controlled value the host changed in
+   * this same update supersedes the remap/reset of its field and is not reported back (it came from
+   * the host); one carried along unchanged is reported so the host can sync. Fires no callbacks:
+   * the caller commits first, then notifies re-entrancy-safely from the returned changes.
    */
   reconcile(prev: FocusControllerInput, next: FocusControllerInput,
     renderedCategoryValues: readonly CategoryValue[] | null): FocusReconcileResult {
@@ -101,14 +115,33 @@ export class FocusController {
         }
       }
     }
+    // the host's newer values, over what was derived from its old ones (the caller's applyExternal restores the unchanged ones)
+    const hostChangedCategoryIndex = hostChanged(prev, next, 'focusedCategoryIndex');
+    const hostChangedValueAxisId = hostChanged(prev, next, 'focusedValueAxisId');
+    const hostChangedSeriesId = hostChanged(prev, next, 'focusedSeriesId');
+    const hostChangedFilteredSeriesIds = hostChanged(prev, next, 'filteredSeriesIds');
+    if (hostChangedCategoryIndex) {
+      this.focusedCategoryIndex = next.focusedCategoryIndex!;
+    }
+    if (hostChangedValueAxisId) {
+      this.focusedValueAxisId = next.focusedValueAxisId!;
+    }
+    if (hostChangedSeriesId) {
+      this.focusedSeriesId = next.focusedSeriesId!;
+    }
+    if (hostChangedFilteredSeriesIds) {
+      this.filteredSeriesIds = next.filteredSeriesIds!;
+    }
     const { focusedValueAxisId, focusedSeriesId, focusedCategoryIndex, filteredSeriesIds } = this;
-    const focusChanged = focusedValueAxisId !== oldFocusedValueAxisId || focusedSeriesId !== oldFocusedSeriesId || focusedCategoryIndex !== oldFocusedCategoryIndex;
+    const focusChanged = (!hostChangedValueAxisId && focusedValueAxisId !== oldFocusedValueAxisId)
+      || (!hostChangedSeriesId && focusedSeriesId !== oldFocusedSeriesId)
+      || (!hostChangedCategoryIndex && focusedCategoryIndex !== oldFocusedCategoryIndex);
     const result: FocusReconcileResult = {};
     if (focusChanged) {
       result.focus = this.focus();
     }
     // by value, not identity: a reset that finds no filters is not a change
-    if (!sameFilteredSeriesIds(filteredSeriesIds, oldFilteredSeriesIds)) {
+    if (!hostChangedFilteredSeriesIds && !sameFilteredSeriesIds(filteredSeriesIds, oldFilteredSeriesIds)) {
       result.seriesFilter = { filteredSeriesIds };
     }
     return result;

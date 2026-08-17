@@ -157,12 +157,12 @@ describe('synchronous host re-entrancy', () => {
     runFrames();
     expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales')]);
 
-    // structural change (new category property) while a series is filtered:
-    // the reset must be reported exactly once, to a host that re-enters
+    // structural change (new category property) with the filter carried along unchanged:
+    // the reset must be reported exactly once, to a host that re-enters to echo it
     host.chart.update({
       mochartConfig: makeConfig('week'),
       dataProvider: new ArrayOfObjectsDataProvider(rows),
-      filteredSeriesIds: {}
+      filteredSeriesIds: { costs: true }
     });
     runFrames();
 
@@ -283,6 +283,56 @@ describe('controlled focus props', () => {
     expect(staleFocus).not.toHaveBeenCalled();
     expect(freshFocus).toHaveBeenCalledTimes(1);
     expect(freshFocus).toHaveBeenCalledWith(expect.objectContaining({ focusedCategoryIndex: 0 }));
+    chart.destroy();
+  });
+
+  // Regression: reconcile snapshotted its reset/remap before the new controlled props were
+  // applied, so a host changing the data AND its controlled values in one update was told the
+  // reset of its OLD values (-1, {}) and, echoing that back, lost the values it had just set.
+  it('does not report a reset/remap of controlled values the host changed in the same update', () => {
+    const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
+    const makeConfig = (categoryProperty: string) => enhanceConfig({
+      version: '1.0.0',
+      animation: { animate: false },
+      categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
+      series: [
+        { id: 'sales', property: 'sales', renderer: 'line' },
+        { id: 'costs', property: 'costs', renderer: 'line' }
+      ]
+    });
+    const rows = data.map((row, index) => ({ ...row, week: 'W' + index }));
+    const container = mountContainer();
+    const onFocus = vi.fn();
+    const onSeriesFilter = vi.fn();
+    const chart = createChart(container, {
+      mochartConfig: makeConfig('month'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
+      width: 300, height: 200,
+      focusedCategoryIndex: 1, filteredSeriesIds: { sales: true },
+      onFocus, onSeriesFilter
+    });
+    runFrames();
+
+    // structural change (new category property) with new controlled values, as a host that
+    // reset or remapped its own state in the same render does
+    chart.update({
+      mochartConfig: makeConfig('week'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
+      focusedCategoryIndex: 2, filteredSeriesIds: { costs: true }
+    });
+    runFrames();
+
+    expect(onFocus).not.toHaveBeenCalled();
+    expect(onSeriesFilter).not.toHaveBeenCalled();
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales')]);
+
+    // a data reorder with the controlled index carried along unchanged still reports the remap
+    const [w0, w1, w2] = rows;
+    chart.update({ dataProvider: new ArrayOfObjectsDataProvider([w2, w0, w1]), focusedCategoryIndex: 2 });
+    runFrames();
+    expect(onFocus).toHaveBeenCalledTimes(1);
+    expect(onFocus).toHaveBeenCalledWith(expect.objectContaining({ focusedCategoryIndex: 0 }));
+    expect(onSeriesFilter).not.toHaveBeenCalled();
     chart.destroy();
   });
 });

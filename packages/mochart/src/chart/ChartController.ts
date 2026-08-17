@@ -5,6 +5,7 @@ import { FocusController } from './FocusController';
 import { StaticDataSource } from './StaticDataSource';
 import { AnimatedDataSource } from './AnimatedDataSource';
 import type { ChartDataSource, ChartDataSourceInput, InternalFocus } from './ChartDataSource';
+import type { FocusControllerInput } from './FocusController';
 import type { ChartProps } from '../components/Chart';
 import type { ManagedChartProps } from '../types/chart';
 import type { CategoryValue, DataProvider } from '../types/data';
@@ -48,12 +49,8 @@ export class ChartController {
     if (this.destroyed) {
       return;
     }
-    const prev = this.props;
-    // the read providers, not the props: refresh() changes only the delegate's identity
     const changes = this.focus.reconcile(
-      { mochartConfig: prev.mochartConfig, dataProvider: this.readDataProvider },
-      { mochartConfig: props.mochartConfig, dataProvider: readDataProvider },
-      this.lastCategoryValues);
+      this.focusInput(this.props, this.readDataProvider), this.focusInput(props, readDataProvider), this.lastCategoryValues);
     this.props = props;
     this.readDataProvider = readDataProvider;
     this.focus.applyExternal(props);
@@ -100,6 +97,12 @@ export class ChartController {
   /** The props config as its enhanced view: ManagedChartProps carries the public MochartConfig type, but enhanceConfig always builds the enhanced one. */
   private enhancedConfig(): EnhancedMochartConfig | null {
     return this.props.mochartConfig as EnhancedMochartConfig | null;
+  }
+
+  /** What reconcile compares: the read provider, not the props one (refresh() changes only the delegate's identity), plus the controlled values. */
+  private focusInput(props: ManagedChartProps, dataProvider: DataProvider | null): FocusControllerInput {
+    const { mochartConfig, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId, filteredSeriesIds } = props;
+    return { mochartConfig, dataProvider, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId, filteredSeriesIds };
   }
 
   /** Snapshot the committed category ordering (the sources' read gate); reconcile remaps focus from it. */
