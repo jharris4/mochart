@@ -126,6 +126,22 @@ describe('numberFormat', () => {
   it('rejects invalid specifiers', () => {
     expect(validate('nonsense!!')).toBe(false);
   });
+
+  // Regression: the transcribed d3 regex lacked the trim group, rejecting the core's own auto format
+  it('accepts the d3 trim flag', () => {
+    expect(validate('~s')).toBe(true);
+    expect(validate('.3~f')).toBe(true);
+    expect(validate('~~s')).toBe(false);
+  });
+
+  it('agrees with d3-format on a sweep of specifiers', async () => {
+    const { formatSpecifier } = await import('d3-format');
+    for (const specifier of ['~s', '$,.2~f', '.0%', '~%', 's~', '(,.2~e', 'nonsense!!', '~']) {
+      let d3Accepts = true;
+      try { formatSpecifier(specifier); } catch { d3Accepts = false; }
+      expect(validate(specifier), specifier).toBe(d3Accepts);
+    }
+  });
 });
 
 describe('propertyRequired', () => {

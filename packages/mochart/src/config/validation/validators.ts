@@ -10,7 +10,7 @@ const dashArrayRegexp = /^\s*(?:\d*\.\d+|\d+)(?:(?:\s*,\s*|\s+)(?:\d*\.\d+|\d+))
 // Transcribed verbatim from d3's formatSpecifier (github.com/d3/d3-format) so the two stay
 // diff-able; its redundant character-class escapes are not ours to re-derive.
 // eslint-disable-next-line no-useless-escape
-const numberFormatRegexp = /^(?:(.)?([<>=^]))?([+\-\( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?([a-z%])?$/i;
+const numberFormatRegexp = /^(?:(.)?([<>=^]))?([+\-\( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?(~)?([a-z%])?$/i;
 
 // colors mochart interpolates itself must be parseable by d3-color (the SeriesColors/utils-style contract), so ask d3 rather than guess
 const parsableColor: CustomValidator = value => typeof value === 'string' && parseColor(value) !== null;
