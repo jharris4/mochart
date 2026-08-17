@@ -9,7 +9,8 @@ import type { PlaceholderComponent } from './types.js';
 // `on*` callbacks as props keeps them out of fallthrough attrs (they go to the
 // chart, not the container div) while still letting templates use `@chart-click`.
 // `type: null` skips runtime validation; the PropType cast still types the prop.
-const errorProp = { type: null as unknown as PropType<unknown>, default: undefined };
+// The default is cast to unknown too: Vue infers an `unknown` prop from its default, so a plain `undefined` would type the prop as `undefined`.
+const errorProp = { type: null as unknown as PropType<unknown>, default: undefined as unknown };
 function requiredProp<T>() {
   return { type: null as unknown as PropType<T>, required: true as const };
 }

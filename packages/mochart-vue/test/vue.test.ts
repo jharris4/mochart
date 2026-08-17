@@ -116,6 +116,20 @@ describe('Chart auto-sizing', () => {
 });
 
 describe('placeholder components', () => {
+  // Regression: the error prop's default typed it as `undefined`, so a real error value failed to type-check
+  it('accepts an unknown error value and renders the error state', async () => {
+    const errorValue: unknown = new Error('boom');
+    // a typed h() call: with the prop typed `undefined` this line fails to compile
+    const vnode = h(Chart, { mochartConfig: null, dataProvider: null, error: errorValue, width: 400, height: 300 });
+    const el = document.createElement('div');
+    document.body.appendChild(el);
+    const app = createApp({ render: () => vnode });
+    app.mount(el);
+    expect(el.textContent).toContain('boom');
+    app.unmount();
+    el.remove();
+  });
+
   it('renders loadingComponent with the chart context, updates it, and removes it', async () => {
     const Loading = markRaw(
       defineComponent({
