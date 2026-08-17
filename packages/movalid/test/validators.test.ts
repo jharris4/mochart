@@ -615,6 +615,16 @@ describe("validators", () => {
         expect(baseValidators.dateISO()(false)).toBe(false);
       });
 
+      // Regression: the regex was tested against the stringified value, so a number or a one-element
+      // array that read as an iso date passed, and an unstringifiable object threw
+      it("should only match strings, and never coerce or throw", () => {
+        expect(baseValidators.dateISO()(2016)).toBe(false);
+        expect(baseValidators.dateISO()(["2016-09-01"])).toBe(false);
+        expect(baseValidators.dateISO()(Object.create(null))).toBe(false);
+        expect(baseValidators.dateISO()(Symbol())).toBe(false);
+        expect(baseValidators.dateISO()("2016-09-01")).toBe(true);
+      });
+
       it("should not allow undefined", () => {
         expect(baseValidators.dateISO()(undefined)).toBe(false);
       });
@@ -699,6 +709,11 @@ describe("validators", () => {
         expect(baseValidators.datePrimitive()(123)).toBe(true);
       });
 
+      it("should not coerce arrays or throw on unstringifiable objects", () => {
+        expect(baseValidators.datePrimitive()(["2016-09-01"])).toBe(false);
+        expect(baseValidators.datePrimitive()(Object.create(null))).toBe(false);
+      });
+
       it("should allow a negative epoch number", () => {
         expect(baseValidators.datePrimitive()(-86400000)).toBe(true);
       });
@@ -727,6 +742,11 @@ describe("validators", () => {
     describe("dateAny", () => {
       it("should not allow a boolean", () => {
         expect(baseValidators.dateAny()(false)).toBe(false);
+      });
+
+      it("should not coerce arrays or throw on unstringifiable objects", () => {
+        expect(baseValidators.dateAny()(["2016-09-01"])).toBe(false);
+        expect(baseValidators.dateAny()(Object.create(null))).toBe(false);
       });
 
       it("should not allow undefined", () => {
@@ -1049,6 +1069,15 @@ describe("validators", () => {
     describe("regexp", () => {
       it("should not allow undefined", () => {
         expect(baseValidators.regexp(/[.]/)(undefined)).toBe(false);
+      });
+
+      // Regression: RegExp.test stringified the value, so "undefined"/"null" matched and an
+      // unstringifiable object threw
+      it("should never match the stringified form of a non-string, non-number value", () => {
+        expect(baseValidators.regexp(/^[a-z]+$/)(undefined)).toBe(false);
+        expect(baseValidators.regexp(/^[a-z]+$/)(null)).toBe(false);
+        expect(baseValidators.regexp(/^\d+$/)(Object.create(null))).toBe(false);
+        expect(baseValidators.regexp(/^\d+$/)(true)).toBe(false);
       });
 
       it("show allow numbers", () => {

@@ -196,15 +196,15 @@ const customTypeValidatorDefinitions = {
     message: () => "should be a valid Date instance"
   },
   dateISO: {
-    validator: () => v => dateISORegex.test(v),
+    validator: () => v => typeValidators.string(v) && dateISORegex.test(v),
     message: () => "should be an iso date string"
   },
   datePrimitive: {
-    validator: () => v => typeValidators.number(v) || dateISORegex.test(v),
+    validator: () => v => typeValidators.number(v) || (typeValidators.string(v) && dateISORegex.test(v)),
     message: () => "should be an iso date string or epoch number"
   },
   dateAny: {
-    validator: () => v => typeValidators.number(v) || isValidDate(v) || dateISORegex.test(v),
+    validator: () => v => typeValidators.number(v) || isValidDate(v) || (typeValidators.string(v) && dateISORegex.test(v)),
     message: () => "should be a Date instance, iso date string, or epoch number"
   }
 } satisfies Record<string, ValidatorDefinition>;
@@ -274,9 +274,13 @@ const argumentTypeValidatorDefinitions = {
     // clone, and reset lastIndex per test: /g and /y regexes are stateful and would alternate results
     validator: (regex: RegExp) => {
       const testRegex = new RegExp(regex.source, regex.flags);
+      // only text or a number is matched: RegExp.test would stringify anything else ("undefined", "[object Object]") or throw
       return v => {
+        if (!typeValidators.string(v) && !typeValidators.number(v)) {
+          return false;
+        }
         testRegex.lastIndex = 0;
-        return testRegex.test(v);
+        return testRegex.test(String(v));
       };
     },
     message: (regex: RegExp) => "should match regex " + regex
