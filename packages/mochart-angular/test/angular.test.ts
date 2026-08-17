@@ -3,7 +3,7 @@
 import '@angular/compiler';
 
 import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
-import { ApplicationRef, Component, EnvironmentInjector, Input, PLATFORM_ID, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationRef, ChangeDetectionStrategy, Component, EnvironmentInjector, Input, PLATFORM_ID, provideZonelessChangeDetection, signal } from '@angular/core';
 import type { OnDestroy } from '@angular/core';
 import { TestBed, getTestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
@@ -434,6 +434,69 @@ describe('programmatic output subscription after mount', () => {
   });
 });
 
+// Plain-field hosts: an OnPush host (the Angular default) stores the payload in a field and shows it in
+// its template; an Eager host does the same and would trip NG0100 on a mid-refresh emission.
+@Component({
+  selector: 'test-onpush-bounds-host',
+  imports: [DefaultChart],
+  template: `<mochart-default-chart [config]="config" [data]="rows" [width]="400" [height]="300" (seriesLayoutBoundsChange)="bounds = $event" />
+    <span class="out">{{ bounds?.width }}</span>`
+})
+class OnPushBoundsHost {
+  config = rawConfig();
+  rows = rows;
+  bounds: { width: number } | null = null;
+}
+
+@Component({
+  selector: 'test-eager-bounds-host',
+  imports: [DefaultChart],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `<mochart-default-chart [config]="config" [data]="rows" [width]="width()" [height]="300" (seriesLayoutBoundsChange)="bounds = $event" />
+    <span class="out">{{ bounds?.width }}</span>`
+})
+class EagerBoundsHost {
+  config = rawConfig();
+  rows = rows;
+  // a signal, since Eager mode only refreshes on notification; the plain `bounds` field is what is under test
+  width = signal(400);
+  bounds: { width: number } | null = null;
+}
+
+// Regression: outputs the core raised synchronously from the mount and from input-driven update()
+// were emitted inside Angular's refresh pass, which only marks the host dirty — a plain-field OnPush
+// host never re-rendered the payload and an Eager host threw NG0100
+describe('outputs raised while Angular refreshes views', () => {
+  it('reach a plain-field OnPush host template after mount', async () => {
+    const fixture = TestBed.createComponent(OnPushBoundsHost);
+    fixture.detectChanges();
+    const out = (fixture.nativeElement as HTMLElement).querySelector('.out')!;
+    // the emission lands one microtask later and schedules a refresh of the host view
+    await Promise.resolve();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.bounds).not.toBeNull();
+    expect(out.textContent).toBe(String(fixture.componentInstance.bounds!.width));
+    fixture.destroy();
+  });
+
+  it('do not trip NG0100 in an Eager host on mount or on an input change', async () => {
+    const fixture = TestBed.createComponent(EagerBoundsHost);
+    expect(() => fixture.detectChanges()).not.toThrow();
+    await Promise.resolve();
+    fixture.detectChanges();
+    const out = (fixture.nativeElement as HTMLElement).querySelector('.out')!;
+    const mounted = out.textContent;
+    expect(mounted).not.toBe('');
+
+    fixture.componentInstance.width.set(600);
+    expect(() => fixture.detectChanges()).not.toThrow();
+    await Promise.resolve();
+    fixture.detectChanges();
+    expect(out.textContent).not.toBe(mounted);
+    fixture.destroy();
+  });
+});
+
 describe('refresh', () => {
   it('re-reads in-place data mutations through the component method', () => {
     const data = [...rows];
@@ -501,10 +564,13 @@ describe('interaction callbacks', () => {
       mouse('mousemove', -10, 100);
       expect(seen.chartMouseLeave.length).toBe(1);
 
-      // fires during mount, before the subscriptions above, so assert on a resize instead
+      // fires during mount, before the subscriptions above, so assert on a resize instead;
+      // an input-driven emission is deferred past Angular's refresh pass, so await the microtask
       fixture.componentRef.setInput('width', 500);
       fixture.componentRef.setInput('height', 400);
       fixture.detectChanges();
+      expect(seen.seriesLayoutBoundsChange.length).toBe(0);
+      await Promise.resolve();
       expect(seen.seriesLayoutBoundsChange.length).toBeGreaterThan(0);
       const bounds = seen.seriesLayoutBoundsChange[0] as { width: number; height: number };
       expect(bounds.width).toBeGreaterThan(0);

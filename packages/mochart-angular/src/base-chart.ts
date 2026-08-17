@@ -88,6 +88,8 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
   protected abstract collectChartProps(): Record<string, any>;
 
   private callbackSyncScheduled = false;
+  /** True while a lifecycle hook drives the chart, i.e. inside Angular's own change detection pass. */
+  private inLifecycleHook = false;
 
   /** Outputs re-sync the callback props when (un)subscribed after mount, e.g. via @ViewChild. */
   private chartOutput<T = any>(): EventEmitter<T> {
@@ -143,10 +145,35 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
     ];
     for (const [emitter, coreName] of callbacks) {
       if (emitter.observed) {
-        props[coreName] = (payload: any) => emitter.emit(payload);
+        props[coreName] = (payload: any) => this.emitOutput(emitter, payload);
       }
     }
     return props;
+  }
+
+  // Emitting while Angular refreshes views only marks the host dirty (never refresh-scheduled), so a
+  // plain-field OnPush host never re-renders and an Eager host trips NG0100: defer those to a microtask.
+  private emitOutput(emitter: EventEmitter<any>, payload: any): void {
+    if (this.inLifecycleHook) {
+      queueMicrotask(() => {
+        if (this.host !== null) {
+          emitter.emit(payload);
+        }
+      });
+    }
+    else {
+      emitter.emit(payload);
+    }
+  }
+
+  private runInLifecycleHook(work: () => void): void {
+    this.inLifecycleHook = true;
+    try {
+      work();
+    }
+    finally {
+      this.inLifecycleHook = false;
+    }
   }
 
   /**
@@ -165,7 +192,9 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
       return;
     }
     const placeholders = createPlaceholderAdapter(this.environmentInjector, this.applicationRef);
-    this.host = mountChartHost(this.create, this.elementRef.nativeElement, this.buildProps(), placeholders);
+    this.runInLifecycleHook(() => {
+      this.host = mountChartHost(this.create, this.elementRef.nativeElement, this.buildProps(), placeholders);
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -181,7 +210,9 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
     }
     // Before the first render `host` is null and the mount picks up the
     // current input values itself.
-    this.host?.update(this.buildProps());
+    this.runInLifecycleHook(() => {
+      this.host?.update(this.buildProps());
+    });
   }
 
   ngOnDestroy(): void {
