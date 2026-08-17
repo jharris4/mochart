@@ -17,11 +17,15 @@ interface PlaceholderSlot {
   component: PlaceholderComponent;
   context: PlaceholderProps | null;
   container: HTMLDivElement;
+  /** False once the core has dropped the container from the chart; the portal goes with it. */
+  attached: boolean;
   factory: (context: PlaceholderProps) => Node;
 }
 
 export interface PlaceholderAdapter {
   transform(props: Record<string, any>): Record<string, any>;
+  /** Watches the chart host so a slot the core detaches (chart left that state) unmounts its component; returns the stop function. */
+  attach(host: Element): () => void;
   // property signatures: these are passed unbound to useSyncExternalStore
   subscribe: (listener: () => void) => () => void;
   getPortals: () => ReactPortal[];
@@ -42,7 +46,7 @@ export function createPlaceholderAdapter(): PlaceholderAdapter {
   function notify(): void {
     portals = [];
     for (const [propName, slot] of slots) {
-      if (slot.context) {
+      if (slot.context && slot.attached) {
         portals.push(createPortal(createElement(slot.component, slot.context), slot.container, propName));
       }
     }
@@ -61,9 +65,12 @@ export function createPlaceholderAdapter(): PlaceholderAdapter {
         component,
         context: null,
         container,
+        attached: false,
         factory: (context: PlaceholderProps) => {
           const current = slots.get(propName)!;
           current.context = context;
+          // the core appends the returned container right after this call
+          current.attached = true;
           notify();
           return current.container;
         }
@@ -96,6 +103,27 @@ export function createPlaceholderAdapter(): PlaceholderAdapter {
         }
       }
       return out;
+    },
+    attach(host: Element): () => void {
+      if (typeof MutationObserver === 'undefined') {
+        return () => {};
+      }
+      const observer = new MutationObserver(() => {
+        let changed = false;
+        for (const slot of slots.values()) {
+          // containment, not isConnected: a chart hosted in a detached tree still owns its placeholders
+          const attached = host.contains(slot.container);
+          if (slot.context && attached !== slot.attached) {
+            slot.attached = attached;
+            changed = true;
+          }
+        }
+        if (changed) {
+          notify();
+        }
+      });
+      observer.observe(host, { childList: true, subtree: true });
+      return () => observer.disconnect();
     },
     subscribe(listener: () => void): () => void {
       listeners.add(listener);

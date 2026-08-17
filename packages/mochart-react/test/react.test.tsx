@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { act, createContext, useContext } from 'react';
+import { act, createContext, useContext, useEffect } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import type { Root } from 'react-dom/client';
@@ -193,6 +193,39 @@ describe('placeholder components', () => {
     act(() => {
       root.unmount();
     });
+    container.remove();
+  });
+
+  // Regression: the portal kept rendering into the detached slot container after the chart left the
+  // state, so the placeholder's effects kept running and its stale instance came back on re-entry
+  it('unmounts the placeholder when the chart leaves the state and remounts it fresh on re-entry', async () => {
+    const { container, root } = host();
+    const log: string[] = [];
+    function Loading() {
+      useEffect(() => {
+        log.push('mount');
+        return () => { log.push('unmount'); };
+      }, []);
+      return <div>Loading…</div>;
+    }
+    const render = (loading: boolean) => act(async () => {
+      root.render(<DefaultChart config={rawConfig()} data={rows} loading={loading} loadingComponent={Loading} width={400} height={300} />);
+    });
+
+    await render(true);
+    expect(container.textContent).toContain('Loading…');
+    expect(log).toEqual(['mount']);
+
+    await render(false);
+    expect(container.textContent).not.toContain('Loading…');
+    expect(log).toEqual(['mount', 'unmount']);
+
+    await render(true);
+    expect(container.textContent).toContain('Loading…');
+    expect(log).toEqual(['mount', 'unmount', 'mount']);
+
+    await act(async () => { root.unmount(); });
+    expect(log).toEqual(['mount', 'unmount', 'mount', 'unmount']);
     container.remove();
   });
 
