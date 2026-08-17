@@ -210,6 +210,9 @@ The chart mounts in `ngAfterViewInit`, which Angular also runs on the server,
 so the components check `PLATFORM_ID` themselves and skip the mount there:
 SSR emits only the host element, and the chart is created once the app runs
 in the browser. No `isPlatformBrowser` guards are needed in your own code.
+Nothing of the chart itself is server-rendered — the page shows an empty host
+element until the client mounts — so a chart contributes no SEO or first-paint
+content, and a size measured from the container is only known in the browser.
 See [Browser support](/guide/getting-started#browser-support) for what the
 core itself needs.
 

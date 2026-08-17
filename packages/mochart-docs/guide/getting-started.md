@@ -170,12 +170,13 @@ A few boundaries:
   feature-detected: without it, charts with explicit sizes are unaffected —
   omitted dimensions just stop tracking the container.
 - **Server-side rendering** — the core `createChart`/`createDefaultChart`
-  need a real DOM; do not call them during server rendering. All five
-  framework bindings are SSR-safe out of the box: on the server they render
-  only their container (or nothing) and mount the chart in the browser
+  need a real DOM; do not call them during server rendering. The five
+  framework bindings can be rendered on the server without guards: they emit
+  only their container (or nothing) there and mount the chart in the browser
   (React defers to an effect, Angular checks `PLATFORM_ID`, Lit's directive
   falls back to its no-DOM render path, and Vue/Svelte mount hooks are
-  client-only).
+  client-only). Nothing of the chart itself is server-rendered; each
+  framework guide has the details.
 - **Test environments** — jsdom has no SVG layout engine; shim
   `getBBox`/`getComputedTextLength`/`getSubStringLength` to return zero
   sizes and the chart takes its documented default-bounds fallbacks (the

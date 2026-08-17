@@ -187,8 +187,16 @@ see [Callbacks and payloads](/reference/callbacks).
 The chart mounts in a layout effect, which React does not run on the server:
 `renderToString` emits only the container div, and the chart is created in
 the browser after hydration. No `typeof window` guards are needed in your
-own code. See [Browser support](/guide/getting-started#browser-support) for
-what the core itself needs.
+own code. Nothing of the chart itself is server-rendered — the page shows an
+empty container until the client mounts — so a chart contributes no SEO or
+first-paint content, and a size measured from the container is only known in
+the browser.
+
+Under the Next.js App Router (React Server Components) the components hold
+refs and effects, so put them — or the component that renders them — in a
+file marked `'use client'`. See
+[Browser support](/guide/getting-started#browser-support) for what the core
+itself needs.
 
 ## See it in action
 

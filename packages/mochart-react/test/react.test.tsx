@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { act, createContext, useContext } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import type { Root } from 'react-dom/client';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart, DefaultChart } from '../src/index';
@@ -525,5 +526,29 @@ describe('interaction callbacks', () => {
     act(() => { slice.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
     expect(onSliceClick).toHaveBeenCalledTimes(1);
     act(() => { root.unmount(); });
+  });
+});
+
+describe('hydration', () => {
+  it('hydrates server output without warnings and mounts the chart in the browser', () => {
+    const mochartConfig = enhanceConfig(rawConfig());
+    const dataProvider = new ArrayOfObjectsDataProvider(rows);
+    const element = <Chart mochartConfig={mochartConfig} dataProvider={dataProvider} width={400} height={300} />;
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    container.innerHTML = renderToString(element);
+    expect(container.querySelector('svg')).toBeNull();
+
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+    let root!: Root;
+    act(() => {
+      root = hydrateRoot(container, element);
+    });
+    expect(errors).not.toHaveBeenCalled();
+    expect(container.querySelector('svg')).not.toBeNull();
+    expect(container.textContent).toContain('Test Chart');
+    errors.mockRestore();
+    act(() => { root.unmount(); });
+    container.remove();
   });
 });

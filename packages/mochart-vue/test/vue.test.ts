@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { createApp, defineComponent, h, markRaw, nextTick, onUnmounted, reactive, ref } from 'vue';
+import { createApp, createSSRApp, defineComponent, h, markRaw, nextTick, onUnmounted, reactive, ref } from 'vue';
+import { renderToString } from 'vue/server-renderer';
 import type { App } from 'vue';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart, DefaultChart } from '../src/index';
@@ -456,6 +457,32 @@ describe('interaction callbacks', () => {
     const { el, app } = mountCallbacks({ onSliceClick }, { ...rawConfig(), chart: { type: 'pie' } });
     el.querySelector('.mochart-series path')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(onSliceClick).toHaveBeenCalledTimes(1);
+    app.unmount();
+    el.remove();
+  });
+});
+
+describe('hydration', () => {
+  it('hydrates server output without warnings and mounts the chart in the browser', async () => {
+    const mochartConfig = enhanceConfig(rawConfig());
+    const dataProvider = new ArrayOfObjectsDataProvider(rows);
+    const root = { render: () => h(Chart, { mochartConfig, dataProvider, width: 400, height: 300 }) };
+    const el = document.createElement('div');
+    document.body.appendChild(el);
+    el.innerHTML = await renderToString(createSSRApp(root));
+    expect(el.querySelector('svg')).toBeNull();
+
+    const warnings = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const app = createSSRApp(root);
+    app.mount(el);
+    await nextTick();
+    expect(warnings).not.toHaveBeenCalled();
+    expect(errors).not.toHaveBeenCalled();
+    expect(el.querySelector('svg')).not.toBeNull();
+    expect(el.textContent).toContain('Test Chart');
+    warnings.mockRestore();
+    errors.mockRestore();
     app.unmount();
     el.remove();
   });

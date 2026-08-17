@@ -219,7 +219,10 @@ see [Callbacks and payloads](/reference/callbacks).
 The directives do all their DOM work in `update()`, which lit-html only calls
 in the browser; the server-side `render()` path returns `noChange`, so
 nothing is emitted for the chart on the server and both the container div
-and the chart are created client-side. See
+and the chart are created client-side. Nothing of the chart is
+server-rendered — the page shows nothing where the chart goes until the client
+mounts — so a chart contributes no SEO or first-paint content, and a size
+measured from the container is only known in the browser. See
 [Browser support](/guide/getting-started#browser-support) for what the core
 itself needs.
 
