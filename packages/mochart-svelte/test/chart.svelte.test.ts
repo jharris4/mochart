@@ -151,6 +151,27 @@ describe('placeholder components', () => {
     el.remove();
   });
 
+  // Regression: a component swap only reached the slot on the next factory call, which the core's
+  // factory gate skips while nothing else about the state changed
+  it('re-renders the placeholder when only the component prop changes', () => {
+    const el = target();
+    const props = $state({
+      mochartConfig: null as any, dataProvider: null as any, loading: true, loadingComponent: Loading as any, width: 400, height: 300
+    });
+    const instance = mount(Chart, { target: el, props });
+    flushSync();
+    expect(el.textContent).toContain('Loading 400x300');
+
+    props.loadingComponent = ConfigError;
+    flushSync();
+    expect(el.textContent).toContain('Bad config 400x300');
+    expect(el.textContent).not.toContain('Loading');
+
+    void unmount(instance);
+    flushSync();
+    el.remove();
+  });
+
   it('renders configErrorComponent when the config fails validation', () => {
     const el = target();
     const mochartConfig = enhanceConfig({ ...rawConfig(), unknownExtra: 1 });

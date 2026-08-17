@@ -197,6 +197,29 @@ describe('placeholder templates', () => {
     el.remove();
   });
 
+  // Regression: a template change only reached the slot on the next factory call, which the core's
+  // factory gate skips while nothing else about the state changed — so an inline template closing
+  // over host state kept showing its first render
+  it('re-renders an inline template that closes over changed host state', async () => {
+    const el = mountPoint();
+    const template = (progress: number) =>
+      html`${chart({
+        mochartConfig: null, dataProvider: null, loading: true, width: 400, height: 300,
+        loadingTemplate: ({ width }: PlaceholderProps) => html`<div>Loading ${progress}% at ${width}</div>`
+      })}`;
+
+    render(template(10), el);
+    await flushMount();
+    expect(el.textContent).toContain('Loading 10% at 400');
+
+    render(template(60), el);
+    expect(el.textContent).toContain('Loading 60% at 400');
+    expect(el.textContent).not.toContain('10%');
+
+    render(nothing, el);
+    el.remove();
+  });
+
   it('renders configErrorTemplate when the config fails validation', async () => {
     const mochartConfig = enhanceConfig({ ...rawConfig(), unknownExtra: 1 });
     expect(mochartConfig.validation.valid).toBe(false);

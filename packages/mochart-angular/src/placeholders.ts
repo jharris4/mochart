@@ -14,6 +14,8 @@ const FACTORY_PROP_NAMES: Record<string, string> = {
 
 interface PlaceholderSlot {
   component: PlaceholderComponent;
+  /** The last context the core rendered this slot with; null until its first factory call. */
+  context: PlaceholderProps | null;
   container: HTMLDivElement;
   ref: ComponentRef<unknown> | null;
   refComponent: PlaceholderComponent | null;
@@ -31,13 +33,14 @@ export interface PlaceholderAdapter {
  * Adapts placeholder component inputs into the DOM-node factories the core
  * expects: each slot keeps one persistent container div that a component
  * instance is rendered into, so repeat factory calls update inputs in place.
- * The factory identity is stable per slot; component changes flow through
- * `transform` and take effect on the next factory call.
+ * The factory identity is stable per slot; a component change flows through
+ * `transform` and re-renders a slot the core has already rendered with its last context.
  */
 export function createPlaceholderAdapter(environmentInjector: EnvironmentInjector, applicationRef: ApplicationRef): PlaceholderAdapter {
   const slots = new Map<string, PlaceholderSlot>();
 
   function renderSlot(slot: PlaceholderSlot, context: PlaceholderProps): Node {
+    slot.context = context;
     if (slot.ref !== null && slot.refComponent !== slot.component) {
       slot.ref.destroy();
       slot.ref = null;
@@ -81,6 +84,7 @@ export function createPlaceholderAdapter(environmentInjector: EnvironmentInjecto
       container.style.display = 'contents';
       slot = {
         component,
+        context: null,
         container,
         ref: null,
         refComponent: null,
@@ -90,7 +94,13 @@ export function createPlaceholderAdapter(environmentInjector: EnvironmentInjecto
       };
       slots.set(propName, slot);
     }
-    slot.component = component;
+    if (slot.component !== component) {
+      slot.component = component;
+      // the core's factory gate keys on the stable factory identity, so it would not re-run for this
+      if (slot.context) {
+        renderSlot(slot, slot.context);
+      }
+    }
     return slot;
   }
 

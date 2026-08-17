@@ -147,6 +147,25 @@ describe('placeholder components', () => {
     el.remove();
   });
 
+  // Regression: a component swap only reached the slot on the next factory call, which the core's
+  // factory gate skips while nothing else about the state changed
+  it('re-renders the placeholder when only the component prop changes', async () => {
+    const First = markRaw(defineComponent({ name: 'First', setup: () => () => h('div', 'first placeholder') }));
+    const Second = markRaw(defineComponent({ name: 'Second', setup: () => () => h('div', 'second placeholder') }));
+    const { el, app, state } = mountWith(Chart, {
+      mochartConfig: null, dataProvider: null, loading: true, loadingComponent: First, width: 400, height: 300
+    });
+    expect(el.textContent).toContain('first placeholder');
+
+    state.loadingComponent = Second;
+    await nextTick();
+    expect(el.textContent).toContain('second placeholder');
+    expect(el.textContent).not.toContain('first placeholder');
+
+    app.unmount();
+    el.remove();
+  });
+
   it('renders configErrorComponent when the config fails validation', () => {
     const mochartConfig = enhanceConfig({ ...rawConfig(), unknownExtra: 1 });
     expect(mochartConfig.validation.valid).toBe(false);

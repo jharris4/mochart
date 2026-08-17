@@ -215,6 +215,23 @@ describe('placeholder components', () => {
     fixture.destroy();
   });
 
+  // Regression: a component swap only reached the slot on the next factory call, which the core's
+  // factory gate skips while nothing else about the state changed
+  it('re-renders the placeholder when only the component input changes', () => {
+    const fixture = createWith(Chart, {
+      mochartConfig: null, dataProvider: null, loading: true, loadingComponent: Loading, width: 400, height: 300
+    });
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.textContent).toContain('Loading 400x300');
+
+    fixture.componentRef.setInput('loadingComponent', ConfigError);
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Bad config 400x300');
+    expect(el.textContent).not.toContain('Loading');
+
+    fixture.destroy();
+  });
+
   it('renders configErrorComponent when the config fails validation', () => {
     const mochartConfig = enhanceConfig({ ...rawConfig(), unknownExtra: 1 });
     expect(mochartConfig.validation.valid).toBe(false);

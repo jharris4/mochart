@@ -38,6 +38,12 @@ class PlaceholderSlot {
       }
     }
     Object.assign(this.props, context);
+    this.mountCurrent();
+    return this.container;
+  }
+
+  /** Mount the current component, replacing an instance of a previous one. */
+  private mountCurrent(): void {
     if (this.instance && this.mounted !== this.component) {
       void unmount(this.instance);
       this.instance = null;
@@ -47,7 +53,16 @@ class PlaceholderSlot {
       this.instance = mount(this.component, { target: this.container, props: this.props, context: this.componentContext });
       this.mounted = this.component;
     }
-    return this.container;
+  }
+
+  /** A component change remounts a slot the core has already rendered; the core's factory gate would not re-run for it. */
+  setComponent(component: PlaceholderComponent): void {
+    if (this.component !== component) {
+      this.component = component;
+      if (this.instance) {
+        this.mountCurrent();
+      }
+    }
   }
 
   destroy(): void {
@@ -67,8 +82,8 @@ export interface PlaceholderAdapter {
  * Adapts placeholder component props into the DOM-node factories the core
  * expects: each slot keeps one persistent container div holding a mounted
  * instance whose reactive props are updated on repeat factory calls. The
- * factory identity is stable per slot; component changes flow through
- * `transform` and take effect (as a remount) on the next factory call.
+ * factory identity is stable per slot; a component change flows through
+ * `transform` and remounts a slot the core has already rendered.
  */
 export function createPlaceholderAdapter(componentContext?: Map<any, any>): PlaceholderAdapter {
   const slots = new Map<string, PlaceholderSlot>();
@@ -95,7 +110,7 @@ export function createPlaceholderAdapter(componentContext?: Map<any, any>): Plac
             slot = new PlaceholderSlot(component, componentContext);
             slots.set(propName, slot);
           }
-          slot.component = component;
+          slot.setComponent(component);
           out[FACTORY_PROP_NAMES[propName]] = slot.factory;
         }
         else {

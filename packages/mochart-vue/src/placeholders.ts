@@ -14,6 +14,8 @@ const FACTORY_PROP_NAMES: Record<string, string> = {
 
 interface PlaceholderSlot {
   component: PlaceholderComponent;
+  /** The last context the core rendered this slot with; null until its first factory call. */
+  context: PlaceholderProps | null;
   container: HTMLDivElement;
   factory: (context: PlaceholderProps) => Node;
 }
@@ -27,11 +29,20 @@ export interface PlaceholderAdapter {
  * Adapts placeholder component props into the DOM-node factories the core
  * expects: each slot keeps one persistent container div that vnodes are
  * rendered into, so repeat factory calls patch in place. The factory identity
- * is stable per slot; component changes flow through `transform` and take
- * effect on the next factory call.
+ * is stable per slot; a component change flows through `transform` and
+ * re-renders a slot the core has already rendered with its last context.
  */
 export function createPlaceholderAdapter(appContext: AppContext | null = null): PlaceholderAdapter {
   const slots = new Map<string, PlaceholderSlot>();
+
+  function renderSlot(slot: PlaceholderSlot, context: PlaceholderProps): Node {
+    slot.context = context;
+    const vnode = h(slot.component as any, { ...context });
+    // the host app's context, so placeholders can inject app-level providers
+    vnode.appContext = appContext;
+    render(vnode, slot.container);
+    return slot.container;
+  }
 
   function getSlot(propName: string, component: PlaceholderComponent): PlaceholderSlot {
     let slot = slots.get(propName);
@@ -41,19 +52,19 @@ export function createPlaceholderAdapter(appContext: AppContext | null = null): 
       container.style.display = 'contents';
       slot = {
         component,
+        context: null,
         container,
-        factory: (context: PlaceholderProps) => {
-          const current = slots.get(propName)!;
-          const vnode = h(current.component as any, { ...context });
-          // the host app's context, so placeholders can inject app-level providers
-          vnode.appContext = appContext;
-          render(vnode, current.container);
-          return current.container;
-        }
+        factory: (context: PlaceholderProps) => renderSlot(slots.get(propName)!, context)
       };
       slots.set(propName, slot);
     }
-    slot.component = component;
+    if (slot.component !== component) {
+      slot.component = component;
+      // the core's factory gate keys on the stable factory identity, so it would not re-run for this
+      if (slot.context) {
+        renderSlot(slot, slot.context);
+      }
+    }
     return slot;
   }
 
