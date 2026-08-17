@@ -169,6 +169,54 @@ describe('synchronous host re-entrancy', () => {
     expect(reported).toEqual([{}]);
     expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales'), getIdCssClass('series', 'costs')]);
   });
+
+  // Regression: onSeriesFilter was invoked through the update() argument, so a host that
+  // synchronously re-entered update() from onFocus with fresh closures had the superseded
+  // onSeriesFilter notified and the newly committed one skipped.
+  it('notifies the onSeriesFilter committed by a re-entrant update() from onFocus', () => {
+    const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
+    const makeConfig = (categoryProperty: string) => enhanceConfig({
+      version: '1.0.0',
+      animation: { animate: false },
+      categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
+      series: [
+        { id: 'sales', property: 'sales', renderer: 'line' },
+        { id: 'costs', property: 'costs', renderer: 'line' }
+      ]
+    });
+    const rows = data.map((row, index) => ({ ...row, week: 'W' + index }));
+    const container = mountContainer();
+    const order: string[] = [];
+    const staleFilter = vi.fn(() => order.push('stale'));
+    const freshFilter = vi.fn(() => order.push('fresh'));
+    let chart: ReturnType<typeof createChart> | null = null;
+    const onFocus = vi.fn((focus: { focusedCategoryIndex: number }) => {
+      order.push('focus');
+      // the framework-adapter norm: echo the value back in a re-render that replaces every closure
+      chart!.update({ focusedCategoryIndex: focus.focusedCategoryIndex, onSeriesFilter: freshFilter });
+    });
+    chart = createChart(container, {
+      mochartConfig: makeConfig('month'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
+      width: 300, height: 200,
+      focusedCategoryIndex: 1, filteredSeriesIds: { costs: true },
+      onFocus, onSeriesFilter: staleFilter
+    });
+    runFrames();
+
+    // structural change with both controlled values carried along unchanged: both reset
+    chart.update({
+      mochartConfig: makeConfig('week'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
+      focusedCategoryIndex: 1, filteredSeriesIds: { costs: true }
+    });
+    runFrames();
+
+    expect(order).toEqual(['focus', 'fresh']);
+    expect(staleFilter).not.toHaveBeenCalled();
+    expect(freshFilter).toHaveBeenCalledWith({ filteredSeriesIds: {} });
+    chart.destroy();
+  });
 });
 
 describe('controlled focus props', () => {
