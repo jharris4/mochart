@@ -155,7 +155,8 @@ export class ChartController {
       onChartClick, onSliceClick, onSeriesClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick, onSeriesLayoutBoundsChange,
       getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent, getConfigErrorComponent
     } = this.props;
-    return { mochartConfig: this.enhancedConfig(), dataProvider, loading, error, style, width, height, standalone: true,
+    // readDataProvider gets a fresh identity per refresh(), so the Chart re-syncs its loading/error reads even when chartData stays null
+    return { mochartConfig: this.enhancedConfig(), dataProvider, readDataProvider: this.readDataProvider, loading, error, style, width, height, standalone: true,
       chartData: this.source.chartData, focusData: this.source.focusData,
       initialAnimationPercentage: this.source.initialAnimationPercentage,
       onFocus: this.handleFocus, onSeriesFilter: this.handleSeriesFilter,

@@ -190,4 +190,37 @@ describe('createChart refresh', () => {
     expect(getCategoryLabels(container).sort()).toEqual(['a', 'b', 'c']);
     chart.destroy();
   });
+
+  // Regression: with no config the chart's props were identical across refresh(), so the renderer
+  // skipped sync and never re-read the provider's getLoading()/getError()
+  it('re-reads a provider\'s getLoading() on refresh with no config loaded', () => {
+    let loading = true;
+    const dataProvider = { getPropertyValues: () => undefined, getLoading: () => loading };
+    const container = mountContainer();
+    const chart = mochart.createChart(container, { mochartConfig: null as never, dataProvider, width: 300, height: 200 });
+    runFrames();
+    expect(container.textContent).toContain('Loading...');
+
+    loading = false;
+    chart.refresh();
+    runFrames();
+    expect(container.textContent).not.toContain('Loading...');
+    chart.destroy();
+  });
+
+  it('re-reads a provider\'s getError() on refresh with no config loaded', () => {
+    let error = 'first failure';
+    const dataProvider = { getPropertyValues: () => undefined, getError: () => error };
+    const container = mountContainer();
+    const chart = mochart.createChart(container, { mochartConfig: null as never, dataProvider, width: 300, height: 200 });
+    runFrames();
+    expect(container.textContent).toContain('first failure');
+
+    error = 'second failure';
+    chart.refresh();
+    runFrames();
+    expect(container.textContent).toContain('second failure');
+    expect(container.textContent).not.toContain('first failure');
+    chart.destroy();
+  });
 });

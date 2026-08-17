@@ -48,8 +48,8 @@ function withFreshIdentity(dataProvider: DataProvider): DataProvider {
  * DOM attributes; there is no vdom.
  */
 export function createChart(container: Element, props: ManagedChartProps): ChartHandle<ManagedChartProps> {
-  // props keep the host's own provider (what the state factories get); the pipeline
-  // reads through a delegate so refresh() can re-read an unchanged identity
+  // props keep the host's own provider (what the state factories get); the pipeline and the
+  // Chart's own loading/error reads go through a delegate so refresh() can re-read an unchanged identity
   let currentProps = { ...props };
   let readDataProvider = wrapForReads(currentProps.dataProvider);
   const controller = new ChartController(container, currentProps, readDataProvider);

@@ -46,7 +46,10 @@ import type { Bounds, Size } from '../types/geometry';
 export interface ChartProps {
   // both null while the host is still loading them; the chart renders its loading/error states then
   mochartConfig: EnhancedMochartConfig | null;
+  /** The host's own provider: what the state factories receive. */
   dataProvider: DataProvider | null;
+  /** What the chart's own loading/error reads use; a fresh identity per refresh() so they re-run. Defaults to dataProvider. */
+  readDataProvider?: DataProvider | null;
   chartData: ChartData | null;
   focusData: FocusData | null;
   /** 0..1 while the initial value tween runs (pie sweep-in), else null. */
@@ -1037,8 +1040,15 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     this.updateTooltipCategoryIndex(categoryIndex);
   }
 
+  /** The provider behind the chart's own dynamic reads (never the one handed to the state factories). */
+  private readProvider(): DataProvider | null {
+    const { readDataProvider, dataProvider } = this.props;
+    return readDataProvider === undefined ? dataProvider : readDataProvider;
+  }
+
   isLoading(): boolean {
-    const { dataProvider, loading } = this.props;
+    const { loading } = this.props;
+    const dataProvider = this.readProvider();
     return Boolean(loading ? loading : dataProvider && dataProvider.getLoading?.());
   }
 
@@ -1123,12 +1133,13 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   sync() {
     const {
-      mochartConfig, dataProvider, style: styleProp, width, height, error: propsError,
+      mochartConfig, style: styleProp, width, height, error: propsError,
       getErrorComponent: errorFactory = getErrorComponent,
       getLoadingComponent: loadingFactory = getLoadingComponent,
       getNoSizeComponent: noSizeFactory = getNoSizeComponent,
       getConfigErrorComponent: configErrorFactory = getConfigErrorComponent
     } = this.props;
+    const dataProvider = this.readProvider();
     const style = withDefaultChartStyle(styleProp);
     const error = propsError != null ? propsError : dataProvider && !isDataProviderValid(dataProvider) ? dataProvider.getError?.() : undefined;
     // read before the branches below can unmount whatever holds focus
