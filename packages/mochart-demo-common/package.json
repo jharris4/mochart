@@ -11,10 +11,10 @@
     "./chart-dark.css": "./css/chart-dark.css"
   },
   "dependencies": {
-    "@mochart/core": "^1.0.0",
-    "@mochart/demo-data": "^1.0.0",
-    "@mochart/editor": "^1.0.0",
-    "@mochart/movalid": "^1.0.0",
+    "@mochart/core": "*",
+    "@mochart/demo-data": "*",
+    "@mochart/editor": "*",
+    "@mochart/movalid": "*",
     "fflate": "^0.8.3",
     "lodash.merge": "^4.6.2",
     "seedrandom": "^3.0.5"

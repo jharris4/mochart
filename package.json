@@ -35,7 +35,10 @@
     "build:libs": "npm run build -w @mochart/movalid && npm run build -w @mochart/core && npm run build -w @mochart/editor && npm run build -w @mochart/export && npm run build -w @mochart/react && npm run build -w @mochart/svelte && npm run build -w @mochart/vue && npm run build -w @mochart/lit && npm run build -w @mochart/angular",
     "prepare": "npm run build:libs",
     "check:publish": "node scripts/check-publish-manifests.mjs",
-    "publish:libs": "npm run check:publish && pnpm -C packages/movalid publish && pnpm -C packages/mochart publish && pnpm -C packages/mochart-editor publish && pnpm -C packages/mochart-export publish && pnpm -C packages/mochart-react publish && pnpm -C packages/mochart-svelte publish && pnpm -C packages/mochart-vue publish && pnpm -C packages/mochart-lit publish && pnpm -C packages/mochart-angular publish",
+    "publish:libs": "npm run check:publish && node scripts/publish-libs.mjs",
+    "pack:libs": "node scripts/pack-libs.mjs",
+    "release:version": "changeset version && npm run stamp-version -w @mochart/core && npm install --package-lock-only --ignore-scripts",
+    "release:publish": "npm run publish:libs && changeset git-tag",
     "test": "npm test --workspaces --if-present",
     "test:e2e": "npm run test:e2e -w @mochart/demo-basic && npm run test:e2e -w @mochart/demo-vanilla",
     "screenshots": "node scripts/screenshots/capture.mjs",
@@ -46,6 +49,8 @@
     "typecheck": "tsc -p scripts && npm run typecheck --workspaces --if-present"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^1.0.0",
+    "@changesets/cli": "^3.0.0",
     "@eslint/js": "10.0.1",
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.1.1",

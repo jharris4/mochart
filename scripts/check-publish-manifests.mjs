@@ -1,7 +1,8 @@
 // Guards the pnpm-publish manifest swap: every published package must declare a
 // dist-only publishConfig.exports, and a packed tarball must actually carry it.
-// Publishing must go through pnpm (npm run publish:libs); npm publish would ship
-// the development condition, which resolves raw src in consumers' dev servers.
+// Publishing must go through pnpm (npm run publish:libs → scripts/publish-libs.mjs);
+// npm publish would ship the development condition, which resolves raw src in
+// consumers' dev servers.
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';

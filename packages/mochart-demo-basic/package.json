@@ -6,9 +6,9 @@
   "type": "module",
   "license": "MIT",
   "dependencies": {
-    "@mochart/core": "^1.0.0",
-    "@mochart/demo-data": "^1.0.0",
-    "@mochart/export": "^1.0.0"
+    "@mochart/core": "*",
+    "@mochart/demo-data": "*",
+    "@mochart/export": "*"
   },
   "scripts": {
     "dev": "vite",

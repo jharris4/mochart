@@ -58,7 +58,8 @@
   "files": [
     "src",
     "dist",
-    "css"
+    "css",
+    "CHANGELOG.md"
   ],
   "dependencies": {
     "@mochart/movalid": "^1.0.0",

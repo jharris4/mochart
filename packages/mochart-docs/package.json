@@ -24,9 +24,9 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@mochart/core": "^1.0.0",
-    "@mochart/demo-common": "^1.0.0",
-    "@mochart/export": "^1.0.0"
+    "@mochart/core": "*",
+    "@mochart/demo-common": "*",
+    "@mochart/export": "*"
   },
   "devDependencies": {
     "tsx": "^4.23.12",

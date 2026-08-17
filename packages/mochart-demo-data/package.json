@@ -10,7 +10,7 @@
     "./demos.json": "./src/demos.json"
   },
   "dependencies": {
-    "@mochart/core": "^1.0.0"
+    "@mochart/core": "*"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -6,7 +6,7 @@
   "type": "module",
   "license": "MIT",
   "dependencies": {
-    "@mochart/core": "^1.0.0"
+    "@mochart/core": "*"
   },
   "scripts": {
     "dev": "vite",

@@ -55,7 +55,8 @@
   "files": [
     "src",
     "dist",
-    "css"
+    "css",
+    "CHANGELOG.md"
   ],
   "dependencies": {
     "@codemirror/autocomplete": "^6.0.0",

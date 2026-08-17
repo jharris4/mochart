@@ -153,3 +153,75 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy site --project-name=${{ env.CLOUDFLARE_PROJECT }} --branch=main
+
+  # npm releases (see RELEASE.md). Gated behind the repo variable
+  # ENABLE_NPM_RELEASE=true, set only after the first manual 1.0.0 publish and
+  # the trusted-publisher registration it makes possible. Three jobs so each
+  # holds only the permissions it needs: mode selection is read-only, the
+  # version PR needs contents+PR write, publishing needs contents (tags,
+  # releases) + id-token (npm trusted publishing).
+  release-mode:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_NPM_RELEASE == 'true'
+    needs: build-test
+    runs-on: ubuntu-latest
+    outputs:
+      # 'version' when changesets are pending, 'publish' when a package version
+      # is not on the registry yet, 'none' otherwise
+      mode: ${{ steps.mode.outputs.mode }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      # only the changesets CLI is needed here, not the library builds
+      - run: npm ci --ignore-scripts
+      - id: mode
+        uses: changesets/action/select-mode@v2
+
+  release-version:
+    if: needs.release-mode.outputs.mode == 'version'
+    needs: release-mode
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # the changelog links each entry to the commit that added its changeset
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      # Opens or refreshes the "Version Packages" PR; merging it publishes.
+      - uses: changesets/action/version@v2
+        with:
+          script: npm run release:version
+
+  release-publish:
+    if: needs.release-mode.outputs.mode == 'publish'
+    needs: release-mode
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          # npm >= 11.5 is required for trusted publishing; Node 24 bundles it
+          node-version: '24'
+          cache: npm
+      - run: npm --version
+      # full install: prepare builds every library before publishing
+      - run: npm ci
+      # release:publish publishes through pnpm (npm publish would ship the
+      # development export condition) and then runs `changeset git-tag`, whose
+      # CHANGESETS_OUTPUT events tell the action which tags and GitHub releases
+      # to create.
+      - uses: changesets/action/publish@v2
+        with:
+          script: npm run release:publish
