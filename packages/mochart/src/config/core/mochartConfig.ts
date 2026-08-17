@@ -246,8 +246,9 @@ function removeSectionDefaults(defaultSectionValue: unknown, allSection: ConfigR
     const sectionKeys = Object.keys(configSection);
     const newSection: ConfigRecord = {};
     for (const sectionKey of sectionKeys) {
-      if (!areEqual(defaultSection[sectionKey], configSection[sectionKey]) &&
-          !areEqual(allSection[sectionKey], configSection[sectionKey])) {
+      // the all-config overrides the default, so an entry value equal to the default is still load-bearing under it
+      const effectiveDefault = allSection[sectionKey] !== undefined ? allSection[sectionKey] : defaultSection[sectionKey];
+      if (!areEqual(effectiveDefault, configSection[sectionKey])) {
         newSection[sectionKey] = configSection[sectionKey];
       }
     }

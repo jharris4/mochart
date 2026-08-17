@@ -133,6 +133,23 @@ describe('getConfigWithoutDefaults', () => {
     )).toEqual({ series: [{ property: 'a' }], seriesDefaults: { renderer: 'bar' } });
   });
 
+  // Regression: an entry value equal to the base default was stripped even when the all-config
+  // overrode that default, so re-applying defaults resolved it to the all-config value
+  it('keeps an entry value equal to the default when the all-config overrides that default', () => {
+    const config = {
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      seriesDefaults: { renderer: 'bar' },
+      series: [{ property: 'a' }, { property: 'b', renderer: 'line' }],
+      valueAxisDefaults: { visible: false },
+      valueAxes: [{ visible: true }]
+    };
+    const defaults = getDefaults(config);
+    const minimal = getConfigWithoutDefaults(config, defaults);
+    expect(minimal.series).toEqual([{ property: 'a' }, { property: 'b', renderer: 'line' }]);
+    expect(minimal.valueAxes).toEqual([{ visible: true }]);
+    expect(getConfigWithDefaults(minimal, defaults)).toEqual(getConfigWithDefaults(config, defaults));
+  });
+
   it('keeps sections the defaults do not know about', () => {
     expect(getConfigWithoutDefaults({ id: 'x', title: { text: 'T' } }, { title: {} }))
       .toEqual({ id: 'x', title: { text: 'T' } });
