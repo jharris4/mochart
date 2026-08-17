@@ -106,3 +106,22 @@ describe('tick-label truncation state across updates', () => {
     expect(labelTexts()).toEqual(['Jan', 'Feb', 'Mar']);
   });
 });
+
+// Regression: a title (or legend text) narrower than the ellipsis shrank to '' and then jumped back to
+// the whole text, re-entering measure() forever until the stack overflowed
+describe('truncation narrower than the ellipsis', () => {
+  it('settles a chart too narrow for even the ellipsis', () => {
+    const container = mountContainer();
+    expect(() => trackHandle(createDefaultChart(container, {
+      config: {
+        version: '1.0.0',
+        animation: { animate: false },
+        title: { text: 'A long chart title', prefix: 'Prefix', suffix: 'Suffix' },
+        categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+        series: [{ property: 'sales' }]
+      } as unknown as MochartInputConfig,
+      data: rows(0), width: 12, height: 150
+    } as DefaultChartProps))).not.toThrow();
+  });
+});
+

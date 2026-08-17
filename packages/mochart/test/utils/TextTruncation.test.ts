@@ -121,6 +121,14 @@ describe('truncateSVGText', () => {
     expect(out).toEqual({ text: 'Hello World', truncatedText: 'Hell', lastText: 'Hello' });
   });
 
+  // Regression: shrinking past an empty truncatedText sliced to -1 (the whole text minus one) and the
+  // state cycled forever whenever the bare suffix still overflowed
+  it('settles empty instead of cycling when the suffix alone is wider than the limit', () => {
+    const out = truncateSVGText(el(8), 5, ELLIPSIS, { text: 'Hello', truncatedText: '', lastText: 'H' });
+    expect(out).toEqual({ text: 'Hello', truncatedText: '', lastText: '' });
+    expect(truncateSVGText(el(8), 5, ELLIPSIS, out)).toBe(out);
+  });
+
   it('grows by one character when back under the limit', () => {
     const out = truncateSVGText(el(50), 100, ELLIPSIS, { text: 'Hello', truncatedText: 'He', lastText: 'H' });
     expect(out).toEqual({ text: 'Hello', truncatedText: 'Hel', lastText: 'He' });

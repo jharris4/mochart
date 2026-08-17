@@ -226,10 +226,12 @@ export function truncateSVGText(textElement: SVGTextContentElement, maxTextLengt
       };
     }
     else {
+      // nothing left to shrink once even the bare suffix overflows: settle empty instead of cycling back to the full text
+      const unitCount = prefixUnitCount(textUnitList, truncatedText);
       return {
         text,
-        truncatedText: joinUnits(textUnitList, prefixUnitCount(textUnitList, truncatedText) - 1),
-        lastText: truncatedText
+        truncatedText: unitCount > 0 ? joinUnits(textUnitList, unitCount - 1) : '',
+        lastText: unitCount > 0 ? truncatedText : ''
       };
     }
   }
