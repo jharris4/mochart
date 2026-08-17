@@ -32,6 +32,8 @@ export interface AxisThresholdLineProps {
   vertical: boolean;
   /** Whether the axis's pixel position grows with the value along its direction. */
   ascending: boolean;
+  /** Where the domain's min and max sit along the plot, as fractions: a category axis insets its range by half a category slot. */
+  positionRange: [number, number];
   titleStroke: string | null;
   titleStrokeOpacity: number | null;
   titleStrokeWidth: number | null;
@@ -61,8 +63,9 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
     const numericThreshold = thresholdValue?.valueOf();
     const validThreshold = typeof numericThreshold === 'number' && !Number.isNaN(numericThreshold) ? numericThreshold : undefined;
     if (scale === SCALE_LINEAR && validThreshold !== undefined && domainMin !== undefined && domainMax !== undefined && domainMin !== domainMax && validThreshold >= domainMin && validThreshold <= domainMax) {
-      const { seriesLayoutInfo, axisThresholdLineClass, stroke, strokeOpacity, strokeWidth, strokeDashArray, vertical, ascending } = this.props;
-      const thresholdPercentage = (validThreshold - domainMin) / (domainMax - domainMin);
+      const { seriesLayoutInfo, axisThresholdLineClass, stroke, strokeOpacity, strokeWidth, strokeDashArray, vertical, ascending, positionRange } = this.props;
+      const domainFraction = (validThreshold - domainMin) / (domainMax - domainMin);
+      const thresholdPercentage = positionRange[0] + (positionRange[1] - positionRange[0]) * domainFraction;
       const positionPercentage = ascending ? thresholdPercentage : 1 - thresholdPercentage;
 
       let thresholdX = seriesLayoutInfo.x;

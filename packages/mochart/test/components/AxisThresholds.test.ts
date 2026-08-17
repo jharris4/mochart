@@ -353,6 +353,28 @@ describe('inverted plots', () => {
   });
 });
 
+// Regression: a category threshold was placed at its raw domain fraction of the plot, but the category
+// scale insets its range by half a slot, so the line never lined up with the tick or point of that value
+describe('category threshold alignment', () => {
+  /** x of the n-th point of the series line path, in the series group's coordinates. */
+  function linePointX(container: Element, index: number): number {
+    const d = container.querySelector(getCssSelector('series') + ' path')!.getAttribute('d')!;
+    const points = [...d.matchAll(/[ML](-?[\d.]+),(-?[\d.]+)/g)].map(match => Number(match[1]));
+    return points[index];
+  }
+
+  it('lines a category threshold up with the data point of the same value', () => {
+    for (const value of [0, 50, 100]) {
+      const container = categoryThreshold({ value });
+      const seriesGroup = container.querySelector(getCssSelector('series'))!.closest('g[transform]');
+      const seriesOffset = translation(seriesGroup).x;
+      const lineX = linePosition(container).x;
+      // the threshold group is plot-relative; the series path is series-group relative
+      expect(lineX - seriesOffset).toBeCloseTo(linePointX(container, [0, 50, 100].indexOf(value)), 2); // path coordinates carry 3 decimals
+    }
+  });
+});
+
 describe('reversed axes', () => {
   // reversing flips only the pixel direction, so a threshold at v on a reversed axis
   // lands where max + min - v lands on the normal one

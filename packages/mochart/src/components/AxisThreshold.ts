@@ -19,6 +19,7 @@ interface AxisThresholdProps {
   axisDomain: [number | Date | null, number | Date | null];
   vertical: boolean;
   ascending: boolean;
+  positionRange: [number, number];
   axisFocusPercentage: number | null;
   seriesFocusPercentage: number | null;
   axisThresholdClass: string;
@@ -35,7 +36,7 @@ export default class AxisThreshold extends Renderer<AxisThresholdProps> {
   sync() {
     const { hidden } = this.props;
     if (!hidden) {
-      const { axisConfig, axisLayoutInfo, seriesLayoutInfo, axisDomain, vertical, ascending, axisFocusPercentage, seriesFocusPercentage, axisThresholdClass, front } = this.props;
+      const { axisConfig, axisLayoutInfo, seriesLayoutInfo, axisDomain, vertical, ascending, positionRange, axisFocusPercentage, seriesFocusPercentage, axisThresholdClass, front } = this.props;
       const { useSeriesFocus = false } = axisConfig;
       const thresholds = resolveThresholds(axisConfig.thresholds);
 
@@ -54,7 +55,7 @@ export default class AxisThreshold extends Renderer<AxisThresholdProps> {
           key: 'threshold-' + thresholdIndex,
           ctor: AxisThresholdLine,
           props: { axisConfig, threshold, thresholdIndex, axisLayoutInfo, seriesLayoutInfo, axisDomain,
-            axisThresholdLineClass: mochartCssClasses['axisThreshold'], vertical, ascending,
+            axisThresholdLineClass: mochartCssClasses['axisThreshold'], vertical, ascending, positionRange,
             stroke: line.stroke ?? null, strokeOpacity: line.strokeOpacity ?? null,
             strokeWidth: line.strokeWidth ?? null, strokeDashArray: line.strokeDasharray ?? null,
             titleStroke: title.stroke ?? null, titleStrokeOpacity: title.strokeOpacity ?? null, titleStrokeWidth: title.strokeWidth ?? null,

@@ -1,6 +1,7 @@
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
+import { getCategorySpacingInfo } from '../data/AxisData';
 import { getValueAxisFocusContexts } from '../utils/FocusValue';
 import { accessibilityActive } from '../utils/utils';
 
@@ -43,9 +44,11 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
     this.root.set({ className: mochartCssClasses['axisThresholdContainer'],
       ariaHidden: accessibilityActive(mochartConfig.accessibility) ? 'true' : null });
 
+    // the category scale maps its domain onto the slot-inset range (like the focus range does), so thresholds line up with ticks and data
+    const categoryPositionRange = getCategorySpacingInfo(categoryAxisConfig, categoryAxisDomain, 1).categoryRange;
     // ascending: a category axis renders ascending, a value axis only when horizontal (inverted); reversed flips either
     this.categoryThreshold.set(AxisThreshold, { front, plotConfig, axisConfig: categoryAxisConfig, axisLayoutInfo: categoryAxisLayoutInfo,
-      hidden: false, seriesLayoutInfo, axisDomain: categoryAxisDomain, vertical: inverted, ascending: !categoryAxisConfig.reversed,
+      hidden: false, seriesLayoutInfo, axisDomain: categoryAxisDomain, vertical: inverted, ascending: !categoryAxisConfig.reversed, positionRange: categoryPositionRange,
       axisFocusPercentage: null, seriesFocusPercentage: null, axisThresholdClass: mochartCssClasses['categoryAxisThreshold'] });
 
     this.seriesThresholds.sync(getValueAxisFocusContexts(valueAxisConfigs, focusData).map(({ axisConfig, id, key, axisFocusPercentage, seriesFocusPercentage }) => {
@@ -54,7 +57,7 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
         key,
         ctor: AxisThreshold,
         props: { front, plotConfig, axisConfig, axisLayoutInfo: valueAxisLayoutInfos[id],
-          hidden: !axisConfig.visibleWhenAllFiltered && axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: valueAxisDomain, vertical: !inverted, ascending: inverted !== axisConfig.reversed,
+          hidden: !axisConfig.visibleWhenAllFiltered && axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: valueAxisDomain, vertical: !inverted, ascending: inverted !== axisConfig.reversed, positionRange: [0, 1],
           axisFocusPercentage, seriesFocusPercentage, axisThresholdClass: mochartCssClasses['valueAxisThreshold'] + id }
       };
     }));
