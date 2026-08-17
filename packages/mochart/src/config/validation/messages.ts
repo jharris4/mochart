@@ -161,6 +161,15 @@ function objectWithKeys<T>(object: Record<string, T>, keys: string[]): Record<st
 }
 
 
+/** The object's own keys whose value is set: an explicit undefined reads as "not specified", like the config merge treats it. */
+function definedKeys(config: ConfigObject): string[] {
+  return Object.keys(config).filter(key => config[key] !== undefined);
+}
+
+function withDefinedKeys(config: ConfigObject): ConfigObject {
+  return objectWithKeys(config, definedKeys(config)) as ConfigObject;
+}
+
 export function getMessages(sectionKey: string, allKey: string | undefined, uniqueKeys: string[] | undefined, section: unknown, sectionDefaults: unknown, all: unknown, validatorMap: ValidatorMap, onlyAll: boolean, i: number | undefined = undefined, first: boolean = i === undefined || i === 0, allExcludedKeys: string[] | undefined = undefined) {
   const errorMessages: string[] = [];
   const warningMessages: string[] = [];
@@ -170,10 +179,10 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
   let providedKeyMap: ConfigObject = {};
 
   if (!onlyAll && objectValidator(sectionDefaults) && isConfigObject(sectionDefaults)) {
-    providedKeyMap = {...providedKeyMap, ...sectionDefaults};
+    providedKeyMap = {...providedKeyMap, ...withDefinedKeys(sectionDefaults)};
 
     if (first) {
-      const sectionDefaultKeys = Object.keys(sectionDefaults).filter(key => sectionDefaults[key] !== undefined);
+      const sectionDefaultKeys = definedKeys(sectionDefaults);
       const defaultValidators = objectWithKeys(validatorMap, sectionDefaultKeys);
 
       addErrorMessagesInternal(DEFAULT + sectionKey, sectionDefaults, defaultValidators, errorMessages, errorDetails);
@@ -181,7 +190,7 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
     }
   }
   if (objectValidator(all) && isConfigObject(all)) {
-    providedKeyMap = { ...providedKeyMap, ...all };
+    providedKeyMap = { ...providedKeyMap, ...withDefinedKeys(all) };
     if (first) {
       const uniqueAllKeys = (Array.isArray(uniqueKeys) ? uniqueKeys : []).filter(uniqueKey => all[uniqueKey] !== undefined)
 
@@ -200,7 +209,7 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
         errorDetails.push({ path: messagePath(allKey ?? sectionKey, undefined, excludedAllKey), message });
       }
 
-      const allKeys = Object.keys(all).filter(allKey => uniqueAllKeys.indexOf(allKey) === -1 && excludedAllKeys.indexOf(allKey) === -1);
+      const allKeys = definedKeys(all).filter(allKey => uniqueAllKeys.indexOf(allKey) === -1 && excludedAllKeys.indexOf(allKey) === -1);
       const allValidators = objectWithKeys(validatorMap, allKeys);
 
       addErrorMessagesInternal(allKey ?? sectionKey, all, allValidators, errorMessages, errorDetails);
@@ -208,8 +217,8 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
     }
   }
   if (!onlyAll && objectValidator(section) && isConfigObject(section)) {
-    providedKeyMap = { ...providedKeyMap, ...section };
-    const sectionKeys = Object.keys(section);
+    providedKeyMap = { ...providedKeyMap, ...withDefinedKeys(section) };
+    const sectionKeys = definedKeys(section);
     const sectionValidators = objectWithKeys(validatorMap, sectionKeys);
 
     addErrorMessagesInternal(sectionKey, section, sectionValidators, errorMessages, errorDetails, i);

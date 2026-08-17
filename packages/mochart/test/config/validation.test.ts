@@ -201,6 +201,22 @@ describe('prototype-key config validation', () => {
   });
 });
 
+// Regression: an explicit undefined member was validated as a wrong value and again as missing, so a
+// config the merge treats as "not specified" failed strict validation
+describe('explicit undefined members', () => {
+  it('read as not specified, in an entry, an all-config and a top-level section', () => {
+    expect(errorsFor({ version: V, categoryAxis: { property: 'c' }, series: [{ property: 'p', markerShape: undefined }] })).toEqual([]);
+    expect(errorsFor({ version: V, categoryAxis: { property: 'c' }, seriesDefaults: { renderer: undefined }, series: [{ property: 'p' }] })).toEqual([]);
+    expect(errorsFor({ version: V, categoryAxis: { property: 'c' }, chart: { type: undefined }, series: [{ property: 'p' }] })).toEqual([]);
+    expect(errorsFor({ version: V, categoryAxis: { property: 'c' }, valueAxes: [{ min: undefined }], series: [{ property: 'p' }] })).toEqual([]);
+  });
+
+  it('still reports a required member set to undefined as missing, once', () => {
+    const errors = errorsFor({ version: V, categoryAxis: { property: undefined }, series: [{ property: 'p' }] });
+    expect(errors.filter(error => error.includes('categoryAxis') && error.includes('property'))).toHaveLength(1);
+  });
+});
+
 describe('non-strict validation', () => {
   it('treats warnings as acceptable when strict is false', () => {
     // an unknown extra property produces a warning, not an error
