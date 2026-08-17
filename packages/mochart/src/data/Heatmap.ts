@@ -216,6 +216,8 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
         ...(options.missingColor !== undefined ? { missing: options.missingColor } : {})
       },
       renderer: 'bar',
+      // an all-missing row leaves its properties out of every data object
+      allowAbsentDataProperties: true,
       missingValues: 'connect',
       group: null,
       stack: null,

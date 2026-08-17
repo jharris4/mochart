@@ -179,6 +179,22 @@ describe('createHeatmap', () => {
     expect(getDataErrors(mochartConfig, dataProvider)).toEqual([]);
   });
 
+  it('keeps the data valid when a whole row is missing, with or without missingColor', () => {
+    const allMissingRows: HeatmapRow[] = [{ label: 'Offline', values: [null, undefined, null] }, ...rows()];
+    for (const missingColor of [undefined, '#999999']) {
+      const heatmap = createHeatmap(allMissingRows, { missingColor });
+      const mochartConfig = enhanceConfig({
+        version: '1.0.0',
+        categoryAxis: heatmap.categoryAxis,
+        valueAxes: [{ ...heatmap.valueAxes[0], id: 'va' }],
+        series: heatmap.series.map((seriesConfig) => ({ ...seriesConfig, axis: 'va' }))
+      });
+      expect(mochartConfig.validation.valid).toBe(true);
+      const dataProvider = new ArrayOfObjectsDataProvider(heatmap.data as Record<string, string | number>[]);
+      expect(getDataErrors(mochartConfig, dataProvider)).toEqual([]);
+    }
+  });
+
   it('does not mutate the passed rows or options', () => {
     const input = rows();
     const snapshot = structuredClone(input);

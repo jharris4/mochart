@@ -63,6 +63,7 @@
         "max": "#1b3d72"
       },
       "renderer": "bar",
+      "allowAbsentDataProperties": true,
       "missingValues": "connect",
       "group": null,
       "stack": null,
@@ -87,6 +88,7 @@
         "max": "#1b3d72"
       },
       "renderer": "bar",
+      "allowAbsentDataProperties": true,
       "missingValues": "connect",
       "group": null,
       "stack": null,
@@ -111,6 +113,7 @@
         "max": "#0d366b"
       },
       "renderer": "bar",
+      "allowAbsentDataProperties": true,
       "missingValues": "connect",
       "group": null,
       "stack": null,
@@ -135,6 +138,7 @@
         "max": "#1f4074"
       },
       "renderer": "bar",
+      "allowAbsentDataProperties": true,
       "missingValues": "connect",
       "group": null,
       "stack": null,
@@ -159,6 +163,7 @@
         "max": "#3d5789"
       },
       "renderer": "bar",
+      "allowAbsentDataProperties": true,
       "missingValues": "connect",
       "group": null,
       "stack": null,
@@ -183,6 +188,7 @@
         "max": "#95aace"
       },
       "renderer": "bar",
+      "allowAbsentDataProperties": true,
       "missingValues": "connect",
       "group": null,
       "stack": null,
@@ -207,6 +213,7 @@
         "max": "#a1b6d8"
       },
       "renderer": "bar",
+      "allowAbsentDataProperties": true,
       "missingValues": "connect",
       "group": null,
       "stack": null,
