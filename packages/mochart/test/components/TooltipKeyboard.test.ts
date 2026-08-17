@@ -449,7 +449,8 @@ describe('tooltip row pointer focus', () => {
 
     const before = focuses.length;
     categoryLine(container).dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(focuses.length).toBe(before);
+    // the row itself does not act; the close it triggers only releases the applied focus, like a plot click
+    expect(focuses.slice(before).map(focus => focus.focusedCategoryIndex)).toEqual([-1]);
   });
 
   it('does not highlight a filtered series on hover', () => {
@@ -588,6 +589,39 @@ describe('closing the tooltip returns focus to the plot tab stop', () => {
 
     expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
     expect(document.activeElement).toBe(container.querySelector(getCssSelector('seriesBackground') + ' rect[tabindex]'));
+  });
+});
+
+// Regression: Escape inside the tooltip and closeOnClick reset only the tooltip state, so with the
+// default applyFocus the category stayed pinned and the crosshair stayed drawn after the tooltip went
+describe('closing the tooltip from inside releases the applied focus', () => {
+  function crosshairLineCount(container: Element): number {
+    return container.querySelectorAll(getCssSelector('crosshair') + ' line').length;
+  }
+
+  it('reports the focus release and clears the crosshair on Escape inside', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ showControls: true }), { onFocus: focus => focuses.push(focus) });
+    openTooltip(container);
+    expect(focuses[focuses.length - 1]?.focusedCategoryIndex).toBeGreaterThanOrEqual(0);
+    expect(crosshairLineCount(container)).toBeGreaterThan(0);
+
+    // keydown on the row without focusing it: a focused series row applies its own series highlight
+    key(tooltipRows(container)[0], 'Escape');
+    expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
+    expect(focuses[focuses.length - 1]?.focusedCategoryIndex).toBe(-1);
+    expect(crosshairLineCount(container)).toBe(0);
+  });
+
+  it('reports the focus release and clears the crosshair on a closing click inside', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ showControls: true }), { onFocus: focus => focuses.push(focus) });
+    openTooltip(container);
+    container.querySelector(getDescendantCssSelector('tooltip', 'tooltipCategoryLine'))!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
+    expect(focuses[focuses.length - 1]?.focusedCategoryIndex).toBe(-1);
+    expect(crosshairLineCount(container)).toBe(0);
   });
 });
 
