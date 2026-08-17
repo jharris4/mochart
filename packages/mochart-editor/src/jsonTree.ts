@@ -33,6 +33,12 @@ function arrayValues(array: SyntaxNode): SyntaxNode[] {
 export function pathAt(state: EditorState, position: number): JsonPath {
   const path: JsonPath = [];
   let node: SyntaxNode | null = syntaxTree(state).resolveInner(position, -1);
+  if (node.name === 'Property') {
+    // resolved to the member itself: past its colon with no value yet is that member's value slot
+    const colon = children(node).find(child => child.name === ':');
+    const key = colon && position > colon.from ? propertyKey(state, node) : null;
+    if (key !== null) path.push(key);
+  }
   while (node?.parent) {
     const parent: SyntaxNode = node.parent;
     if (parent.name === 'Property') {
@@ -71,8 +77,9 @@ export function isPropertyPosition(state: EditorState, position: number, object:
   if (node.name === 'PropertyName') return true;
   while (node && node !== object) {
     if (node.name === 'Property') {
-      const value = propertyValue(node);
-      return value === null || position < value.from;
+      // past the colon is the value slot even while the value is missing or still a parse error
+      const colon = children(node).find(child => child.name === ':');
+      return colon === undefined || position <= colon.from;
     }
     node = node.parent;
   }

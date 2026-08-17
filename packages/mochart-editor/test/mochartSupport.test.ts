@@ -114,6 +114,24 @@ describe('Mochart support completions', () => {
     expect(doc).toBe('{"chart":{"type":"pie"}}');
   });
 
+  // Regression: a property whose value was missing or still a parse error counted as a key
+  // position, so typing an unquoted value offered property names and accepting one corrupted the JSON
+  it('offers value completions, not property names, after the colon of an unparsed value', async () => {
+    const legendOptions = await completionOptions('{"legend":{"visible": t|}}');
+    expect(labels(legendOptions)).toContain('true');
+    expect(labels(legendOptions)).not.toContain('truncationEnabled');
+    const typeOptions = await completionOptions('{"chart":{"type": |}}');
+    expect(labels(typeOptions)).toEqual(expect.arrayContaining(['"xy"', '"pie"']));
+    expect(labels(typeOptions)).not.toContain('margin');
+    const doc = await acceptCompletion('{"legend":{"visible": t|}}', 'true');
+    expect(doc).toBe('{"legend":{"visible": true}}');
+  });
+
+  it('still offers property names before the colon of a property with no value yet', async () => {
+    const options = await completionOptions('{"leg|": }');
+    expect(labels(options)).toContain('legend');
+  });
+
   // Regression: an eager popup after a trailing comma swallowed the Enter
   // meant to insert a newline, applying a suggestion instead.
   it('stays closed until a quote or word character is typed', () => {
