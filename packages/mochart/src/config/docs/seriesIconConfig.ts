@@ -3,7 +3,7 @@
 export function getDescriptions(sectionName: string, autoIconSizeText: string) {
   return {
     showIconColors: 'whether to show series colors next to series titles in the ' + sectionName,
-    showIconShapes: 'whether to show series marker shape next to series titles in the ' + sectionName,
+    showIconShapes: 'whether to show the series marker shape next to series titles in the ' + sectionName,
     showIconPlaceholders: 'whether to show placeholder icons next to the series titles in the ' + sectionName,
     iconSize: 'the width and height (in pixels) of the series icons, or "auto" to match ' + autoIconSizeText,
     iconSpacerSize: 'the horizontal space (in pixels) to show between series icons and titles',

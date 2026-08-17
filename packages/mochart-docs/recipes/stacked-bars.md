@@ -23,6 +23,11 @@ shows gaps mid-transition (see
 - Opt a series out of the stack with
   [`stack: null`](/reference/series#series.stack) — handy for
   overlaying a line on stacked bars.
+- A stack belongs to one value axis
+  ([`seriesStacks[].axis`](/reference/seriesStacks#seriesStacks.axis),
+  defaulting to the sole axis); a series whose `axis` differs from its
+  stack's is a validation error. Several stacks can sit on
+  [different axes](/recipes/dual-axes).
 - Cap only the outer end of the whole stack with
   [`outerCapType`](/reference/seriesStacks#seriesStacks.outerCapType)
   — see the [bar caps recipe](/recipes/bar-caps#capping-a-stack).

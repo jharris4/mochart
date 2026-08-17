@@ -65,7 +65,7 @@ const docsExamples: { config: object; page: UsageLink }[] = [
   { config: waterfall.config, page: { text: 'Waterfall', link: '/recipes/waterfall' } },
   { config: sparkline.config, page: { text: 'Sparklines', link: '/recipes/sparklines' } },
   { config: heatmap.config, page: { text: 'Heatmap', link: '/recipes/heatmap' } },
-  { config: errorBars.config, page: { text: 'Error Bars', link: '/recipes/error-bars' } }
+  { config: errorBars.config, page: { text: 'Error bars', link: '/recipes/error-bars' } }
 ];
 
 // exported for scripts/checkSectionCoverage.ts, which verifies these

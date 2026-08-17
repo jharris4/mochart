@@ -51,7 +51,7 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
   /**
    * Controlled focused category index (-1 = none). When set it overrides the
    * chart's internal focus on every update; pass back the value reported by
-   * `focus` to keep several charts in sync. Omit to leave focus chart-managed.
+   * `focusChange` to keep several charts in sync. Omit to leave focus chart-managed.
    */
   @Input() focusedCategoryIndex?: number;
   /** Controlled focused value-axis id (null = none). See `focusedCategoryIndex`. */

@@ -70,7 +70,7 @@
                 valueAxes: [{ id: 'va', min: 0 }],
                 series: [{ ...seriesConfig, axis: 'va' }]
             });
-            const dataProvider = new ArrayOfObjectsDataProvider(data, mochartConfig.categoryAxis.property);
+            const dataProvider = new ArrayOfObjectsDataProvider(data);
 
             if (chart === null) {
                 chart = createChart(chartEl, { mochartConfig, dataProvider, width: 720, height: 400 });

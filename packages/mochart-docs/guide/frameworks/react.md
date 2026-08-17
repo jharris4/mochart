@@ -12,6 +12,9 @@ needed.
 npm install @mochart/react @mochart/core react react-dom
 ```
 
+React 18 or later is required (`react` and `react-dom` are peer
+dependencies, as is `@mochart/core`).
+
 ## The optional stylesheet
 
 If your app uses a global CSS reset (Tailwind's preflight, a
@@ -64,7 +67,11 @@ const dataProvider = new ArrayOfObjectsDataProvider(data);
 <Chart mochartConfig={mochartConfig} dataProvider={dataProvider} width={640} height={400} />
 ```
 
-## Sizing
+`Chart` accepts `null` for `mochartConfig` and `dataProvider` while the host
+is still loading them; pair it with the `loading` prop to show the loading
+state until they arrive.
+
+## Sizing and the container
 
 `width` and `height` are optional. The component renders a container div the
 chart mounts into; whichever dimension you omit tracks that div's size via
@@ -74,6 +81,8 @@ chart follows it:
 ```tsx
 <Chart mochartConfig={mochartConfig} dataProvider={dataProvider} style={{ width: '100%', height: 400 }} />
 ```
+
+Explicit `width`/`height` props win over conflicting `style` values.
 
 The optional `dataTestId` prop sets a `data-testid` attribute on the same
 container div, for test selectors.
@@ -102,7 +111,8 @@ to `config` on `DefaultChart` and to `mochartConfig`/`dataProvider` on
 For hosts that do mutate data in place, the `ref` prop exposes a `ChartRef`
 handle with the core
 [`refresh()`](/guide/data-providers#when-the-data-changes) escape hatch —
-it re-reads the current config/data (the built-in providers read live, so any in-place change is seen):
+it re-reads the current config/data (the built-in providers read live, so
+any in-place change is seen):
 
 ```tsx
 import { useRef } from 'react';
@@ -116,15 +126,26 @@ data.push({ month: 'Mar', revenue: 30 });
 chartRef.current?.refresh();
 ```
 
+Both components use `forwardRef`, so the `ref` prop works on React 18 as
+well as 19.
+
 ## Callbacks and states
 
 Both components accept the [chart callbacks](/guide/interaction#callbacks)
-under their core names (`onChartClick`, `onFocus`, `onSliceClick`, …) and a
-placeholder prop per state. Each placeholder prop takes a **React component**
-that receives the [chart state context](/guide/chart-states) (`width`,
+under their core names (`onChartClick`, `onFocus`, `onSeriesFilter`,
+`onSeriesClick`, `onSliceClick`, `onTitleClick`, …) with the core payloads.
+Only the callbacks you pass are wired into the chart, which matters where
+the core switches behavior on a callback's presence — an `onTitleClick`
+makes the title a button, for instance.
+
+Both components also accept `loading` and `error` to force the
+[loading or error state](/guide/chart-states), and a placeholder prop per
+state: `loadingComponent`, `errorComponent`, `noDataComponent`,
+`noSizeComponent`, `noSeriesComponent`, and `configErrorComponent`. Each takes
+a **React component** that receives the
+[chart state context](/guide/chart-states#customizing-what-renders) (`width`,
 `height`, `error`, …) as props and is rendered while the chart is in that
-state. Both components also accept `loading` and `error` to force the
-loading or error state.
+state; leave a prop off to keep the built-in placeholder.
 
 Placeholder components render through a portal in the host component tree, so
 they read any React context an ancestor provides (theme, router, i18n, …) like
@@ -150,6 +171,24 @@ series id → `true` = filtered out). Pass back what `onFocus` and
 charts (the round-trip is shown in
 [Controlled focus and filtering](/guide/interaction#controlled-focus-and-filtering));
 leave a prop `undefined` to let the chart keep managing that piece itself.
+
+## TypeScript
+
+The package ships its own declarations. It exports the prop interfaces
+`ChartProps`, `DefaultChartProps`, `BaseChartProps` (everything except the
+config/data props) and `ChartCallbackProps`, the `ChartRef` handle, and
+`PlaceholderProps`/`PlaceholderComponent` for typing placeholder components.
+Config, data, and callback payload types (`MochartInputConfig`,
+`DataObject`, `ChartFocus`, `ChartEventPayload`, …) come from `@mochart/core`;
+see [Callbacks and payloads](/reference/callbacks).
+
+## Server-side rendering
+
+The chart mounts in a layout effect, which React does not run on the server:
+`renderToString` emits only the container div, and the chart is created in
+the browser after hydration. No `typeof window` guards are needed in your
+own code. See [Browser support](/guide/getting-started#browser-support) for
+what the core itself needs.
 
 ## See it in action
 

@@ -63,7 +63,7 @@ import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart } from '@mochart/vue';
 
 const mochartConfig = enhanceConfig(config);
-const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');
+const dataProvider = new ArrayOfObjectsDataProvider(data);
 </script>
 
 <template>

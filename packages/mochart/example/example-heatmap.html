@@ -67,7 +67,7 @@
                 // valueFormat applies to the tooltip's cell values (tooltipProperty)
                 series: heatmap.series.map((seriesConfig) => ({ ...seriesConfig, axis: 'va', valueFormat: ',.0f' }))
             });
-            const dataProvider = new ArrayOfObjectsDataProvider(heatmap.data, mochartConfig.categoryAxis.property);
+            const dataProvider = new ArrayOfObjectsDataProvider(heatmap.data);
 
             if (chart === null) {
                 chart = createChart(chartEl, { mochartConfig, dataProvider, width: 720, height: 400 });

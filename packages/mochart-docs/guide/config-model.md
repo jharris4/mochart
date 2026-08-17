@@ -1,17 +1,17 @@
 # The config model
 
 A mochart config is a plain, JSON-serializable object made of per-concern
-**sections**. Every section — and almost every property inside one — is optional and
-falls back to a sensible default, so configs only say what differs from the
-defaults.
+**sections**. Every section — and almost every property inside one — is
+optional and falls back to a default, so configs only say what differs from
+the defaults.
 
 ```js
 const config = {
-  title: { … },        // chart title
-  categoryAxis: { … },    // the category axis (requires `property`)
-  series: [ … ],      // one entry per series (each requires `property`)
-  seriesDefaults: { … },    // values shared by every series
-  valueAxes: [ … ],  // one or more value axes
+  title: { … },          // chart title
+  categoryAxis: { … },   // the category axis (requires `property`)
+  series: [ … ],         // one entry per series (each requires `property`)
+  seriesDefaults: { … }, // values shared by every series
+  valueAxes: [ … ],      // one or more value axes
   legend: { … },
   tooltip: { … },
   crosshair: { … },
@@ -55,12 +55,12 @@ series: [
 ## Styles and focus states
 
 Everything the chart draws is styled by a **style** object rather than by a
-flat set of color properties. A style holds `strokeColor`, `strokeOpacity`
-and `strokeWidth`, plus `fillColor` and `fillOpacity` for shapes that have an
-interior. Lines — grid lines, tick marks, thresholds, crosshairs, error-bar
-whiskers — take the stroke half only.
+flat set of color properties. A style holds `strokeColor`, `strokeOpacity`,
+`strokeWidth` and `strokeDashArray`, plus `fillColor` and `fillOpacity` for
+shapes that have an interior. Lines — grid lines, tick marks, thresholds,
+crosshairs, error-bar whiskers — take the stroke half only.
 
-Most elements are painted differently depending on what has focus, so their
+Most elements are drawn differently depending on what has focus, so their
 style is nested one level deeper, under `normal`, `focused` and `defocused`:
 
 ```js
@@ -80,12 +80,14 @@ and `strokeDashArray` — may be the literal `'same'`, meaning "whatever the
 change opacity or width on focus but keep their color. Opacities are the
 exception — they are always concrete numbers, never `'same'`.
 
-Series styles additionally accept the palette modes `'series'`,
-`'seriesIndex'` and `'categoryIndex'` in place of a color; see
-[`colorPalette`](/reference/colorPalette). Any style color also
+Series styles additionally accept the palette modes `'seriesIndex'` and
+`'categoryIndex'` in place of a color, and — everywhere but `shapeStyle`,
+which defines the series color itself — `'series'` for the series' own
+color; see [`colorPalette`](/reference/colorPalette). Any style color also
 accepts `'currentColor'` to follow the host page's CSS `color` (how chart
-chrome themes itself — see [Colors, theming, and dark mode](/guide/theming)), and `'none'`
-to switch that half of the style off.
+chrome themes itself — see
+[Colors, theming, and dark mode](/guide/theming)), and `'none'` to switch
+that half of the style off.
 
 Style colors are written straight to the DOM, so any CSS color the browser
 understands works — named (`red`), hex 3/4/6/8, `rgb()`/`hsl()` in either
@@ -146,14 +148,14 @@ const { valid, errors, warnings } = validateConfig(config);
 // e.g. "series[1] - had 1 invalid properties: valueFormt"
 ```
 
-Editor and tooling integrations can request structured locations while
-retaining the same validation result:
+Editor and tooling integrations can ask for structured locations on top of
+the same result:
 
 ```js
 import { validateConfigDetailed } from '@mochart/core';
 
-const { diagnostics } = validateConfigDetailed(config);
-// [{
+const { valid, errors, warnings, diagnostics } = validateConfigDetailed(config);
+// diagnostics: [{
 //   path: ['series', 1, 'axis'],
 //   severity: 'error',
 //   message: 'should equal the id property of one of the valueAxes: "missing"',
@@ -161,9 +163,8 @@ const { diagnostics } = validateConfigDetailed(config);
 // }]
 ```
 
-`path` contains object keys and array indexes leading to the relevant config
-value. Top-level problems that cannot be assigned to one property use an
-empty path.
+`path` holds the object keys and array indexes leading to the offending
+value; a top-level problem that belongs to no one property has an empty path.
 
 Two things validation insists on:
 
@@ -171,8 +172,8 @@ Two things validation insists on:
   (`'1.0.0'`). Omitting it means "the current format". Include it in configs
   you store or share: `enhanceConfig` migrates on the way in, so a config
   written against an older format keeps working, but only if it says which
-  format it was written against. `migrateConfig(config)` is exported for
-  upgrading a stored config in place, without building a chart.
+  format it was written against. `migrateConfig(config)` returns the
+  upgraded config on its own, without building a chart.
 - **Unknown properties** produce warnings, and a config with warnings is
   rejected in strict mode — typos surface immediately instead of being
   silently ignored. Strict mode is the default and is what the chart entry

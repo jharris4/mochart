@@ -30,8 +30,14 @@ chart.update({ error: 'Request failed' }); // show the error state
 - **No size** — width or height is not a positive number (e.g. 0, before the
   container has been laid out)
 
-When `loading` and `error` are both set, the error state wins: the loading
-overlay is not shown while an error is active.
+A [data provider](/guide/data-providers#the-provider-interface) can drive
+the first two as well: `getLoading()` returning `true` shows the loading
+state, and `getError()` returning anything but `null`/`undefined` shows the
+error state, with the `error` prop taking precedence when both are set.
+
+When several states apply at once, the first of these wins: no size, config
+error, error, loading, no data, no series. So the error state hides the
+loading overlay, and the loading overlay paints over an empty dataset.
 
 ## The states, live
 
@@ -42,7 +48,7 @@ Each state below renders with its built-in placeholder.
 <LiveChart :config="states.config" :data="states.data" :chart-props="{ loading: true }" toggle="loading" :height="180" :demo-link="false" />
 
 **Error** — the `error` prop is set; the built-in placeholder shows the
-error value:
+error value (an `Error`'s message, or the value as text):
 
 <LiveChart :config="states.config" :data="states.data" :chart-props="{ error: 'Request failed (503)' }" toggle="error" :height="180" :demo-link="false" />
 
@@ -61,8 +67,6 @@ message, while the validation errors themselves come from
 legend does *not* produce this state: filtering hides series but leaves the
 configured list intact.
 
-
-
 <LiveChart :config="states.noSeriesConfig" :data="states.data" :height="180" :demo-link="false" />
 
 **No size** — the chart's width or height is 0, as before a container has
@@ -80,10 +84,10 @@ place. The rule is that **the chart reports but does not commit**:
   the config and survive a data change. Legend filtering, tooltip-row filtering,
   and axis hover focus all stay live.
 - Anything keyed to a **category position** is suppressed, because it may name
-  something that no longer exists once the new data lands. Plot clicks, the
-  plot's arrow keys, and series or slice activation are all ignored, and no new
-  tooltip opens — including the one `tooltip.followPointer` would otherwise open
-  on hover.
+  something that no longer exists once the new data lands. Plot clicks and the
+  plot's arrow keys are ignored, `onSeriesClick` does not fire, and no new
+  tooltip opens — including the one `tooltip.followPointer` would otherwise
+  open on hover.
 - Whatever is **already open** can still be dismissed. A tooltip opened before
   the load stays put, and Escape and its close button keep working.
 
@@ -93,14 +97,15 @@ Pointer movement is still reported throughout, so `onChartMouseEnter`,
 The tooltip's previous/next buttons are the one deliberate exception: they move a
 category position, but only within a tooltip that is already open.
 
-One practical detail: the loading message is a real element sized to its own
-content, so the pointer does not reach the chart underneath it.
+The built-in loading placeholder covers the whole plot area, so the pointer
+does not reach the shapes underneath it. A custom placeholder blocks only
+where its own content sits.
 
 ## Customizing what renders
 
-Each state has a factory prop that returns a DOM node (or string). Every
-factory receives the same context object, with all six members present on every
-call:
+Each state has a factory prop that returns a DOM node or string (a falsy
+return renders nothing). Every factory receives the same context object, with
+all six members present on every call:
 
 ```js
 createDefaultChart(container, {
@@ -120,7 +125,7 @@ createDefaultChart(container, {
 | `width` / `height` | Pixel size of the box the returned content fills; which box depends on the state (see below) |
 | `mochartConfig` | The enhanced config as supplied, including the invalid one in the config-error state; `null` before the host has a config |
 | `dataProvider` | The current provider, or `null` when there is none |
-| `error` | The active error (the `error` prop or the provider's); `undefined` outside the error state |
+| `error` | The active error (the `error` prop or the provider's); `undefined` when there is none |
 | `hasData` | True when the committed dataset holds at least one category |
 
 `width`/`height` are the only members whose meaning moves between states,
@@ -140,6 +145,13 @@ The same loading chart as above, with a custom factory (a spinner driven by
 the Web Animations API, sized from the factory context):
 
 <LiveChart :config="states.config" :data="states.data" :chart-props="{ loading: true, getLoadingComponent: states.getLoadingComponent }" toggle="loading" :height="180" :demo-link="false" />
+
+The built-in placeholders are styled inline; the optional
+`@mochart/core/mochart.css` only resets the margin of content placed inside
+them. To style a state from your own CSS, target the container class the
+chart puts on it: `mochart-loading`, `mochart-no-data`, `mochart-no-series`,
+or `mochart-chart-error` (the no-size and config-error states, which replace
+the whole chart).
 
 The framework bindings do not take these DOM factories — each exposes a
 framework-native placeholder prop per state instead. `loadingComponent` and

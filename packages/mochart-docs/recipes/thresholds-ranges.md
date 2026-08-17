@@ -15,13 +15,14 @@ import * as thresholdRange from '../examples/thresholdRange'
 ## How it works
 
 - [`thresholds`](/reference/valueAxes#valueAxes.thresholds) on
-  a value axis draws reference lines: one entry per line, each with a `value`,
-  an optional `title` label beside it, and a `style` styling the line —
-  colors, width and dash array, each in its `normal`, `focused` and
-  `defocused` states. The entry's `titleSide`, `titleTextStyle` and the other
-  `title*` members cover the label's placement and styling, and several
-  entries draw several lines. The category axis supports the same `thresholds`
-  property for vertical reference lines (with a linear scale).
+  a value axis draws one reference line per entry. Each entry has a `value`,
+  an optional `title` beside the line, and a `style` for the line — color,
+  width and dash array in `normal`, `focused` and `defocused` states. The
+  `titleSide`, `titleTextStyle` and other `title*` members place and style the
+  label; `front` puts the line in front of or behind the series. A linear
+  category axis takes the same `thresholds` for vertical reference lines (a
+  date axis value is an ISO string or timestamp); an ordinal one has no value
+  scale to place them on.
 - The band is an ordinary `area` series with
   [`rangeProperty`](/reference/series#series.rangeProperty):
   the shape spans from the `rangeProperty` value (here `p5`) to the
@@ -29,10 +30,16 @@ import * as thresholdRange from '../examples/thresholdRange'
   [`shapeStyle.normal.strokeOpacity`](/reference/series#series.shapeStyle.normal.strokeOpacity)
   to 0 and
   [`fillOpacity`](/reference/series#series.shapeStyle.normal.fillOpacity)
-  low keeps it as background context — the shape's colors and its focused and
-  defocused states are left at their defaults. `rangeProperty` works with the
-  other renderers too: `bar` draws floating bars, and `line` draws the two
-  bounds as a pair of lines sharing the series' style and legend entry.
+  low keeps it as background context; the colors and the focused/defocused
+  states stay at their defaults. `rangeProperty` works with the other
+  renderers too: `bar` draws floating bars, and `line` draws the two bounds as
+  a pair of lines sharing the series' style and legend entry.
+- The tooltip shows a ranged series as `low - high`, joined by
+  [`tooltip.rangeValueSeparator`](/reference/tooltip#tooltip.rangeValueSeparator).
+  A category with only one of the two values collapses to a zero-extent span
+  at the defined one, so the band stays connected; set
+  [`partialRangeIsMissing`](/reference/series#series.partialRangeIsMissing)
+  to treat such categories as missing instead.
 - Thresholds never extend the axis: a line whose value falls outside the
   current domain is simply not drawn. If the data alone wouldn't reach the
   threshold, set [`softMax`](/reference/valueAxes#valueAxes.softMax) at or

@@ -362,8 +362,8 @@ export interface AnimationConfig {
    */
   categoryDomainChange: DomainChange;
   /**
-   * The maximum duration for the initial animation when chart data is first
-   * loaded.
+   * The maximum duration (in milliseconds) for the initial animation when chart
+   * data is first loaded.
    *
    * Duration (in milliseconds) of the first render animation when the chart
    * mounts with data, and of the replay after a structural config change
@@ -373,8 +373,8 @@ export interface AnimationConfig {
    */
   initialDuration: number;
   /**
-   * The maximum duration for the axis expansion animation phase when new data
-   * is added to the chart.
+   * The maximum duration (in milliseconds) for the axis expansion animation
+   * phase when new data is added to the chart.
    *
    * Duration (in milliseconds) of the axis expansion phase, which plays first
    * when an update needs larger axis domains (new categories or larger values)
@@ -384,8 +384,8 @@ export interface AnimationConfig {
    */
   expansionDuration: number;
   /**
-   * The maximum duration for the value change animation phase when data in the
-   * chart changes.
+   * The maximum duration (in milliseconds) for the value change animation phase
+   * when data in the chart changes.
    *
    * Duration (in milliseconds) of the value change phase, which tweens values
    * to their new positions and also plays category transitions (categories
@@ -396,8 +396,8 @@ export interface AnimationConfig {
    */
   valueChangeDuration: number;
   /**
-   * The maximum duration for the axis contraction animation phase when new data
-   * is removed from the chart.
+   * The maximum duration (in milliseconds) for the axis contraction animation
+   * phase when data is removed from the chart.
    *
    * Duration (in milliseconds) of the axis contraction phase, which plays last
    * when the settled data needs smaller axis domains.
@@ -406,8 +406,8 @@ export interface AnimationConfig {
    */
   contractionDuration: number;
   /**
-   * The duration of animation showing the transition between focus on a
-   * specific series or category value.
+   * The duration (in milliseconds) of the transition when focus moves to or
+   * from a series or category value.
    *
    * Duration (in milliseconds) of focus transitions — the emphasis change
    * between focused/defocused styling when a series or category gains or loses
@@ -854,8 +854,7 @@ export interface CrosshairConfig {
 
 export interface TitleConfig {
   /**
-   * The text to display in the title at the top of the chart (use null for
-   * none).
+   * The text to display in the title (use null for none).
    *
    * @default null
    */
@@ -867,15 +866,13 @@ export interface TitleConfig {
    */
   position: Position;
   /**
-   * The text to display at the start of the title at the top of the chart (use
-   * null for none).
+   * The text to display at the start of the title (use null for none).
    *
    * @default null
    */
   prefix: string | null;
   /**
-   * The text to display at the end of the title at the top of the chart (use
-   * null for none).
+   * The text to display at the end of the title (use null for none).
    *
    * @default null
    */
@@ -900,8 +897,8 @@ export interface TitleConfig {
    */
   truncationEnabled: boolean;
   /**
-   * The truncation text to append to the title when its length exceeds the
-   * length of the chart.
+   * The truncation text to append to the title when its width exceeds the width
+   * of the chart.
    *
    * @default "…"
    */
@@ -920,7 +917,8 @@ export interface TitleConfig {
    */
   align: Align;
   /**
-   * The vertical alignment of the prefix/text/suffix within the title.
+   * The vertical alignment of the prefix/text/suffix within the title (top,
+   * middle, bottom).
    *
    * @default "middle"
    */
@@ -1063,10 +1061,11 @@ export interface SeriesIconConfig {
    */
   showIconColors: boolean;
   /**
-   * Whether to show series marker shape next to series titles in the legend.
+   * Whether to show the series marker shape next to series titles in the
+   * legend.
    *
-   * In tooltip: whether to show series marker shape next to series titles in
-   * the tooltip.
+   * In tooltip: whether to show the series marker shape next to series titles
+   * in the tooltip.
    *
    * @default true
    */
@@ -1153,14 +1152,14 @@ export interface LegendConfig extends SeriesIconConfig {
    */
   truncationEnabled: boolean;
   /**
-   * The truncation text to append to legend item text when its length exceeds
-   * the length of the chart.
+   * The truncation text to append to legend item text when its width exceeds
+   * the width of the chart.
    *
    * @default "…"
    */
   truncationValue: string;
   /**
-   * Whether the legend should be centered between the axes (true) or the chart
+   * Whether the legend should be aligned between the axes (true) or the chart
    * bounds (false).
    *
    * @default true
@@ -1558,7 +1557,8 @@ export interface ThresholdConfig {
    */
   titleSide?: ThresholdTitleSide;
   /**
-   * Whether the title flips to the other side when it has no room.
+   * Whether the title flips to the other side of the line when its own side has
+   * no room, instead of being clamped inside the plot over the line.
    *
    * @default true
    */
@@ -1758,9 +1758,9 @@ export interface AxisConfigBase {
   marginOuter: number;
 
   /**
-   * The forced maximum numeric value for the axis (use "auto" to compute from
-   * the values); must be >= min unless either is "auto" (set reversed to run
-   * the axis backwards).
+   * The forced maximum value for the axis: a number, or a date on a date
+   * category axis (use "auto" to compute from the values); must be >= min
+   * unless either is "auto" (set reversed to run the axis backwards).
    *
    * The form the bound takes follows `type` on a linear axis: a number when
    * `type` is `number`, and either a millisecond timestamp or an ISO date
@@ -1789,9 +1789,9 @@ export interface AxisConfigBase {
   maxTickCount: number;
 
   /**
-   * The forced minimum numeric value for the axis (use "auto" to compute from
-   * the values); must be <= max unless either is "auto" (set reversed to run
-   * the axis backwards).
+   * The forced minimum value for the axis: a number, or a date on a date
+   * category axis (use "auto" to compute from the values); must be <= max
+   * unless either is "auto" (set reversed to run the axis backwards).
    *
    * The form the bound takes follows `type` on a linear axis: a number when
    * `type` is `number`, and either a millisecond timestamp or an ISO date
@@ -1841,8 +1841,8 @@ export interface AxisConfigBase {
   paddingOuter: number;
 
   /**
-   * The forced minimum numeric value for the axis to be used if no data value
-   * is less than this value (use null to disable).
+   * The minimum value for the axis to cover while no data value is less than
+   * it, taking the same forms as min (use null to disable).
    *
    * Takes the same forms as `min` — a number, or a timestamp or ISO date string
    * on a date axis — but only applies while no category value falls below it,
@@ -1852,8 +1852,8 @@ export interface AxisConfigBase {
    */
   softMin: number | string | null;
   /**
-   * The forced maximum numeric value for the axis to be used if no data value
-   * is greater than this value (use null to disable).
+   * The maximum value for the axis to cover while no data value is greater than
+   * it, taking the same forms as max (use null to disable).
    *
    * Takes the same forms as `max` — a number, or a timestamp or ISO date string
    * on a date axis — but only applies while no category value rises above it,
@@ -1944,8 +1944,9 @@ export interface AxisConfigBase {
    */
   tickLabelPaddingOuter: number;
   /**
-   * The d3 format string to be applied to the category values when displayed in
-   * axis tick labels (use null for none, use "auto" to derive from data).
+   * The d3 format string (d3-format for number, d3-time-format for date) to be
+   * applied to the category values when displayed in axis tick labels (use null
+   * for none, use "auto" to derive from data).
    *
    * @default "auto"
    */
@@ -1965,7 +1966,7 @@ export interface AxisConfigBase {
    */
   tickLabelSuffix: string | null;
   /**
-   * The rotation (in degrees) to apply to each axis tick label.
+   * The rotation (in degrees, -90 to 90) to apply to each axis tick label.
    *
    * @default 0
    */
@@ -2173,8 +2174,8 @@ export interface CategoryAxisConfig extends AxisConfigBase {
    */
   tickLabelTruncationValue: string;
   /**
-   * The minimum length at which to apply tick label truncation if the maximum
-   * fraction setting is used.
+   * The minimum length (in pixels) to allow tick label text perpendicular to
+   * the axis, applied when tickLabelTruncationMaxFraction would allow less.
    *
    * @default 0
    */
@@ -2198,8 +2199,9 @@ export interface CategoryAxisConfig extends AxisConfigBase {
    */
   type: DataType;
   /**
-   * The d3 format string to be applied to the category value when displayed in
-   * the tooltip (use null for none, use "auto" to derive from data).
+   * The d3 format string (d3-format for number, d3-time-format for date) to be
+   * applied to the category value when displayed in the tooltip (use null for
+   * none, use "auto" to derive from data).
    *
    * @default "auto"
    */
@@ -2334,9 +2336,9 @@ export interface ValueAxisConfig extends AxisConfigBase {
   focusOnClick: boolean;
   // the four bounds are numbers only here: the date-string form the base type allows is a category-axis form
   /**
-   * The forced maximum numeric value for the axis (use "auto" to compute from
-   * the values); must be >= min unless either is "auto" (set reversed to run
-   * the axis backwards).
+   * The forced maximum value for the axis: a number, or a date on a date
+   * category axis (use "auto" to compute from the values); must be >= min
+   * unless either is "auto" (set reversed to run the axis backwards).
    *
    * With `"auto"` the maximum is computed from the data (including stacking) on
    * every update, and changes animate through the staged axis
@@ -2348,9 +2350,9 @@ export interface ValueAxisConfig extends AxisConfigBase {
    */
   max: number | Auto;
   /**
-   * The forced minimum numeric value for the axis (use "auto" to compute from
-   * the values); must be <= max unless either is "auto" (set reversed to run
-   * the axis backwards).
+   * The forced minimum value for the axis: a number, or a date on a date
+   * category axis (use "auto" to compute from the values); must be <= max
+   * unless either is "auto" (set reversed to run the axis backwards).
    *
    * With `"auto"` the minimum is computed from the data (including stacking) on
    * every update, and changes animate through the staged axis
@@ -2362,8 +2364,8 @@ export interface ValueAxisConfig extends AxisConfigBase {
    */
   min: number | Auto;
   /**
-   * The forced maximum numeric value for the axis to be used if no data value
-   * is greater than this value (use null to disable).
+   * The maximum value for the axis to cover while no data value is greater than
+   * it, taking the same forms as max (use null to disable).
    *
    * An upper bound that only applies while no data value is above it — the axis
    * covers at least this value, but real data larger than it still expands the
@@ -2373,8 +2375,8 @@ export interface ValueAxisConfig extends AxisConfigBase {
    */
   softMax: number | null;
   /**
-   * The forced minimum numeric value for the axis to be used if no data value
-   * is less than this value (use null to disable).
+   * The minimum value for the axis to cover while no data value is less than
+   * it, taking the same forms as min (use null to disable).
    *
    * A lower bound that only applies while no data value is below it — the axis
    * covers at least this value, but real data smaller than it still expands the
@@ -2446,7 +2448,7 @@ export interface SeriesCurve {
   /** The d3-shape curve to interpolate the series shape with. */
   type: CurveType;
   /**
-   * The tension/alpha value passed to the curve types that take one, or
+   * The tension/alpha value (0 - 1) passed to the curve types that take one, or
    * undefined to use the curve's own default.
    */
   param?: number;
@@ -2633,7 +2635,7 @@ export interface SeriesConfig {
    */
   colorScale: SeriesColorScale;
   /**
-   * The unique identifier of the axis that the series belongs to.
+   * The unique identifier of the value axis that the series belongs to.
    *
    * Assigns the series to the value axis in `valueAxes` whose `id` matches.
    * With a single configured axis this can be omitted — it defaults to that
@@ -2661,9 +2663,11 @@ export interface SeriesConfig {
    * null for none).
    *
    * Series sharing the same group id (an `id` from `seriesGroups`) are laid out
-   * side by side within each category slot — grouped/clustered bars. Defaults
-   * to the sole group id when exactly one series group is configured; use
-   * `null` to opt a series out.
+   * side by side within each category slot — grouped/clustered bars. Series in
+   * the group that also share a `stack` share one sub-slot, so stacks placed in
+   * the same group become side-by-side stacked columns. Defaults to the sole
+   * group id when exactly one series group is configured; use `null` to opt a
+   * series out.
    *
    * Default:
    * - `sole group id` — series group
@@ -2938,8 +2942,8 @@ export interface SeriesConfig {
    */
   labelMaxPositionFraction: number | null;
   /**
-   * The minimum position fraction (0 - 1) between two series values for which
-   * series labels should be shown (use null for none).
+   * Hide the label of any value whose shape spans less than this fraction (0 -
+   * 1) of the axis domain (use null for none).
    *
    * @default null
    */
@@ -2952,8 +2956,8 @@ export interface SeriesConfig {
    */
   labelOffset: number;
   /**
-   * Whether to position the series labels inside or outside of the series
-   * shape.
+   * Where to place the series labels relative to the value end of the series
+   * shape (inside, center, outside).
    *
    * @default "center"
    */
@@ -2996,22 +3000,22 @@ export interface SeriesConfig {
   labelAboveBaseOffset: number | Auto;
   /**
    * The series position offset (in pixels) to apply to all series label
-   * positions that are below the base value (use "auto" to derive from the
+   * positions that are below the base value (use "auto" for the negated
    * labelOffset).
    *
    * @default "auto"
    */
   labelBelowBaseOffset: number | Auto;
   /**
-   * Whether to position the series labels inside or outside of the series shape
-   * for series shapes that are above the base value.
+   * The labelPosition (inside, center, outside) applied only to series values
+   * above the base value (use "auto" to inherit labelPosition).
    *
    * @default "auto"
    */
   labelAboveBasePosition: LabelPosition | Auto;
   /**
-   * Whether to position the series labels inside or outside of the series shape
-   * for series shapes that are below the base value.
+   * The labelPosition (inside, center, outside) applied only to series values
+   * below the base value (use "auto" to inherit labelPosition).
    *
    * @default "auto"
    */
@@ -3269,31 +3273,35 @@ export interface LinearGradientConfig {
    */
   id: string;
   /**
-   * The x1 property of the svg linear gradient.
+   * The x1 start position of the svg linear gradient, as a fraction (0 - 1) of
+   * the shape bounds.
    *
    * @default 0
    */
   x1: number;
   /**
-   * The x2 property of the svg linear gradient.
+   * The x2 end position of the svg linear gradient, as a fraction (0 - 1) of
+   * the shape bounds.
    *
    * @default 1
    */
   x2: number;
   /**
-   * The y1 property of the svg linear gradient.
+   * The y1 start position of the svg linear gradient, as a fraction (0 - 1) of
+   * the shape bounds.
    *
    * @default 0
    */
   y1: number;
   /**
-   * The y2 property of the svg linear gradient.
+   * The y2 end position of the svg linear gradient, as a fraction (0 - 1) of
+   * the shape bounds.
    *
    * @default 1
    */
   y2: number;
   /**
-   * The rotation property (in degrees) of the svg linear gradient.
+   * The rotation (in degrees, -360 to 360) applied to the svg linear gradient.
    *
    * @default 0
    */
@@ -3322,37 +3330,42 @@ export interface RadialGradientConfig {
    */
   id: string;
   /**
-   * The cx property of the svg radial gradient.
+   * The cx center x position of the svg radial gradient, as a fraction (0 - 1)
+   * of the shape bounds.
    *
    * @default 0.5
    */
   cx: number;
   /**
-   * The cy property of the svg radial gradient.
+   * The cy center y position of the svg radial gradient, as a fraction (0 - 1)
+   * of the shape bounds.
    *
    * @default 0.5
    */
   cy: number;
   /**
-   * The fx property of the svg radial gradient.
+   * The fx focal x position of the svg radial gradient, as a fraction (0 - 1)
+   * of the shape bounds.
    *
    * @default 0.5
    */
   fx: number;
   /**
-   * The fy property of the svg radial gradient.
+   * The fy focal y position of the svg radial gradient, as a fraction (0 - 1)
+   * of the shape bounds.
    *
    * @default 0.5
    */
   fy: number;
   /**
-   * The r property of the svg radial gradient.
+   * The r radius of the svg radial gradient, as a fraction (0 - 1) of the shape
+   * bounds.
    *
    * @default 0.5
    */
   r: number;
   /**
-   * The rotation property (in degrees) of the svg radial gradient.
+   * The rotation (in degrees, -360 to 360) applied to the svg radial gradient.
    *
    * @default 0
    */

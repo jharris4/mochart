@@ -2,7 +2,7 @@
 
 A series normally takes one color from the palette. Point
 [`colorProperty`](/reference/series#series.colorProperty) at a
-data property and each bar is colored per row instead, mapped through the
+data property and each bar is colored per category instead, mapped through the
 series' [`colorScale`](/reference/series#series.colorScale)
 ramp — a second measure encoded on the same bars.
 
@@ -17,7 +17,7 @@ import * as colorByValueBase from '../examples/colorByValueBase'
 
 ## How it works
 
-- Each row's `colorProperty` value maps linearly from
+- Each category's `colorProperty` value maps linearly from
   [`colorScale.min`](/reference/series#series.colorScale.min) to
   [`colorScale.max`](/reference/series#series.colorScale.max)
   across the property's extent *in that series* — the palest bar is always
@@ -29,14 +29,14 @@ import * as colorByValueBase from '../examples/colorByValueBase'
   Setting `colorProperty` is the switch: once it's set, the scale defaults to
   `hcl` through `#8f8fff` → `#0000ff` — the example above overrides the ramp,
   everything else is defaults.
-- Per-row color applies to `bar` series (including floating bars via
+- Per-category color applies to `bar` series (including floating bars via
   [`rangeProperty`](/reference/series#series.rangeProperty)) —
   line and area shapes and markers keep their single series color.
-- Bar fills and strokes default to `0.8` opacity, which dilutes the ramp against the
-  background; the example sets
+- Bar fills and strokes default to `0.8` opacity, which dilutes the ramp
+  against the background; the example sets
   [`shapeStyle.normal`](/reference/series#series.shapeStyle.normal)'s
   two opacities to `1` so the colors read true.
-- A row without a color value gets
+- A category with no color value gets
   [`colorScale.missing`](/reference/series#series.colorScale.missing)
   (default `#cccccc`, the Services bar above); set it to `null` to fall back
   to the series' own style colors instead.
@@ -49,6 +49,9 @@ import * as colorByValueBase from '../examples/colorByValueBase'
   [`tooltipProperty`](/reference/series#series.tooltipProperty)
   at the color property to surface it, as the
   [heatmap](/recipes/heatmap) does.
+- `colorProperty` cannot be combined with a [gradient](/recipes/gradients).
+  A [pattern](/recipes/patterns) replaces the per-category fill; the per-category
+  stroke color still applies.
 
 ## Diverging around a base
 
@@ -60,16 +63,14 @@ and the ramp splits in two: one color pair above the threshold, another below
 
 <<< @/examples/colorByValueBase.ts
 
-- With `base.value` set, `min`/`max` must be `null` — their conditional
-  default — and the four
+- With `base.value` set, `min`/`max` must be `null` (their default in that
+  case — setting them alongside a base is a validation error) and the four
   [`base`](/reference/series#series.colorScale.base) colors take
-  over. Leaving `min`/`max` set alongside a base is a validation error, not a
-  silent no-op, so a single-ramp series gaining a diverging base has to drop
-  them. Each anchors to its half's data domain: `aboveMin` sits *at* the base
-  and `aboveMax` at the highest value, while `belowMin` sits at the *most
-  negative* value and `belowMax` at the base. For the classic diverging look —
-  palest at the base, saturated at the extremes — order the below pair
-  saturated → pale, as above (the defaults run the below pair the other way).
+  over. Each anchors to its half's data extent: `aboveMin` sits *at* the base
+  and `aboveMax` at the highest value; `belowMin` sits at the *most negative*
+  value and `belowMax` at the base. For the classic diverging look — palest at
+  the base, saturated at the extremes — order the below pair saturated → pale,
+  as above (the defaults, `#ff8f8f` → `#ff0000`, run it the other way).
 - Each half fits its own side of the color property's extent, so the deepest
   red and deepest blue always mark the current extremes.
 - The base splits only the *colors*. Here the bars measure revenue (all

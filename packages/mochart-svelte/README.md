@@ -61,7 +61,7 @@ and data providers themselves:
   import { Chart } from '@mochart/svelte';
 
   const mochartConfig = enhanceConfig(config);
-  const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');
+  const dataProvider = new ArrayOfObjectsDataProvider(data);
 </script>
 
 <Chart {mochartConfig} {dataProvider} width={640} height={400} />

@@ -26,12 +26,13 @@ import * as barCapsStacked from '../examples/barCapsStacked'
   bars' side ends. Fills, [gradients](/recipes/gradients) and
   [per-row colors](/recipes/color-by-value) apply to the cap like
   the rest of the bar.
-- When a bar is shorter than its cap,
-  [`capExpand`](/reference/series#series.capExpand) decides what
-  gives: `true` (the default) keeps the cap at full size, `false` shrinks the
-  cap to fit the bar. The Capped demo in the gallery draws every shape
-  both ways on an axis pinned well past the data, so the difference is easy
-  to compare.
+- A bar can be shorter than its cap.
+  [`capExpand`](/reference/series#series.capExpand) chooses how the cap
+  fits. With `true` (the default) the cap keeps the full bar width and is
+  flattened to the bar's height. With `false` the cap keeps its shape and is
+  scaled down instead, so a short bar becomes a small centered dome or peak.
+  The Capped demo in the gallery draws every shape both ways over an axis
+  pinned well past the data, so the two are easy to compare.
 
 ## Capping a stack
 

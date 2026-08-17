@@ -84,7 +84,7 @@ export default function getDescriptions() {
         style: styleStates('the style of the threshold line', lineMembers),
         title: 'the title text shown beside the line (use null for none)',
         titleSide: 'which value side of the line the title sits on ("low" for smaller values, "high" for larger)',
-        titleSnapToValue: 'whether the title flips to the other side when it has no room',
+        titleSnapToValue: 'whether the title flips to the other side of the line when its own side has no room, instead of being clamped inside the plot over the line',
         titleMargin: spacing('the margin (in pixels) of the threshold title, relative to its orientation'),
         titlePadding: spacing('the padding (in pixels) of the threshold title, relative to its orientation'),
         titleTextStyle: styleStates('the style of the threshold title text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity']),
@@ -102,7 +102,7 @@ export default function getDescriptions() {
     tickLabelPaddingOuter: 'the padding (in pixels) to show between the tick labels and the outside of the axis',
     tickLabelPrefix: 'the string to prefix to the text of each axis tick label (use null for none)',
     tickLabelSuffix: 'the string to append to the text of each axis tick label (use null for none)',
-    tickLabelRotation: 'the rotation (in degrees) to apply to each axis tick label',
+    tickLabelRotation: 'the rotation (in degrees, -90 to 90) to apply to each axis tick label',
     tickLabelAnchor: 'the anchor to use for all axis tick labels (start, end, middle) (use "auto" to determine automatically)',
     tickLabelTextStyle: styleStates('the style of the axis tick label text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity']),
 
@@ -124,10 +124,10 @@ export default function getDescriptions() {
     titlePaddingOuter: 'the padding (in pixels) to show between the axis title and the outside of the axis',
     titleTextStyle: styleStates('the style of the axis title text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity']),
 
-    min: 'the forced minimum numeric value for the axis (use "auto" to compute from the values); must be <= max unless either is "auto" (set reversed to run the axis backwards)',
-    max: 'the forced maximum numeric value for the axis (use "auto" to compute from the values); must be >= min unless either is "auto" (set reversed to run the axis backwards)',
-    softMin: 'the forced minimum numeric value for the axis to be used if no data value is less than this value (use null to disable)',
-    softMax: 'the forced maximum numeric value for the axis to be used if no data value is greater than this value (use null to disable)',
+    min: 'the forced minimum value for the axis: a number, or a date on a date category axis (use "auto" to compute from the values); must be <= max unless either is "auto" (set reversed to run the axis backwards)',
+    max: 'the forced maximum value for the axis: a number, or a date on a date category axis (use "auto" to compute from the values); must be >= min unless either is "auto" (set reversed to run the axis backwards)',
+    softMin: 'the minimum value for the axis to cover while no data value is less than it, taking the same forms as min (use null to disable)',
+    softMax: 'the maximum value for the axis to cover while no data value is greater than it, taking the same forms as max (use null to disable)',
     minOffset: 'the numeric offset to apply to the minimum value of the axis',
     maxOffset: 'the numeric offset to apply to the maximum value of the axis',
 

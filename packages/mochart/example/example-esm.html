@@ -41,11 +41,10 @@
         ];
 
         const mochartConfig = enhanceConfig(config);
-        const categoryProperty = mochartConfig.categoryAxis.property;
 
         const chart = createChart(document.getElementById('chart'), {
             mochartConfig,
-            dataProvider: new ArrayOfObjectsDataProvider(data, categoryProperty),
+            dataProvider: new ArrayOfObjectsDataProvider(data),
             width: 640,
             height: 360
         });
@@ -56,7 +55,7 @@
                 weight: Math.round(Math.random() * 12),
                 price: Math.round(Math.random() * 12)
             }));
-            chart.update({ dataProvider: new ArrayOfObjectsDataProvider(data, categoryProperty) });
+            chart.update({ dataProvider: new ArrayOfObjectsDataProvider(data) });
         });
     </script>
 </body>

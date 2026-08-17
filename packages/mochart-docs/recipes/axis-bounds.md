@@ -2,9 +2,8 @@
 
 [`min`](/reference/valueAxes#valueAxes.min) and
 [`max`](/reference/valueAxes#valueAxes.max) set an axis domain
-outright. Values outside of the defined range are clipped rather than allowed
-to overflow the plot area of the chart, and a band marks each edge that is
-hiding something.
+outright. Values outside the range are clipped at the plot edge rather than
+allowed to overflow, and a band marks each edge that is hiding something.
 
 <script setup>
 import * as axisBounds from '../examples/axisBounds'
@@ -17,8 +16,8 @@ import * as axisReversed from '../examples/axisReversed'
 
 ## How it works
 
-- `min`/`max` are hard bounds, not clamps: the domain becomes exactly the range
-  given, whatever the data does. One outlier no longer flattens the rest of the
+- `min`/`max` are hard bounds: the domain becomes exactly the range given,
+  whatever the data does. One outlier no longer flattens the rest of the
   series into a band at the bottom of the plot.
 - A clipped mark keeps the part that is inside. The line above enters and
   leaves the top edge rather than vanishing for that category, so a hidden
@@ -26,17 +25,20 @@ import * as axisReversed from '../examples/axisReversed'
 - To keep a value in view *without* ever clipping, use
   [`softMin`](/reference/valueAxes#valueAxes.softMin) /
   [`softMax`](/reference/valueAxes#valueAxes.softMax) instead. They
-  extend the domain to include the bound when the data does not already reach
-  it, and give way when it does — see
+  extend the domain to the bound when the data does not already reach it, and
+  give way when it does — see
   [positive and negative](/recipes/positive-negative) for holding
   zero in view that way.
-- Both bounds default to `auto`, which fits the domain to the data. An `auto`
-  end never clips, since it is computed from the values it would be hiding.
-- `min` must be less than or equal to `max` when both are set; the config is
-  rejected otherwise.
+- Both bounds default to `auto`, which fits the domain to the data (plus
+  [`minMarginFraction`](/reference/valueAxes#valueAxes.minMarginFraction) /
+  [`maxMarginFraction`](/reference/valueAxes#valueAxes.maxMarginFraction)).
+  An `auto` end never clips.
+- `min` must not be above `max` when both are set; the config is rejected
+  otherwise. To run an axis backwards use `reversed`, below.
 - The same properties exist on the
   [category axis](/reference/categoryAxis#categoryAxis.min), on any
-  scale but `ordinal`, where they window a date or numeric range.
+  scale but `ordinal`, where they window a numeric or date range (a date bound
+  is an ISO string or a millisecond timestamp).
 - [`plot.clipOverflow`](/reference/plot#plot.clipOverflow) sets how
   far (in pixels) marks may spill past each edge before being cut. Raise it
   when a marker or a thick stroke sitting on the boundary is being shaved.

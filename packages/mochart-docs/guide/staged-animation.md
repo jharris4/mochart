@@ -112,9 +112,11 @@ from the stack. Try it in the [stacked bars recipe](/recipes/stacked-bars).
 
 ## Structural config changes rebuild the chart
 
-The phases above animate *data* changes. Config edits are not animated: change a
-title, a colour, or a renderer and the chart simply redraws with the new
-settings. Some edits change what the chart *is*, and those structural changes
+Config edits go through the same pipeline. A non-structural edit is applied
+to the existing chart: whatever it changes in the chart's data — an axis
+bound, for instance — animates through the phases above, and settings that
+leave the data alone (titles, colours, tooltip and legend options) simply
+redraw. Some edits change what the chart *is*, and those structural changes
 cannot be applied to the existing chart at all — it is rebuilt and plays its
 opening animation again, paced by
 [`initialDuration`](/reference/animation#animation.initialDuration).
@@ -142,14 +144,14 @@ An edit counts as structural when it changes any of:
   [`stack`](/reference/series#series.stack) or
   [`group`](/reference/series#series.group)
 
-Everything else — titles, colours, renderers, axis bounds, tooltip and legend
-settings — is applied to the existing chart instantly, without a rebuild.
+Everything else is applied to the existing chart without a rebuild.
 
-Note this is about editing the config. Switching a series off by clicking the
+This is about editing the config. Switching a series off by clicking the
 legend is filtering, not a config change, and it animates like a data change.
 
-`hasConfigStructureChange` is exported if you need to know in advance whether an
-edit you are about to apply will rebuild.
+`hasConfigStructureChange(oldConfig, newConfig)` — comparing two enhanced
+configs — is exported if you need to know in advance whether an edit you are
+about to apply will rebuild.
 
 ## Tuning
 

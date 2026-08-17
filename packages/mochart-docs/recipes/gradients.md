@@ -1,16 +1,15 @@
 # Gradients
 
-Series fills and strokes can use SVG gradients: declare them in
+Series fills can use SVG gradients: declare them in
 [`linearGradients`](/reference/linearGradients) (or
 [`radialGradients`](/reference/radialGradients)) and point a
 series at one with
 [`gradient`](/reference/series#series.gradient). As with
 [stacks](/recipes/stacked-bars) and [groups](/recipes/grouped-series), a
-sole configured gradient is applied automatically to each pie slice or
-area/bar series without `colorProperty` when no [patterns](/recipes/patterns)
-are configured.
-Select gradients explicitly by id when several gradients or any patterns are
-configured.
+sole configured gradient is applied automatically — to every `area`/`bar`
+series (or pie slice) without a `colorProperty`, provided no
+[patterns](/recipes/patterns) are configured. With several gradients, or any
+patterns, select the gradient by id.
 
 <script setup>
 import * as gradients from '../examples/gradients'
@@ -23,7 +22,8 @@ import * as gradients from '../examples/gradients'
 ## How it works
 
 - The gradient vector runs from `x1`/`y1` to `x2`/`y2` in 0–1 shape
-  coordinates — `0,0 → 0,1` is a top-to-bottom fade. Add
+  coordinates — `0,0 → 0,1` is a top-to-bottom fade (the default is the
+  diagonal `0,0 → 1,1`). Add
   [`rotation`](/reference/linearGradients#linearGradients.rotation)
   to angle it.
 - Each stop sets `offset` (0–1 along the vector), `color`, and `opacity`;
@@ -36,5 +36,8 @@ import * as gradients from '../examples/gradients'
 - Gradients are positional — the fade follows the shape, not the data. For
   color driven by data values, see [color by value](/recipes/color-by-value).
 - In an XY chart, a series can use a gradient only when its `renderer` is
-  `"area"` or `"bar"`. Pie slices can use gradients regardless of the series
-  renderer. Neither case can set `colorProperty` at the same time.
+  `area` or `bar`; pie slices can use one whatever the series renderer. A
+  series cannot combine `gradient` with `colorProperty` or `pattern`. Set
+  `gradient: null` to opt a series out of an automatically applied sole
+  gradient.
+- Legend and tooltip swatches reproduce the gradient.

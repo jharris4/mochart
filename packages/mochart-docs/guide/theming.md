@@ -79,8 +79,9 @@ so mochart never computes a theme itself. The defaults that resolve this
 way:
 
 - the title text, and the axis title texts
-- axis lines, tick marks, and tick label text
-- grid lines, the axis focus range, and focus tick marks
+- axis lines, base lines, tick marks, and tick label text
+- grid lines, threshold lines and titles, the axis focus range, and focus
+  tick marks
 - the crosshair lines
 - legend item text, and the series-icon borders in the legend and tooltip
 - series value labels, and the pie center labels

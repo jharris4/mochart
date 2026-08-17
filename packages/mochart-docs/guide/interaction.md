@@ -17,15 +17,19 @@ filtering plays the staged series transition:
 
 ## Focus
 
-Hovering or clicking a series (per its `focusOnMouseOver` / `focusOnClick`
-config) focuses it: the focused series is styled from the `focused` state of
+Hovering or clicking a series (per its
+[`focusOnMouseOver`](/reference/series#series.focusOnMouseOver) /
+[`focusOnClick`](/reference/series#series.focusOnClick) config, both off by
+default) focuses it: the focused series is styled from the `focused` state of
 its [styles](/guide/config-model#styles-and-focus-states) and every other
 series from their `defocused` state, animated over
 [`focusDuration`](/reference/animation#animation.focusDuration).
 By default those states change only opacity and width — their colors are
-`'same'`, meaning "keep the normal state's color". The legend can drive the
+`'same'`, meaning "keep the normal state's color". The legend drives the
 same focus via
-[`legend.focusOnMouseOver`](/reference/legend#legend.focusOnMouseOver).
+[`legend.focusOnMouseOver`](/reference/legend#legend.focusOnMouseOver) (on
+by default) and
+[`legend.focusOnClick`](/reference/legend#legend.focusOnClick).
 
 Category focus has knobs of its own: the series'
 [`focusCategoryOnMouseOver`](/reference/series#series.focusCategoryOnMouseOver)
@@ -60,11 +64,15 @@ values — label, prefix/suffix, d3-format string — lives on the series
 [`valueFormat`](/reference/series#series.valueFormat), and
 friends).
 
-The tooltip can drive focus too:
+The tooltip can drive focus and filtering too, all off by default:
 [`tooltip.focusCategoryOnMouseOver`](/reference/tooltip#tooltip.focusCategoryOnMouseOver)
 and [`tooltip.focusCategoryOnClick`](/reference/tooltip#tooltip.focusCategoryOnClick)
-focus the category value the pointer is on inside the tooltip. Each series
-can also drop its color icon from the tooltip rows with
+focus the category value the pointer is on inside the tooltip;
+[`focusSeriesOnMouseOver`](/reference/tooltip#tooltip.focusSeriesOnMouseOver),
+[`focusSeriesOnClick`](/reference/tooltip#tooltip.focusSeriesOnClick) and
+[`filterSeriesOnClick`](/reference/tooltip#tooltip.filterSeriesOnClick) do
+the same for the series rows. Each series can also drop its color icon from
+the tooltip rows with
 [`showColorInTooltip: false`](/reference/series#series.showColorInTooltip).
 
 ### Tooltip controls
@@ -77,8 +85,9 @@ of the chart, exactly like a legend click — respecting
 [`filterable`](/reference/series#series.filterable) — and hovering a row
 focuses its series the way hovering its legend item does; in focus mode
 clicking a row pins focus on its series — or, on the category line, on the
-category. The mode
-button shows the active mode via
+category. With the controls shown, the mode decides row behavior and the
+`focus…OnClick` / `filterSeriesOnClick` / `focusSeriesOnMouseOver` settings
+above are not consulted. The mode button shows the active mode via
 [`tooltip.filterModeText`](/reference/tooltip#tooltip.filterModeText) /
 [`tooltip.focusModeText`](/reference/tooltip#tooltip.focusModeText)
 (`'Filter'` / `'Focus'` by default), and the step buttons take their
@@ -100,13 +109,14 @@ createDefaultChart(container, {
   onSeriesFilter: ({ filteredSeriesIds }) => { /* legend filtering changed */ },
   onChartClick: ({ categoryIndex, chartX, chartY }) => { /* plot area clicked */ },
   onSliceClick: ({ seriesId }) => { /* pie slice clicked */ },
-  onSeriesClick: ({ seriesId, categoryIndex }) => { /* bar/point/line clicked */ },
+  onSeriesClick: ({ seriesId, categoryIndex, nearestCategoryIndex }) => { /* bar/point/line clicked */ },
   onTitleClick: () => {}
 });
 ```
 
-- `onFocus(focus)` — the focused series/category/axis changed (mouse over/out
-  or click, per the series' `focusOnMouseOver`/`focusOnClick` config)
+- `onFocus(focus)` — the focused series/category/value axis changed (mouse
+  over/out or click, per the series' `focusOnMouseOver`/`focusOnClick`
+  config)
 - `onSeriesFilter(filter)` — a legend click toggled a series in or out of
   the filtered set
 - `onChartClick` / `onChartMouseEnter` / `onChartMouseMove` /

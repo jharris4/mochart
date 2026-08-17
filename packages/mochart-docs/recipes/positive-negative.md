@@ -28,7 +28,7 @@ import * as posNegStacked from '../examples/posNegStacked'
   [`softMax`](/reference/valueAxes#valueAxes.softMax) `0` hold
   zero in view without ever clipping data — unlike
   [`min`](/reference/valueAxes#valueAxes.min)/[`max`](/reference/valueAxes#valueAxes.max),
-  which clamp hard.
+  which clip (see [axis bounds](/recipes/axis-bounds)).
 - Labels flip with the sign: an `outside`
   [`labelPosition`](/reference/series#series.labelPosition) sits
   above positive bars and below negative ones automatically. Each side can be
@@ -36,7 +36,8 @@ import * as posNegStacked from '../examples/posNegStacked'
   [position](/reference/series#series.labelAboveBasePosition),
   [offset](/reference/series#series.labelAboveBaseOffset), and
   [min](/reference/series#series.labelAboveBaseMinPositionFraction)/[max](/reference/series#series.labelAboveBaseMaxPositionFraction)
-  position bounds — whose `auto` defaults inherit the shared knobs.
+  position bounds — whose `auto` defaults follow the shared settings (the
+  below-base offset mirrors `labelOffset`).
 - The sign carries through the other bar features:
   [caps](/recipes/bar-caps) point downward on negative bars, and
   [`colorScale.base.value: 0`](/recipes/color-by-value#diverging-around-a-base)
@@ -48,10 +49,10 @@ import * as posNegStacked from '../examples/posNegStacked'
 
 <<< @/examples/posNegStacked.ts
 
-- Each sign accumulates separately from the shared base: a category's
-  positive segments stack upward while its negative segments stack downward,
-  so inflows and outflows read as two piles growing out of zero. An axis with
-  stacks defaults its `base` to `0` — no pinning needed.
+- Each sign accumulates separately from zero: a category's positive segments
+  stack upward while its negative segments stack downward, so inflows and
+  outflows read as two piles growing out of zero. An axis with stacks defaults
+  its `base` to `0` — no pinning needed.
 - Filtering a series in the legend re-stacks its own side and leaves the
   other untouched.
 - The stack's [outer caps](/recipes/bar-caps#capping-a-stack)

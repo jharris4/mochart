@@ -75,7 +75,7 @@ import { Chart } from '@mochart/angular';
 })
 export class Revenue {
   mochartConfig = enhanceConfig(config);
-  dataProvider = new ArrayOfObjectsDataProvider(data, 'month');
+  dataProvider = new ArrayOfObjectsDataProvider(data);
 }
 ```
 

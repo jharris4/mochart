@@ -139,7 +139,7 @@ function guideSidebar() {
         { text: 'Date axis', link: '/recipes/date-axis' },
         { text: 'Axis bounds', link: '/recipes/axis-bounds' },
         { text: 'Horizontal charts', link: '/recipes/horizontal-bars' },
-        { text: 'Positive and negative', link: '/recipes/positive-negative' },
+        { text: 'Positive and negative values', link: '/recipes/positive-negative' },
         { text: 'Thresholds and ranges', link: '/recipes/thresholds-ranges' },
         { text: 'Gradients', link: '/recipes/gradients' },
         { text: 'Patterns', link: '/recipes/patterns' },
@@ -153,9 +153,9 @@ function guideSidebar() {
         { text: 'Sparklines', link: '/recipes/sparklines' },
         { text: 'Heatmap', link: '/recipes/heatmap' },
         { text: 'Candlestick', link: '/recipes/candlestick' },
-        { text: 'OHLC Bars', link: '/recipes/ohlc' },
-        { text: 'Error Bars', link: '/recipes/error-bars' },
-        { text: 'Pie and Donut', link: '/recipes/pie' }
+        { text: 'OHLC bars', link: '/recipes/ohlc' },
+        { text: 'Error bars', link: '/recipes/error-bars' },
+        { text: 'Pie and donut', link: '/recipes/pie' }
       ]
     }
   ];

@@ -30,7 +30,7 @@ features:
     link: /reference/
     linkText: Browse the reference
   - title: Accessible by default
-    details: The keyboard drives the same tooltip, legend filtering, and pie slices as the mouse, screen readers hear roles, labels, and live value announcements, and reduced motion is honored — tune or localize it all in one config section.
+    details: The keyboard drives the same tooltip, legend filtering, and pie slices as the mouse; screen readers hear roles, labels, and live value announcements; reduced motion is honored. Tune or localize it all in one config section.
     link: /guide/accessibility
     linkText: See the keyboard map
 ---
@@ -55,9 +55,9 @@ const chart = createDefaultChart(container, { config, data, width, height });
 chart.update({ data: nextData }); // animates to the new data
 ```
 
-Head to [Getting started](/guide/getting-started) for the full example, and
-use **Open in demo** under any chart on this site to keep editing it in the
-gallery.
+[Getting started](/guide/getting-started) has the full example, and
+**Open in demo** under any chart on this site opens it in the gallery's
+editor.
 
 ## Bring your framework
 
@@ -70,7 +70,7 @@ sizing and passes every chart prop through:
 ## Explore the demo galleries
 
 Every binding has a full demo app — [Vanilla TypeScript](/vanilla/demos),
-[Angular](/angular/demos), [Lit](/lit/demos), [React](/react/demos), [Svelte](/svelte/demos),
-and [Vue](/vue/demos) — where you can browse dozens of demo charts, edit their
-configs and data as JSON, share a link to your edited chart, and export
-charts as SVG/PNG.
+[Angular](/angular/demos), [Lit](/lit/demos), [React](/react/demos),
+[Svelte](/svelte/demos), and [Vue](/vue/demos) — where you can browse dozens
+of demo charts, edit their configs and data as JSON, share a link to your
+edited chart, and export charts as SVG/PNG.

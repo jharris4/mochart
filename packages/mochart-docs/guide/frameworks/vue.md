@@ -12,6 +12,9 @@ needed.
 npm install @mochart/vue @mochart/core vue
 ```
 
+Vue 3.3 or later is required (`vue` and `@mochart/core` are peer
+dependencies).
+
 ## The optional stylesheet
 
 If your app uses a global CSS reset (Tailwind's preflight, a
@@ -69,7 +72,11 @@ const dataProvider = new ArrayOfObjectsDataProvider(data);
 </template>
 ```
 
-## Sizing
+`Chart` accepts `null` for `mochartConfig` and `dataProvider` while the host
+is still loading them; pair it with the `loading` prop to show the loading
+state until they arrive.
+
+## Sizing and the container
 
 `width` and `height` are optional. The component renders a container div the
 chart mounts into; whichever dimension you omit tracks that div's size via
@@ -110,21 +117,25 @@ The same rule applies to `config` on `DefaultChart` and to
 `mochartConfig`/`dataProvider` on `Chart` — pass a new object (or provider)
 to change them.
 
-For hosts that do mutate data in place, a template ref on the component
+For hosts that do mutate data in place, a template ref on either component
 exposes the core
 [`refresh()`](/guide/data-providers#when-the-data-changes) escape hatch —
-it re-reads the current config/data (the built-in providers read live, so any in-place change is seen):
+it re-reads the current config/data (the built-in providers read live, so
+any in-place change is seen):
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
+import type { DataObject } from '@mochart/core';
 import { DefaultChart } from '@mochart/vue';
+import type { ChartRef } from '@mochart/vue';
 
-const chart = ref(null);
+const data = ref<DataObject[]>(initialData);
+const chart = ref<ChartRef | null>(null);
 
-function addRow(row) {
+function addRow(row: DataObject) {
   data.value.push(row);
-  chart.value.refresh();
+  chart.value?.refresh();
 }
 </script>
 
@@ -133,15 +144,28 @@ function addRow(row) {
 </template>
 ```
 
+`refresh()` is also on the components' own instance types, so a ref typed
+`InstanceType<typeof DefaultChart>` works too.
+
 ## Callbacks and states
 
 Both components accept the [chart callbacks](/guide/interaction#callbacks)
-under their core names (`onChartClick`, `onFocus`, `onSliceClick`, …), usable
-as `@chart-click` etc. in templates, and a placeholder prop per state. Each
-placeholder prop takes a **Vue component** that receives the
-[chart state context](/guide/chart-states) (`width`, `height`, `error`, …) as
-props and is rendered while the chart is in that state. Both components also
-accept `loading` and `error` to force the loading or error state.
+under their core names (`onChartClick`, `onFocus`, `onSeriesFilter`,
+`onSeriesClick`, `onSliceClick`, `onTitleClick`, …) with the core payloads;
+in templates they are usable as `@chart-click`, `@series-filter`, and so on.
+They are declared as props, so they reach the chart rather than falling
+through to the container div. Only the callbacks you pass are wired into the chart,
+which matters where the core switches behavior on a callback's presence —
+an `onTitleClick` makes the title a button, for instance.
+
+Both components also accept `loading` and `error` to force the
+[loading or error state](/guide/chart-states), and a placeholder prop per
+state: `loadingComponent`, `errorComponent`, `noDataComponent`,
+`noSizeComponent`, `noSeriesComponent`, and `configErrorComponent`. Each takes
+a **Vue component** that receives the
+[chart state context](/guide/chart-states#customizing-what-renders) (`width`,
+`height`, `error`, …) as props and is rendered while the chart is in that
+state; leave a prop off to keep the built-in placeholder.
 
 A placeholder is rendered as its own Vue root that carries the chart
 component's **app context**, so it can use globally registered components and
@@ -168,8 +192,28 @@ charts (the round-trip is shown in
 [Controlled focus and filtering](/guide/interaction#controlled-focus-and-filtering));
 leave a prop `undefined` to let the chart keep managing that piece itself.
 
+## TypeScript
+
+The package ships its own declarations. It exports the prop interfaces
+`ChartProps`, `DefaultChartProps`, `BaseChartProps` (everything except the
+config/data props) and `ChartCallbackProps`, the `ChartRef` handle, and
+`PlaceholderProps`/`PlaceholderComponent` for typing placeholder components.
+The components carry runtime prop declarations, so templates type-check
+against them with `vue-tsc`. Config, data, and callback payload types
+(`MochartInputConfig`, `DataObject`, `ChartFocus`, `ChartEventPayload`, …)
+come from `@mochart/core`; see [Callbacks and payloads](/reference/callbacks).
+
+## Server-side rendering
+
+The chart mounts in `onMounted`, which Vue does not run on the server: SSR
+emits only the container div, and the chart is created in the browser after
+hydration. No `typeof window` guards are needed in your own code. See
+[Browser support](/guide/getting-started#browser-support) for what the core
+itself needs.
+
 ## See it in action
 
-The [Vue demo gallery](/vue/demos) is a full application built on `@mochart/vue`
-(vue reactivity router); its source lives in
+The [Vue demo gallery](/vue/demos) is a full application built on
+`@mochart/vue` (with a small history router built on Vue's reactivity); its
+source lives in
 [packages/mochart-demo-vue](https://github.com/mocharts/mochart/tree/main/packages/mochart-demo-vue).

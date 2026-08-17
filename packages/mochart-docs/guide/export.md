@@ -36,9 +36,11 @@ await exportPNG(element);
 `element` can be the chart's container, the `div.mochart-chart` root itself,
 or the chart `<svg>` — the functions find the chart svg from any of them.
 With a framework binding, a ref to the element wrapping the chart component
-works. The filename is derived from the chart title (`Monthly Revenue` →
-`Monthly_Revenue.svg`), falling back to `export`; `exportSVG` returns
-`false` (and `exportPNG` resolves `false`) when no chart svg is found.
+works. The filename is derived from the chart title with whitespace replaced
+by underscores (`Monthly Revenue` → `Monthly_Revenue.svg`), falling back to
+`export`. `exportSVG` returns `false` (and `exportPNG` resolves `false`) when
+no chart svg is found; otherwise they return `true` once the download has
+started.
 
 ### Options
 
@@ -63,15 +65,15 @@ high-DPI displays.
 
 ### Dark pages
 
-The chart's structural colors (axis and legend text, grid lines, …) default
-to following the host page via `currentColor`
-(see [Colors, theming, and dark mode](/guide/theming)), and the export inlines those
-resolved colors. The default background matches: with no `backgroundColor`
-given, the export paints the effective page background behind the chart (the
-nearest ancestor with a non-transparent background, white when there is none),
-so a chart on a dark page exports dark-on-dark instead of light-on-white. Pass
-an explicit `backgroundColor` to override, or export `transparent` and let the
-destination supply the background.
+The chart's chrome (axis and legend text, grid lines, …) defaults to
+following the host page via `currentColor`
+(see [Colors, theming, and dark mode](/guide/theming)), and the export inlines
+those resolved colors. The default background matches: with no
+`backgroundColor` given, the export paints the effective page background
+behind the chart (the nearest ancestor with a non-transparent background,
+white when there is none), so a chart on a dark page exports dark-on-dark
+instead of light-on-white. Pass an explicit `backgroundColor` to override, or
+export `transparent` and let the destination supply the background.
 
 ### Web fonts
 
@@ -110,7 +112,7 @@ Three ways to handle it:
 
 The string is injected verbatim into one `<style>` element in the exported
 file — a stitched grid gets a single one that covers every tile. Producing it
-is the host's part of the job:
+is the host's job:
 
 - The `src` must be **base64 data**, not a url. A url is an external fetch,
   which is what an image-loaded svg cannot do.
@@ -135,12 +137,13 @@ await exportChartsPNG([elementA, elementB, elementC], { cols: 2, gap: 16 });
 ```
 
 The charts are tiled left to right, top to bottom into `cols` columns (rows
-follow from the count). Every cell is sized to the largest chart and smaller
-charts are centered within their cells, so mixed sizes stay aligned.
-`gap` adds pixels between tiles (default `0`). All the single-chart options
-apply, with the filename derived from the first chart found. Elements
-without a chart svg are skipped; the export returns `false` only when none
-of the elements contain one.
+follow from the count; `cols` larger than the chart count is capped to it).
+Every cell is sized to the largest chart and smaller charts are centered
+within their cells, so mixed sizes stay aligned. `gap` adds pixels between
+tiles (default `0`). All the single-chart options apply, with the filename and
+default background derived from the first chart found. Elements without a
+chart svg are skipped; the export returns `false` only when none of the
+elements contain one.
 
 ## Markup without a download
 
@@ -158,6 +161,18 @@ storage, or piping the markup into another tool.
 
 For TypeScript hosts, the option shapes are exported as `ExportSvgOptions`,
 `ExportPngOptions`, `StitchOptions`, and `StitchPngOptions`.
+
+## Accessibility of the exported file
+
+The export is a static image, so the live chart's tab stops and their
+`role`, `aria-label`, `aria-expanded`, and `aria-pressed` attributes are
+stripped. A chart with an accessible name (its title, or
+[`accessibility.chartLabel`](/reference/accessibility#accessibility.chartLabel))
+keeps that name on the root svg and is marked `role="img"`; a chart with
+[`accessibility.enabled`](/reference/accessibility#accessibility.enabled)
+`false` or [`hidden`](/reference/accessibility#accessibility.hidden) `true` has
+no name to keep, so the export is marked `aria-hidden="true"` instead. See
+[Exports](/guide/accessibility#exports) in the accessibility guide.
 
 ## Try it in the demos
 

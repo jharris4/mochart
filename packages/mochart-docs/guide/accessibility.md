@@ -3,8 +3,8 @@
 Charts are keyboard-accessible and screen-reader labeled by default. The
 plot area, legend, and interactive series are tab stops; the keyboard
 drives the same tooltip, focus, and filtering as the mouse; and assistive
-tech hears roles, names, and live value announcements instead of a thicket
-of unlabeled shapes. It all works out of the box — the
+tech hears roles, names, and live value announcements instead of unlabeled
+shapes. It works out of the box — the
 [`accessibility`](/reference/accessibility) config section tunes it, localizes
 its labels, or turns it off.
 
@@ -41,6 +41,7 @@ The plot area is a single tab stop whenever the
 | <kbd>Home</kbd> / <kbd>End</kbd> | jump to the first / last category |
 | <kbd>Esc</kbd> | close the tooltip |
 
+Stepping stops at the first and last category rather than wrapping.
 Reopening returns to the last category you were viewing. On single-category
 charts (a pie or donut), the arrow keys are inert and
 <kbd>Enter</kbd>/<kbd>Space</kbd> still toggles the tooltip.
@@ -48,12 +49,11 @@ charts (a pie or donut), the arrow keys are inert and
 The plot area is the only tab stop whose arrow keys step categories. Every
 other one — legend items, tooltip rows, interactive series and pie slices — is
 a group of items sharing a single tab stop, where the arrow keys move *between
-the items* and <kbd>Tab</kbd> leaves the group, following the usual convention
-for composite widgets. So the same arrow key steps categories on the plot area
-and moves between siblings one <kbd>Tab</kbd> later, because those are two
-different widgets rather than two spellings of one. <kbd>Esc</kbd> is the only
-key that crosses between them: it closes an open tooltip from the plot area,
-from a series or slice inside it, and from inside the tooltip itself.
+the items* (again without wrapping), <kbd>Home</kbd>/<kbd>End</kbd> jump to
+the first and last, and <kbd>Tab</kbd> leaves the group, following the usual
+convention for composite widgets. <kbd>Esc</kbd> is the only key that crosses
+between widgets: it closes an open tooltip from the plot area, from a series
+or slice inside it, and from inside the tooltip itself.
 
 With both the tooltip and the crosshair disabled, the chart has no keyboard
 or screen-reader route to its values — the remaining tab stops filter and
@@ -62,8 +62,8 @@ another way, such as a data table or text summary near the chart.
 
 An open tooltip is part of the tab order. With
 [`tooltip.showControls`](/reference/tooltip#tooltip.showControls) on, its
-‹ / › / mode controls are ordinary buttons (the ends report
-`aria-disabled` instead of dropping out of the tab order), and the
+‹ / › / mode controls are ordinary buttons, each its own tab stop (the ends
+report `aria-disabled` instead of dropping out of the tab order). The
 tooltip's rows are keyboard-reachable whenever clicking them does something
 — per the controls' current mode, or the
 [`focusCategoryOnClick`](/reference/tooltip#tooltip.focusCategoryOnClick) /
@@ -73,9 +73,10 @@ config. Like legend items they form a single tab stop with a roving focus:
 arrows and <kbd>Home</kbd>/<kbd>End</kbd> move between rows,
 <kbd>Enter</kbd>/<kbd>Space</kbd> acts exactly like a click, and a
 keyboard-focused row highlights the same way a hovered one does.
-<kbd>Esc</kbd> anywhere inside the tooltip closes it, and closing it by any
-route — <kbd>Esc</kbd>, a click inside it, a click on the plot — returns
-focus to the plot area rather than dropping it.
+<kbd>Esc</kbd> anywhere inside the tooltip closes it. Closing the tooltip
+while keyboard focus is inside it — by <kbd>Esc</kbd>, a click inside it, or a
+click on the plot — returns focus to the plot area rather than dropping it on
+the page body.
 
 Legend items are keyboard-reachable whenever clicking them does something
 ([`legend.filterOnClick`](/reference/legend#legend.filterOnClick) or
@@ -84,15 +85,18 @@ single tab stop with a roving focus: <kbd>Tab</kbd> enters the legend, the
 arrow keys and <kbd>Home</kbd>/<kbd>End</kbd> move between items, and
 <kbd>Enter</kbd>/<kbd>Space</kbd> acts exactly like a click — filtering or
 focusing the series. A keyboard-focused item highlights its series the same
-way hovering it does.
+way hovering it does (with
+[`legend.focusOnMouseOver`](/reference/legend#legend.focusOnMouseOver), on by
+default).
 
 Pie and donut slices work the same way when they are interactive (the series
 has [`focusOnClick`](/reference/series#series.focusOnClick) or the chart has
 an `onSliceClick` callback): one tab stop, arrow keys moving between slices
 in config order, and <kbd>Enter</kbd>/<kbd>Space</kbd> doing what clicking the
-slice does — the focus toggle, `onSliceClick`, and the tooltip — with no
-pointer position invented for it. A pie has a single category, so the tooltip
-a slice opens is the one covering that slice; there is nothing to choose.
+slice does — the focus toggle, `onSliceClick`, and toggling the tooltip — with
+no pointer position invented for it. A pie has a single category, so the
+tooltip a slice opens is the one covering that slice; there is nothing to
+choose.
 
 Cartesian series follow the same pattern when clicking them does something
 (the series has [`focusOnClick`](/reference/series#series.focusOnClick) or
@@ -101,7 +105,8 @@ series, arrow keys moving between them in config order, and
 <kbd>Enter</kbd>/<kbd>Space</kbd> acting as a whole-series click —
 `onSeriesClick` reports `categoryIndex: -1`, as a line or area path click
 does. Follower series ([`followSeries`](/reference/series#series.followSeries))
-stay pointer-only; their clicks belong to their leader. The
+stay pointer-only; their clicks belong to their leader, and a filtered series
+drops out of the group. The
 [interaction guide's callbacks example](/guide/interaction#callbacks)
 doubles as a live keyboard demo: <kbd>Tab</kbd> to a series, press
 <kbd>Enter</kbd>, and its event log shows the whole-series `onSeriesClick`
@@ -117,9 +122,10 @@ still closes an open tooltip, and leaves focus on the series rather than
 pulling it back to the plot area.
 
 A title with an `onTitleClick` callback is a tab stop with `role="button"`,
-named from the title text and activated by <kbd>Enter</kbd>/<kbd>Space</kbd>.
-A title with [`title.link`](/reference/title#title.link) is a link instead, so
-it is already keyboard-reachable and gets no second role.
+named from the title text (with its prefix and suffix) and activated by
+<kbd>Enter</kbd>/<kbd>Space</kbd>. A title with
+[`title.link`](/reference/title#title.link) is a link instead, so it is
+already keyboard-reachable and gets no second role.
 
 A refresh can take the tab stop you are on away: data with no categories, or
 an error, replaces the plot area and its tooltip with the
@@ -131,9 +137,9 @@ come back, the plot area is the stop again.
 
 ## What screen readers hear
 
-The chart svg is announced as a chart (via `aria-roledescription`) and named
-from [`title.text`](/reference/title#title.text); an untitled chart falls
-back to
+The chart svg is a `role="group"` announced as a chart (via
+`aria-roledescription`) and named from
+[`title.text`](/reference/title#title.text); an untitled chart falls back to
 [`accessibility.chartLabel`](/reference/accessibility#accessibility.chartLabel).
 The geometry the chart draws — grid lines, axis lines, tick marks, bars,
 markers, paths, the crosshair — carries no text and no role, so there is
@@ -150,13 +156,15 @@ and an open tooltip's rows from
 [`accessibility.tooltipLabel`](/reference/accessibility#accessibility.tooltipLabel).
 Each group appears only while its items are actually tab stops.
 
-Keyboard navigation speaks. Opening or stepping the tooltip announces its
-content through a visually-hidden live region — "Mon: Trial: 18, Paid: 6" —
-mirroring exactly what the tooltip shows, including per-series value
-formatting. Legend items — and tooltip series rows, when clicking them
-filters — expose their filtered state as a toggle-button `aria-pressed`
-(pressed means the series is shown), and interactive pie slices are named
-with their series title and current share.
+Keyboard navigation speaks. Opening or stepping the tooltip (from the plot
+area or the tooltip's ‹ / › buttons) announces its content through a
+visually-hidden polite live region — "Mon: Trial: 18, Paid: 6" — mirroring
+exactly what the tooltip shows, including per-series value formatting; a held
+arrow key announces only the category it settles on. The plot area reports
+whether the tooltip is open through `aria-expanded`. Legend items whose click
+filters, and tooltip series rows likewise, expose their filtered state as a
+toggle-button `aria-pressed` (pressed means the series is shown); interactive
+pie slices are named with their series title and current share.
 
 ## Reading the chart
 
@@ -213,18 +221,20 @@ charts fall back to the browser's default focus outline; keyboard access
 itself works either way.
 
 The ring rules are scoped to a `mochart-accessible` class that the chart
-puts on its root element only while
-[`accessibility.enabled`](/reference/accessibility#accessibility.enabled) is
-`true` — so a chart with accessibility disabled keeps browser-default
-outlines on its native controls (the tooltip's buttons, a linked title)
-even with the stylesheet imported.
+puts on its root element only while accessibility is active
+([`enabled`](/reference/accessibility#accessibility.enabled) `true` and
+[`hidden`](/reference/accessibility#accessibility.hidden) `false`) — so a
+chart with accessibility disabled keeps browser-default outlines on its
+native controls (the tooltip's buttons, a linked title) even with the
+stylesheet imported.
 
 A focus move the chart makes itself is also ringed, which `:focus-visible`
 alone would miss: filtering the focused series from the legend, clicking a
 tooltip row that then unmounts itself, closing the tooltip, and a refresh that
 replaces the plot area with a message all hand focus to another element from a
-pointer or data path. Those get the same outline, so focus is never invisible
-after the chart moves it.
+pointer or data path. Those get the same outline (via a
+`data-mochart-focus-restored` attribute the chart sets until the element
+blurs), so focus is never invisible after the chart moves it.
 
 ## Click targets
 
@@ -236,7 +246,7 @@ filters the series next to the one you aimed at. Three things take the floor:
 
 | Target | How the floor applies |
 | --- | --- |
-| legend item boxes | the item box grows in both directions; the swatch and label stay centered in it |
+| legend item boxes | the item box grows in both directions; the swatch and label stay vertically centered, and extra width lands after the label |
 | the tooltip controls' ‹ / › / mode buttons | a minimum height, and the arrow ends widen to match |
 | interactive tooltip rows | a minimum height; the extra space lands under the row text |
 
@@ -346,9 +356,11 @@ is chart UI rather than a screen-reader label — its words localize through
 ## Turning it off
 
 Set [`accessibility.enabled`](/reference/accessibility#accessibility.enabled)
-to `false` to render the chart with none of the above — no tab stops, key
-handlers, roles, labels, `aria-hidden` markers, or live region — for example
-when the host page provides its own accessible alternative to the chart.
+to `false` to render the chart with none of the above — no plot, series,
+legend, or tooltip-row tab stops, key handlers, roles, labels, `aria-hidden`
+markers, or live region — for example when the host page provides its own
+accessible alternative to the chart. Native controls (the tooltip's ‹ / › /
+mode buttons, a linked title) stay focusable as any button or link would.
 Pointer interactions are unaffected, and `respectReducedMotion` is
 deliberately not gated by this switch.
 
@@ -358,11 +370,11 @@ deliberately not gated by this switch.
 labels) exposed to screen readers. For a chart that is *purely decorative* —
 say a sparkline repeating a value already shown as text — set
 [`accessibility.hidden`](/reference/accessibility#accessibility.hidden) to
-`true` instead. The chart's container is marked `aria-hidden` so assistive
-tech skips it entirely, and every tab stop the chart itself renders — series,
-slices, the plot, tooltip controls, legend items, and a linked title — is
-removed with it, so keyboard users cannot land on content screen readers
-cannot see. Content you inject through the
+`true` instead. It overrides `enabled`: the chart's container is marked
+`aria-hidden` so assistive tech skips it entirely, and every tab stop the
+chart itself renders — series, slices, the plot, tooltip controls, legend
+items, and a linked title — is removed with it, so keyboard users cannot land
+on content screen readers cannot see. Content you inject through the
 [state factories](/guide/chart-states) is yours to make non-focusable. Only do
 this when the surrounding page already conveys what the chart shows.
 

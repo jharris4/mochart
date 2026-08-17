@@ -61,7 +61,7 @@ import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { chart } from '@mochart/lit';
 
 const mochartConfig = enhanceConfig(config);
-const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');
+const dataProvider = new ArrayOfObjectsDataProvider(data);
 
 render(html`${chart({ mochartConfig, dataProvider, width: 640, height: 400 })}`, document.body);
 ```

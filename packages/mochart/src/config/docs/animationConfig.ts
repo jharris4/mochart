@@ -3,11 +3,11 @@ export default function getDescriptions() {
     animate: 'whether all animation should be enabled or disabled',
     valueDomainChange: 'how value axis domain changes animate relative to value changes: staged, combined, or auto',
     categoryDomainChange: 'how category axis domain changes animate relative to value changes: staged, combined, or auto',
-    initialDuration: 'the maximum duration for the initial animation when chart data is first loaded',
-    expansionDuration: 'the maximum duration for the axis expansion animation phase when new data is added to the chart',
-    valueChangeDuration: 'the maximum duration for the value change animation phase when data in the chart changes',
-    contractionDuration: 'the maximum duration for the axis contraction animation phase when new data is removed from the chart',
-    focusDuration: 'the duration of animation showing the transition between focus on a specific series or category value'
+    initialDuration: 'the maximum duration (in milliseconds) for the initial animation when chart data is first loaded',
+    expansionDuration: 'the maximum duration (in milliseconds) for the axis expansion animation phase when new data is added to the chart',
+    valueChangeDuration: 'the maximum duration (in milliseconds) for the value change animation phase when data in the chart changes',
+    contractionDuration: 'the maximum duration (in milliseconds) for the axis contraction animation phase when data is removed from the chart',
+    focusDuration: 'the duration (in milliseconds) of the transition when focus moves to or from a series or category value'
   };
 }
 

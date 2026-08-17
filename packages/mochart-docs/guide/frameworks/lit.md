@@ -15,6 +15,9 @@ needed.
 npm install @mochart/lit @mochart/core lit-html
 ```
 
+lit-html 3 is required (`lit-html` and `@mochart/core` are peer
+dependencies); the `lit` package brings it in as well.
+
 ## The optional stylesheet
 
 If your app uses a global CSS reset (Tailwind's preflight, a
@@ -65,13 +68,21 @@ const dataProvider = new ArrayOfObjectsDataProvider(data);
 render(html`${chart({ mochartConfig, dataProvider, width: 640, height: 400 })}`, document.body);
 ```
 
+`chart` accepts `null` for `mochartConfig` and `dataProvider` while the host
+is still loading them; pair it with the `loading` prop to show the loading
+state until they arrive.
+
 Both directives have to sit in **child position** — an `${…}` slot between
 tags, as in the snippets above — because each one renders a container div and
 mounts the chart into it. In an attribute, property, or event binding
 (`<div class=${chart({ … })}>`) the directive's constructor throws
 `mochart-lit chart directives can only be used in child position`.
 
-## Sizing
+The chart itself is mounted in a microtask after the render pass, once the
+container div is connected to the document, so the first size measurement
+sees real layout.
+
+## Sizing and the container
 
 `width` and `height` are optional. The directive renders a container div the
 chart mounts into; whichever dimension you omit tracks that div's size via
@@ -84,7 +95,8 @@ html`<div style="width: 100%; height: 400px">${chart({ mochartConfig, dataProvid
 
 The optional `className` and `style` props land on the container div itself —
 the directive equivalent of the class/style fallthrough the component
-wrappers get (explicit `width`/`height` props still win over `style`):
+wrappers get. Explicit `width`/`height` props win over conflicting `style`
+values:
 
 ```js
 html`${chart({ mochartConfig, dataProvider, style: 'flex: 1 1 auto; min-width: 0;' })}`
@@ -137,24 +149,34 @@ addRow(row: DataObject) {
 }
 ```
 
+The callback is called with the handle once the chart mounts and with
+`null` when the directive disconnects; the handle itself is stable across
+renders, so it is safe to hold onto.
+
 ## Callbacks and states
 
 Both directives accept the [chart callbacks](/guide/interaction#callbacks)
-under their core names (`onChartClick`, `onFocus`, `onSliceClick`, …) and a
-placeholder prop per state — named `*Template` rather than `*Component`,
-since each takes a
-**lit-html template function** rather than a component class. It receives the
-[chart state context](/guide/chart-states) (`width`, `height`, `error`, …)
-and is rendered while the chart is in that state:
+under their core names (`onChartClick`, `onFocus`, `onSeriesFilter`,
+`onSeriesClick`, `onSliceClick`, `onTitleClick`, …) with the core payloads.
+Only the callbacks you pass are wired into the chart, which matters where
+the core switches behavior on a callback's presence — an `onTitleClick`
+makes the title a button, for instance.
+
+Both directives also accept `loading` and `error` to force the
+[loading or error state](/guide/chart-states), and a placeholder prop per
+state — named `*Template` rather than `*Component`, since each takes a
+**lit-html template function** rather than a component class:
+`loadingTemplate`, `errorTemplate`, `noDataTemplate`, `noSizeTemplate`,
+`noSeriesTemplate`, and `configErrorTemplate`. The function receives the
+[chart state context](/guide/chart-states#customizing-what-renders) (`width`,
+`height`, `error`, …) and its result is rendered while the chart is in that
+state; leave a prop off to keep the built-in placeholder:
 
 ```js
 const loadingTemplate = ({ width, height }) => html`<div>Loading ${width}x${height}…</div>`;
 
 html`${chart({ mochartConfig, dataProvider, loading, loadingTemplate })}`
 ```
-
-Both directives also accept `loading` and `error` to force the loading or
-error state.
 
 A placeholder template is a plain function the binding calls itself and renders
 with lit-html, not a component the framework instantiates, so nothing is
@@ -182,8 +204,27 @@ charts (the round-trip is shown in
 [Controlled focus and filtering](/guide/interaction#controlled-focus-and-filtering));
 leave a prop `undefined` to let the chart keep managing that piece itself.
 
+## TypeScript
+
+The package ships its own declarations. It exports the prop interfaces
+`ChartProps`, `DefaultChartProps`, `BaseChartProps` (everything except the
+config/data props) and `ChartCallbackProps`, the `ChartRef` handle, and
+`PlaceholderProps`/`PlaceholderTemplate` for typing placeholder templates.
+Config, data, and callback payload types (`MochartInputConfig`,
+`DataObject`, `ChartFocus`, `ChartEventPayload`, …) come from `@mochart/core`;
+see [Callbacks and payloads](/reference/callbacks).
+
+## Server-side rendering
+
+The directives do all their DOM work in `update()`, which lit-html only calls
+in the browser; the server-side `render()` path returns `noChange`, so
+nothing is emitted for the chart on the server and both the container div
+and the chart are created client-side. See
+[Browser support](/guide/getting-started#browser-support) for what the core
+itself needs.
+
 ## See it in action
 
 The [Lit demo gallery](/lit/demos) is a full `LitElement` application built on
-`@mochart/lit`; its source lives in
+`@mochart/lit` (with a small hand-rolled history router); its source lives in
 [packages/mochart-demo-lit](https://github.com/mocharts/mochart/tree/main/packages/mochart-demo-lit).

@@ -32,7 +32,7 @@ config section.
 | [@mochart/export](packages/mochart-export/README.md) | SVG and PNG image export for rendered mochart charts. |
 | [@mochart/editor](packages/mochart-editor/README.md) | Framework-neutral JSON editor with mochart config intelligence — powers the config/data editors in the demo apps. |
 | [@mochart/demo-vanilla](packages/mochart-demo-vanilla/README.md) | Full-featured demo gallery in plain TypeScript (private) — the no-framework peer of the framework demo apps. |
-| [@mochart/demo-basic](packages/mochart-demo-basic/README.md) | Minimal no-framework demo harness (private) — smallest integration example; home of the Playwright e2e suite. |
+| [@mochart/demo-basic](packages/mochart-demo-basic/README.md) | Minimal no-framework demo harness (private) — smallest integration example; home of the core Playwright e2e suite (the vanilla gallery has its own). |
 | [@mochart/demo-data](packages/mochart-demo-data/README.md) | Shared demo configs, datasets, and random specs (private) used by every demo app. |
 | [@mochart/demo-common](packages/mochart-demo-common/README.md) | Shared framework-agnostic demo logic (private) — config/data editing helpers, random data generator, and shared types used by every demo app. |
 | [@mochart/benchmark](packages/mochart-benchmark/README.md) | Performance benchmark harness (private) — measures mount/update/frame-time cost of generated charts at configurable sizes. |
@@ -77,11 +77,12 @@ npm run build:libs  # build every publishable library to its dist/
 The gate CI runs on every pull request, in this order:
 
 ```sh
-npm run lint        # eslint across the monorepo (npm run lint:fix to apply fixes)
-npm run deadcode    # knip: unused exports, files and dependencies
-npm run typecheck   # typecheck every workspace that has a typecheck script
-npm test            # run tests in every workspace that has them
-npm run test:e2e    # playwright against @mochart/demo-basic
+npm run lint          # eslint across the monorepo (npm run lint:fix to apply fixes)
+npm run deadcode      # knip: unused exports, files and dependencies
+npm run typecheck     # typecheck every workspace that has a typecheck script
+npm run check:publish # every publishable package's publishConfig.exports is dist-only
+npm test              # run tests in every workspace that has them
+npm run test:e2e      # playwright against @mochart/demo-basic, then @mochart/demo-vanilla
 ```
 
 And the rest:

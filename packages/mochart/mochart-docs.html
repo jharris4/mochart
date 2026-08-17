@@ -167,23 +167,23 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="animation.contractionDuration">
-<td><a href="#animation.contractionDuration">contractionDuration</a></td><td>the maximum duration for the axis contraction animation phase when new data is removed from the chart<br/><br/>Duration (in milliseconds) of the axis contraction phase, which plays last when the settled data needs smaller axis domains.</td><td>should be a number >= to 0</td><td><div>1000</div>
+<td><a href="#animation.contractionDuration">contractionDuration</a></td><td>the maximum duration (in milliseconds) for the axis contraction animation phase when data is removed from the chart<br/><br/>Duration (in milliseconds) of the axis contraction phase, which plays last when the settled data needs smaller axis domains.</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
 </tr>
 <tr id="animation.expansionDuration">
-<td><a href="#animation.expansionDuration">expansionDuration</a></td><td>the maximum duration for the axis expansion animation phase when new data is added to the chart<br/><br/>Duration (in milliseconds) of the axis expansion phase, which plays first when an update needs larger axis domains (new categories or larger values) so incoming data has room to land.</td><td>should be a number >= to 0</td><td><div>1000</div>
+<td><a href="#animation.expansionDuration">expansionDuration</a></td><td>the maximum duration (in milliseconds) for the axis expansion animation phase when new data is added to the chart<br/><br/>Duration (in milliseconds) of the axis expansion phase, which plays first when an update needs larger axis domains (new categories or larger values) so incoming data has room to land.</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
 </tr>
 <tr id="animation.focusDuration">
-<td><a href="#animation.focusDuration">focusDuration</a></td><td>the duration of animation showing the transition between focus on a specific series or category value<br/><br/>Duration (in milliseconds) of focus transitions — the emphasis change between focused/defocused styling when a series or category gains or loses focus via hover, click, or the legend.</td><td>should be a number >= to 0</td><td><div>1000</div>
+<td><a href="#animation.focusDuration">focusDuration</a></td><td>the duration (in milliseconds) of the transition when focus moves to or from a series or category value<br/><br/>Duration (in milliseconds) of focus transitions — the emphasis change between focused/defocused styling when a series or category gains or loses focus via hover, click, or the legend.</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
 </tr>
 <tr id="animation.initialDuration">
-<td><a href="#animation.initialDuration">initialDuration</a></td><td>the maximum duration for the initial animation when chart data is first loaded<br/><br/>Duration (in milliseconds) of the first render animation when the chart mounts with data, and of the replay after a structural config change rebuilds the chart.</td><td>should be a number >= to 0</td><td><div>1000</div>
+<td><a href="#animation.initialDuration">initialDuration</a></td><td>the maximum duration (in milliseconds) for the initial animation when chart data is first loaded<br/><br/>Duration (in milliseconds) of the first render animation when the chart mounts with data, and of the replay after a structural config change rebuilds the chart.</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
 </tr>
 <tr id="animation.valueChangeDuration">
-<td><a href="#animation.valueChangeDuration">valueChangeDuration</a></td><td>the maximum duration for the value change animation phase when data in the chart changes<br/><br/>Duration (in milliseconds) of the value change phase, which tweens values to their new positions and also plays category transitions (categories added/removed/reordered) and series transitions (series added, removed, or filtered via the legend).</td><td>should be a number >= to 0</td><td><div>1000</div>
+<td><a href="#animation.valueChangeDuration">valueChangeDuration</a></td><td>the maximum duration (in milliseconds) for the value change animation phase when data in the chart changes<br/><br/>Duration (in milliseconds) of the value change phase, which tweens values to their new positions and also plays category transitions (categories added/removed/reordered) and series transitions (series added, removed, or filtered via the legend).</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
 </tr>
 <tr id="animation.valueDomainChange">
@@ -898,7 +898,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.max">
-<td><a href="#categoryAxis.max">max</a></td><td>the forced maximum numeric value for the axis (use "auto" to compute from the values); must be >= min unless either is "auto" (set reversed to run the axis backwards)<br/><br/>The form the bound takes follows `type` on a linear axis: a number when `type` is `number`, and either a millisecond timestamp or an ISO date string (`"2020-01-01"`) when `type` is `date` — the two forms `thresholds[].value` takes. An ordinal axis places its categories in data order, so it accepts only `"auto"`.</td><td><p>should be an iso date string or epoch number or be equal to "auto" when scale is linear and type is date</p>
+<td><a href="#categoryAxis.max">max</a></td><td>the forced maximum value for the axis: a number, or a date on a date category axis (use "auto" to compute from the values); must be >= min unless either is "auto" (set reversed to run the axis backwards)<br/><br/>The form the bound takes follows `type` on a linear axis: a number when `type` is `number`, and either a millisecond timestamp or an ISO date string (`"2020-01-01"`) when `type` is `date` — the two forms `thresholds[].value` takes. An ordinal axis places its categories in data order, so it accepts only `"auto"`.</td><td><p>should be an iso date string or epoch number or be equal to "auto" when scale is linear and type is date</p>
 <p>should be a number or be equal to "auto" when scale is linear and type is number</p>
 <p>should be equal to "auto" when scale is ordinal</p>
 </td><td><div>"auto"</div>
@@ -916,7 +916,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.min">
-<td><a href="#categoryAxis.min">min</a></td><td>the forced minimum numeric value for the axis (use "auto" to compute from the values); must be <= max unless either is "auto" (set reversed to run the axis backwards)<br/><br/>The form the bound takes follows `type` on a linear axis: a number when `type` is `number`, and either a millisecond timestamp or an ISO date string (`"2020-01-01"`) when `type` is `date` — the two forms `thresholds[].value` takes. An ordinal axis places its categories in data order, so it accepts only `"auto"`.</td><td><p>should be an iso date string or epoch number or be equal to "auto" when scale is linear and type is date</p>
+<td><a href="#categoryAxis.min">min</a></td><td>the forced minimum value for the axis: a number, or a date on a date category axis (use "auto" to compute from the values); must be <= max unless either is "auto" (set reversed to run the axis backwards)<br/><br/>The form the bound takes follows `type` on a linear axis: a number when `type` is `number`, and either a millisecond timestamp or an ISO date string (`"2020-01-01"`) when `type` is `date` — the two forms `thresholds[].value` takes. An ordinal axis places its categories in data order, so it accepts only `"auto"`.</td><td><p>should be an iso date string or epoch number or be equal to "auto" when scale is linear and type is date</p>
 <p>should be a number or be equal to "auto" when scale is linear and type is number</p>
 <p>should be equal to "auto" when scale is ordinal</p>
 </td><td><div>"auto"</div>
@@ -989,14 +989,14 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.softMax">
-<td><a href="#categoryAxis.softMax">softMax</a></td><td>the forced maximum numeric value for the axis to be used if no data value is greater than this value (use null to disable)<br/><br/>Takes the same forms as `max` — a number, or a timestamp or ISO date string on a date axis — but only applies while no category value rises above it, so real data still expands the domain. An ordinal axis accepts only `null`.</td><td><p>should be an iso date string or epoch number or be equal to null when scale is linear and type is date</p>
+<td><a href="#categoryAxis.softMax">softMax</a></td><td>the maximum value for the axis to cover while no data value is greater than it, taking the same forms as max (use null to disable)<br/><br/>Takes the same forms as `max` — a number, or a timestamp or ISO date string on a date axis — but only applies while no category value rises above it, so real data still expands the domain. An ordinal axis accepts only `null`.</td><td><p>should be an iso date string or epoch number or be equal to null when scale is linear and type is date</p>
 <p>should be a number or be equal to null when scale is linear and type is number</p>
 <p>should be equal to null when scale is ordinal</p>
 </td><td><div>null</div>
 </td>
 </tr>
 <tr id="categoryAxis.softMin">
-<td><a href="#categoryAxis.softMin">softMin</a></td><td>the forced minimum numeric value for the axis to be used if no data value is less than this value (use null to disable)<br/><br/>Takes the same forms as `min` — a number, or a timestamp or ISO date string on a date axis — but only applies while no category value falls below it, so real data still expands the domain. An ordinal axis accepts only `null`.</td><td><p>should be an iso date string or epoch number or be equal to null when scale is linear and type is date</p>
+<td><a href="#categoryAxis.softMin">softMin</a></td><td>the minimum value for the axis to cover while no data value is less than it, taking the same forms as min (use null to disable)<br/><br/>Takes the same forms as `min` — a number, or a timestamp or ISO date string on a date axis — but only applies while no category value falls below it, so real data still expands the domain. An ordinal axis accepts only `null`.</td><td><p>should be an iso date string or epoch number or be equal to null when scale is linear and type is date</p>
 <p>should be a number or be equal to null when scale is linear and type is number</p>
 <p>should be equal to null when scale is ordinal</p>
 </td><td><div>null</div>
@@ -1151,7 +1151,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.thresholds.titleSnapToValue">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleSnapToValue">thresholds[].titleSnapToValue</a></td><td>whether the title flips to the other side when it has no room</td><td>should be a boolean or be equal to undefined</td><td><div>true</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleSnapToValue">thresholds[].titleSnapToValue</a></td><td>whether the title flips to the other side of the line when its own side has no room, instead of being clamped inside the plot over the line</td><td>should be a boolean or be equal to undefined</td><td><div>true</div>
 </td>
 </tr>
 <tr id="categoryAxis.thresholds.titleTextStyle">
@@ -1283,7 +1283,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.tickLabelFormat">
-<td><a href="#categoryAxis.tickLabelFormat">tickLabelFormat</a></td><td>the d3 format string to be applied to the category values when displayed in axis tick labels (use null for none, use "auto" to derive from data)</td><td><p>should be one of [ null, "auto" ] when type is string</p>
+<td><a href="#categoryAxis.tickLabelFormat">tickLabelFormat</a></td><td>the d3 format string (d3-format for number, d3-time-format for date) to be applied to the category values when displayed in axis tick labels (use null for none, use "auto" to derive from data)</td><td><p>should be one of [ null, "auto" ] when type is string</p>
 <p>should be a valid date format or be one of [ null, "auto" ] when type is date</p>
 <p>should be a valid number format or be one of [ null, "auto" ] when type is number</p>
 </td><td><div>"auto"</div>
@@ -1314,7 +1314,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.tickLabelRotation">
-<td><a href="#categoryAxis.tickLabelRotation">tickLabelRotation</a></td><td>the rotation (in degrees) to apply to each axis tick label</td><td>should be a number >= to -90 and <= 90</td><td><div>0</div>
+<td><a href="#categoryAxis.tickLabelRotation">tickLabelRotation</a></td><td>the rotation (in degrees, -90 to 90) to apply to each axis tick label</td><td>should be a number >= to -90 and <= 90</td><td><div>0</div>
 </td>
 </tr>
 <tr id="categoryAxis.tickLabelSize">
@@ -1425,7 +1425,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.tickLabelTruncationMinLength">
-<td><a href="#categoryAxis.tickLabelTruncationMinLength">tickLabelTruncationMinLength</a></td><td>the minimum length at which to apply tick label truncation if the maximum fraction setting is used</td><td>should be a number >= to 0</td><td><div>0</div>
+<td><a href="#categoryAxis.tickLabelTruncationMinLength">tickLabelTruncationMinLength</a></td><td>the minimum length (in pixels) to allow tick label text perpendicular to the axis, applied when tickLabelTruncationMaxFraction would allow less</td><td>should be a number >= to 0</td><td><div>0</div>
 </td>
 </tr>
 <tr id="categoryAxis.tickLabelTruncationValue">
@@ -1665,7 +1665,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.valueFormat">
-<td><a href="#categoryAxis.valueFormat">valueFormat</a></td><td>the d3 format string to be applied to the category value when displayed in the tooltip (use null for none, use "auto" to derive from data)</td><td><p>should be one of [ null, "auto" ] when type is string</p>
+<td><a href="#categoryAxis.valueFormat">valueFormat</a></td><td>the d3 format string (d3-format for number, d3-time-format for date) to be applied to the category value when displayed in the tooltip (use null for none, use "auto" to derive from data)</td><td><p>should be one of [ null, "auto" ] when type is string</p>
 <p>should be a valid date format or be one of [ null, "auto" ] when type is date</p>
 <p>should be a valid number format or be one of [ null, "auto" ] when type is number</p>
 </td><td><div>"auto"</div>
@@ -1703,7 +1703,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="legend.alignedToAxes">
-<td><a href="#legend.alignedToAxes">alignedToAxes</a></td><td>whether the legend should be centered between the axes (true) or the chart bounds (false)</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#legend.alignedToAxes">alignedToAxes</a></td><td>whether the legend should be aligned between the axes (true) or the chart bounds (false)</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="legend.backgroundStyle">
@@ -1927,7 +1927,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="legend.showIconShapes">
-<td><a href="#legend.showIconShapes">showIconShapes</a></td><td>whether to show series marker shape next to series titles in the legend</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#legend.showIconShapes">showIconShapes</a></td><td>whether to show the series marker shape next to series titles in the legend</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="legend.truncationEnabled">
@@ -1935,7 +1935,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="legend.truncationValue">
-<td><a href="#legend.truncationValue">truncationValue</a></td><td>the truncation text to append to legend item text when its length exceeds the length of the chart</td><td>should be a string</td><td><div>"…"</div>
+<td><a href="#legend.truncationValue">truncationValue</a></td><td>the truncation text to append to legend item text when its width exceeds the width of the chart</td><td>should be a string</td><td><div>"…"</div>
 </td>
 </tr>
 <tr id="legend.visible">
@@ -1964,7 +1964,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="linearGradients.rotation">
-<td><a href="#linearGradients.rotation">rotation</a></td><td>the rotation property (in degrees) of the svg linear gradient</td><td>should be a number >= to -360 and <= 360</td><td><div>0</div>
+<td><a href="#linearGradients.rotation">rotation</a></td><td>the rotation (in degrees, -360 to 360) applied to the svg linear gradient</td><td>should be a number >= to -360 and <= 360</td><td><div>0</div>
 </td>
 </tr>
 <tr id="linearGradients.stops">
@@ -1984,19 +1984,19 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="linearGradients.x1">
-<td><a href="#linearGradients.x1">x1</a></td><td>the x1 property of the svg linear gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>0</div>
+<td><a href="#linearGradients.x1">x1</a></td><td>the x1 start position of the svg linear gradient, as a fraction (0 - 1) of the shape bounds</td><td>should be a number >= to 0 and <= 1</td><td><div>0</div>
 </td>
 </tr>
 <tr id="linearGradients.x2">
-<td><a href="#linearGradients.x2">x2</a></td><td>the x2 property of the svg linear gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#linearGradients.x2">x2</a></td><td>the x2 end position of the svg linear gradient, as a fraction (0 - 1) of the shape bounds</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
 </td>
 </tr>
 <tr id="linearGradients.y1">
-<td><a href="#linearGradients.y1">y1</a></td><td>the y1 property of the svg linear gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>0</div>
+<td><a href="#linearGradients.y1">y1</a></td><td>the y1 start position of the svg linear gradient, as a fraction (0 - 1) of the shape bounds</td><td>should be a number >= to 0 and <= 1</td><td><div>0</div>
 </td>
 </tr>
 <tr id="linearGradients.y2">
-<td><a href="#linearGradients.y2">y2</a></td><td>the y2 property of the svg linear gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#linearGradients.y2">y2</a></td><td>the y2 end position of the svg linear gradient, as a fraction (0 - 1) of the shape bounds</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
 </td>
 </tr>
 </table>
@@ -2328,19 +2328,19 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 </thead>
 <tr id="radialGradients.cx">
-<td><a href="#radialGradients.cx">cx</a></td><td>the cx property of the svg radial gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#radialGradients.cx">cx</a></td><td>the cx center x position of the svg radial gradient, as a fraction (0 - 1) of the shape bounds</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
 </td>
 </tr>
 <tr id="radialGradients.cy">
-<td><a href="#radialGradients.cy">cy</a></td><td>the cy property of the svg radial gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#radialGradients.cy">cy</a></td><td>the cy center y position of the svg radial gradient, as a fraction (0 - 1) of the shape bounds</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
 </td>
 </tr>
 <tr id="radialGradients.fx">
-<td><a href="#radialGradients.fx">fx</a></td><td>the fx property of the svg radial gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#radialGradients.fx">fx</a></td><td>the fx focal x position of the svg radial gradient, as a fraction (0 - 1) of the shape bounds</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
 </td>
 </tr>
 <tr id="radialGradients.fy">
-<td><a href="#radialGradients.fy">fy</a></td><td>the fy property of the svg radial gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#radialGradients.fy">fy</a></td><td>the fy focal y position of the svg radial gradient, as a fraction (0 - 1) of the shape bounds</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
 </td>
 </tr>
 <tr id="radialGradients.id">
@@ -2354,11 +2354,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="radialGradients.r">
-<td><a href="#radialGradients.r">r</a></td><td>the r property of the svg radial gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#radialGradients.r">r</a></td><td>the r radius of the svg radial gradient, as a fraction (0 - 1) of the shape bounds</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
 </td>
 </tr>
 <tr id="radialGradients.rotation">
-<td><a href="#radialGradients.rotation">rotation</a></td><td>the rotation property (in degrees) of the svg radial gradient</td><td>should be a number >= to -360 and <= 360</td><td><div>0</div>
+<td><a href="#radialGradients.rotation">rotation</a></td><td>the rotation (in degrees, -360 to 360) applied to the svg radial gradient</td><td>should be a number >= to -360 and <= 360</td><td><div>0</div>
 </td>
 </tr>
 <tr id="radialGradients.stops">
@@ -2740,7 +2740,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.max">
-<td><a href="#valueAxes.max">max</a></td><td>the forced maximum numeric value for the axis (use "auto" to compute from the values); must be >= min unless either is "auto" (set reversed to run the axis backwards)<br/><br/>With `"auto"` the maximum is computed from the data (including stacking) on every update, and changes animate through the staged axis expansion/contraction phases. Set a number to pin the bound instead. Values outside of the defined range are clipped rather than allowed to overflow the plot area of the chart.</td><td>should be a number or be equal to "auto"</td><td><div>"auto"</div>
+<td><a href="#valueAxes.max">max</a></td><td>the forced maximum value for the axis: a number, or a date on a date category axis (use "auto" to compute from the values); must be >= min unless either is "auto" (set reversed to run the axis backwards)<br/><br/>With `"auto"` the maximum is computed from the data (including stacking) on every update, and changes animate through the staged axis expansion/contraction phases. Set a number to pin the bound instead. Values outside of the defined range are clipped rather than allowed to overflow the plot area of the chart.</td><td>should be a number or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="valueAxes.maxMarginFraction">
@@ -2756,7 +2756,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.min">
-<td><a href="#valueAxes.min">min</a></td><td>the forced minimum numeric value for the axis (use "auto" to compute from the values); must be <= max unless either is "auto" (set reversed to run the axis backwards)<br/><br/>With `"auto"` the minimum is computed from the data (including stacking) on every update, and changes animate through the staged axis expansion/contraction phases. Set a number to pin the bound instead. Values outside of the defined range are clipped rather than allowed to overflow the plot area of the chart.</td><td>should be a number or be equal to "auto"</td><td><div>"auto"</div>
+<td><a href="#valueAxes.min">min</a></td><td>the forced minimum value for the axis: a number, or a date on a date category axis (use "auto" to compute from the values); must be <= max unless either is "auto" (set reversed to run the axis backwards)<br/><br/>With `"auto"` the minimum is computed from the data (including stacking) on every update, and changes animate through the staged axis expansion/contraction phases. Set a number to pin the bound instead. Values outside of the defined range are clipped rather than allowed to overflow the plot area of the chart.</td><td>should be a number or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="valueAxes.minMarginFraction">
@@ -2826,11 +2826,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.softMax">
-<td><a href="#valueAxes.softMax">softMax</a></td><td>the forced maximum numeric value for the axis to be used if no data value is greater than this value (use null to disable)<br/><br/>An upper bound that only applies while no data value is above it — the axis covers at least this value, but real data larger than it still expands the domain. Unlike `max`, it never clips data.</td><td>should be a number or be equal to null</td><td><div>null</div>
+<td><a href="#valueAxes.softMax">softMax</a></td><td>the maximum value for the axis to cover while no data value is greater than it, taking the same forms as max (use null to disable)<br/><br/>An upper bound that only applies while no data value is above it — the axis covers at least this value, but real data larger than it still expands the domain. Unlike `max`, it never clips data.</td><td>should be a number or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="valueAxes.softMin">
-<td><a href="#valueAxes.softMin">softMin</a></td><td>the forced minimum numeric value for the axis to be used if no data value is less than this value (use null to disable)<br/><br/>A lower bound that only applies while no data value is below it — the axis covers at least this value, but real data smaller than it still expands the domain. Unlike `min`, it never clips data.</td><td>should be a number or be equal to null</td><td><div>null</div>
+<td><a href="#valueAxes.softMin">softMin</a></td><td>the minimum value for the axis to cover while no data value is less than it, taking the same forms as min (use null to disable)<br/><br/>A lower bound that only applies while no data value is below it — the axis covers at least this value, but real data smaller than it still expands the domain. Unlike `min`, it never clips data.</td><td>should be a number or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="valueAxes.thresholds">
@@ -2982,7 +2982,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.thresholds.titleSnapToValue">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleSnapToValue">thresholds[].titleSnapToValue</a></td><td>whether the title flips to the other side when it has no room</td><td>should be a boolean or be equal to undefined</td><td><div>true</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleSnapToValue">thresholds[].titleSnapToValue</a></td><td>whether the title flips to the other side of the line when its own side has no room, instead of being clamped inside the plot over the line</td><td>should be a boolean or be equal to undefined</td><td><div>true</div>
 </td>
 </tr>
 <tr id="valueAxes.thresholds.titleTextStyle">
@@ -3142,7 +3142,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.tickLabelRotation">
-<td><a href="#valueAxes.tickLabelRotation">tickLabelRotation</a></td><td>the rotation (in degrees) to apply to each axis tick label</td><td>should be a number >= to -90 and <= 90</td><td><div>0</div>
+<td><a href="#valueAxes.tickLabelRotation">tickLabelRotation</a></td><td>the rotation (in degrees, -90 to 90) to apply to each axis tick label</td><td>should be a number >= to -90 and <= 90</td><td><div>0</div>
 </td>
 </tr>
 <tr id="valueAxes.tickLabelSize">
@@ -3520,7 +3520,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.axis">
-<td><a href="#series.axis">axis</a></td><td>the unique identifier of the axis that the series belongs to<br/><br/>Assigns the series to the value axis in `valueAxes` whose `id` matches. With a single configured axis this can be omitted — it defaults to that axis id.</td><td><p>should be a string</p>
+<td><a href="#series.axis">axis</a></td><td>the unique identifier of the value axis that the series belongs to<br/><br/>Assigns the series to the value axis in `valueAxes` whose `id` matches. With a single configured axis this can be omitted — it defaults to that axis id.</td><td><p>should be a string</p>
 <p>should equal the id property of one of the valueAxes</p>
 </td><td><div>sole axis id (value axis)</div>
 </td>
@@ -3642,7 +3642,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.curve.param">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.curve.param">curve.param</a></td><td>the tension/alpha value passed to the curve types that take one, or undefined to use the curve's own default</td><td>should be a number >= to 0 and <= 1</td><td><div></div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.curve.param">curve.param</a></td><td>the tension/alpha value (0 - 1) passed to the curve types that take one, or undefined to use the curve's own default</td><td>should be a number >= to 0 and <= 1</td><td><div></div>
 </td>
 </tr>
 <tr id="series.curve.type">
@@ -3764,7 +3764,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.group">
-<td><a href="#series.group">group</a></td><td>the unique identifier of the series group that the series belongs to (use null for none)<br/><br/>Series sharing the same group id (an `id` from `seriesGroups`) are laid out side by side within each category slot — grouped/clustered bars. Defaults to the sole group id when exactly one series group is configured; use `null` to opt a series out.</td><td><p>should be a string or be equal to null</p>
+<td><a href="#series.group">group</a></td><td>the unique identifier of the series group that the series belongs to (use null for none)<br/><br/>Series sharing the same group id (an `id` from `seriesGroups`) are laid out side by side within each category slot — grouped/clustered bars. Series in the group that also share a `stack` share one sub-slot, so stacks placed in the same group become side-by-side stacked columns. Defaults to the sole group id when exactly one series group is configured; use `null` to opt a series out.</td><td><p>should be a string or be equal to null</p>
 <p>should equal the id property of one of the seriesGroups</p>
 </td><td><div>sole group id (series group)</div>
 </td>
@@ -3792,7 +3792,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.labelAboveBasePosition">
-<td><a href="#series.labelAboveBasePosition">labelAboveBasePosition</a></td><td>whether to position the series labels inside or outside of the series shape for series shapes that are above the base value</td><td>should be one of [ "auto", "inside", "center", "outside" ]</td><td><div>"auto"</div>
+<td><a href="#series.labelAboveBasePosition">labelAboveBasePosition</a></td><td>the labelPosition (inside, center, outside) applied only to series values above the base value (use "auto" to inherit labelPosition)</td><td>should be one of [ "auto", "inside", "center", "outside" ]</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="series.labelBelowBaseMaxPositionFraction">
@@ -3804,11 +3804,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.labelBelowBaseOffset">
-<td><a href="#series.labelBelowBaseOffset">labelBelowBaseOffset</a></td><td>the series position offset (in pixels) to apply to all series label positions that are below the base value (use "auto" to derive from the labelOffset)</td><td>should be a number or be equal to "auto"</td><td><div>"auto"</div>
+<td><a href="#series.labelBelowBaseOffset">labelBelowBaseOffset</a></td><td>the series position offset (in pixels) to apply to all series label positions that are below the base value (use "auto" for the negated labelOffset)</td><td>should be a number or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="series.labelBelowBasePosition">
-<td><a href="#series.labelBelowBasePosition">labelBelowBasePosition</a></td><td>whether to position the series labels inside or outside of the series shape for series shapes that are below the base value</td><td>should be one of [ "auto", "inside", "center", "outside" ]</td><td><div>"auto"</div>
+<td><a href="#series.labelBelowBasePosition">labelBelowBasePosition</a></td><td>the labelPosition (inside, center, outside) applied only to series values below the base value (use "auto" to inherit labelPosition)</td><td>should be one of [ "auto", "inside", "center", "outside" ]</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="series.labelFormat">
@@ -3824,7 +3824,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.labelMinRangeFraction">
-<td><a href="#series.labelMinRangeFraction">labelMinRangeFraction</a></td><td>the minimum position fraction (0 - 1) between two series values for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>null</div>
+<td><a href="#series.labelMinRangeFraction">labelMinRangeFraction</a></td><td>hide the label of any value whose shape spans less than this fraction (0 - 1) of the axis domain (use null for none)</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="series.labelOffset">
@@ -3832,7 +3832,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.labelPosition">
-<td><a href="#series.labelPosition">labelPosition</a></td><td>whether to position the series labels inside or outside of the series shape</td><td>should be one of [ "inside", "center", "outside" ]</td><td><div>"center"</div>
+<td><a href="#series.labelPosition">labelPosition</a></td><td>where to place the series labels relative to the value end of the series shape (inside, center, outside)</td><td>should be one of [ "inside", "center", "outside" ]</td><td><div>"center"</div>
 </td>
 </tr>
 <tr id="series.labelPrefix">
@@ -4417,7 +4417,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="title.prefix">
-<td><a href="#title.prefix">prefix</a></td><td>the text to display at the start of the title at the top of the chart (use null for none)</td><td>should be a string or be equal to null</td><td><div>null</div>
+<td><a href="#title.prefix">prefix</a></td><td>the text to display at the start of the title (use null for none)</td><td>should be a string or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="title.prefixBackgroundStyle">
@@ -4517,7 +4517,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="title.suffix">
-<td><a href="#title.suffix">suffix</a></td><td>the text to display at the end of the title at the top of the chart (use null for none)</td><td>should be a string or be equal to null</td><td><div>null</div>
+<td><a href="#title.suffix">suffix</a></td><td>the text to display at the end of the title (use null for none)</td><td>should be a string or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="title.suffixBackgroundStyle">
@@ -4617,7 +4617,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="title.text">
-<td><a href="#title.text">text</a></td><td>the text to display in the title at the top of the chart (use null for none)</td><td>should be a string or be equal to null</td><td><div>null</div>
+<td><a href="#title.text">text</a></td><td>the text to display in the title (use null for none)</td><td>should be a string or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="title.textBackgroundStyle">
@@ -4721,11 +4721,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="title.truncationValue">
-<td><a href="#title.truncationValue">truncationValue</a></td><td>the truncation text to append to the title when its length exceeds the length of the chart</td><td>should be a string</td><td><div>"…"</div>
+<td><a href="#title.truncationValue">truncationValue</a></td><td>the truncation text to append to the title when its width exceeds the width of the chart</td><td>should be a string</td><td><div>"…"</div>
 </td>
 </tr>
 <tr id="title.verticalAlign">
-<td><a href="#title.verticalAlign">verticalAlign</a></td><td>the vertical alignment of the prefix/text/suffix within the title</td><td>should be one of [ "top", "middle", "bottom" ]</td><td><div>"middle"</div>
+<td><a href="#title.verticalAlign">verticalAlign</a></td><td>the vertical alignment of the prefix/text/suffix within the title (top, middle, bottom)</td><td>should be one of [ "top", "middle", "bottom" ]</td><td><div>"middle"</div>
 </td>
 </tr>
 <tr id="title.verticalExpand">
@@ -4936,7 +4936,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="tooltip.showIconShapes">
-<td><a href="#tooltip.showIconShapes">showIconShapes</a></td><td>whether to show series marker shape next to series titles in the tooltip</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#tooltip.showIconShapes">showIconShapes</a></td><td>whether to show the series marker shape next to series titles in the tooltip</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="tooltip.showMissingValues">

@@ -27,17 +27,21 @@ import '@mochart/core/mochart.css';
 ```
 
 It re-asserts the browser default styles that the chart's HTML overlays (the
-tooltip and the message overlays) rely on. Import it when your
-page uses a global CSS reset — Tailwind's preflight, VitePress's base styles,
-or a `normalize.css`-style reset — which can otherwise disturb overlay layout
+tooltip and the message overlays) rely on. Import it when your page uses a
+global CSS reset — Tailwind's preflight, VitePress's base styles, or a
+`normalize.css`-style reset — which can otherwise disturb overlay layout
 (for example, `svg { display: block }` wraps the tooltip's color icon onto
-its own line). It never overrides the chart's own styling, and overlays still
-inherit your page's font and text color.
+its own line). It also carries the chart's keyboard
+[focus ring](/guide/accessibility#the-focus-ring), which needs a
+`:focus-visible` rule inline styles cannot express. It never overrides the
+chart's own styling, and overlays still inherit your page's font and text
+color.
 
 ## Your first chart
 
-`createDefaultChart` is the simplest entry point — give it a container
-element, a raw config, and a dataset — an array of objects or an object of arrays:
+`createDefaultChart` is the simplest entry point: give it a container
+element, a raw config, and a dataset (an array of objects or an object of
+arrays):
 
 <script setup>
 import * as basic from '../examples/basic'
@@ -49,6 +53,7 @@ import * as basic from '../examples/basic'
 import { createDefaultChart } from '@mochart/core';
 
 const config = {
+  version: '1.0.0',
   title: { text: 'Monthly Revenue' },
   categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
   seriesDefaults: { renderer: 'bar' },
@@ -72,8 +77,9 @@ const chart = createDefaultChart(document.getElementById('chart'), {
 });
 ```
 
-You can also use an alternate shape for the data — one array per property —
-and pass it the same way:
+The two data shapes are interchangeable. Written as an object of arrays —
+one array per property — the same dataset is passed through the same `data`
+prop, and the chart is identical:
 
 ```js
 const data = {
@@ -92,8 +98,8 @@ const chart = createDefaultChart(document.getElementById('chart'), {
 Three things to notice:
 
 - `categoryAxis.property` and each series' `property` name the dataset
-  fields to read — the category value and the series values.
-- An optional `version` pins the config format — worth including in configs
+  fields to read — the category values and the series values.
+- `version` is optional and pins the config format. Include it in configs
   you store or share, so `migrateConfig` can upgrade them if the format
   changes ([validation](/guide/config-model#validation)).
 - Everything else is optional. Axes, legend, tooltip, crosshair, and
@@ -105,24 +111,28 @@ Three things to notice:
 The returned `ChartHandle`:
 
 ```js
-chart.update({ data: nextData });   // animates to the new data
-chart.update({ width, height });    // re-layout at a new size
-chart.update({ config: nextConfig }); // config changes animate too
-chart.refresh();                    // re-read data that was mutated in place
-chart.destroy();                    // cancel tweens, remove the chart's DOM
+chart.update({ data: nextData });     // animates to the new data
+chart.update({ width, height });      // re-layout at a new size
+chart.update({ config: nextConfig }); // apply a config change
+chart.refresh();                      // re-read data that was mutated in place
+chart.destroy();                      // cancel tweens, remove the chart's DOM
 ```
 
 `update` merges new props into the chart and detects changes by object
 identity: pass a **new** data array or config object — mutating the previous
 one in place is not detected. If you do mutate your data in place, call
-`refresh` to re-read it. (There is also `replace`, which swaps the
-whole prop set at once, for hosts that pass every prop on every render.)
+`refresh` to re-read it. `replace` swaps the whole prop set at once: a key
+absent from the new props is unset and returns to chart-managed behavior,
+where `update` would keep its previous value — for hosts that pass every prop
+on every render.
 
-When animation is enabled (the default), data and config changes — and
-`refresh` — animate through mochart's
-[staged animation](/guide/staged-animation) phases — try the button under the
-chart above. Size changes are the exception: a new `width`/`height`
-re-lays the chart out instantly.
+When animation is enabled (the default), data changes and `refresh` animate
+through mochart's [staged animation](/guide/staged-animation) phases — try the
+button under the chart above. Config changes animate whatever they change in
+the chart data (an axis bound, say), redraw the rest instantly, and
+[rebuild the chart](/guide/staged-animation#structural-config-changes-rebuild-the-chart)
+when they change its structure. Size changes are the exception: a new
+`width`/`height` re-lays the chart out instantly.
 
 ## The lower-level entry point
 
@@ -143,18 +153,17 @@ See [The config model](/guide/config-model) for what "enhanced" means and
 
 ## Browser support
 
-Mochart targets modern evergreen browsers (Chrome/Edge, Firefox, Safari);
-the published builds are ES modules (plus an IIFE bundle for script tags,
-importable as `@mochart/core/mochart.iife.js`, exposing the global
-`mochart`) pinned to ES2020. Everything the core
-uses — SVG rendering, SVG text measurement (`getBBox`,
-`getComputedTextLength`) for layout and truncation, and
-`requestAnimationFrame` for animation — is baseline in that set, so no
+Mochart targets modern evergreen browsers (Chrome/Edge, Firefox, Safari).
+The published builds — an ES module and an IIFE bundle for script tags
+(`@mochart/core/mochart.iife.js`, exposing the global `mochart`) — are
+pinned to ES2020. Everything the core uses — SVG rendering, SVG text measurement
+(`getBBox`, `getComputedTextLength`) for layout and truncation, and
+`requestAnimationFrame` for animation — is baseline in those browsers, so no
 polyfills are required. Build-free static HTML examples of both flavors —
 script tag and ES module — live in
 [packages/mochart/example](https://github.com/mocharts/mochart/tree/main/packages/mochart/example).
 
-A few boundaries worth knowing:
+A few boundaries:
 
 - **`ResizeObserver`** is used only by the framework bindings, and only to
   track the container when `width`/`height` are omitted. It is

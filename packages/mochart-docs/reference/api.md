@@ -1,4 +1,4 @@
-# API Reference
+# API reference
 
 The complete documented API of `@mochart/core`, grouped by task:
 
@@ -7,15 +7,15 @@ The complete documented API of `@mochart/core`, grouped by task:
 | [Entry points](#createdefaultchart) | `createDefaultChart`, `createChart`, [`ChartHandle`](#charthandle) |
 | [Data providers](#data-providers) | `ArrayOfObjectsDataProvider`, `ObjectOfArraysDataProvider`, the `DataProvider` interface |
 | [Config helpers](#config-helpers) | `enhanceConfig`, `validateConfig`, `validateConfigDetailed`, `migrateConfig`, `getDefaults`, `getConfigWithDefaults`, `getConfigWithoutDefaults`, `getDataErrors` |
-| [Chart helpers](#chart-helpers) | `createHistogram`, `createWaterfall`, `createHeatmap`, `createCandlestick`, `createOhlc`, `createPie`, `createSparklineConfig` |
+| [Chart helpers](#chart-helpers) | `createHistogram`, `createWaterfall`, `createHeatmap`, `createCandlestick`, `createOhlc`, `createPie`, `createSparklineConfig` and their math-only companions |
 | [Constants](#constants) | `NONE`, `AUTO`, `TYPE_*`, `SCALE_*`, `CHART_TYPE_*`, and the config union types |
 | [Styling hooks](#styling-hooks) | `mochartCssClasses` |
 | [Version](#version) | `getVersionString` |
 | [Advanced exports](#advanced-exports) | `buildMochartConfig`, `hasConfigStructureChange` |
 
-The framework bindings — see the
-[framework pages](/guide/frameworks/react) — have their own entry points
-but accept the same props, callbacks, and helpers documented here.
+The framework bindings — see the [framework pages](/guide/frameworks/react) —
+have their own entry points but accept the same props, callbacks, and helpers
+documented here.
 
 The props the entry points accept are listed property by property in
 [Chart props](/reference/props) and
@@ -26,15 +26,18 @@ generated from the packages' type declarations.
 ## createDefaultChart
 
 ```ts
-createDefaultChart(container: Element, props: DefaultChartProps): ChartHandle
+createDefaultChart(container: Element, props: DefaultChartProps): ChartHandle<DefaultChartProps>
 ```
 
 The simplest entry point (see [Getting started](/guide/getting-started)).
-Mounts a chart into `container` from a raw
-[config](/guide/config-model) and a plain dataset — an array of objects or an object of arrays; the
-config is validated and enhanced internally on every change, and `data` is
-wrapped in the matching data provider (`ArrayOfObjectsDataProvider` or
-`ObjectOfArraysDataProvider`) by shape.
+Mounts a chart into `container` from a raw [config](/guide/config-model) and
+a plain dataset — an array of objects or an object of arrays. Whenever
+`config` or `data` changes, the config is validated and enhanced internally,
+`data` is wrapped in the matching data provider
+(`ArrayOfObjectsDataProvider` or `ObjectOfArraysDataProvider`) by shape, and
+the dataset is checked with `getDataErrors`. An invalid config shows the
+config error [chart state](/guide/chart-states), a data problem the error
+state, instead of a broken chart.
 
 Props: `config` and `data`, plus everything in
 [Chart props](/reference/props) — sizing, `loading`/`error`, the controlled
@@ -44,7 +47,7 @@ and the [callbacks](/reference/callbacks).
 ## createChart
 
 ```ts
-createChart(container: Element, props: ManagedChartProps): ChartHandle
+createChart(container: Element, props: ManagedChartProps): ChartHandle<ManagedChartProps>
 ```
 
 The lower-level entry point for hosts that manage
@@ -52,12 +55,15 @@ The lower-level entry point for hosts that manage
 [data providers](/guide/data-providers) themselves. Identical to
 `createDefaultChart` except it takes `mochartConfig` (from `enhanceConfig`)
 and `dataProvider` in place of `config` and `data` — useful when several
-charts share one enhanced config, or when data lives in a custom store. Its
-props are listed under [Chart props](/reference/props#managedChartProps).
+charts share one enhanced config, or when data lives in a custom store.
+Either may be `null` while the host is still loading. A managed chart trusts
+its inputs: it does not run `getDataErrors`, so run it yourself when the data
+isn't guaranteed valid. Its props are listed under
+[Chart props](/reference/props#managedChartProps).
 
 ## ChartHandle
 
-Returned by both entry points:
+Returned by both entry points, typed by the props they take:
 
 ```ts
 interface ChartHandle<TProps> {
@@ -69,16 +75,22 @@ interface ChartHandle<TProps> {
 ```
 
 - `update(nextProps)` merges new props into the chart. Change detection is
-  by object identity — pass a new config/data reference. Config and data
-  changes animate through the
-  [staged animation](/guide/staged-animation) phases when animation is
-  enabled; width/height changes re-layout the chart instantly.
+  by object identity — pass a new config/data reference; a key set to
+  `undefined` means "no change", like an absent key. Data changes — and config
+  changes that move the chart data, such as an axis bound — animate through
+  the [staged animation](/guide/staged-animation) phases when animation is
+  enabled; other config changes redraw instantly; structural config changes
+  (see [`hasConfigStructureChange`](#advanced-exports)) rebuild the chart and
+  replay its initial animation; width/height changes re-layout the chart
+  instantly.
 - `replace(nextProps)` swaps the props wholesale: a key absent from
   `nextProps` is unset and returns to chart-managed behavior, where `update`
   would keep its previous value. For hosts that pass the complete prop set
   on every render.
 - `refresh()` re-reads the current data without a new reference — the escape
-  hatch for hosts that mutate their data in place.
+  hatch for hosts that mutate their data in place. A default chart rebuilds
+  its provider over `data`; a managed chart calls the provider's optional
+  `refresh()` hook, then re-reads it.
 - `destroy()` cancels running tweens and removes the chart's DOM.
 
 ## Data providers
@@ -91,7 +103,7 @@ new ObjectOfArraysDataProvider(data)  // { month: ['Jan', …], revenue: [10, �
 ```
 
 Both take only the dataset — which property holds the category values is
-the config's knowledge (`categoryAxis.property`), and both are stateless:
+the config's knowledge (`categoryAxis.property`) — and both are stateless:
 the chart's next re-read sees any in-place change.
 
 Both implement the `DataProvider` interface, which custom providers can
@@ -101,24 +113,23 @@ implement to read straight from an existing store:
 type DataValue = number | string | Date | null | undefined;
 
 interface DataProvider {
-  // required — the values of one named property, index-aligned with every
-  // other property's values; undefined when the property isn't in the data
+  // required: one property's values, index-aligned across properties; undefined when absent
   getPropertyValues(property: string): readonly DataValue[] | undefined;
-  // optional
   getError?(): unknown;    // non-null → the chart shows its error state ('' and 0 count)
   getLoading?(): boolean;  // true → the chart shows its loading state
-  refresh?(): void;        // the handle's refresh() calls it before re-reading — invalidate caches here
+  refresh?(): void;        // called by the handle's refresh() before re-reading — invalidate caches here
 }
 ```
 
 `getPropertyValues` is the interface's one accessor: the chart requests every
-property the config names as all of that property's values — the category
-property, `categoryAxis.displayProperty`, and the series properties alike.
-Series values are numbers, with `null`/`undefined` as missing values;
-category and display values are strings, numbers, or `Date`s matching
-`categoryAxis.type`. The config's category property defines the category
-count, and `getDataErrors` flags any other property whose value count doesn't
-match. A provider missing the accessor is invalid, and `getDataErrors` says so.
+property the config names — the category property,
+`categoryAxis.displayProperty`, and the series properties alike — as all of
+that property's values. Series values are numbers, with `null`, `undefined`,
+and `NaN` all reading as missing; category and display values are strings, numbers, or `Date`s
+matching `categoryAxis.type`. The config's category property defines the
+category count, and `getDataErrors` flags any other property whose value
+count doesn't match. A provider missing the accessor is invalid, and
+`getDataErrors` says so.
 
 See [Data providers](/guide/data-providers) for the full contract and which
 properties are read.
@@ -131,11 +142,12 @@ import {
   getDefaults, getConfigWithDefaults, getConfigWithoutDefaults, getDataErrors
 } from '@mochart/core';
 
+enhanceConfig(config)                        // → MochartConfig (migrated, validated, defaults applied)
 validateConfig(config, defaults?, strict?)   // → { valid, errors, warnings }
 validateConfigDetailed(config, defaults?, strict?)
-                                             // → validation plus path-addressable diagnostics
-migrateConfig(config)                        // → config upgraded to the current format version
-enhanceConfig(config)                        // → MochartConfig (validated, defaults applied)
+                                             // → { valid, errors, warnings, diagnostics }
+migrateConfig(config)                        // → a copy upgraded to the current format version
+getDefaults(config)                          // → the defaults graph derived from the config
 getConfigWithDefaults(config, defaults?)     // → the config with every default value filled in
 getConfigWithoutDefaults(config, defaults?)  // → the minimal config: every default-matching value removed
 getDataErrors(mochartConfig, dataProvider)   // → string[] of readable data problems
@@ -146,28 +158,33 @@ config, which is what one-off calls want. Pass it explicitly — from
 `getDefaults(config)` — to share one defaults graph across several calls on
 the same config, or to substitute a custom graph.
 
-`strict` defaults to `true`, which is what the chart entry points use: warnings — an unknown
-config property, for instance — make the config invalid. Pass `false` to keep a config valid
-while still collecting its warnings, which is what a live-preview editor wants.
+`strict` defaults to `true`, which is what the chart entry points use:
+warnings — an unknown config property, for instance — make the config
+invalid. Pass `false` to keep a config valid while still collecting its
+warnings, which is what a live-preview editor wants.
 
-- `validateConfig` checks a raw config against the same validators that
-  generate this reference, returning human-readable `errors` and `warnings`
-  (unknown properties). See
-  [Validation](/guide/config-model#validation).
-- `validateConfigDetailed` performs the same validation without changing the
-  `validateConfig` result shape, and additionally returns `diagnostics`.
-  Each diagnostic contains a config `path`, `severity`, `message`, and
-  `source`, making it suitable for editors that need to highlight the
-  property responsible for a validation problem.
-- `migrateConfig` upgrades a config written against an older
-  [`version`](/guide/config-model#validation) to the current format.
 - `enhanceConfig` produces the fully-built `MochartConfig` that
   `createChart` consumes: migrated to the current format, validated, every
-  default applied, `*Defaults` sections merged, and cross-references resolved.
-  It never mutates the config it is given. The lower-level helpers —
-  `getDefaults`, `validateConfig`, `getConfigWithDefaults`,
-  `getConfigWithoutDefaults` — do not migrate: call `migrateConfig` first if
-  you use them directly on a stored config.
+  default applied, `*Defaults` sections merged, and cross-references
+  resolved. It never mutates the config it is given. The lower-level helpers
+  below do not migrate: call `migrateConfig` first if you use them directly
+  on a stored config.
+- `validateConfig` checks a raw config against the same validators that
+  generate this reference, returning human-readable `errors` and `warnings`
+  (unknown properties). See [Validation](/guide/config-model#validation).
+- `validateConfigDetailed` performs the same validation, keeps the
+  `validateConfig` result shape, and adds `diagnostics`: one entry per
+  problem with a config `path` (keys and array indexes), `severity`
+  (`'error'` | `'warning'`), `message`, and `source`, so an editor can
+  highlight the property responsible.
+- `migrateConfig` upgrades a config written against an older
+  [`version`](/guide/config-model#validation) to the current format,
+  returning a copy; a config with no `version` is stamped with the current
+  one.
+- `getDefaults` returns the defaults graph for a config — the values every
+  omitted property falls back to. It takes the config because some defaults
+  are conditional (pie mode hides the axes, a sole value axis becomes every
+  series' default `axis`, and so on).
 - `getConfigWithDefaults` returns the config a chart would actually run:
   every default filled in and the `*Defaults` sections merged into their
   entries. Unlike `enhanceConfig`, the result is still a plain raw config —
@@ -181,11 +198,15 @@ while still collecting its warnings, which is what a live-preview editor wants.
   without reaching into a mounted chart.
 - `getDataErrors` checks a dataset against an enhanced config —
   non-numeric series values, category values that don't match the configured
-  type, duplicate category values. A property the provider reports as absent
+  type, duplicate category values, a value count that differs from the
+  category count, and out-of-order category values on a linear category
+  scale under line or area series. A property the provider reports as absent
   (`getPropertyValues` returns `undefined`) is an error too — a lone one for
   the category property, since nothing else is checkable without it — unless
   the series sets `allowAbsentDataProperties`, which reads an absent series
-  property as all-missing values.
+  property as all-missing values. An invalid config or a `null` provider
+  yields no errors. `createDefaultChart` runs this for you; `createChart`
+  does not.
 
 ## Chart helpers
 
@@ -201,25 +222,32 @@ import {
   createCandlestick, createOhlc, createPie, createSparklineConfig
 } from '@mochart/core';
 
-createHistogram(values, options?)   // → { bins, data, categoryAxis, seriesConfig }
-createWaterfall(items, options?)    // → { steps, data, categoryAxis, series }
-createHeatmap(rows, options?)       // → { domain, colorScale, data, categoryAxis, valueAxes, series }
-createCandlestick(items, options?)  // → { candles, data, categoryAxis, series, valueAxes? }
-createOhlc(items, options?)         // → { candles, data, categoryAxis, series, valueAxes? }
-createPie(items, options?)          // → { total, fractions, data, chart, pie, categoryAxis, series }
-createSparklineConfig(config, options?)  // → config with the sparkline preset applied
+createHistogram(values, options?)          // → { bins, data, categoryAxis, seriesConfig }
+binValues(values, options?)                // → HistogramBin[]
+createWaterfall(items, options?)           // → { steps, data, categoryAxis, series, valueAxes }
+computeWaterfallSteps(items, base?)        // → WaterfallStep[]
+createHeatmap(rows, options?)              // → { domain, colorScale, data, categoryAxis, valueAxes, series }
+createHeatmapColorScale(domain, options?)  // → (value: number) => color
+createCandlestick(items, options?)         // → { candles, data, categoryAxis, series, valueAxes? }
+createOhlc(items, options?)                // → { candles, data, categoryAxis, series, valueAxes? }
+computeCandlesticks(items)                 // → Candlestick[]
+createPie(items, options?)                 // → { total, fractions, data, chart, pie, categoryAxis, series }
+computePieFractions(values)                // → { total, fractions }
+createSparklineConfig(config, options?)    // → config with the sparkline preset applied
 ```
 
 - `createHistogram` bins an array of numbers (Sturges' count and round bin
-  edges by default; `normalize` / `cumulative` modes) into contiguous bars.
-  `binValues` returns just the bins, without the chart fragments. See
-  [Histogram](/recipes/histogram).
+  edges by default; `binCount`/`binWidth`/`domain` overrides, `normalize`
+  and `cumulative` modes) into contiguous bars. `binValues` returns just the
+  bins, without the chart fragments. See [Histogram](/recipes/histogram).
 - `createWaterfall` accumulates signed steps into floating bars with
-  increase/decrease/total series. `computeWaterfallSteps` is the math
-  alone. See [Waterfall](/recipes/waterfall).
-- `createHeatmap` turns a grid of row values into stacked bar-band series
-  colored from a shared sequential ramp; `createHeatmapColorScale` builds
-  the same value→color scale standalone (e.g. for a ramp legend). See
+  increase/decrease/total series; its `valueAxes` fragment carries the
+  `base` the bars span from. `computeWaterfallSteps` is the math alone. See
+  [Waterfall](/recipes/waterfall).
+- `createHeatmap` turns a grid of row values into one bar-band series per
+  row, each cell colored by value from a shared sequential ramp; the value
+  axis fragment labels the rows. `createHeatmapColorScale` builds the same
+  value→color scale standalone (e.g. for a ramp legend). See
   [Heatmap](/recipes/heatmap).
 - `createCandlestick` turns OHLC items into candles: direction-colored
   open/close bodies over thin low/high wicks, or outlined up bodies with
@@ -229,16 +257,17 @@ createSparklineConfig(config, options?)  // → config with the sparkline preset
   [Candlestick](/recipes/candlestick).
 - `createOhlc` turns the same OHLC items into tick bars: thin low/high
   lines with a left open tick and a right close tick, with the same
-  `volume` option. See [OHLC Bars](/recipes/ohlc).
+  `volume` option. See [OHLC bars](/recipes/ohlc).
 - `createPie` turns labelled values into pie or donut slices — one series
   per slice, sized by its share of the total. Its `chart` fragment is
-  what switches the chart into pie mode (`type: 'pie'`).
-  `computePieFractions` returns just the total and per-slice fractions. See
-  [Pie and donut](/recipes/pie).
+  what switches the chart into pie mode (`type: 'pie'`); the `donut` option
+  fills the `pie` fragment. `computePieFractions` returns just the total and
+  per-slice fractions. See [Pie and donut](/recipes/pie).
 - `createSparklineConfig` is a config preset rather than a data transform:
   it hides axes, legend, tooltip, crosshairs and markers, and collapses
   margins for tiny inline charts. Values already set on the passed config
-  win. See [Sparklines](/recipes/sparklines).
+  win; the `interactive` option keeps the tooltip and crosshairs, `padding`
+  sets the uniform edge padding. See [Sparklines](/recipes/sparklines).
 
 For TypeScript hosts, every helper's item, option, and result shapes are
 exported as named types — histogram: `BinValuesOptions`, `HistogramBin`,
@@ -248,13 +277,14 @@ exported as named types — histogram: `BinValuesOptions`, `HistogramBin`,
 `CreateHeatmapColorScaleOptions`, `HeatmapData`; candlestick:
 `CandlestickItem`, `CandlestickDirection`, `Candlestick`,
 `CreateCandlestickOptions`, `CandlestickVolumeOptions`, `CandlestickData`;
-OHLC: `CreateOhlcOptions`, `OhlcData`; pie: `PieItem`, `CreatePieOptions`,
-`PieData`; sparkline: `CreateSparklineConfigOptions`. The shipped `.d.ts`
-documents every field — hover the type in your editor. Option members typed as
-a config union — `CreatePieOptions.tooltipValues` (`PieTooltipLabelType`) and
+OHLC: `CreateOhlcOptions`, `OhlcData` (OHLC items are `CandlestickItem`s);
+pie: `PieItem`, `CreatePieOptions`, `PieData`; sparkline:
+`CreateSparklineConfigOptions`. The shipped `.d.ts` documents every field —
+hover the type in your editor. Option members typed as a config union —
+`CreatePieOptions.tooltipValues` (`PieTooltipLabelType`) and
 `CreateHeatmapColorScaleOptions.colorInterpolation` (`ColorInterpolation`) —
-are typed by the config unions listed under [Constants](#constants), so a
-wrapper prop that forwards one can be typed.
+use the unions listed under [Constants](#constants), so a wrapper prop that
+forwards one can be typed.
 
 ## Constants
 
@@ -274,10 +304,10 @@ recur in code that builds configs:
 The union types the enumerated values form are all exported — `Align`,
 `VerticalAlign`, `Anchor`, `Position`, `AxisSide`, `ThresholdTitleSide`,
 `MissingValues`, `Scale`, `DataType`, `ChartType`, `RendererType`,
-`PatternType`, `CurveType`, `CapType`, `LabelPosition`, `ColorMode`, `ColorInterpolation`,
-`MarkerShape`, `MarkerSizeScale`, `PieLabelType`, `PieTooltipLabelType`,
-`Auto` — so a wrapper can name one in its own signature rather than reaching
-for `SeriesConfig['renderer']`.
+`PatternType`, `CurveType`, `CapType`, `LabelPosition`, `ColorMode`,
+`ColorInterpolation`, `MarkerShape`, `MarkerSizeScale`, `PieLabelType`,
+`PieTooltipLabelType`, `Auto` — so a wrapper can name one in its own
+signature rather than reaching for `SeriesConfig['renderer']`.
 
 ## Styling hooks
 
@@ -309,7 +339,7 @@ classes: `'mochart-chart mochart-chart-error'`.
 
 ## Version
 
-`getVersionString()` returns the library's version string.
+`getVersionString()` returns the library's package version, e.g. `'1.0.0'`.
 
 ## Advanced exports
 
@@ -333,13 +363,15 @@ hasConfigStructureChange(prev: MochartConfig | null, next: MochartConfig | null)
 ```
 
 Compares two enhanced configs (from `enhanceConfig`; either side may be
-`null` while a host is still loading) and reports whether the change is
-*structural* — a different chart type, category axis, series set, or
-validity. A structural change makes the chart rebuild and replay its
-initial animation instead of animating the difference in place, so a host
-can use this to know a config edit's blast radius before applying it. The
-entry points run the same check internally; only hosts that rebuild charts
-themselves need to call it.
+`null` while a host is still loading — a config appearing or going away is
+structural) and reports whether the change is *structural*: a different
+validity, config `id`, chart type, category axis (property, type, scale, or
+`dateUTC`), value axis set, stack set, or series set — series ids, data
+properties, or axis/stack/group membership. A structural change makes the
+chart rebuild and replay its initial animation instead of animating the
+difference in place, so a host can use this to know a config edit's blast
+radius before applying it. The entry points run the same check internally;
+only hosts that rebuild charts themselves need to call it.
 
 ### What is not exported
 

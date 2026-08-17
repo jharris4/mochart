@@ -23,11 +23,10 @@ values is the config's knowledge
 ([`categoryAxis.property`](/reference/categoryAxis#categoryAxis.property)),
 and the provider is never told. `createDefaultChart` wraps its `data` in the
 matching built-in provider automatically, dispatched by shape. The
-lower-level `createChart`
-accepts any object implementing the `DataProvider` interface, so a custom
-provider can read straight from an existing store without copying — see
-[when the data changes](#when-the-data-changes) for how to tell the chart
-the store moved.
+lower-level `createChart` accepts any object implementing the `DataProvider`
+interface, so a custom provider can read straight from an existing store
+without copying — see [when the data changes](#when-the-data-changes) for how
+to tell the chart the store moved.
 
 ## The provider interface
 
@@ -35,7 +34,6 @@ A provider is a read-only **property-values lookup** over one dataset. One
 member is required, three are optional:
 
 ```ts
-/** number | string | Date | null | undefined */
 type DataValue = number | string | Date | null | undefined;
 
 interface DataProvider {
@@ -54,7 +52,7 @@ when the property isn't in the data at all. That one accessor serves every
 property the config names — the category property, `displayProperty`, and all
 the series properties alike — so a provider does not need to know which
 config property asked. Return the stored values either way; `getDataErrors`
-checks each property's values against their own rule.
+checks each property's values against its own rule.
 
 The rules the chart holds the values to:
 
@@ -82,10 +80,11 @@ The optional three are independent — implement only the ones you want:
 - `refresh()` is called by the chart handle's
   [`refresh()`](#when-the-data-changes) before it re-reads.
 
-A provider missing `getPropertyValues` is treated as invalid:
-`getDataErrors` reports
-`data provider must implement: getPropertyValues`, and the chart renders no
-data rather than failing mid-read.
+A provider object without a `getPropertyValues` *method* is invalid:
+`getDataErrors` reports `data provider must implement: getPropertyValues`, and
+the chart renders no data rather than failing mid-read. (A provider that lacks
+a particular *property* is a different case — see `allowAbsentDataProperties`
+under [Validating data against a config](#validating-data-against-a-config).)
 
 A complete custom provider over a store that already holds one array per
 property is one method:

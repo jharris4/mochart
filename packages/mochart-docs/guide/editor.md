@@ -43,16 +43,19 @@ const editor = createJsonEditor(host, {
 ```
 
 `createJsonEditor` appends a `.mochart-editor` element into `host` and
-returns a handle. The `JsonEditorOptions` worth knowing beyond the example:
+returns a handle. `ariaLabel` is the one required option; it names the
+editable element for assistive tech. The other `JsonEditorOptions`:
 `readOnly` and `lineNumbers` toggle those behaviors, `indentation` sets what
 `format()` inserts (two spaces by default), `theme` picks the initial color
-treatment, and `ariaDescribedBy` links the editable element to help text.
-`support` accepts one `JsonEditorSupport` or an array of them.
+treatment (`'light'` by default), and `ariaDescribedBy` links the editable
+element to help text. `support` accepts one `JsonEditorSupport` or an array
+of them.
 
 ## The handle
 
 The returned `JsonEditorHandle` drives the editor imperatively:
 
+- `element` — the `.mochart-editor` element the editor was mounted into.
 - `getValue()` / `setValue(value)` — read and replace the document.
   Controlled `setValue` updates do not fire `onChange`; only user edits and
   `format()` do.
@@ -70,12 +73,19 @@ The returned `JsonEditorHandle` drives the editor imperatively:
 
 `createMochartConfigSupport()` adds the config-aware layer: completions for
 top-level sections and nested properties (typing `"` at a property position
-offers everything the containing object accepts), enum and boolean value
-completions, configured-id completions for reference properties like a
-series' `axis`, and hover documentation with each property's description,
-rules, and default. It is generated from the same model as this site's
+offers everything the containing object accepts; <kbd>Tab</kbd> accepts the
+selected completion), enum and boolean value completions, configured-id
+completions for reference properties like a series' `axis`, and hover
+documentation with each property's description, rules, and default. It is
+generated from the same model as this site's
 [config reference](/reference/), exported as `mochartConfigEditorModel`
 for tooling that wants the raw model.
+
+Completions and hover text come from that build-time model, while validation
+diagnostics come from the installed `@mochart/core`. If the two are from
+different minor versions, the editor logs a console warning once: properties
+added or removed since the model was generated have no completions or hover
+text, but validation still reflects the installed core.
 
 ## Diagnostics
 
@@ -84,9 +94,11 @@ Both the built-in JSON syntax layer and the Mochart support report through
 offsets, a `severity` (`JsonEditorSeverity`: `error`, `warning`, `info`, or
 `hint`), the `message`, a `source` of `'json'` or `'mochart'`, and — for
 Mochart validation problems — the config `path` (a `JsonPath`) the message
-is about. Unknown config properties are underlined on the offending key
-itself. The editable element's `aria-invalid` tracks whether any errors are
-present, and the editor's border reflects it visually.
+is about. Mochart validation runs only once the text parses as JSON; until
+then only the syntax problems are reported. Unknown config properties are
+underlined on the offending key itself. The editable element's
+`aria-invalid` tracks whether any errors are present, and the editor's
+border color reflects it visually.
 
 ## Theming
 
@@ -94,5 +106,6 @@ Pass `theme: 'dark'` for the bundled dark treatment and switch later with
 `setTheme`. Both themes read CSS custom properties from `.mochart-editor`
 (`--mochart-editor-background`, `--mochart-editor-foreground`,
 `--mochart-editor-border`, `--mochart-editor-focus`,
-`--mochart-editor-gutter`), so a host page can restyle the surface without
-touching the stylesheet.
+`--mochart-editor-focus-soft`, `--mochart-editor-gutter`), so a host page
+can restyle the surface without touching the stylesheet. The element also
+carries `data-theme` and `data-validity` attributes for host CSS to key on.

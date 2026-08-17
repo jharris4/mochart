@@ -1,7 +1,7 @@
 # Sparklines
 
 The `createSparklineConfig` helper turns any chart config into a sparkline
-preset — axes, legend, tooltip, crosshairs and point markers hidden and
+preset — axes, legend, tooltip, crosshair and point markers hidden and
 margins collapsed — leaving only the plotted shapes for tiny inline charts.
 
 <script setup>
@@ -14,19 +14,22 @@ import * as sparkline from '../examples/sparkline'
 
 ## How it works
 
-- The preset only fills in defaults — any value set on the passed config
-  wins. To bring one piece back, set it explicitly: e.g.
-  `legend: { visible: true }` survives the preset untouched.
-- `interactive: true` keeps the tooltip and crosshairs enabled for
-  sparklines large enough to host them; `padding` (default 2px) keeps
-  strokes at the data extremes from clipping against the chart edges.
+- `createSparklineConfig(config, options)` returns a new config; it only
+  fills in defaults, so any value set on the passed config wins. To bring one
+  piece back, set it explicitly: `legend: { visible: true }` survives the
+  preset untouched. The value axes are hidden through
+  [`valueAxisDefaults`](/reference/valueAxes), so it works whether or not
+  the config declares any.
+- `interactive: true` keeps the tooltip and crosshair enabled for sparklines
+  large enough to host them; `padding` (default 2px) is set as the chart
+  [`padding`](/reference/chart#chart.padding) and keeps strokes at the data
+  extremes from clipping against the chart edges.
 - Point markers are hidden by nulling
-  [`markerShape`](/reference/series#series.markerShape)
-  through `seriesDefaults`, so line series render as a bare stroke.
-- The sparkline is still a regular chart — size it by mounting it small
-  (this page uses a 56px-tall host; table cells around 150×32 work well)
-  and it renders any series type. A win/loss strip is two `bar` series
-  with [`missingValues: 'connect'`](/reference/series#series.missingValues),
-  one property per direction, on an axis fixed to `min: -1, max: 1` — the
-  same one-property-per-direction trick the
-  [waterfall](/recipes/waterfall) uses.
+  [`markerShape`](/reference/series#series.markerShape) through
+  `seriesDefaults`, so line series render as a bare stroke.
+- The sparkline is still a regular chart — size it by mounting it small (this
+  page uses a 56px-tall host; table cells around 150×32 work well) and it
+  renders any series type. A win/loss strip is two `bar` series with
+  [`missingValues: 'connect'`](/reference/series#series.missingValues), one
+  property per direction, on an axis fixed to `min: -1, max: 1` — the same
+  one-property-per-direction trick the [waterfall](/recipes/waterfall) uses.
