@@ -187,12 +187,11 @@ export function watchMenuDismiss(options: MenuDismissOptions): () => void {
 
   const { isInside, onDismiss, getScrollableEl } = options;
 
-  // `pointerdown`, not `mousedown`: the chart's own `touchstart` handler calls
-  // `preventDefault()` to own the gesture, which filters the synthesized
-  // mouse events — so on a touch device `mousedown` may never arrive and
-  // tapping the chart would leave the menu stranded open. Capture phase for the
-  // same family of reasons: a handler in between that stops propagation must
-  // not be able to hold the menu open either.
+  // `pointerdown`, not `mousedown`: it fires for every pointer type before any
+  // synthesized mouse events, so tap dismissal does not depend on the compat
+  // mouse sequence, which a page-level touch handler may cancel. Capture phase
+  // for the same family of reasons: a handler in between that stops propagation
+  // must not be able to hold the menu open either.
   function onPointerDown(event: PointerEvent): void {
     if (!isInside(toNode(event.target))) {
       onDismiss();

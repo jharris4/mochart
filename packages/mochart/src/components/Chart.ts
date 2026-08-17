@@ -110,7 +110,8 @@ interface ChartState {
 
 type ChartStateUpdate = Partial<ChartState>;
 type ChartPointCallback = (chartX: number, chartY: number) => void;
-type ChartPointerEvent = MouseEvent | TouchEvent;
+// taps arrive as the browser's synthesized mouse events, so this is the only pointer event type the chart root sees
+type ChartPointerEvent = MouseEvent;
 type FactoryContent = ChartFactoryContent | El;
 type FactoryEl = El & { _factory?: ChartContentFactory | null; _factoryContext?: ChartFactoryContext | null };
 
@@ -406,18 +407,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   }
 
   processChartEvent(event: ChartPointerEvent, mouseInCallback: ChartPointCallback, mouseOutCallback?: ChartPointCallback): void {
-    let position: MouseEvent | Touch;
-    if ('targetTouches' in event) {
-      const touch = event.targetTouches[0] ?? event.changedTouches[0];
-      if (!touch) {
-        return;
-      }
-      position = touch;
-    }
-    else {
-      position = event;
-    }
-    const { x, y, withinPlot } = this.toPlotLocalPoint(position.clientX, position.clientY);
+    const { x, y, withinPlot } = this.toPlotLocalPoint(event.clientX, event.clientY);
     if (withinPlot) {
       mouseInCallback(x, y);
     }
