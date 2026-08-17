@@ -549,9 +549,13 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   }
 
   calculateTooltipTextSize = () => {
+    // a zero-size chart renders the no-size message with no chartRef while the tooltip state stays open
+    if (!this.chartRef) {
+      return;
+    }
     const mochartConfig = this.renderedConfig();
     let { tooltipBounds } = this.state;
-    tooltipBounds = getBoundsWithMutations(tooltipBounds, getTooltipBounds(mochartConfig, getDomAccessors(this.chartRef!)));
+    tooltipBounds = getBoundsWithMutations(tooltipBounds, getTooltipBounds(mochartConfig, getDomAccessors(this.chartRef)));
     const tooltipLayoutInfo = getTooltipLayoutInfoWithMutations(this.state.tooltipLayoutInfo,
       this.getTooltipLayoutInfo(mochartConfig, { tooltipBounds }));
     this.setState({ tooltipBounds, tooltipLayoutInfo });

@@ -6,7 +6,7 @@ import { createChart, createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartFactoryContext, DefaultChartProps, ManagedChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
-import { getCssSelector } from '../../src/utils/ChartDom';
+import { getCssSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -337,5 +337,27 @@ describe('state factory re-invocation', () => {
     expect(calls.length).toBe(2);
     expect(calls[1].width).toBe(WIDTH - 100);
     expect(container.querySelector('.factory-marker')).not.toBe(before);
+  });
+});
+
+// Regression: the no-size state nulls chartRef but keeps the tooltip state open, and the next data
+// change measured the tooltip through the missing ref
+describe('no-size state with an open tooltip', () => {
+  it('survives a data change while the chart has no size', () => {
+    const container = mountContainer();
+    const handle = trackHandle(createDefaultChart(container, {
+      config: makeConfig(), data: rows, width: WIDTH, height: HEIGHT
+    } as DefaultChartProps));
+    const root = container.querySelector(getChartRootCssSelector())!;
+    root.dispatchEvent(new MouseEvent('mouseenter', { clientX: 100, clientY: 100, bubbles: true }));
+    root.dispatchEvent(new MouseEvent('click', { clientX: 100, clientY: 100, bubbles: true }));
+    expect(container.querySelector(getCssSelector('tooltip'))).not.toBeNull();
+
+    handle.update({ width: 0, height: 0 } as Partial<DefaultChartProps>);
+    expect(container.querySelector(getCssSelector('chartError'))).not.toBeNull();
+    expect(() => handle.update({ data: [...rows, { month: 'Mar', sales: 30 }] } as Partial<DefaultChartProps>)).not.toThrow();
+
+    handle.update({ width: WIDTH, height: HEIGHT } as Partial<DefaultChartProps>);
+    expect(container.querySelector(getCssSelector('chartError'))).toBeNull();
   });
 });
