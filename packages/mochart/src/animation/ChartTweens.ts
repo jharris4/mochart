@@ -418,11 +418,12 @@ function buildDataTween(
   }
   else {
     const { start, final } = valueChangeData;
+    // the value-change callbacks still bracket a zero-delta phase: the source keys its focus index space off them
     if (start !== null && final !== null && start !== final) {
       tweenData.push({
-        onStart: () => { updateCallback(start, dataTweenValueStart); },
+        onStart: () => { updateCallback(start, dataTweenValueStart); startValueChangeCallback(start); },
         onUpdate: () => { updateCallback(final, dataTweenValueUpdate); },
-        onComplete: () => { updateCallback(final, dataTweenValueComplete); },
+        onComplete: () => { updateCallback(final, dataTweenValueComplete); completeValueChangeCallback(final); },
         duration: 0
       });
     }

@@ -153,13 +153,22 @@ describe('tweenData', () => {
     const contractionStart = sentinel('contraction', 'start');
     const contractionFinal = sentinel('contraction', 'final');
     const completeCallback = vi.fn();
+    const startValueChangeCallback = vi.fn();
+    const completeValueChangeCallback = vi.fn();
 
     manager.tweenData(makeConfig(), makeAnimationData({
       axisExpansionData: phaseData(0, expandStart, expandFinal),
       valueChangeData: phaseData(0, valueStart, valueFinal),
       axisContractionData: phaseData(0, contractionStart, contractionFinal)
-    }), record, { completeCallback });
+    }), record, { completeCallback, startValueChangeCallback, completeValueChangeCallback });
     runFrames();
+
+    // Regression: the fallback value step skipped the value-change callbacks, so the source stayed in
+    // the old index space through a real contraction phase
+    expect(startValueChangeCallback).toHaveBeenCalledTimes(1);
+    expect(startValueChangeCallback).toHaveBeenCalledWith(valueStart);
+    expect(completeValueChangeCallback).toHaveBeenCalledTimes(1);
+    expect(completeValueChangeCallback).toHaveBeenCalledWith(valueFinal);
 
     expect(events.map(({ event }) => event)).toEqual([
       dataTweenExpandStart, dataTweenExpandUpdate, dataTweenExpandComplete,
