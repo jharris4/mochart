@@ -4,7 +4,7 @@ import { getDefaults, getVersionString, validateConfigDetailed } from '@mochart/
 import type { Diagnostic } from '@codemirror/lint';
 import model from './mochartConfigModel.generated.js';
 import type { EditorPropertyModel, EditorSectionModel, EditorValueModel } from './model.js';
-import { containingObject, existingObjectKeys, isPropertyPosition, keyRangeForPath, memberIndentation, objectPath, pathAt, rangeForPath } from './jsonTree.js';
+import { afterClosingPropertyQuote, containingObject, existingObjectKeys, isPropertyPosition, keyRangeForPath, memberIndentation, objectPath, pathAt, propertyNameAt, rangeForPath } from './jsonTree.js';
 import { defineSupport } from './support.js';
 import type { JsonPath } from './types.js';
 
@@ -183,6 +183,18 @@ function applyJsonText(text: string) {
 function applyProperty(key: string, value: string) {
   return (view: EditorView, completion: Completion, from: number, to: number) => {
     const { state } = view;
+    const keyText = JSON.stringify(key);
+    // inside the name of a member that already has its colon and value: rename the key, keep the value
+    const name = propertyNameAt(state, from);
+    if (name && name.hasColon) {
+      view.dispatch({
+        changes: { from: name.from, to: name.to, insert: keyText },
+        selection: { anchor: name.from + keyText.length },
+        userEvent: 'input.complete',
+        annotations: pickedCompletion.of(completion)
+      });
+      return;
+    }
     const start = state.sliceDoc(from - 1, from) === '"' ? from - 1 : from;
     // a closing quote is only swallowed when a typed opening quote pairs with it
     const tail = (start < from ? /^[\w-]*"?/ : /^[\w-]*/).exec(state.sliceDoc(to, to + 80))?.[0] ?? '';
@@ -205,7 +217,6 @@ function applyProperty(key: string, value: string) {
       suffix = ',';
     }
 
-    const keyText = JSON.stringify(key);
     const valueStart = start + prefix.length + keyText.length + 2;
     const selection = value === '{}' || value === '[]' || value === '""'
       ? { anchor: valueStart + 1 }
@@ -241,6 +252,8 @@ function completionSource(context: CompletionContext) {
   // stay closed until a quote or word character is typed (or Ctrl-Space):
   // an eager popup swallows the Enter after a trailing comma
   if (!context.explicit && !word?.text) return null;
+  // the quote just stepped over closes a finished key; a popup here would splice a member into it
+  if (afterClosingPropertyQuote(context.state, context.pos)) return null;
   // the match span starts after any typed quote so it filters against the bare
   // labels; applyJsonText re-swallows the quote when inserting
   const from = word ? word.from + (word.text.startsWith('"') ? 1 : 0) : context.pos;

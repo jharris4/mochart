@@ -92,6 +92,22 @@ describe('Mochart support completions', () => {
     expect(() => JSON.parse(doc)).not.toThrow();
   });
 
+  // Regression: accepting a property completion inside a key that already had its value appended a
+  // second ": value", and the closing quote of a finished key opened the popup and was swallowed
+  it('renames the key in place when the member already has a value', async () => {
+    expect(await acceptCompletion('{"ti|": null}', 'title')).toBe('{"title": null}');
+    expect(await acceptCompletion('{\n  "chart": {"type": "xy"},\n  "leg|": {}\n}', 'legend'))
+      .toBe('{\n  "chart": {"type": "xy"},\n  "legend": {}\n}');
+  });
+
+  it('stays closed right after the closing quote of a finished key', () => {
+    for (const marked of ['{"a"|}', '{"a"|: 1}']) {
+      const { state, position } = markedState(marked);
+      expect(mochartSupportTesting.completionSource(new CompletionContext(state, position, false))).toBeNull();
+      expect(mochartSupportTesting.completionSource(new CompletionContext(state, position, true))).toBeNull();
+    }
+  });
+
   it('suggests nested properties instead of section properties', async () => {
     const options = await completionOptions('{"chart":{"margin":{"|": 0}}}');
     expect(labels(options)).toEqual(expect.arrayContaining(['top', 'right', 'bottom', 'left']));

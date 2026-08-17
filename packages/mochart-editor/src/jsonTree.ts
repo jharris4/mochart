@@ -72,6 +72,22 @@ export function existingObjectKeys(state: EditorState, object: SyntaxNode): stri
     .filter((key): key is string => key !== null);
 }
 
+/** The property-name token the cursor is in, and whether its member already carries a colon (so a completion renames rather than inserts). */
+export function propertyNameAt(state: EditorState, position: number): { from: number; to: number; hasColon: boolean } | null {
+  const node = syntaxTree(state).resolveInner(position, -1);
+  if (node.name !== 'PropertyName' || !node.parent) return null;
+  const hasColon = children(node.parent).some(child => child.name === ':');
+  return { from: node.from, to: node.to, hasColon };
+}
+
+/** True when the cursor sits right after the closing quote of a complete property name. */
+export function afterClosingPropertyQuote(state: EditorState, position: number): boolean {
+  const name = propertyNameAt(state, position);
+  if (!name || name.to !== position) return false;
+  const text = state.sliceDoc(name.from, name.to);
+  return text.length >= 2 && text.endsWith('"');
+}
+
 export function isPropertyPosition(state: EditorState, position: number, object: SyntaxNode): boolean {
   let node: SyntaxNode | null = syntaxTree(state).resolveInner(position, -1);
   if (node.name === 'PropertyName') return true;
