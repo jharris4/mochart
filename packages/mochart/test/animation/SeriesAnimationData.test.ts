@@ -500,3 +500,32 @@ describe('follower duration sync', () => {
     expect(filtered.C.deltaCopied).toBe(true);
   });
 });
+
+// Regression: the trailing-side guard read the changed side's values over the merged-space range, which
+// runs past its own array whenever both sides changed, so a sliding window seeded its entering point at the base
+describe('animateBaseFromAdjacent across a sliding window', () => {
+  const config = makeConfig({
+    categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+    series: [{ property: 'v', renderer: 'line' }],
+    valueAxes: [{ min: 0, max: 50 }]
+  });
+  const dataFor = (r: Record<string, number>[]) => getChartData(config, new ArrayOfObjectsDataProvider(r), {});
+  const transition = (prev: ChartData, next: ChartData) =>
+    getTransitionValueChangeData(config, prev, next, getCategoryDeltaData(config.categoryAxis, prev.categoryData, next.categoryData));
+
+  it('seeds both the leaving and the entering point from their neighbours', () => {
+    const vcd = transition(
+      dataFor([{ g: 1, v: 10 }, { g: 2, v: 20 }, { g: 3, v: 30 }]),
+      dataFor([{ g: 2, v: 20 }, { g: 3, v: 30 }, { g: 4, v: 40 }]));
+    // merged [1, 2, 3, 4]: the entering point 4 starts at the old last value, the leaving point 1 ends at the new first value
+    expect(vcd.start.seriesData.raw.values['S0'].plain).toEqual([10, 20, 30, 30]);
+    expect(vcd.end.seriesData.raw.values['S0'].plain).toEqual([20, 20, 30, 40]);
+  });
+
+  it('still seeds a pure trailing addition', () => {
+    const vcd = transition(
+      dataFor([{ g: 1, v: 10 }, { g: 2, v: 20 }, { g: 3, v: 30 }]),
+      dataFor([{ g: 1, v: 10 }, { g: 2, v: 20 }, { g: 3, v: 30 }, { g: 4, v: 40 }]));
+    expect(vcd.start.seriesData.raw.values['S0'].plain).toEqual([10, 20, 30, 30]);
+  });
+});

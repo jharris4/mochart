@@ -527,7 +527,8 @@ function setBaseValuesForOuterChange(targetValues: NumericValues | null, sourceV
     if (outerCountChanges.before > 0 && !isMissingValue(sourceValues[0]) && !hasMissingForRange(changedValues, 0, outerCountChanges.before)) {
       setArrayValuesForRange(targetValues, 0, outerCountChanges.before, sourceValues[0]);
     }
-    if (outerCountChanges.after > 0 && !isMissingValue(sourceValues[sourceValues.length - 1]) && !hasMissingForRange(changedValues, targetValues.length - outerCountChanges.after, targetValues.length)) {
+    // the changed side's trailing values sit at the end of its own array, which is shorter than the merged target when both sides changed
+    if (outerCountChanges.after > 0 && !isMissingValue(sourceValues[sourceValues.length - 1]) && !hasMissingForRange(changedValues, changedValues.length - outerCountChanges.after, changedValues.length)) {
       setArrayValuesForRange(targetValues, targetValues.length - outerCountChanges.after, targetValues.length, sourceValues[sourceValues.length-1]);
     }
   }
