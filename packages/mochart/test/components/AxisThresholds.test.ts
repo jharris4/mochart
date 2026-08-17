@@ -433,9 +433,35 @@ describe('reversed axes', () => {
   });
 
   // snapping follows the pixel edge, not the value: a low value on a reversed axis is near the ceiling
-  it('snaps a high title below a low-value line on a reversed value axis', () => {
-    const snapped = titlePosition(valueThreshold({ value: 2, title: 'T', titleSide: 'high', titleSnapToValue: true }, { reversed: true }));
-    const clamped = titlePosition(valueThreshold({ value: 2, title: 'T', titleSide: 'high', titleSnapToValue: false }, { reversed: true }));
+  // on a reversed value axis the low side is above the line; a low-value line sits by the ceiling with no room there
+  it('snaps a low title below a low-value line on a reversed value axis', () => {
+    const snapped = titlePosition(valueThreshold({ value: 2, title: 'T', titleSide: 'low', titleSnapToValue: true }, { reversed: true }));
+    const clamped = titlePosition(valueThreshold({ value: 2, title: 'T', titleSide: 'low', titleSnapToValue: false }, { reversed: true }));
     expect(snapped.y).toBeGreaterThan(clamped.y);
+  });
+});
+
+// Regression: titleSide picked a pixel side (low = below / left), so on a reversed value axis or an
+// inverted category axis both sides landed toward the wrong values, the default 'high' included
+describe('titleSide follows the value direction', () => {
+  it('puts a low title toward the smaller values on a reversed value axis', () => {
+    const low = titlePosition(valueThreshold({ value: 50, title: 'T', titleSide: 'low', titleSnapToValue: false }, { reversed: true }));
+    const high = titlePosition(valueThreshold({ value: 50, title: 'T', titleSide: 'high', titleSnapToValue: false }, { reversed: true }));
+    expect(low.y).toBeLessThan(high.y); // reversed: smaller values are up
+  });
+
+  it('puts a low title toward the smaller values on an inverted category axis', () => {
+    const inverted = (titleSide: string) => titlePosition(mount({
+      plot: { inverted: true },
+      categoryAxis: { property: 'x', type: 'number', scale: 'linear', min: 0, max: 100, thresholds: [{ value: 50, title: 'T', titleSide, titleSnapToValue: false }] },
+      series: [{ property: 'sales', renderer: 'line' }]
+    }, linearRows));
+    expect(inverted('low').y).toBeLessThan(inverted('high').y); // inverted: categories ascend downward
+  });
+
+  it('puts a low title toward the smaller values on a reversed category axis', () => {
+    const low = titlePosition(categoryThreshold({ value: 50, title: 'T', titleSide: 'low', titleSnapToValue: false }, { reversed: true }));
+    const high = titlePosition(categoryThreshold({ value: 50, title: 'T', titleSide: 'high', titleSnapToValue: false }, { reversed: true }));
+    expect(low.x).toBeGreaterThan(high.x); // reversed: smaller values are right
   });
 });

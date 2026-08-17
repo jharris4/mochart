@@ -103,6 +103,9 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
           paddingY = temp;
         }
 
+        // titleSide names the value side; ascending says which pixel direction the values grow in
+        const below = ascending ? !titleLow : titleLow;
+        const left = ascending ? titleLow : !titleLow;
         if (vertical) {
           paddingY += paddingHeight / 2.0;
           if (start) {
@@ -112,7 +115,7 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
             // right
             titleX += seriesLayoutInfo.width - width;
           }
-          if (titleLow) {
+          if (below) {
             // below
             titleY = Math.min(thresholdY, seriesLayoutInfo.y + seriesLayoutInfo.height - height);
           }
@@ -121,13 +124,13 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
             titleY = Math.max(thresholdY - height, seriesLayoutInfo.y);
           }
           if (titleSnapToValue) {
-            if (titleLow && titleY < thresholdY) {
+            if (below && titleY < thresholdY) {
               if (thresholdY - height >= seriesLayoutInfo.y) {
                 titleY = thresholdY - height;
               }
 
             }
-            else if (!titleLow && titleY > (thresholdY - height)) {
+            else if (!below && titleY > (thresholdY - height)) {
               if (thresholdY + height <= seriesLayoutInfo.y + seriesLayoutInfo.height) {
                 titleY = thresholdY;
               }
@@ -144,7 +147,7 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
             // above
             titleY += seriesLayoutInfo.height - height;
           }
-          if (titleLow) {
+          if (left) {
             // left
             titleX = Math.max(thresholdX - width, seriesLayoutInfo.x);
           }
@@ -153,13 +156,13 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
             titleX = Math.min(thresholdX, seriesLayoutInfo.x + seriesLayoutInfo.width - width);
           }
           if (titleSnapToValue) {
-            if (titleLow && titleX > (thresholdX - width)) {
+            if (left && titleX > (thresholdX - width)) {
               if (thresholdX + width <= seriesLayoutInfo.x + seriesLayoutInfo.width) {
                 titleX = thresholdX;
               }
 
             }
-            else if (!titleLow && titleX < (thresholdX + width)) {
+            else if (!left && titleX < (thresholdX + width)) {
               if (thresholdX - width >= seriesLayoutInfo.x) {
                 titleX = thresholdX - width;
               }
