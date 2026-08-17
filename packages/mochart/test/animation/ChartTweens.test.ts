@@ -227,6 +227,40 @@ describe('tweenData', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  // Regression: a tween cancelled from inside its own callback still fired its completion and started its
+  // chained steps, so a superseded data tween kept running interleaved with its replacement
+  it('a data tween replaced from inside its own callback runs none of its later steps', () => {
+    const manager = makeManager();
+    const { events, record } = makeRecorder();
+    const firstComplete = vi.fn();
+    const firstValueStart = vi.fn();
+    const secondFinal = sentinel('value2', 'final');
+    let replaced = false;
+
+    const reentrantRecord: typeof record = (data, event) => {
+      record(data, event);
+      if (event === dataTweenExpandComplete && !replaced) {
+        replaced = true;
+        manager.tweenData(makeConfig(), makeAnimationData({
+          valueChangeData: phaseData(1, sentinel('value2', 'start'), secondFinal)
+        }), record);
+      }
+    };
+    manager.tweenData(makeConfig(), makeAnimationData({
+      axisExpansionData: phaseData(1, sentinel('expand', 'start'), sentinel('expand', 'final')),
+      valueChangeData: phaseData(1, sentinel('value1', 'start'), sentinel('value1', 'final')),
+      axisContractionData: phaseData(1, sentinel('contract', 'start'), sentinel('contract', 'final'))
+    }), reentrantRecord, { completeCallback: firstComplete, startValueChangeCallback: firstValueStart });
+    runFrames();
+
+    const firstEvents = events.filter(({ data }) => String((data as { phase?: string }).phase ?? '').startsWith('value1') || String((data as { phase?: string }).phase ?? '').startsWith('contract'));
+    expect(firstEvents).toEqual([]);
+    expect(firstValueStart).not.toHaveBeenCalled();
+    expect(firstComplete).not.toHaveBeenCalled();
+    expect(events[events.length - 1]!.data).toBe(secondFinal);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it('starting a new data tween replaces the running one without double completion', () => {
     const manager = makeManager();
     const { events, record } = makeRecorder();

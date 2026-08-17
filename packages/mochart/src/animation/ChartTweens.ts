@@ -135,6 +135,8 @@ function initMochartTween(): TweenEngine {
     const id = _nextTweenId++;
     let startTime = 0;
     let isPlaying = false;
+    // set by stop(): a callback that cancels this tween (a re-entrant tweenData) must not see it complete or start its chain
+    let stopped = false;
     let onStartCallbackFired = false;
     let onStartCallback: VoidCallback | null = null;
     let onUpdateCallback: ((percentage: number) => void) | null = null;
@@ -145,6 +147,7 @@ function initMochartTween(): TweenEngine {
       add(tween);
 
       isPlaying = true;
+      stopped = false;
 		  onStartCallbackFired = false;
 
       startTime = delay + (time !== undefined ? time : now());
@@ -160,6 +163,9 @@ function initMochartTween(): TweenEngine {
           onStartCallback();
         }
         onStartCallbackFired = true;
+        if (stopped) {
+          return false;
+        }
       }
 
       let percentage = duration === 0 ? 1 : (time - startTime) / duration;
@@ -167,6 +173,9 @@ function initMochartTween(): TweenEngine {
 
       if (onUpdateCallback !== null) {
 			  onUpdateCallback(percentage);
+        if (stopped) {
+          return false;
+        }
 		  }
 
       if (percentage === 1) {
@@ -174,6 +183,9 @@ function initMochartTween(): TweenEngine {
 
         if (onCompleteCallback !== null) {
 					onCompleteCallback();
+          if (stopped) {
+            return false;
+          }
 				}
 
         for (const chainedTween of chainedTweens) {
@@ -200,6 +212,7 @@ function initMochartTween(): TweenEngine {
     // Always cascades into chained tweens, even after this tween completed —
     // stopping the head of a chain must halt whichever step is currently running.
     const stop = function(): Tween {
+      stopped = true;
       if (isPlaying) {
         remove(tween);
         isPlaying = false;
