@@ -231,8 +231,8 @@ describe('animated createChart refresh across a provider validity flip', () => {
   const animatedConfig = { ...config, animation: { animate: true } };
   const rows = [{ label: 'a', value: 1 }, { label: 'b', value: 3 }];
 
-  function liveProvider(error: () => unknown) {
-    const inner = new mochart.ArrayOfObjectsDataProvider(rows);
+  function liveProvider(error: () => unknown, data = rows) {
+    const inner = new mochart.ArrayOfObjectsDataProvider(data);
     return { getPropertyValues: (property: string) => inner.getPropertyValues(property), getError: error };
   }
 
@@ -272,6 +272,30 @@ describe('animated createChart refresh across a provider validity flip', () => {
     chart.refresh();
     runFrames();
     expect(getCategoryLabels(container).sort()).toEqual(['a', 'b', 'c']);
+    chart.destroy();
+  });
+
+  // Regression: an unrelated update() recorded the in-place flip as "valid, already started", so the
+  // following refresh() skipped start() and tweened against null chart data
+  it('renders the data after an in-place error clear, an unrelated update and a refresh', () => {
+    let error: string | undefined = 'boom';
+    const container = mountContainer();
+    const chart = mochart.createChart(container, {
+      mochartConfig: mochart.enhanceConfig(animatedConfig as never), dataProvider: liveProvider(() => error, [{ label: 'a', value: 1 }, { label: 'b', value: 3 }]), width: 300, height: 200
+    });
+    runFrames();
+    expect(container.textContent).toContain('boom');
+
+    error = undefined;
+    chart.update({ width: 301 });
+    runFrames();
+    chart.update({ focusedCategoryIndex: 1 });
+    runFrames();
+    expect(getCategoryLabels(container)).toEqual([]);
+
+    chart.refresh();
+    runFrames();
+    expect(getCategoryLabels(container).sort()).toEqual(['a', 'b']);
     chart.destroy();
   });
 

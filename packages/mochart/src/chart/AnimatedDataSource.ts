@@ -97,9 +97,13 @@ export class AnimatedDataSource implements ChartDataSource {
 
     const configChanged = mochartConfig !== prevInput.mochartConfig;
     const dataProviderChanged = dataProvider !== prevInput.dataProvider;
-    const dataProviderValid = isDataProviderValid(dataProvider);
-    const dataProviderValidityChanged = dataProviderChanged && dataProviderValid !== this.lastDataProviderValid;
-    this.lastDataProviderValid = dataProviderValid;
+    const liveDataProviderValid = isDataProviderValid(dataProvider);
+    const dataProviderValidityChanged = dataProviderChanged && liveDataProviderValid !== this.lastDataProviderValid;
+    // an in-place flip is only recorded once refresh() hands over a fresh identity, so it always routes through start()
+    if (dataProviderChanged) {
+      this.lastDataProviderValid = liveDataProviderValid;
+    }
+    const dataProviderValid = liveDataProviderValid && this.lastDataProviderValid;
     const filteredSeriesChanged = filteredSeriesIds !== prevInput.filteredSeriesIds;
     const dataChanged = dataProviderChanged || filteredSeriesChanged;
     const focusCategoryChanged = focusedCategoryIndex !== prevInput.focusedCategoryIndex;
