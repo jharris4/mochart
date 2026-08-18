@@ -8,8 +8,8 @@
     "type": "string",
     "scale": "ordinal",
     "categoryPaddingFraction": {
-      "inner": 0.06,
-      "outer": 0.03
+      "inner": 0,
+      "outer": 0.06
     }
   },
   "valueAxes": [

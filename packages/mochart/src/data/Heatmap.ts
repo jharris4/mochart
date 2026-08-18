@@ -184,9 +184,9 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
     property: CATEGORY_PROPERTY,
     type: 'string',
     scale: 'ordinal',
-    // The inner gap is shared between two neighbouring columns, matching the
-    // one-sided vertical trim between two neighbouring rows.
-    categoryPaddingFraction: { inner: cellPadding * 2, outer: cellPadding }
+    // outer trims half its fraction from each side of a column, so doubling it matches the rows'
+    // per-side trim; inner only applies to grouped series and the rows are ungrouped
+    categoryPaddingFraction: { inner: 0, outer: cellPadding * 2 }
   };
 
   // Pinned to exactly the stacked row bands, with one explicit tick per row at its band center

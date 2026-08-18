@@ -51,7 +51,8 @@ describe('createHeatmap', () => {
     const { data, categoryAxis: categoryAxisConfig } = createHeatmap(rows(), { cellPadding: 0.1 });
     expect(data[0].row0Start).toBeCloseTo(2.1);
     expect(data[0].row0).toBeCloseTo(2.9);
-    expect(categoryAxisConfig.categoryPaddingFraction).toEqual({ inner: 0.2, outer: 0.1 });
+    // outer trims half of itself per side; inner is a no-op for the ungrouped rows
+    expect(categoryAxisConfig.categoryPaddingFraction).toEqual({ inner: 0, outer: 0.2 });
   });
 
   it('leaves missing cells out of the data', () => {
