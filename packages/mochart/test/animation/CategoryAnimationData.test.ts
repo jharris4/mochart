@@ -97,6 +97,16 @@ describe('getCategoryDeltaData with an ordinal axis (order-preserving merge)', (
     expect(hasCategoryRemovals(delta)).toBe(false);
   });
 
+  // Regression: the first/last kept merged position was read off the ends of a reordered old→merged
+  // mapping, so an interior addition counted as both "before" and "after" the kept range.
+  it('does not count an interior addition as outer when the kept values are reordered', () => {
+    const delta = deltaFor(ordinalString, ['a', 'b', 'c'], ['c', 'd', 'a', 'b']);
+    expect(delta.values.merged).toEqual(['c', 'd', 'a', 'b']);
+    expect(delta.indices.old).toEqual([2, 3, 0]);
+    expect(delta.indices.reordered).toBe(true);
+    expect(delta.outerCounts.added).toEqual({ before: 0, after: 0 });
+  });
+
   it('keeps a removed middle value after its preceding kept neighbour', () => {
     const delta = deltaFor(ordinalString, ['a', 'b', 'c'], ['a', 'c']);
     expect(delta.values.merged).toEqual(['a', 'b', 'c']);

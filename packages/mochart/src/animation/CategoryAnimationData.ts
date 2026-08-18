@@ -441,10 +441,11 @@ function getCategoryValuesMergedOrdered(
   return categoryValuesMerged;
 }
 
+// comparatorIndices are merged positions in old/new order, so a reordered mapping isn't ascending: take the true min/max
 function getBeforeCounts(comparatorIndices: readonly number[], indices: readonly number[]): number {
   let beforeCounts = 0;
   if (comparatorIndices.length > 0) {
-    const firstComparatorIndex = comparatorIndices[0];
+    const firstComparatorIndex = Math.min(...comparatorIndices);
     const length = indices.length;
     for (let i=0; i<length; i++) {
       if (indices[i] < firstComparatorIndex) {
@@ -458,7 +459,7 @@ function getBeforeCounts(comparatorIndices: readonly number[], indices: readonly
 function getAfterCounts(comparatorIndices: readonly number[], indices: readonly number[]): number {
   let afterCounts = 0;
   if (comparatorIndices.length > 0) {
-    const lastComparatorIndex = comparatorIndices[comparatorIndices.length-1];
+    const lastComparatorIndex = Math.max(...comparatorIndices);
     const length = indices.length;
     for (let i=0; i<length; i++) {
       if (indices[i] > lastComparatorIndex) {
