@@ -672,6 +672,14 @@ describe("validators", () => {
       it("should allow a full date string", () => {
         expect(baseValidators.dateISO()("2016-09-01T00:00:00Z")).toBe(true);
       });
+
+      it("should not allow ISO week or ordinal date strings, which Date cannot parse", () => {
+        expect(baseValidators.dateISO()("2024-W05")).toBe(false);
+        expect(baseValidators.dateISO()("2024-W05-3")).toBe(false);
+        expect(baseValidators.dateISO()("2024-045")).toBe(false);
+        expect(baseValidators.datePrimitive()("2024-W05")).toBe(false);
+        expect(baseValidators.dateAny()("2024-W05")).toBe(false);
+      });
     });
 
     describe("dateInstance", () => {

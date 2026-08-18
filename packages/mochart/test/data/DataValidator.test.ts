@@ -268,6 +268,19 @@ describe('getDataErrors', () => {
     expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type for property: d']);
   });
 
+  // Regression: ISO week/ordinal strings passed the type check but parsed to Invalid Date, so two
+  // distinct values were reported as duplicates (both keyed "NaN") and a single one produced NaN categories
+  it('flags ISO week and ordinal date strings that Date cannot parse', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'd', type: 'date', scale: 'linear' },
+      series: [{ property: 'y' }]
+    });
+    for (const rows of [[{ d: '2024-W05', y: 5 }, { d: '2024-W06', y: 6 }], [{ d: '2024-045', y: 5 }]]) {
+      expect(getDataErrors(config, new ArrayOfObjectsDataProvider(rows)))
+        .toEqual(['category values must all match the specified type for property: d']);
+    }
+  });
+
   it('accepts Date instance category values on a date axis', () => {
     const config = makeConfig({
       categoryAxis: { property: 'd', type: 'date', scale: 'linear' },

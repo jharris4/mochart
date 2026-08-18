@@ -169,6 +169,8 @@ const dateISORegex = /^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0
 
 // standalone so dateInstance and dateAny can share it without a circular reference to customTypeValidators
 const isValidDate: Predicate = v => v instanceof Date && isFinite(v.getTime());
+// the regex admits ISO forms (week and ordinal dates) that Date cannot parse, so require both
+const isDateString: Predicate = v => typeValidators.string(v) && dateISORegex.test(v) && isFinite(new Date(v).getTime());
 
 const customTypeValidatorDefinitions = {
   numeric: {
@@ -236,15 +238,15 @@ const customTypeValidatorDefinitions = {
     message: () => "should be a valid Date instance"
   },
   dateISO: {
-    validator: () => v => typeValidators.string(v) && dateISORegex.test(v),
+    validator: () => isDateString,
     message: () => "should be an iso date string"
   },
   datePrimitive: {
-    validator: () => v => typeValidators.number(v) || (typeValidators.string(v) && dateISORegex.test(v)),
+    validator: () => v => typeValidators.number(v) || isDateString(v),
     message: () => "should be an iso date string or epoch number"
   },
   dateAny: {
-    validator: () => v => typeValidators.number(v) || isValidDate(v) || (typeValidators.string(v) && dateISORegex.test(v)),
+    validator: () => v => typeValidators.number(v) || isValidDate(v) || isDateString(v),
     message: () => "should be a Date instance, iso date string, or epoch number"
   }
 } satisfies Record<string, ValidatorDefinition>;
