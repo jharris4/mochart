@@ -80,3 +80,39 @@ describe('value axis explicit ticks', () => {
     chart.destroy();
   });
 });
+
+describe('value axis tick labels under filtering', () => {
+  // Regression: the visible ticks came from the filtered-domain scale but were formatted with the raw
+  // domain's precision, so a 0–3 axis left after filtering a 0–5000 series read 0.0k, 0.0k, …
+  it('formats the visible ticks with the filtered domain\'s precision when adjustForFiltering is on', () => {
+    const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
+    const mochartConfig = enhanceConfig({
+      version: '1.0.0',
+      animation: { animate: false },
+      categoryAxis: { property: 'label', type: 'string', scale: 'ordinal', visible: false },
+      valueAxes: [{ id: 'va', adjustForFiltering: true }],
+      series: [
+        { id: 'big', axis: 'va', property: 'big', renderer: 'bar' },
+        { id: 'small', axis: 'va', property: 'small', renderer: 'bar' }
+      ]
+    });
+    expect(mochartConfig.validation.valid).toBe(true);
+    const data = [
+      { label: 'a', big: 1000, small: 1 },
+      { label: 'b', big: 5000, small: 3 }
+    ];
+    const container = mountContainer();
+    createChart(container, {
+      mochartConfig,
+      dataProvider: new ArrayOfObjectsDataProvider(data),
+      width: 300,
+      height: 400,
+      filteredSeriesIds: { big: true }
+    });
+    runFrames();
+    const labels = getAxisLabels(container).filter(label => /^[\d.]+k?$/.test(label));
+    expect(labels.length).toBeGreaterThan(1);
+    expect(new Set(labels).size).toBe(labels.length);
+    expect(labels).not.toContain('0.0k');
+  });
+});

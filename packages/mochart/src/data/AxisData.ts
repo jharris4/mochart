@@ -375,17 +375,20 @@ function getValueAxisTickDataObject(axisConfig: EnhancedValueAxisConfig, axisLay
         scaleTicks = axisScale.ticks(tickCount);
       }
     }
-    // always the render domain: a collapsed domain gives tickFormat a zero step and garbage precision
-    const formatAxisScale = adjustTickLabelsForFiltering ? axisScale : getValueAxisScaleForDomain(axisConfig, axisLayoutInfo, rawRenderValueAxisDomain, vertical);
-    const tickLabelFormatter = getLinearScaleTickLabelFormatter(axisConfig, formatAxisScale, scaleTicks.length);
+    // the visible ticks take their precision from the scale that generated them
+    const tickLabelFormatter = getLinearScaleTickLabelFormatter(axisConfig, axisScale, scaleTicks.length);
+    // the hidden size ticks span the raw domain, so they keep its precision for stable label bounds
+    // (always the render domain: a collapsed domain gives tickFormat a zero step and garbage precision)
+    const sizeTickLabelFormatter = adjustTickLabelsForFiltering ? tickLabelFormatter
+      : getLinearScaleTickLabelFormatter(axisConfig, getValueAxisScaleForDomain(axisConfig, axisLayoutInfo, rawRenderValueAxisDomain, vertical), scaleTicks.length);
     const { preTicks, postTicks } = getLinearAxisExtraTicks(tickBoundsValueAxisDomain, axisScale, scaleTicks);
     const tickInterval = scaleTicks.length > tickCount ? 2 : 1
     ticks = scaleTicks.map((scaleTick, i) => createLinearTickObject(scaleTick, axisScale, tickLabelFormatter, () => i % tickInterval !== 0));
     if (preTicks.length > 0) {
-      ticks = preTicks.map(preTick => createLinearTickObject(preTick, axisScale, tickLabelFormatter, () => true)).concat(ticks);
+      ticks = preTicks.map(preTick => createLinearTickObject(preTick, axisScale, sizeTickLabelFormatter, () => true)).concat(ticks);
     }
     if (postTicks.length > 0) {
-      ticks = ticks.concat(postTicks.map(postTick => createLinearTickObject(postTick, axisScale, tickLabelFormatter, () => true)));
+      ticks = ticks.concat(postTicks.map(postTick => createLinearTickObject(postTick, axisScale, sizeTickLabelFormatter, () => true)));
     }
   }
   return ticks;
