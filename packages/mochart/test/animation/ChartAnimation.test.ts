@@ -98,6 +98,20 @@ describe('getChartDataForAxisDelta (category added)', () => {
   });
 });
 
+describe('getChartDataForAxisDelta (category removed)', () => {
+  const cad = getChartAnimationData(
+    config,
+    chartDataFor([{ c: 0, a: 10 }, { c: 1, a: 20 }, { c: 2, a: 30 }]),
+    chartDataFor([{ c: 0, a: 10 }, { c: 2, a: 30 }])
+  );
+
+  it('starts the contraction at the merged slots and slides to the final slots', () => {
+    expect(getChartDataForAxisDelta(config, cad, false, 0).categoryData.values.numeric).toEqual([0, 2]);
+    expect(getChartDataForAxisDelta(config, cad, false, 0.5).categoryData.values.numeric).toEqual([0, 1.5]);
+    expect(getChartDataForAxisDelta(config, cad, false, 1).categoryData.values.numeric).toEqual([0, 1]);
+  });
+});
+
 // a translating domain (old and new barely overlap) skips the union phases and interpolates its render domain during the value phase, so a flat value holds its pixel position
 describe('isDomainTranslation', () => {
   it('classifies barely-overlapping domains as a translation', () => {

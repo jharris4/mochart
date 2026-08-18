@@ -391,6 +391,11 @@ export function getTransitionAxisContractionData(mochartConfig: EnhancedMochartC
 
     startCategoryData = getCategoryDataWithRenderAxisDomain(startCategoryData, startCategoryAxisDomain);
     endCategoryData = getCategoryDataWithRenderAxisDomain(endCategoryData, endCategoryAxisDomain);
+
+    // the ordinal slide starts from the merged slots, so the start frame must sit there too
+    if (categoryValueDeltaData !== null) {
+      startCategoryData = getCategoryDataWithNumericValues(startCategoryData, categoryValueDeltaData.start);
+    }
   }
 
   let startSeriesData = newChartData.seriesData;
