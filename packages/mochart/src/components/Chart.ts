@@ -813,8 +813,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { chartData } = this.props;
     this.lastTooltipCategoryIndex = tooltipCategoryIndex;
     const tooltipValueObject = getCategorySeriesValueObject(chartData!, tooltipCategoryIndex);
-    const tooltipLayoutInfo = this.getTooltipLayoutInfo(this.renderedConfig(), { ...this.state, tooltipCategoryIndex });
-    this.setState({ tooltipCategoryIndex, tooltipValueObject, tooltipLayoutInfo });
+    // the unsnapped position follows the fraction, so a step must move it like the open did
+    const tooltipCategoryPercentage = this.getCategoryFraction(tooltipCategoryIndex);
+    const tooltipLayoutInfo = this.getTooltipLayoutInfo(this.renderedConfig(), { ...this.state, tooltipCategoryIndex, tooltipCategoryPercentage });
+    this.setState({ tooltipCategoryIndex, tooltipCategoryPercentage, tooltipValueObject, tooltipLayoutInfo });
     // announce here so the tooltip's own prev/next buttons read out, not just the keyboard
     this.announceTooltipCategory(tooltipCategoryIndex);
   }
@@ -1025,13 +1027,17 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
   }
 
-  /** open/close via the pointer-click path, with the position synthesized from the category */
-  setTooltipOpenAtCategory(open: boolean, categoryIndex: number): void {
+  /** the category's position as a fraction of the category extent, as the pointer would report it */
+  private getCategoryFraction(categoryIndex: number): number {
     const { axisData, layoutInfo } = this.state;
     const positions = axisData!.category!.valueData.positions;
     const { categoryExtent } = layoutInfo!.seriesLayoutInfo;
-    const categoryFraction = categoryExtent > 0 ? (positions[categoryIndex] ?? 0) / categoryExtent : 0;
-    this.setTooltipOpen(open, { categoryIndex, categoryFraction, valueFraction: 0.5 });
+    return categoryExtent > 0 ? (positions[categoryIndex] ?? 0) / categoryExtent : 0;
+  }
+
+  /** open/close via the pointer-click path, with the position synthesized from the category */
+  setTooltipOpenAtCategory(open: boolean, categoryIndex: number): void {
+    this.setTooltipOpen(open, { categoryIndex, categoryFraction: this.getCategoryFraction(categoryIndex), valueFraction: 0.5 });
   }
 
   /** step the open tooltip to a category, moving the focus like the pointer would */

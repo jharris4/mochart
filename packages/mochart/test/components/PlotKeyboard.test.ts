@@ -67,6 +67,28 @@ beforeAll(() => {
   }
 });
 
+// Regression: stepping updated the category index but not the category fraction, so with snapToCategory: false the
+// content changed while the box stayed at its opening position
+describe('plot keyboard stepping without snapToCategory', () => {
+  const tooltipLeft = (container: Element) => (container.querySelector(getCssSelector('tooltip')) as HTMLElement).style.left;
+
+  it('moves the tooltip with the stepped category', () => {
+    const container = mountChart(makeConfig({ tooltip: { snapToCategory: false } }));
+    const rect = plotRect(container);
+    key(rect, 'Enter');
+    const janLeft = tooltipLeft(container);
+    key(rect, 'End');
+    expect(tooltipText(container)).toContain('Mar');
+    const steppedMarLeft = tooltipLeft(container);
+    expect(steppedMarLeft).not.toBe(janLeft);
+    // the stepped position matches the position an open on that category gives
+    key(rect, 'Escape');
+    key(rect, 'Enter');
+    expect(tooltipText(container)).toContain('Mar');
+    expect(tooltipLeft(container)).toBe(steppedMarLeft);
+  });
+});
+
 describe('plot keyboard semantics', () => {
   it('exposes the series-area rect as a collapsed button tab stop', () => {
     const container = mountChart(makeConfig());
