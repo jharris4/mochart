@@ -5,6 +5,7 @@
 import { describe, it, beforeAll, expect } from 'vitest';
 import { installSvgMeasurementShims } from '../components/svgShims';
 import { installFakeFrameClock, runFrames, mountContainer } from '../components/helpers';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 let mochart: typeof import('../../src');
 
@@ -160,6 +161,38 @@ describe('createChart refresh', () => {
     chart.refresh();
     runFrames();
     expect(getCategoryLabels(container).sort()).toEqual(['a', 'b', 'c']);
+    chart.destroy();
+  });
+
+  // Regression: category values were aliased from the provider, so pushing onto a zero-copy provider's
+  // arrays changed the rendered data's category count and the new bar snapped instead of entering.
+  it('animates a category pushed in place onto a zero-copy provider as an addition', () => {
+    const data = { label: ['a', 'b'], value: [1, 3] };
+    const dataProvider = new mochart.ObjectOfArraysDataProvider(data);
+    const mochartConfig = mochart.enhanceConfig({ ...config, animation: { animate: true } } as never);
+    expect(mochartConfig.validation.valid).toBe(true);
+
+    const container = mountContainer();
+    const chart = mochart.createChart(container, {
+      mochartConfig, dataProvider, width: 300, height: 200
+    });
+    runFrames();
+    expect(getCategoryLabels(container).sort()).toEqual(['a', 'b']);
+
+    data.label.push('c');
+    data.value.push(2);
+    chart.refresh();
+    const seriesBar = () => container.querySelectorAll(getCssSelector('seriesBar'));
+    const paths = new Set<string>();
+    while (runFrames(1) > 0) {
+      const bars = seriesBar();
+      if (bars.length === 3) {
+        paths.add(bars[2].getAttribute('d')!);
+      }
+    }
+    expect(getCategoryLabels(container).sort()).toEqual(['a', 'b', 'c']);
+    // the entering bar takes many distinct shapes on its way in rather than snapping
+    expect(paths.size).toBeGreaterThan(5);
     chart.destroy();
   });
 

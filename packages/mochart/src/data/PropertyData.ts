@@ -4,10 +4,11 @@ import type { CategoryValue, DataProvider, DataValue, NumericValues } from '../t
 
 const emptyValues: readonly CategoryValue[] = [];
 
-/** The config's category property values, which define the category count; an absent property reads as no categories (getDataErrors diagnoses it). */
+/** A snapshot of the config's category property values, which define the category count; an absent property reads as no categories (getDataErrors diagnoses it). */
 export function readCategoryValues(dataProvider: DataProvider, categoryProperty: string): readonly CategoryValue[] {
+  // copied so a provider mutated in place (zero-copy providers) can't change the category count under rendered chart data
   // the cast trusts the values getDataErrors checks against the axis type
-  return (dataProvider.getPropertyValues(categoryProperty) ?? emptyValues) as readonly CategoryValue[];
+  return (dataProvider.getPropertyValues(categoryProperty)?.slice() ?? emptyValues) as readonly CategoryValue[];
 }
 
 /** One snapshot of exactly categoryCount of a property's values; null reads as undefined so the chart keeps a single missing sentinel. */

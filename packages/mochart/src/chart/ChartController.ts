@@ -110,7 +110,7 @@ export class ChartController {
     const mochartConfig = this.enhancedConfig();
     const dataProvider = this.readDataProvider;
     this.lastCategoryValues = mochartConfig?.validation.valid && dataProvider !== null && isDataProviderValid(dataProvider)
-      ? [...readCategoryValues(dataProvider, mochartConfig.categoryAxis.property!)]
+      ? readCategoryValues(dataProvider, mochartConfig.categoryAxis.property!)
       : null;
   }
 
