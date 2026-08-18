@@ -1,4 +1,5 @@
 import { Renderer, svgEl } from '../render';
+import type { RendererList, Slot } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 
@@ -24,8 +25,11 @@ interface PlotEmptyProps {
 
 export default class PlotEmpty extends Renderer<PlotEmptyProps> {
   root = svgEl('g');
-  categoryAxis = this.slot(this.root);
-  valueAxes = this.rendererList(this.root);
+  // the axes split their parts across a back and a front pass like the populated plot does
+  categoryAxisBack = this.slot(this.root);
+  valueAxesBack = this.rendererList(this.root);
+  categoryAxisFront = this.slot(this.root);
+  valueAxesFront = this.rendererList(this.root);
 
   create() {
     return this.root.node;
@@ -46,21 +50,25 @@ export default class PlotEmpty extends Renderer<PlotEmptyProps> {
 
     this.root.set({ className: mochartCssClasses['plot'] });
 
-    this.categoryAxis.set(Axis, { front: false, axisClass: mochartCssClasses['categoryAxis'], axisConfig: categoryAxisConfig, axisLayoutInfo: categoryAxisLayoutInfo,
-      titleClipPathUniqueId: categoryAxisTitleClipPathUniqueId, tickLabelClipPathUniqueId: categoryAxisTickLabelClipPathUniqueId,
-      accessibleLabel: getAxisAccessibleLabel(categoryAxisConfig.title, accessibilityConfig.categoryAxisLabel),
-      ...commonProps });
+    const syncAxes = (front: boolean, categoryAxis: Slot, valueAxes: RendererList) => {
+      categoryAxis.set(Axis, { front, axisClass: mochartCssClasses['categoryAxis'], axisConfig: categoryAxisConfig, axisLayoutInfo: categoryAxisLayoutInfo,
+        titleClipPathUniqueId: categoryAxisTitleClipPathUniqueId, tickLabelClipPathUniqueId: categoryAxisTickLabelClipPathUniqueId,
+        accessibleLabel: getAxisAccessibleLabel(categoryAxisConfig.title, accessibilityConfig.categoryAxisLabel),
+        ...commonProps });
 
-    this.valueAxes.sync(valueAxisConfigs.map((axisConfig: EnhancedValueAxisConfig) => {
-      const { id } = axisConfig;
-      return {
-        key: 'value-axis-' + id,
-        ctor: Axis,
-        props: { front: false, axisClass: mochartCssClasses['valueAxis'] + id, axisId: id, axisConfig,
-          axisLayoutInfo: valueAxisLayoutInfos[id], titleClipPathUniqueId: valueAxisTitleClipPathUniqueIds[id],
-          accessibleLabel: getAxisAccessibleLabel(axisConfig.title, accessibilityConfig.valueAxisLabel),
-          ...commonProps }
-      };
-    }));
+      valueAxes.sync(valueAxisConfigs.map((axisConfig: EnhancedValueAxisConfig) => {
+        const { id } = axisConfig;
+        return {
+          key: 'value-axis-' + id,
+          ctor: Axis,
+          props: { front, axisClass: mochartCssClasses['valueAxis'] + id, axisId: id, axisConfig,
+            axisLayoutInfo: valueAxisLayoutInfos[id], titleClipPathUniqueId: valueAxisTitleClipPathUniqueIds[id],
+            accessibleLabel: getAxisAccessibleLabel(axisConfig.title, accessibilityConfig.valueAxisLabel),
+            ...commonProps }
+        };
+      }));
+    };
+    syncAxes(false, this.categoryAxisBack, this.valueAxesBack);
+    syncAxes(true, this.categoryAxisFront, this.valueAxesFront);
   }
 }

@@ -80,6 +80,21 @@ describe('no-data state', () => {
     handle.update({ config: makeConfig(), data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps);
     expect(container.querySelector(getCssSelector('noData'))).toBeNull();
   });
+
+  // the empty plot runs both axis passes, so parts flagged *Front still draw
+  it('draws front-flagged axis parts while there is no data', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Cat', titleFront: true },
+      valueAxes: [{ title: 'Val', titleFront: true, axisLineFront: true }]
+    });
+    const empty = mountChart({}, config, []);
+    const populated = mountChart({}, config, rows);
+    for (const key of ['axisTitle', 'axisLine'] as const) {
+      expect(empty.querySelectorAll(getCssSelector(key)).length).toBe(populated.querySelectorAll(getCssSelector(key)).length);
+    }
+    expect(empty.querySelectorAll(getCssSelector('axisTitle')).length).toBe(2);
+    expect(empty.querySelectorAll(getCssSelector('axisLine')).length).toBe(2);
+  });
 });
 
 describe('no-series state', () => {
