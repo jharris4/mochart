@@ -88,7 +88,7 @@ describe('common-reference validation', () => {
       series: [{ property: 'a', stack: 'S', axis: 'B' }]
     });
     expect(errors).toContain(
-      'series[0] - stack - should equal the id property of one of the seriesStacks that has the same axis property: "A" vs  "B"'
+      'series[0] - stack - should equal the id property of one of the seriesStacks that has the same axis property: "A" vs "B"'
     );
   });
 
@@ -114,7 +114,7 @@ describe('common-reference validation', () => {
       series: [{ property: 'a', axis: 'B' }]
     });
     expect(errors).toContain(
-      'series[0] - stack - should equal the id property of one of the seriesStacks that has the same axis property: "A" vs  "B"'
+      'series[0] - stack - should equal the id property of one of the seriesStacks that has the same axis property: "A" vs "B"'
     );
   });
 
@@ -128,7 +128,7 @@ describe('common-reference validation', () => {
       series: [{ property: 'a', stack: 'S' }]
     });
     expect(errors).toContain(
-      'series[0] - stack - should equal the id property of one of the seriesStacks that has the same axis property: "A" vs  "B"'
+      'series[0] - stack - should equal the id property of one of the seriesStacks that has the same axis property: "A" vs "B"'
     );
   });
 });

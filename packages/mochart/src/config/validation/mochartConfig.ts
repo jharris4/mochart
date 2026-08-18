@@ -565,7 +565,7 @@ function validateStackGroups(config: ConfigRecord, configWithoutDefaults: Config
     if (stackGroups[stackKey] === group) {
       continue;
     }
-    const message = getStackGroupMessage() + ': ' + JSON.stringify(stackGroups[stackKey]) + ' vs  ' + JSON.stringify(group);
+    const message = getStackGroupMessage() + ': ' + JSON.stringify(stackGroups[stackKey]) + ' vs ' + JSON.stringify(group);
     const reportIndex = rawIndices?.[i] ?? i;
     errors.push(getPropertyMessage('series', 'stack', message, reportIndex));
     errorDetails.push({ path: ['series', reportIndex, 'stack'], message });
@@ -592,7 +592,7 @@ function validateCommonReferences(config: ConfigRecord, configWithoutDefaults: C
     if (isConfigRecord(target) && target[targetProperty] !== undefined && target[commonProperty] !== undefined &&
       sourceProperties[String(target[targetProperty])] !== undefined && sourceProperties[String(target[targetProperty])] !== target[commonProperty]) {
       const message = getCommonReferenceMessage(sourceSectionKey, sourceProperty, commonProperty) + ': ' +
-        JSON.stringify(sourceProperties[String(target[targetProperty])]) + ' vs  ' + JSON.stringify(target[commonProperty]);
+        JSON.stringify(sourceProperties[String(target[targetProperty])]) + ' vs ' + JSON.stringify(target[commonProperty]);
       const reportIndex = rawIndices[i] ?? i;
       errors.push(getPropertyMessage(targetSectionKey, targetProperty, message, reportIndex));
       errorDetails.push({ path: [targetSectionKey, reportIndex, targetProperty], message });
