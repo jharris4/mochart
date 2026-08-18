@@ -46,6 +46,8 @@ export function createCategoryAxisLayoutInfo(mochartConfig: EnhancedMochartConfi
   const vertical = inverted;
   const { side, collapsed, marginInner, marginOuter, paddingInner, paddingOuter } = categoryAxisConfig;
   const before = side === SIDE_START;
+  // a collapsed axis reads like the opposite side's axis, so its inner/outer margins swap with its text
+  const notAfter = before !== collapsed;
   const categoryAxisOffset = before ? 0 : (collapsed ? valueInnerExtent - categoryAxisSize : valueInnerExtent);
 
   const categoryAxisLayoutInfo = createInnerOuterSpacingLayoutInfo({
@@ -54,7 +56,7 @@ export function createCategoryAxisLayoutInfo(mochartConfig: EnhancedMochartConfi
       width: inverted ? categoryAxisSize : categoryInnerExtent,
       height: inverted ? categoryInnerExtent : categoryAxisSize
     },
-    vertical, inverted, before, marginInner, marginOuter, paddingInner, paddingOuter) as CategoryAxisLayoutInfo;
+    vertical, inverted, notAfter, marginInner, marginOuter, paddingInner, paddingOuter) as CategoryAxisLayoutInfo;
   setExtraAxisInfo(categoryAxisLayoutInfo, categoryAxisConfig, categoryAxisTickInfo, categoryAxisTickBounds, categoryAxisRotatedTickBounds, categoryAxisTitleBounds, categoryAxisThresholdTitleBounds, vertical, inverted);
   categoryAxisLayoutInfo.position = categoryY;
   categoryAxisLayoutInfo.before = categoryAxesOffset.before;

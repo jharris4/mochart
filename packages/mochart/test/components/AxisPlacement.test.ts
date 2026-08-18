@@ -85,6 +85,18 @@ describe('axis side and collapse', () => {
     expect(mount({ ...categoryAxis({ side: 'start', collapsed: true }) })
       .querySelector(getCssSelector('categoryAxis'))).not.toBeNull();
   });
+
+  // Regression: the margin boxes were assigned inner/outer by side alone while the text followed the
+  // collapsed reading order, so a collapsed axis's tick label background missed its labels
+  it('keeps a collapsed axis tick label background around its labels', () => {
+    const tickLabelStyle = { tickLabelMarginInner: 0, tickLabelMarginOuter: 20, tickLabelBackgroundStyle: { fillColor: 'red', fillOpacity: 1 } };
+    const backgroundY = (container: Element) => Number(container.querySelector(getDescendantCssSelector('categoryAxis', 'axisTickLabelBackground') + ' rect')!.getAttribute('y'));
+    const labelY = (container: Element) => Number(/translate\([^,]+,\s*([-\d.]+)\)/.exec(container.querySelector(getDescendantCssSelector('categoryAxis', 'axisTickLabel'))!.getAttribute('transform')!)![1]);
+    const normal = mount({ ...categoryAxis({ side: 'end', collapsed: false, ...tickLabelStyle }) });
+    const collapsed = mount({ ...categoryAxis({ side: 'end', collapsed: true, ...tickLabelStyle }) });
+    // the label sits at the same offset into its background box whether or not the axis is collapsed
+    expect(labelY(collapsed) - backgroundY(collapsed)).toBe(labelY(normal) - backgroundY(normal));
+  });
 });
 
 describe('axis visibility and chrome', () => {

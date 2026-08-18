@@ -145,6 +145,7 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
 
   // Both boxes offset across the axis and span its full length; the outer side
   // comes first locally, so the title leads for a notAfter axis (matching tickOffset/titleOffset).
+  // The inner/outer margin sides follow notAfter too, so a collapsed axis's boxes wrap its text.
   const titleBoxOffset = notAfter ? 0 : totalTickLabelSize;
   const tickLabelBoxOffset = notAfter ? totalTitleSize : 0;
 
@@ -153,14 +154,14 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
     y: vertical ? 0 : titleBoxOffset,
     width: vertical ? totalTitleSize : width,
     height: vertical ? height : totalTitleSize,
-  }, vertical, inverted, before, titleMarginInner, titleMarginOuter, titlePaddingInner, titlePaddingOuter);
+  }, vertical, inverted, notAfter, titleMarginInner, titleMarginOuter, titlePaddingInner, titlePaddingOuter);
 
   const tickLabelLayoutInfo = axisLayoutInfo.tickLabelLayoutInfo = createInnerOuterSpacingLayoutInfo({
     x: vertical ? tickLabelBoxOffset : 0,
     y: vertical ? 0 : tickLabelBoxOffset,
     width: vertical ? totalTickLabelSize : width,
     height: vertical ? height : totalTickLabelSize,
-  }, vertical, inverted, before, tickLabelMarginInner, tickLabelMarginOuter, tickLabelPaddingInner, tickLabelPaddingOuter);
+  }, vertical, inverted, notAfter, tickLabelMarginInner, tickLabelMarginOuter, tickLabelPaddingInner, tickLabelPaddingOuter);
 
   const { focusRangeApplyToTitle } = axisConfig;
   const focusRangeTitle = focusRangeApplyToTitle && title !== NONE;
@@ -173,7 +174,7 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
     y: focusRangeTitle ? Math.min(titleLayoutInfo.y, tickLabelLayoutInfo.y) : tickLabelLayoutInfo.y,
     width: vertical ? (focusRangeApplyToTitle ? titleLayoutInfo.width + tickLabelLayoutInfo.width : tickLabelLayoutInfo.width) : width,
     height: !vertical ? (focusRangeApplyToTitle ? titleLayoutInfo.height + tickLabelLayoutInfo.height : tickLabelLayoutInfo.height) : height,
-  }, vertical, inverted, before, focusMarginInner, focusMarginOuter, focusPaddingInner, focusPaddingOuter);
+  }, vertical, inverted, notAfter, focusMarginInner, focusMarginOuter, focusPaddingInner, focusPaddingOuter);
 
   if (title !== NONE) {
     const titleOffset = notAfter ? titleMarginOuter + titlePaddingOuter + axisLayoutInfo.titleSize / 2.0 : (totalTickLabelSize + totalTitleSize - titleMarginOuter - titlePaddingOuter - axisLayoutInfo.titleSize / 2.0);
