@@ -319,7 +319,7 @@ export function generateChartDataProvider(
   randomId: number
 ): DemoDataProvider {
   const { categoryAxis: categoryAxisConfig } = mochartConfig;
-  const { displayProperty, scale } = categoryAxisConfig;
+  const { keyProperty, scale } = categoryAxisConfig;
   const { category: categoryConfig } = random;
 
   const categoryData = generateChartCategoryValues(mochartConfig, random, randomId);
@@ -342,8 +342,8 @@ export function generateChartDataProvider(
     }
   }
 
-  if (displayProperty) {
-    seriesValues[displayProperty] = categoryValues as (number | undefined)[];
+  if (keyProperty) {
+    seriesValues[keyProperty] = categoryValues as (number | undefined)[];
   }
 
   const categoryProperty = categoryAxisConfig.property;

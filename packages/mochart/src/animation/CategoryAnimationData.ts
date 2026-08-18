@@ -38,7 +38,7 @@ export function indexOfCategoryValue(categoryAxisConfig: CategoryAxisConfig, val
 
 // orders by the same coercion the merge keys use, so Date, ISO string and epoch forms of one instant compare by instant
 function categoryValueIsLessFor(categoryAxisConfig: CategoryAxisConfig): CategoryValueIsLess {
-  if (categoryAxisConfig.type === TYPE_DATE && categoryAxisConfig.displayProperty === NONE) {
+  if (categoryAxisConfig.type === TYPE_DATE && categoryAxisConfig.keyProperty === NONE) {
     return (left, right) => new Date(left as string | number | Date).getTime() < new Date(right as string | number | Date).getTime();
   }
   return categoryValueIsLess;
@@ -131,7 +131,7 @@ function getCategoryMergedDisplayValues(
   mergedIndicesData: CategoryMergedIndicesData
 ): readonly CategoryValue[] {
   let displayMerged: readonly CategoryValue[] = mergedValuesData.merged;
-  if (categoryAxisConfig.displayProperty !== NONE) {
+  if (categoryAxisConfig.keyProperty !== NONE) {
     if (mergedIndicesData.removed.length > 0) {
       const mutableDisplayMerged = mergedValuesData.merged.slice();
       setValuesForIndices(mutableDisplayMerged, oldCategoryData.values.display, mergedIndicesData.old);

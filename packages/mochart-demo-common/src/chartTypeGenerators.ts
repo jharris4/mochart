@@ -815,8 +815,8 @@ export function generateDemoDataProvider(
  * The random mode's data-tab rows for a generated provider: the provider hands
  * back parallel category/series value arrays, and the JSON view needs them
  * pivoted into one row per category, keyed by the config's own property names.
- * `NONE` on the display property means the category value is its own label, so
- * there is no second column to write.
+ * `NONE` on the key property means the category value is its own key, so there
+ * is no second property to write.
  */
 export function getRandomDataObjects(
   mochartConfig: MochartConfig,
@@ -827,10 +827,10 @@ export function getRandomDataObjects(
   const categoryProperty = categoryAxisConfig.property ?? '';
   const rows: DataObject[] = categoryValues.map(categoryValue => ({ [categoryProperty]: categoryValue }));
   const categoryCount = categoryValues.length;
-  if (categoryAxisConfig.displayProperty !== NONE) {
-    const displayProperty = categoryAxisConfig.displayProperty;
+  if (categoryAxisConfig.keyProperty !== NONE) {
+    const { keyProperty } = categoryAxisConfig;
     for (let i = 0; i < categoryCount; i++) {
-      rows[i][displayProperty] = categoryValues[i];
+      rows[i][keyProperty] = categoryValues[i];
     }
   }
   for (const seriesProperty of Object.keys(seriesValues)) {

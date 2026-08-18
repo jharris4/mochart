@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "title": {
-    "text": "Category Display Property Example"
+    "text": "Category Key Property Example"
   },
   "animation": {
     "expansionDuration": 1000,
@@ -12,7 +12,7 @@
   "categoryAxis": {
     "valueLabel": "Category",
     "property": "category",
-    "displayProperty": "categoryDisplay",
+    "keyProperty": "key",
     "type": "string",
     "scale": "ordinal"
   },

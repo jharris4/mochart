@@ -123,10 +123,10 @@ interface DataProvider {
 
 `getPropertyValues` is the interface's one accessor: the chart requests every
 property the config names — the category property,
-`categoryAxis.displayProperty`, and the series properties alike — as all of
+`categoryAxis.keyProperty`, and the series properties alike — as all of
 that property's values. Series values are numbers, with `null`, `undefined`,
-and `NaN` all reading as missing; category and display values are strings, numbers, or `Date`s
-matching `categoryAxis.type`. The config's category property defines the
+and `NaN` all reading as missing; category values are strings, numbers, or `Date`s
+matching `categoryAxis.type`, and key values are strings or numbers. The config's category property defines the
 category count, and `getDataErrors` flags any other property whose value
 count doesn't match. A provider missing the accessor is invalid, and
 `getDataErrors` says so.

@@ -145,19 +145,15 @@ export function applyDataEdit(text: string, fullData: DataObject[], viewUsedProp
   return { ok: true, data: parsedData };
 }
 
-/**
- * The native tooltip for the category index stepper label: the selected category's
- * display value when the axis has a displayProperty (that is what the chart
- * shows), otherwise its raw category value. Empty when no category is selected.
- */
+/** The native tooltip for the category index stepper label: the selected category's value. Empty when no category is selected. */
 export function getCategoryIndexTitle({ mochartConfig }: MochartDemoConfig, rows: DataObject[], categoryIndex: number): string {
   const row = categoryIndex >= 0 ? rows[categoryIndex] : undefined;
   if (row === undefined) {
     return '';
   }
   const { categoryAxis: categoryAxisConfig } = mochartConfig;
-  const property = categoryAxisConfig.displayProperty ?? categoryAxisConfig.property;
-  const value = property === null || property === undefined ? undefined : row[property];
+  const { property } = categoryAxisConfig;
+  const value = property === undefined ? undefined : row[property];
   return value === undefined || value === null ? '' : String(value);
 }
 

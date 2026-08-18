@@ -14,11 +14,11 @@ import type {
 
 export function getCategoryData(categoryAxisConfig: CategoryAxisConfig, dataProvider: DataProvider): CategoryData {
   // config/provider mismatches and duplicate/missing categories are getDataErrors' job; this hot path trusts its input
-  const rawCategoryValues = readCategoryValues(dataProvider, categoryAxisConfig.property!);
-  let displayCategoryValues: readonly CategoryValue[] = rawCategoryValues;
-  if (categoryAxisConfig.displayProperty !== NONE) {
-    // displayProperty is an ordinary property; getDataErrors checks it against the axis type, not the numeric series validator
-    displayCategoryValues = readAlignedValues(dataProvider, categoryAxisConfig.displayProperty, rawCategoryValues.length) as CategoryValue[];
+  const displayCategoryValues = readCategoryValues(dataProvider, categoryAxisConfig.property!);
+  let rawCategoryValues: readonly CategoryValue[] = displayCategoryValues;
+  if (categoryAxisConfig.keyProperty !== NONE) {
+    // the keys identify categories across data changes; the property values stay the typed, positioned, shown values
+    rawCategoryValues = readAlignedValues(dataProvider, categoryAxisConfig.keyProperty, displayCategoryValues.length) as CategoryValue[];
   }
   return getCategoryDataFromValues(categoryAxisConfig, rawCategoryValues, displayCategoryValues);
 }

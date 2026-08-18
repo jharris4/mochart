@@ -14,7 +14,7 @@ export function getRegularDefaults() {
 
     dateUTC: true,
 
-    displayProperty: NONE,
+    keyProperty: NONE,
 
     showFocusRange: false,
     showFocusTickMarks: true,

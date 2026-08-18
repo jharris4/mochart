@@ -41,7 +41,7 @@
       "id": "threshold-category-line",
       "title": "Threshold Category Line",
       "description": "A titled threshold line at a fixed date on the category axis, over a linear date scale.",
-      "notes": "categoryAxis sets a thresholds entry at a timestamp on March 12 2017 with a title, titlePadding of 5px all round and the default titleSide \"high\", which places the title on the later side of the line. The scale is linear rather than ordinal, so the quarter-hour samples sit at their real spacing along the axis. The data is a daylight-saving transition: the raw date values change offset from -04:00 to -03:00 partway through, so the wall-clock times repeat, while displayProperty (\"display\") supplies the plain climbing 01:00 to 03:45 labels used on the axis and in the tooltip.",
+      "notes": "categoryAxis sets a thresholds entry at a timestamp on March 12 2017 with a title, titlePadding of 5px all round and the default titleSide \"high\", which places the title on the later side of the line. The scale is linear rather than ordinal, so the quarter-hour samples sit at their real spacing along the axis. The data is a daylight-saving transition: the raw date values change offset from -04:00 to -03:00 partway through, so the wall-clock times repeat; the category values (\"display\") are the plain climbing 01:00 to 03:45 times used on the axis and in the tooltip, and keyProperty (\"date\") keys each row by its real instant.",
       "config": "threshold-category-line-config.json",
       "data": "dst-data.json",
       "random": "default-random.json"
@@ -65,12 +65,12 @@
       "random": "default-random.json"
     },
     {
-      "id": "category-display",
-      "title": "Category Display Property",
-      "description": "A displayProperty on the category axis: categories keyed by one property but labeled by another.",
-      "notes": "The axis keys on \"category\" (the integers 1 to 28) while displayProperty points at \"categoryDisplay\", so tick labels and tooltips show the two-letter names, which cycle aa to ee and therefore repeat even though the underlying keys are all distinct. The scale is ordinal, so the 28 rows sit in data order at even slots, with a bar series (value1) and a line series (value2) on one value axis.",
-      "config": "category-display-config.json",
-      "data": "category-display-data.json",
+      "id": "category-key",
+      "title": "Category Key Property",
+      "description": "A keyProperty on the category axis: category values that repeat, kept distinct by a separate key.",
+      "notes": "The category values come from \"category\", two-letter names that cycle aa to ee and therefore repeat, while keyProperty points at \"key\" (the integers 1 to 28), so every row stays a distinct category and animation, focus and filtering match rows by key. The scale is ordinal, so the 28 rows sit in data order at even slots, with a bar series (value1) and a line series (value2) on one value axis.",
+      "config": "category-key-config.json",
+      "data": "category-key-data.json",
       "random": "default-random.json"
     },
     {
@@ -103,8 +103,8 @@
     {
       "id": "dst",
       "title": "Daylight Savings",
-      "description": "Quarter-hourly categories spanning a daylight-savings transition, labeled through a display property.",
-      "notes": "The data is sixteen quarter-hour samples around a clock change: eight at UTC-04:00 running 01:00 to 02:45, then eight at UTC-03:00 starting again at 02:00, so the 02:00-02:45 wall-clock block appears twice and the second block actually resolves to earlier UTC instants. The ordinal category axis keeps the rows in file order rather than sorting by instant, and its displayProperty points at a separate 'display' column carrying the same wall-clock times, so ticks and tooltips read as local time instead of the raw offset dates. A single line series with 1s initial, expansion, value-change and contraction durations keeps the transition easy to follow.",
+      "description": "Quarter-hourly categories spanning a daylight-savings transition, keyed by their offset dates through a key property.",
+      "notes": "The data is sixteen quarter-hour samples around a clock change: eight at UTC-04:00 running 01:00 to 02:45, then eight at UTC-03:00 starting again at 02:00, so the 02:00-02:45 wall-clock block appears twice and the second block actually resolves to earlier UTC instants. The ordinal category axis keeps the rows in file order rather than sorting by instant; its category values come from a separate 'display' property carrying the wall-clock times, so ticks and tooltips read as local time, while keyProperty points at the offset dates so the repeated wall-clock times stay distinct categories. A single line series with 1s initial, expansion, value-change and contraction durations keeps the transition easy to follow.",
       "config": "dst-config.json",
       "data": "dst-data.json",
       "random": "default-random.json"
@@ -304,7 +304,7 @@
       "id": "truncated-text",
       "title": "Truncated Text",
       "description": "Over-long title, axis, legend and tick label text fitted by the truncation settings.",
-      "notes": "The chart title is deliberately too long and carries a titlePrefix and titleSuffix in their own boxes, with truncationEnabled/truncationValue trimming it to \"...\" instead of overflowing; both axis titles do the same through titleTruncationEnabled. The category axis truncates tick labels to their slot (tickLabelTruncationEnabled) rather than dropping ticks, with tickLabelTruncationMaxFraction capping how much of the chart a label may occupy when it runs perpendicular to the axis. Labels come from displayProperty (\"categoryDisplay\", phrases up to \"Supercalifragilisticexpialidocious is long\") while the numeric category property still drives positioning, and every box in the chart is stroked grey so the bounds the text is being fitted into are visible. The third and fourth series exist only to give the legend more long titles to truncate — their properties are absent from the data, which allowAbsentDataProperties permits.",
+      "notes": "The chart title is deliberately too long and carries a titlePrefix and titleSuffix in their own boxes, with truncationEnabled/truncationValue trimming it to \"...\" instead of overflowing; both axis titles do the same through titleTruncationEnabled. The category axis truncates tick labels to their slot (tickLabelTruncationEnabled) rather than dropping ticks, with tickLabelTruncationMaxFraction capping how much of the chart a label may occupy when it runs perpendicular to the axis. The category values are the \"categoryDisplay\" phrases (up to \"Supercalifragilisticexpialidocious is long\"), keyed by the numeric \"category\" property through keyProperty, and every box in the chart is stroked grey so the bounds the text is being fitted into are visible. The third and fourth series exist only to give the legend more long titles to truncate — their properties are absent from the data, which allowAbsentDataProperties permits.",
       "config": "truncated-text-config.json",
       "data": "long-category-string-values-data.json",
       "random": "default-random.json"

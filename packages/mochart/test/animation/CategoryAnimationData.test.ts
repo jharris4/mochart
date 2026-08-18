@@ -31,8 +31,8 @@ const ordinalString = makeConfig({
   categoryAxis: { property: 'c', type: 'string', scale: 'ordinal' },
   series: [{ property: 'a', renderer: 'bar' }]
 });
-const ordinalDisplay = makeConfig({
-  categoryAxis: { property: 'c', displayProperty: 'label', type: 'string', scale: 'ordinal' },
+const ordinalKeyed = makeConfig({
+  categoryAxis: { property: 'label', keyProperty: 'c', type: 'string', scale: 'ordinal' },
   series: [{ property: 'a', renderer: 'bar' }]
 });
 const linearNumber = makeConfig({
@@ -286,23 +286,23 @@ describe('indexOfCategoryValue', () => {
 
   it('matches by string form on other axes', () => {
     expect(indexOfCategoryValue(ordinalString.categoryAxis, ['a', 'b'], 'b')).toBe(1);
-    expect(indexOfCategoryValue(ordinalDisplay.categoryAxis, [1, 2], '2')).toBe(1);
+    expect(indexOfCategoryValue(ordinalKeyed.categoryAxis, [1, 2], '2')).toBe(1);
   });
 });
 
 describe('displayMerged', () => {
   const displayDataFor = (rows: { c: string; label: string }[]) =>
-    getCategoryData(ordinalDisplay.categoryAxis, new ArrayOfObjectsDataProvider(rows.map(row => ({ ...row, a: 1 }))));
+    getCategoryData(ordinalKeyed.categoryAxis, new ArrayOfObjectsDataProvider(rows.map(row => ({ ...row, a: 1 }))));
 
   it('reuses the new display values when nothing was removed', () => {
     const newData = displayDataFor([{ c: 'a', label: 'A2' }, { c: 'x', label: 'X' }]);
-    const delta = getCategoryDeltaData(ordinalDisplay.categoryAxis, displayDataFor([{ c: 'a', label: 'A' }]), newData);
+    const delta = getCategoryDeltaData(ordinalKeyed.categoryAxis, displayDataFor([{ c: 'a', label: 'A' }]), newData);
     expect(delta.values.displayMerged).toBe(newData.values.display);
   });
 
   it('keeps removed display labels and takes the new label for kept values', () => {
     const delta = getCategoryDeltaData(
-      ordinalDisplay.categoryAxis,
+      ordinalKeyed.categoryAxis,
       displayDataFor([{ c: 'a', label: 'A' }, { c: 'b', label: 'B' }, { c: 'c', label: 'C' }]),
       displayDataFor([{ c: 'a', label: 'A2' }, { c: 'c', label: 'C2' }])
     );
@@ -310,7 +310,7 @@ describe('displayMerged', () => {
     expect(delta.values.displayMerged).toEqual(['A2', 'B', 'C2']);
   });
 
-  it('falls back to the merged raw values without a display property', () => {
+  it('falls back to the merged key values without a key property', () => {
     const delta = deltaFor(ordinalString, ['a', 'b', 'c'], ['a', 'c']);
     expect(delta.values.displayMerged).toEqual(['a', 'b', 'c']);
   });

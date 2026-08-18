@@ -318,9 +318,9 @@ describe('getRandomDataObjects', () => {
     ]);
   });
 
-  it('adds the display column only when the axis names one', () => {
-    const rows = getRandomDataObjects(mochartConfig({ displayProperty: 'monthLabel' }), ['Jan'], { sales: [10] });
-    expect(rows).toEqual([{ month: 'Jan', monthLabel: 'Jan', sales: 10 }]);
+  it('adds the key property only when the axis names one', () => {
+    const rows = getRandomDataObjects(mochartConfig({ keyProperty: 'monthKey' }), ['Jan'], { sales: [10] });
+    expect(rows).toEqual([{ month: 'Jan', monthKey: 'Jan', sales: 10 }]);
   });
 
   it('is empty for an empty category set', () => {

@@ -35,7 +35,7 @@ export default function getValidators(config: Partial<CategoryAxisConfig>) {
 
     dateUTC: validators.boolean(),
 
-    displayProperty: validators.propertyOptional(),
+    keyProperty: validators.propertyOptional(),
 
     categoryPaddingFraction: validators.partialObjectWith(['inner', 'outer'], validators.numberMinMax(0, 1)),
     categoryCountPadding: validators.numberMin(0),

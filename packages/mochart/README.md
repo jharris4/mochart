@@ -202,11 +202,12 @@ automatically; `createChart` accepts any object implementing the
 `DataProvider` interface. One member is required —
 `getPropertyValues(property)` returns all values of one named data property,
 index-aligned with every other property's values, or `undefined` when the
-property isn't in the data. Every column the config names arrives through it,
-the category property and `categoryAxis.displayProperty` included: series
-columns hold numbers with `null`/`undefined` as missing values, category and
-display columns hold strings, numbers, or `Date`s. `getError`, `getLoading`,
-and `refresh` are optional. See the
+property isn't in the data. Every property the config names arrives through
+it, the category property and `categoryAxis.keyProperty` included: series
+property values are numbers with `null`/`undefined` as missing values,
+category property values are strings, numbers, or `Date`s, and key property
+values are strings or numbers. `getError`, `getLoading`, and `refresh` are
+optional. See the
 [data providers guide](../mochart-docs/guide/data-providers.md) for the full
 contract.
 

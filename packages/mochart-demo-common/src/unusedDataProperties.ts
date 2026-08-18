@@ -13,7 +13,7 @@ export function collectUsedDataProperties(mochartConfig: MochartConfig): Set<str
   const used = new Set<string>();
   const { categoryAxis: categoryAxisConfig, series: seriesConfigs } = mochartConfig;
   addProperty(used, categoryAxisConfig.property);
-  addProperty(used, categoryAxisConfig.displayProperty);
+  addProperty(used, categoryAxisConfig.keyProperty);
   for (const seriesConfig of seriesConfigs) {
     addProperty(used, seriesConfig.property);
     addProperty(used, seriesConfig.rangeProperty);

@@ -2109,8 +2109,10 @@ export interface CategoryAxisConfig extends AxisConfigBase {
    * The property to retrieve from the data provider for the category values.
    *
    * The chart reads this property from each entry of the data provider to get
-   * the category value. It is required — the only category axis property
-   * without a default.
+   * the category value: the values must match `type`, they position a linear
+   * axis, and they are what tick labels and the tooltip show. They must be
+   * unique unless `keyProperty` is set. It is required — the only category axis
+   * property without a default.
    */
   property?: string;
   /**
@@ -2120,18 +2122,19 @@ export interface CategoryAxisConfig extends AxisConfigBase {
    */
   dateUTC: boolean;
   /**
-   * The property to retrieve from the data provider for the category display
-   * values (use null for none).
+   * The property to retrieve from the data provider for the category keys, when
+   * the category values may repeat (use null for none).
    *
-   * When set, `property` only supplies each category’s unique key (a string or
-   * number), and this property’s values become the category values: they must
-   * match `type`, they position a linear axis, and they are what tick labels
-   * and the tooltip show. Use it when the key differs from the shown value — an
-   * id keyed against a label, or a wall-clock date whose real instants repeat.
+   * When set, this property’s values (strings or numbers, one per category)
+   * identify the categories instead of the category values themselves: they
+   * must be unique, and they are what animation, focus and filtering match
+   * categories by across data changes. Use it when the category values would
+   * otherwise repeat — a label keyed by an id, or a wall-clock date whose real
+   * instants repeat.
    *
    * @default null
    */
-  displayProperty: string | null;
+  keyProperty: string | null;
   /**
    * The padding fractions (0 - 1) of the category extent for all category
    * values (outer) and grouped series (inner).
@@ -2154,7 +2157,7 @@ export interface CategoryAxisConfig extends AxisConfigBase {
    */
   minCategoryValueExtent: number;
   /**
-   * The scale to use for the displayed category values (ordinal, linear).
+   * The scale to use for the category values (ordinal, linear).
    *
    * `ordinal` places the categories at evenly spaced positions in data order
    * regardless of their values; `linear` positions `number`/`date` category
@@ -2195,7 +2198,7 @@ export interface CategoryAxisConfig extends AxisConfigBase {
    */
   tickLabelTruncationMaxFraction: number;
   /**
-   * The type of the displayed category values (number, date, string).
+   * The type of the category values (number, date, string).
    *
    * How category values are interpreted: `string` for labels, `number` for
    * numeric values, and `date` for date values (`dateUTC` controls their

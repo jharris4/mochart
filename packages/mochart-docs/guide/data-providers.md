@@ -49,7 +49,7 @@ interface DataProvider {
 `getPropertyValues(property)` returns **all values of one named data
 property**, index-aligned with every other property's values, or `undefined`
 when the property isn't in the data at all. That one accessor serves every
-property the config names — the category property, `displayProperty`, and all
+property the config names — the category property, `keyProperty`, and all
 the series properties alike — so a provider does not need to know which
 config property asked. Return the stored values either way; `getDataErrors`
 checks each property's values against its own rule.
@@ -63,8 +63,8 @@ The rules the chart holds the values to:
   with `null`, `undefined` and `NaN` all reading as a missing value (`null`
   is how JSON writes a hole in the data, `NaN` is what a failed parse leaves
   behind; the chart normalizes every missing value to `NaN` internally).
-  Category and display values are strings, numbers, or `Date`s matching
-  `categoryAxis.type`.
+  Category values are strings, numbers, or `Date`s matching
+  `categoryAxis.type`; key values are strings or numbers.
 - **`undefined` in place of the array means "not in the data".** That is
   distinct from an array of missing values, and `getDataErrors` reports
   which problem you have.
@@ -128,8 +128,8 @@ for the full `ChartHandle` semantics.
 The config decides which properties the chart pulls from the provider:
 
 - the category value from [`categoryAxis.property`](/reference/categoryAxis#categoryAxis.property) (and optionally
-  [`displayProperty`](/reference/categoryAxis#categoryAxis.displayProperty)
-  for friendlier labels)
+  a unique key from [`keyProperty`](/reference/categoryAxis#categoryAxis.keyProperty)
+  when the category values repeat)
 - each series' value from its
   [`property`](/reference/series#series.property), plus the
   optional [`rangeProperty`](/reference/series#series.rangeProperty),
@@ -138,7 +138,7 @@ The config decides which properties the chart pulls from the provider:
   [`errorLowProperty`](/reference/series#series.errorLowProperty), and
   [`errorHighProperty`](/reference/series#series.errorHighProperty).
 
-All of them, category and display properties included, arrive through the
+All of them, category and key properties included, arrive through the
 single [`getPropertyValues`](#the-provider-interface) accessor.
 
 Series values must be numeric or missing (`null`/`undefined`/`NaN`) — how missing
@@ -170,9 +170,9 @@ readable messages:
 On a linear category scale, out-of-order category values are flagged too
 when a `line` or `area` series would zigzag through them; monotonic data in
 either direction passes, order-independent charts (bars, scatter) are not
-checked, and [`displayProperty`](/reference/categoryAxis#categoryAxis.displayProperty)
-configs are exempt since their display values may legitimately fold back
-across a DST-style repeated hour.
+checked, and [`keyProperty`](/reference/categoryAxis#categoryAxis.keyProperty)
+configs are exempt since their keyed category values may legitimately fold
+back across a DST-style repeated hour.
 
 ```js
 import { enhanceConfig, getDataErrors, ArrayOfObjectsDataProvider } from '@mochart/core';

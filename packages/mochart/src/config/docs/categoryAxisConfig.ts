@@ -4,9 +4,9 @@ export default function getDescriptions() {
   return {
     ...getAxisDescriptions(),
     property: 'the property to retrieve from the data provider for the category values',
-    displayProperty: 'the property to retrieve from the data provider for the category display values (use null for none)',
-    type: 'the type of the displayed category values (number, date, string)',
-    scale: 'the scale to use for the displayed category values (ordinal, linear)',
+    keyProperty: 'the property to retrieve from the data provider for the category keys, when the category values may repeat (use null for none)',
+    type: 'the type of the category values (number, date, string)',
+    scale: 'the scale to use for the category values (ordinal, linear)',
     dateUTC: 'whether dates should be treated as UTC (true) or local (false)',
     valueLabel: 'the label to show before a category value in the tooltip (use null for none)',
     valueFormat: 'the d3 format string (d3-format for number, d3-time-format for date) to be applied to the category value when displayed in the tooltip (use null for none, use "auto" to derive from data)',
@@ -30,10 +30,10 @@ export default function getDescriptions() {
 }
 export function getDetails() {
   return {
-    property: 'The chart reads this property from each entry of the data provider to get the category value. It is required — the only category axis property without a default.',
+    property: 'The chart reads this property from each entry of the data provider to get the category value: the values must match `type`, they position a linear axis, and they are what tick labels and the tooltip show. They must be unique unless `keyProperty` is set. It is required — the only category axis property without a default.',
     type: 'How category values are interpreted: `string` for labels, `number` for numeric values, and `date` for date values (`dateUTC` controls their timezone handling). The type drives parsing, tick label formatting, and which `scale` options make sense.',
     scale: '`ordinal` places the categories at evenly spaced positions in data order regardless of their values; `linear` positions `number`/`date` category values proportionally along the axis, so uneven spacing in the data shows as uneven spacing in the chart.',
-    displayProperty: 'When set, `property` only supplies each category’s unique key (a string or number), and this property’s values become the category values: they must match `type`, they position a linear axis, and they are what tick labels and the tooltip show. Use it when the key differs from the shown value — an id keyed against a label, or a wall-clock date whose real instants repeat.',
+    keyProperty: 'When set, this property’s values (strings or numbers, one per category) identify the categories instead of the category values themselves: they must be unique, and they are what animation, focus and filtering match categories by across data changes. Use it when the category values would otherwise repeat — a label keyed by an id, or a wall-clock date whose real instants repeat.',
     min: 'The form the bound takes follows `type` on a linear axis: a number when `type` is `number`, and either a millisecond timestamp or an ISO date string (`"2020-01-01"`) when `type` is `date` — the two forms `thresholds[].value` takes. An ordinal axis places its categories in data order, so it accepts only `"auto"`.',
     max: 'The form the bound takes follows `type` on a linear axis: a number when `type` is `number`, and either a millisecond timestamp or an ISO date string (`"2020-01-01"`) when `type` is `date` — the two forms `thresholds[].value` takes. An ordinal axis places its categories in data order, so it accepts only `"auto"`.',
     softMin: 'Takes the same forms as `min` — a number, or a timestamp or ISO date string on a date axis — but only applies while no category value falls below it, so real data still expands the domain. An ordinal axis accepts only `null`.',

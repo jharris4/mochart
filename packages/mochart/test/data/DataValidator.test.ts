@@ -41,9 +41,9 @@ describe('getDataErrors', () => {
   });
 
   // the one accessor serves every property, with a different type expected per config role
-  it('accepts string display values from the same accessor that must return numbers for series properties', () => {
+  it('accepts string category values and numeric keys from the same accessor that must return numbers for series properties', () => {
     const config = makeConfig({
-      categoryAxis: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
+      categoryAxis: { property: 'label', keyProperty: 'id', type: 'string', scale: 'ordinal' },
       series: [{ property: 'y' }]
     });
     const valuesByProperty: Record<string, readonly unknown[]> = { id: [1, 2], label: ['Jan', 'Feb'], y: [5, 6] };
@@ -152,14 +152,38 @@ describe('getDataErrors', () => {
     ]);
   });
 
-  it('flags a display property whose length does not match the category values', () => {
+  it('flags a key property whose length does not match the category values', () => {
     const config = makeConfig({
-      categoryAxis: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
+      categoryAxis: { property: 'label', keyProperty: 'id', type: 'string', scale: 'ordinal' },
       series: [{ property: 'y' }]
     });
-    const provider = new ObjectOfArraysDataProvider({ id: [1, 2], label: ['Jan'], y: [5, 6] });
+    const provider = new ObjectOfArraysDataProvider({ id: [1], label: ['Jan', 'Feb'], y: [5, 6] });
     expect(getDataErrors(config, provider)).toEqual([
-      'property label has 1 values but there are 2 categories'
+      'property id has 1 values but there are 2 categories'
+    ]);
+  });
+
+  it('flags key values that are not strings or numbers', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'label', keyProperty: 'id', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'y' }]
+    });
+    const provider = new ObjectOfArraysDataProvider({ id: [1, new Date(0)], label: ['Jan', 'Feb'], y: [5, 6] });
+    expect(getDataErrors(config, provider)).toEqual([
+      'category key values must be number or string for property: id'
+    ]);
+  });
+
+  it('flags duplicate key values but allows repeated category values when keyed', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'label', keyProperty: 'id', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'y' }]
+    });
+    const repeated = new ObjectOfArraysDataProvider({ id: [1, 2], label: ['Jan', 'Jan'], y: [5, 6] });
+    expect(getDataErrors(config, repeated)).toEqual([]);
+    const duplicateKeys = new ObjectOfArraysDataProvider({ id: [1, 1], label: ['Jan', 'Feb'], y: [5, 6] });
+    expect(getDataErrors(config, duplicateKeys)).toEqual([
+      'category key values must be unique for property: id, duplicates: 1'
     ]);
   });
 
@@ -183,7 +207,7 @@ describe('getDataErrors', () => {
         { x: 1, y: 5 },
         { x: 'not-a-number', y: 6 }
       ]);
-    expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type']);
+    expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type for property: x']);
   });
 
   it('validates extra series properties (range, marker, color, label)', () => {
@@ -241,7 +265,7 @@ describe('getDataErrors', () => {
         { d: '2020-01-01', y: 5 },
         { d: 'not-a-date', y: 6 }
       ]);
-    expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type']);
+    expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type for property: d']);
   });
 
   it('accepts Date instance category values on a date axis', () => {
@@ -267,7 +291,7 @@ describe('getDataErrors', () => {
         { d: new Date('2020-01-01T00:00:00Z'), y: 5 },
         { d: new Date(NaN), y: 6 }
       ]);
-    expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type']);
+    expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type for property: d']);
   });
 
   it('flags duplicate Date category values', () => {
@@ -301,9 +325,9 @@ describe('getDataErrors', () => {
     ]);
   });
 
-  it('keys displayProperty raw ids by their string form, not as dates', () => {
+  it('keys keyProperty ids by their string form, not as dates', () => {
     const config = makeConfig({
-      categoryAxis: { property: 'id', displayProperty: 'd', type: 'date', scale: 'ordinal' },
+      categoryAxis: { property: 'd', keyProperty: 'id', type: 'date', scale: 'ordinal' },
       series: [{ property: 'y' }]
     });
     const provider = new ArrayOfObjectsDataProvider(
@@ -340,25 +364,25 @@ describe('getDataErrors', () => {
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
-  it('validates the display property values against the axis type', () => {
+  it('validates the category values against the axis type when keyed', () => {
     const config = makeConfig({
-      categoryAxis: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
+      categoryAxis: { property: 'label', keyProperty: 'id', type: 'string', scale: 'ordinal' },
       series: [{ property: 'y' }]
     });
-    // raw category ids are numbers (valid), but one display label is not a string
+    // the keys are numbers (valid), but one category value is not a string
     const provider = new ArrayOfObjectsDataProvider(
       [
         { id: 1, label: 'Jan', y: 5 },
         { id: 2, label: 99, y: 6 }
       ]);
     expect(getDataErrors(config, provider)).toEqual([
-      'display category values must all match the specified type for property: label'
+      'category values must all match the specified type for property: label'
     ]);
   });
 
-  it('accepts valid display property values', () => {
+  it('accepts valid keyed category values', () => {
     const config = makeConfig({
-      categoryAxis: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
+      categoryAxis: { property: 'label', keyProperty: 'id', type: 'string', scale: 'ordinal' },
       series: [{ property: 'y' }]
     });
     const provider = new ArrayOfObjectsDataProvider(
@@ -443,9 +467,9 @@ describe('getDataErrors', () => {
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
-  it('exempts displayProperty configs from the order check (DST repeated-hour idiom)', () => {
+  it('exempts keyProperty configs from the order check (DST repeated-hour idiom)', () => {
     const config = makeConfig({
-      categoryAxis: { property: 'stamp', displayProperty: 'clock', type: 'date', scale: 'linear' },
+      categoryAxis: { property: 'clock', keyProperty: 'stamp', type: 'date', scale: 'linear' },
       series: [{ property: 'y', renderer: 'line' }]
     });
     const provider = new ArrayOfObjectsDataProvider(

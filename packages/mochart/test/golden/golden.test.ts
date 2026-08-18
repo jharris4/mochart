@@ -172,26 +172,29 @@ function shiftCategories(mochartConfig: EnhancedMochartConfig, rows: Row[], shif
   });
 }
 
+/** The next category value or key after the given ones: numbers count up, ISO dates step a day, anything else becomes NEW1. */
+function nextValueFor(values: unknown[]): unknown {
+  const last = values[values.length - 1];
+  if (typeof last === 'number') {
+    return Math.max(...values.filter((v): v is number => typeof v === 'number')) + 1;
+  }
+  if (typeof last === 'string' && !Number.isNaN(Date.parse(last)) && last.includes('-')) {
+    const maxTime = Math.max(...values.map((v) => Date.parse(v as string)));
+    return new Date(maxTime + 24 * 3600 * 1000).toISOString();
+  }
+  return 'NEW1';
+}
+
 /** Deterministic version of the demo app's "add category" button. */
 function addCategoryRow(mochartConfig: EnhancedMochartConfig, rows: Row[]): Row[] {
   const categoryProperty = getCategoryProperty(mochartConfig);
   if (!categoryProperty || rows.length === 0) {
     return rows;
   }
-  const values = rows.map((row) => row[categoryProperty]);
-  const last = values[values.length - 1];
-  let nextCategoryValue;
-  if (typeof last === 'number') {
-    nextCategoryValue = Math.max(...values.filter((v) => typeof v === 'number')) + 1;
-  }
-  else if (typeof last === 'string' && !Number.isNaN(Date.parse(last)) && last.includes('-')) {
-    const maxTime = Math.max(...values.map((v) => Date.parse(v)));
-    nextCategoryValue = new Date(maxTime + 24 * 3600 * 1000).toISOString();
-  }
-  else {
-    nextCategoryValue = 'NEW1';
-  }
-  const row = { ...rows[rows.length - 1], [categoryProperty]: nextCategoryValue };
+  // a keyed axis gets a fresh key with the copied (repeated) value, since repeated values are what keys are for
+  const keyProperty = mochartConfig.categoryAxis!.keyProperty;
+  const freshProperty = keyProperty !== null ? keyProperty : categoryProperty;
+  const row = { ...rows[rows.length - 1], [freshProperty]: nextValueFor(rows.map((r) => r[freshProperty])) };
   const seriesProperties = getSeriesProperties(mochartConfig);
   seriesProperties.forEach((property, i) => {
     if (typeof row[property] === 'number') {

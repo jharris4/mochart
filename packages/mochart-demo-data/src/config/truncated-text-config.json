@@ -175,8 +175,8 @@
   },
   "categoryAxis": {
     "valueLabel": "Category",
-    "property": "category",
-    "displayProperty": "categoryDisplay",
+    "property": "categoryDisplay",
+    "keyProperty": "category",
     "type": "string",
     "scale": "ordinal",
     "tickLabelTruncationEnabled": true,

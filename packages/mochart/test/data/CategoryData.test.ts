@@ -17,12 +17,12 @@ describe('getCategoryData', () => {
       [{ month: 'Jan' }, { month: 'Feb' }, { month: 'Mar' }]);
     const categoryData = getCategoryData(config.categoryAxis, provider);
     expect(categoryData.values.raw).toEqual(['Jan', 'Feb', 'Mar']);
-    // ordinal display defaults to the raw values
+    // without a keyProperty the values are their own keys
     expect(categoryData.values.display).toEqual(['Jan', 'Feb', 'Mar']);
   });
 
-  it('resolves display values through a display property', () => {
-    const config = ordinalConfig({ property: 'id', displayProperty: 'label' });
+  it('keys categories through a key property', () => {
+    const config = ordinalConfig({ property: 'label', keyProperty: 'id' });
     const provider = new ArrayOfObjectsDataProvider(
       [
         { id: 'a', label: 'Alpha' },

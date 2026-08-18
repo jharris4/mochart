@@ -3,17 +3,17 @@ import { describe, it, expect } from 'vitest';
 import { getTransitionDataProviders } from '../src/transition';
 import type { TransitionConfig } from '../src/types';
 
-// The providers wrap the raw rows wholesale: the category display property and
+// The providers wrap the raw rows wholesale: the category key property and
 // extra series properties (colorProperty, markerProperty, ...) are served as
 // columns like any other row property — nothing is dropped in transit.
-// (Verified end-to-end: a chart animating between two such providers renders
-// display values, not raw ids, mid-transition.)
+// (Verified end-to-end: a chart animating between two such providers keeps
+// matching categories by key, not by their repeated values, mid-transition.)
 describe('getTransitionDataProviders', () => {
-  it('serves the display property and extra series properties from the rows', () => {
+  it('serves the key property and extra series properties from the rows', () => {
     const transitionConfig: TransitionConfig = {
       config: {
         version: '1.0.0',
-        categoryAxis: { property: 'ts', type: 'string', scale: 'ordinal', displayProperty: 'label' },
+        categoryAxis: { property: 'label', type: 'string', scale: 'ordinal', keyProperty: 'ts' },
         series: [{ property: 'count', colorProperty: 'heat' }]
       },
       data: [

@@ -11,8 +11,8 @@
   },
   "categoryAxis": {
     "valueLabel": "Category",
-    "property": "date",
-    "displayProperty": "display",
+    "property": "display",
+    "keyProperty": "date",
     "type": "date",
     "scale": "linear",
     "thresholds": [

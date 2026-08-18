@@ -28,8 +28,8 @@ const baseConfig = {
   },
   "categoryAxis": {
     "valueLabel": "Category",
-    "property": "c",
-    "displayProperty": "cd",
+    "property": "cd",
+    "keyProperty": "c",
     "type": "string",
     "scale": "ordinal",
     "title": "Category Axis Title",

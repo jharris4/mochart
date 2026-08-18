@@ -54,7 +54,7 @@ function checkPropertyValues(dataErrors: string[], values: readonly DataValue[] 
   return true;
 }
 
-/** Series values must be numeric; null, undefined and NaN all read as missing. categoryAxis.displayProperty is checked against the axis type instead. */
+/** Series values must be numeric; null, undefined and NaN all read as missing. categoryAxis.keyProperty is checked as string/number keys instead. */
 function checkSeriesProperty(dataErrors: string[], dataProvider: DataProvider, categoryCount: number, property: string, allowAbsentDataProperties: boolean): void {
   const values = dataProvider.getPropertyValues(property);
   if (values === undefined && allowAbsentDataProperties) {
@@ -91,17 +91,6 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
     const categoryCount = categoryPropertyValues.length;
     const categoryValues = categoryPropertyValues as readonly CategoryValue[];
 
-    const numberValidator = validators.number();
-    const stringValidator = validators.string();
-    // the values the axis type check applies to: the display values when a displayProperty is configured
-    let typedCategoryValues: readonly DataValue[] | null = categoryPropertyValues;
-    if (categoryAxisConfig.displayProperty !== NONE) {
-      if (categoryPropertyValues.some(g => !(stringValidator(g) || numberValidator(g)))) {
-        dataErrors.push('raw category values must be number or string when display property is set');
-      }
-      const displayValues = dataProvider.getPropertyValues(categoryAxisConfig.displayProperty);
-      typedCategoryValues = checkPropertyValues(dataErrors, displayValues, categoryCount, categoryAxisConfig.displayProperty) ? displayValues : null;
-    }
     let validator;
     if (categoryAxisConfig.type === TYPE_DATE) {
       validator = validators.dateAny();
@@ -112,21 +101,33 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
     else {
       validator = validators.string();
     }
-    if (typedCategoryValues !== null && typedCategoryValues.some(value => !validator(value))) {
-      dataErrors.push(categoryAxisConfig.displayProperty !== NONE
-        ? 'display category values must all match the specified type for property: ' + categoryAxisConfig.displayProperty
-        : 'category values must all match the specified type');
+    if (categoryPropertyValues.some(value => !validator(value))) {
+      dataErrors.push('category values must all match the specified type for property: ' + categoryAxisConfig.property);
     }
-    if (dataErrors.length === 0) { // duplicate matching needs all the values to be primitives...
-      const duplicates = getDuplicates(categoryAxisConfig, categoryValues);
+    // the values categories are identified by: the key values when a keyProperty is configured
+    let keyValues: readonly CategoryValue[] | null = categoryValues;
+    if (categoryAxisConfig.keyProperty !== NONE) {
+      const numberValidator = validators.number();
+      const stringValidator = validators.string();
+      const keyPropertyValues = dataProvider.getPropertyValues(categoryAxisConfig.keyProperty);
+      keyValues = checkPropertyValues(dataErrors, keyPropertyValues, categoryCount, categoryAxisConfig.keyProperty) ? keyPropertyValues as readonly CategoryValue[] : null;
+      if (keyValues !== null && keyValues.some(key => !(stringValidator(key) || numberValidator(key)))) {
+        dataErrors.push('category key values must be number or string for property: ' + categoryAxisConfig.keyProperty);
+        keyValues = null;
+      }
+    }
+    if (dataErrors.length === 0 && keyValues !== null) { // duplicate matching needs all the values to be primitives...
+      const duplicates = getDuplicates(categoryAxisConfig, keyValues);
       if (duplicates.length > 0) {
-        dataErrors.push('category values must be unique, duplicates: ' + duplicates.join(', '));
+        dataErrors.push(categoryAxisConfig.keyProperty !== NONE
+          ? 'category key values must be unique for property: ' + categoryAxisConfig.keyProperty + ', duplicates: ' + duplicates.join(', ')
+          : 'category values must be unique, duplicates: ' + duplicates.join(', '));
       }
     }
     // Only line/area paths zigzag on out-of-order data, so bar/none charts are not flagged.
-    // Nor are displayProperty configs: display values may legitimately fold back (DST repeated hour).
+    // Nor are keyProperty configs: keyed category values may legitimately fold back (DST repeated hour).
     if (dataErrors.length === 0 && categoryAxisConfig.scale === SCALE_LINEAR
-      && categoryAxisConfig.displayProperty === NONE
+      && categoryAxisConfig.keyProperty === NONE
       && seriesConfigs.some(({ renderer }) => renderer === RENDERER_LINE || renderer === RENDERER_AREA)) {
       const outOfOrder = getOutOfOrderValues(categoryAxisConfig.type === TYPE_DATE, categoryValues);
       if (outOfOrder.length > 0) {
