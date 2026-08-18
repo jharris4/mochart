@@ -3,7 +3,7 @@ import { scaleLinear, scaleSqrt } from 'd3-scale';
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
-import { NONE, MARKER_SIZE_SCALE_SQRT } from '../config/core/constants';
+import { NONE, MARKER_SIZE_SCALE_SQRT, RENDERER_BAR } from '../config/core/constants';
 import { translate, isMissingValue } from '../utils/utils';
 import { getSymbolGenerator } from '../utils/shapeUtils';
 import { getSeriesMarkerFillColor, getSeriesMarkerStrokeColor } from '../utils/SeriesColors';
@@ -82,7 +82,9 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
 
       let focusPercentage;
 
-      const { length, getDefined, getSeriesPosition, getCategoryPosition, skipped, skipCategoryIndexMap } = seriesPositionData;
+      const { length, getDefined, getSeriesPosition, getCategoryPosition, getOffsetCategoryPosition, categoryValueExtent, skipped, skipCategoryIndexMap } = seriesPositionData;
+      // a bar marker centers on the bar's own slot (group sub-slot, barWidthFraction), not the category slot
+      const isBar = seriesConfig.renderer === RENDERER_BAR;
 
       for (let i = 0; i < length; i++) {
         const skipI = skipped ? skipCategoryIndexMap[i] : i;
@@ -91,13 +93,14 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
           markerFillColor = getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
           markerStrokeColor = getSeriesMarkerStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
           const { strokeWidth: markerStrokeWidth, strokeDashArray: markerStrokeDashArray, strokeOpacity: markerStrokeOpacity, fillOpacity: markerFillOpacity } = getFocusStyle(focusPercentage, seriesConfig.markerStyle);
+          const categoryPosition = isBar ? getOffsetCategoryPosition(null, i)! + categoryValueExtent / 2 : getCategoryPosition(null, i)!;
           let cx, cy;
           if (inverted) {
             cx = getSeriesPosition(null, i)!;
-            cy = getCategoryPosition(null, i)!;
+            cy = categoryPosition;
           }
           else {
-            cx = getCategoryPosition(null, i)!;
+            cx = categoryPosition;
             cy = getSeriesPosition(null, i)!;
           }
           let theSymbol = globalSymbol;

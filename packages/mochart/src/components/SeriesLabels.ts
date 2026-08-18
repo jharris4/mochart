@@ -2,7 +2,7 @@ import { Renderer, svgEl, textEl } from '../render';
 
 import { getSeriesLabelFormat } from '../utils/ValueFormat';
 import { mochartCssClasses } from '../utils/ChartDom';
-import { NONE, AUTO, LABEL_POSITION_CENTER, LABEL_POSITION_INSIDE } from '../config/core/constants';
+import { NONE, AUTO, LABEL_POSITION_CENTER, LABEL_POSITION_INSIDE, RENDERER_BAR } from '../config/core/constants';
 import { translate, isMissingValue } from '../utils/utils';
 import { getSeriesLabelFillColor, getSeriesLabelStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
@@ -227,7 +227,9 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
         const aboveBaseDY = getDY(inverted, true, aboveBasePosition);
         const belowBaseDY = getDY(inverted, false, belowBasePosition);
 
-        const { length, getDefined, getSeriesPosition, getCategoryPosition, skipped, skipCategoryIndexMap } = seriesPositionData;
+        const { length, getDefined, getSeriesPosition, getCategoryPosition, getOffsetCategoryPosition, categoryValueExtent, skipped, skipCategoryIndexMap } = seriesPositionData;
+        // a bar label centers on the bar's own slot (group sub-slot, barWidthFraction), not the category slot
+        const isBar = seriesConfig.renderer === RENDERER_BAR;
 
         for (let i = 0; i < length; i++) {
           const skipI = skipped ? skipCategoryIndexMap[i] : i;
@@ -243,8 +245,9 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             labelStrokeColor = getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
             const { strokeWidth: labelStrokeWidth, strokeOpacity: labelStrokeOpacity, fillOpacity: labelFillOpacity } = getFocusStyle(focusPercentage, seriesConfig.labelTextStyle);
             seriesPosition = getSeriesPosition(null, i)! + getOffset(aboveBase);
-            x = inverted ? seriesPosition : getCategoryPosition(null, i)!;
-            y = inverted ? getCategoryPosition(null, i)! : seriesPosition;
+            const categoryPosition = isBar ? getOffsetCategoryPosition(null, i)! + categoryValueExtent / 2 : getCategoryPosition(null, i)!;
+            x = inverted ? seriesPosition : categoryPosition;
+            y = inverted ? categoryPosition : seriesPosition;
             const label = this.labelShapes.get(i);
             label.attrs = { className: label.className, transform: translate(x, y),
               textAnchor, dy, stroke: labelStrokeColor, fill: labelFillColor, fillOpacity: labelFillOpacity, strokeOpacity: labelStrokeOpacity,
