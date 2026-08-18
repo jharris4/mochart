@@ -2118,9 +2118,11 @@ export interface CategoryAxisConfig extends AxisConfigBase {
    * The property to retrieve from the data provider for the category display
    * values (use null for none).
    *
-   * When set, this property’s value is used wherever the category value is
-   * displayed (tick labels, tooltip), while `property` still drives positioning
-   * — useful for pre-formatted or friendly labels.
+   * When set, `property` only supplies each category’s unique key (a string or
+   * number), and this property’s values become the category values: they must
+   * match `type`, they position a linear axis, and they are what tick labels
+   * and the tooltip show. Use it when the key differs from the shown value — an
+   * id keyed against a label, or a wall-clock date whose real instants repeat.
    *
    * @default null
    */
