@@ -319,12 +319,13 @@ uses these to serialize rendered charts to SVG/PNG — see
 
 **Not every value is a single class name.** Parts that exist once per series,
 axis or category carry two space-separated tokens: the class shared by all of
-them, then a prefix to which the id is appended.
+them, then a prefix to which the id (or index) is appended. Prefixes that take
+a configured id end in `-id-`, so no id can spell out another structural class.
 
 ```js
 import { mochartCssClasses } from '@mochart/core';
 
-mochartCssClasses.series      // 'mochart-series mochart-series-'
+mochartCssClasses.series      // 'mochart-series mochart-series-id-'
 mochartCssClasses.seriesBar   // 'mochart-series-bar mochart-series-bar-'
 
 const [shared, prefix] = mochartCssClasses.series.split(' ');

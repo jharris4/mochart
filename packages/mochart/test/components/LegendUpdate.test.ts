@@ -10,7 +10,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
-import { getCssSelector } from '../../src/utils/ChartDom';
+import { getCssSelector, getDomAccessors } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 
@@ -42,6 +42,22 @@ function legendItemCount(container: Element): number {
 
 beforeAll(() => {
   installSvgMeasurementShims();
+});
+
+// Regression: the per-item class was `mochart-legend-item-<id>`, so a series id of `text` stamped the structural
+// `mochart-legend-item-text` class on the item root; the text accessor then over-matched and every legend item fell
+// back to default text bounds
+describe('legend item id classes', () => {
+  it('lays a series with a structural-suffix id out the same as any other id', () => {
+    const layout = (id: string) => {
+      const config = { ...makeConfig(true), series: [{ property: 'sales', id }, { property: 'costs' }] } as MochartInputConfig;
+      const { container } = mountChart(config);
+      expect(getDomAccessors(container).getLegendItemTextDomElements().length).toBe(2);
+      return [...container.querySelectorAll(getCssSelector('legendItem'))].map(item => item.getAttribute('transform'));
+    };
+    expect(layout('text')).toEqual(layout('tex1'));
+    expect(layout('background')).toEqual(layout('tex1'));
+  });
 });
 
 describe('legend membership config updates', () => {
