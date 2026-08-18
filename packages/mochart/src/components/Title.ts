@@ -37,6 +37,10 @@ interface TitleProps {
 }
 type TitleState = TruncationState;
 
+function titleFits(titleLayoutInfo: SpacingLayoutInfo, titleTextLayoutInfo: SpacingLayoutInfo, titleTextRawLayoutInfo: SpacingLayoutInfo): boolean {
+  return titleTextLayoutInfo.width === titleTextRawLayoutInfo.width && titleLayoutInfo.default !== true;
+}
+
 export default class Title extends Renderer<TitleProps, TitleState> {
   root = svgEl('g');
   background = this.slot(this.root);
@@ -75,7 +79,9 @@ export default class Title extends Renderer<TitleProps, TitleState> {
     const truncationChanged = truncationEnabled &&
       (layoutInfoExtentChanged(prevProps.titleTextLayoutInfo, titleTextLayoutInfo) || layoutInfoExtentChanged(prevProps.titleTextRawLayoutInfo, titleTextRawLayoutInfo));
     const titleChanged = prevProps.mochartConfig.title.text !== titleConfig.text;
-    const truncationFinished = titleTextLayoutInfo.width === titleTextRawLayoutInfo.width && titleLayoutInfo.default !== true;
+    // reset only on settling, not on every update while settled: each reset re-arms a forced-layout measure
+    const truncationFinished = titleFits(titleLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo) &&
+      !titleFits(prevProps.titleLayoutInfo, prevProps.titleTextLayoutInfo, prevProps.titleTextRawLayoutInfo);
     return this.truncation.prepare(truncationEnabled, truncationChanged, titleChanged || truncationFinished);
   }
 

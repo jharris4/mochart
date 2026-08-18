@@ -121,10 +121,38 @@ describe('truncation measurement cost', () => {
     chart.destroy();
 
     expect({ initial, valuesAnimated, resized, categoriesChurned }).toEqual({
-      initial: { tickLabels: 1303, title: 324, axisTitle: 134, legendItem: 524, other: 0 },
-      valuesAnimated: { tickLabels: 6542, title: 1387, axisTitle: 570, legendItem: 2232, other: 0 },
-      resized: { tickLabels: 108, title: 12, axisTitle: 73, legendItem: 30, other: 0 },
-      categoriesChurned: { tickLabels: 3815, title: 745, axisTitle: 296, legendItem: 1168, other: 0 }
+      initial: { tickLabels: 1303, title: 259, axisTitle: 134, legendItem: 516, other: 0 },
+      valuesAnimated: { tickLabels: 6542, title: 1104, axisTitle: 570, legendItem: 2208, other: 0 },
+      resized: { tickLabels: 108, title: 11, axisTitle: 73, legendItem: 26, other: 0 },
+      categoriesChurned: { tickLabels: 3815, title: 576, axisTitle: 296, legendItem: 1152, other: 0 }
     });
+  });
+
+  // Regression: a legend item or title that already fit was reset on every update, so each focus frame re-measured it
+  it('stops measuring settled legend items and the title across focus updates', () => {
+    const mochartConfig = mochart.enhanceConfig({
+      version: '1.0.0',
+      animation: { animate: false },
+      title: { text: 'Sales' },
+      legend: { visible: true },
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ id: 'sales', property: 'sales' }, { id: 'costs', property: 'costs' }]
+    } as MochartInputConfig) as EnhancedMochartConfig;
+    const rows = [{ month: 'Jan', sales: 10, costs: 5 }, { month: 'Feb', sales: 20, costs: 8 }];
+    const container = mountContainer();
+    const chart = mochart.createChart(container, { mochartConfig, dataProvider: new mochart.ArrayOfObjectsDataProvider(rows), width: WIDTH, height: HEIGHT });
+    runFrames();
+    // a real prop change flushes the tail of the mount-time measurement passes
+    chart.update({ focusedSeriesId: 'sales' });
+    runFrames();
+
+    resetCounts();
+    for (let i = 0; i < 10; i++) {
+      chart.update({ focusedSeriesId: i % 2 === 0 ? 'costs' : 'sales' });
+      runFrames();
+    }
+    chart.destroy();
+    expect(counts.legendItem).toBe(0);
+    expect(counts.title).toBe(0);
   });
 });

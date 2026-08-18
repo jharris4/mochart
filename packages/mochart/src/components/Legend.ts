@@ -205,6 +205,10 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
   }
 }
 
+function legendItemFits(legendLayoutInfo: SpacingLayoutInfo, legendItemLayoutInfo: SpacingLayoutInfo, legendItemRawLayoutInfo: SpacingLayoutInfo): boolean {
+  return legendItemLayoutInfo.width === legendItemRawLayoutInfo.width && legendLayoutInfo.default !== true;
+}
+
 class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
   root = svgEl('g');
   background = this.slot(this.root);
@@ -287,7 +291,9 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
     const truncationChanged = truncationEnabled &&
       (layoutInfoExtentChanged(prevProps.legendItemLayoutInfo, legendItemLayoutInfo) || layoutInfoExtentChanged(prevProps.legendItemRawLayoutInfo, legendItemRawLayoutInfo));
     const seriesTitleChanged = prevProps.seriesConfig.title !== seriesConfig.title;
-    const truncationFinished = legendItemLayoutInfo.width === legendItemRawLayoutInfo.width && legendLayoutInfo.default !== true;
+    // reset only on settling, not on every update while settled: each reset re-arms a forced-layout measure
+    const truncationFinished = legendItemFits(legendLayoutInfo, legendItemLayoutInfo, legendItemRawLayoutInfo) &&
+      !legendItemFits(prevProps.legendLayoutInfo, prevProps.legendItemLayoutInfo, prevProps.legendItemRawLayoutInfo);
     return this.truncation.prepare(truncationEnabled, truncationChanged, seriesTitleChanged || truncationFinished);
   }
 
