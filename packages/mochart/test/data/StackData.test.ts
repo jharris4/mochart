@@ -29,16 +29,16 @@ describe('getStackData', () => {
     expect(stackData.outerNegativeSeriesIds).toEqual({ SS0: [undefined, 'S1'] });
   });
 
-  it('classifies by cumulative stack value and leaves holes for absent signs', () => {
-    // category 0: a=4 (cumulative 4), b=0 (cumulative still 4) -> both cumulative
-    //          totals are positive, so the outer positive is S1; no negatives.
+  // Regression: classifying by the cumulative stack value let a zero-value series above the visible top bar take the outer cap
+  it('classifies by each series own contribution and leaves holes for absent signs', () => {
+    // category 0: a=4 forms the visible top, b=0 adds nothing -> the outer positive is S0; no negatives.
     // category 1: everything is zero -> neither sign contributes, all holes.
     const { config, chartData } = stackedSetup([
       { c: 0, a: 4, b: 0 },
       { c: 1, a: 0, b: 0 }
     ]);
     const stackData = getStackData(config, chartData);
-    expect(stackData.outerPositiveSeriesIds.SS0).toEqual(['S1', undefined]);
+    expect(stackData.outerPositiveSeriesIds.SS0).toEqual(['S0', undefined]);
     expect(stackData.outerNegativeSeriesIds.SS0).toEqual([undefined, undefined]);
   });
 

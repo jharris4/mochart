@@ -1,5 +1,5 @@
 import { getWithMutations } from '../utils/WithMutations';
-import { keyStack } from './constants';
+import { keyPlain } from './constants';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig, EnhancedSeriesStackConfig } from '../types/enhanced';
 import type { ChartData, NumericValues, StackData } from '../types/data';
 
@@ -60,10 +60,11 @@ export function getStackData(mochartConfig: EnhancedMochartConfig, chartData: Ch
     stackNegativeFilteredIds = filteredOuterNegativeSeriesIds[stackId];
     for (const seriesConfig of seriesConfigs) {
       id = seriesConfig.id;
-      assignIdIfPositive(stackPositiveIds, seriesConfig, rawValues[id][keyStack]);
-      assignIdIfPositive(stackPositiveFilteredIds, seriesConfig, filteredValues[id][keyStack]);
-      assignIdIfNegative(stackNegativeIds, seriesConfig, rawValues[id][keyStack]);
-      assignIdIfNegative(stackNegativeFilteredIds, seriesConfig, filteredValues[id][keyStack]);
+      // by the series' own contribution, not the cumulative stack: a zero-value series must not take the outer cap from the bar below it
+      assignIdIfPositive(stackPositiveIds, seriesConfig, rawValues[id][keyPlain]);
+      assignIdIfPositive(stackPositiveFilteredIds, seriesConfig, filteredValues[id][keyPlain]);
+      assignIdIfNegative(stackNegativeIds, seriesConfig, rawValues[id][keyPlain]);
+      assignIdIfNegative(stackNegativeFilteredIds, seriesConfig, filteredValues[id][keyPlain]);
     }
   }
   return {
