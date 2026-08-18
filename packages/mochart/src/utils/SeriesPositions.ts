@@ -1,4 +1,4 @@
-import { NONE, MISSING_VALUES_BASE, MISSING_VALUES_CONNECT } from '../config/core/constants';
+import { NONE, MISSING_VALUES_BASE, MISSING_VALUES_CONNECT, RENDERER_BAR } from '../config/core/constants';
 import { isMissingValue } from './utils';
 import type { CategoryAxisConfig } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
@@ -33,7 +33,7 @@ function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorP
 }
 
 export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, seriesConfig: EnhancedSeriesConfig, categoryValueData: CategoryAxisData['valueData'], valueAxisScale: AxisScale, valueObject: SeriesValueObject, seriesLayoutInfo: LayoutInfo): SeriesPositionData {
-  const { valueAxisConfig, seriesGroupConfig, missingValues, partialRangeIsMissing, group, stack, rangeProperty, barWidthFraction, barAlignFraction } = seriesConfig;
+  const { valueAxisConfig, seriesGroupConfig, missingValues, partialRangeIsMissing, group, stack, rangeProperty, barWidthFraction, barAlignFraction, renderer } = seriesConfig;
   const { spacingInfo, positions: categoryPositions } = categoryValueData;
   const { base } = valueAxisConfig;
   const { min } = valueObject;
@@ -107,8 +107,9 @@ export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, se
   }
 
   if (stack === NONE || skip) {
-    // back-fill either side per category value; only unstacked pairs get sorted, a stack top below its prior is a negative segment
-    normalizePriorPositions(seriesPositions, seriesPriorPositions, seriesBasePosition, inverted, stack === NONE);
+    // back-fill either side per category value; only unstacked bar pairs get sorted (a stack top below its prior is a
+    // negative segment), and a ranged line/area keeps property on the series side so its lines, labels and markers don't swap
+    normalizePriorPositions(seriesPositions, seriesPriorPositions, seriesBasePosition, inverted, stack === NONE && renderer === RENDERER_BAR);
   }
 
   const skipCategoryIndexMap: Record<number, number> = {};

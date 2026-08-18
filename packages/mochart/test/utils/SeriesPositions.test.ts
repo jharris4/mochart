@@ -161,10 +161,28 @@ describe('getSeriesPositionData', () => {
   });
 
   describe('ranged series (non-stacked)', () => {
-    const rangeConfig = (extra: object = {}) => enhance({ series: [{ property: 'v', rangeProperty: 'r', ...extra }] });
+    // only the bar renderer sorts each pair; a ranged line/area keeps property on the series side
+    const rangeConfig = (extra: object = {}) => enhance({ series: [{ property: 'v', rangeProperty: 'r', renderer: 'bar', ...extra }] });
     const rangeValues = values([10, NA, 30, 5, NA], [20, 15, NA, 40, NA]);
 
-    it('orders each pair so seriesPositions holds the near pixel and back-fills the absent end', () => {
+    it('keeps property on the series side for a ranged line so crossing bounds do not swap', () => {
+      const config = rangeConfig({ renderer: 'line' });
+      const data = getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
+        rangeValues, upright);
+      // 10/20 → 180/160: unsorted, seriesPositions stays the property pixel
+      expect(data.seriesPositions[0]).toBe(180);
+      expect(data.seriesPriorPositions![0]).toBe(160);
+      expect(data.seriesPositions[3]).toBe(190);
+      expect(data.seriesPriorPositions![3]).toBe(120);
+      expect(data.getSeriesPosition(null, 0)).toBe(180);
+      expect(data.getPriorSeriesPosition(null, 0)).toBe(160);
+      // back-fill of a half-missing pair still applies
+      expect(data.seriesPositions[1]).toBe(170);
+      expect(data.seriesPriorPositions![1]).toBe(170);
+      expect(data.getSeriesExtent(null, 3)).toBe(70);
+    });
+
+    it('orders each bar pair so seriesPositions holds the near pixel and back-fills the absent end', () => {
       const config = rangeConfig();
       const data = getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
         rangeValues, upright);
@@ -226,7 +244,7 @@ describe('getSeriesPositionData', () => {
     });
 
     it('keeps range accessors even when the axis has a base', () => {
-      const config = enhance({ valueAxes: [{ base: 50 }], series: [{ property: 'v', rangeProperty: 'r' }] });
+      const config = enhance({ valueAxes: [{ base: 50 }], series: [{ property: 'v', rangeProperty: 'r', renderer: 'bar' }] });
       const data = getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
         values([80, 20, 30, 40, 50], [90, 10, 30, 40, 50]), upright);
       // 80/90 lie wholly above the base; the bar spans the pair, not the base
@@ -271,7 +289,7 @@ describe('getSeriesPositionData', () => {
     });
 
     it('compacts prior positions alongside a ranged series', () => {
-      const config = enhance({ series: [{ property: 'v', rangeProperty: 'r', missingValues: 'connect' }] });
+      const config = enhance({ series: [{ property: 'v', rangeProperty: 'r', renderer: 'bar', missingValues: 'connect' }] });
       const data = getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
         values([10, NA, 30, NA, 50], [20, NA, NA, 15, 60]), upright);
       // category 3 keeps its range end after back-fill, so only category 1 is skipped
