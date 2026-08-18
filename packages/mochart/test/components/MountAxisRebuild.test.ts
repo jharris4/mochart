@@ -45,6 +45,41 @@ beforeAll(() => {
   };
 });
 
+// Regression: the mount pass measured the tick labels before they truncated and nothing remeasured afterwards, so
+// the axis stayed sized for the full labels (a blank band under them) until the first config, size or data change
+describe('mount-time remeasure after tick label truncation', () => {
+  it('reserves the same axis space at mount as a later full remeasure', () => {
+    const svgProto = globalThis.SVGElement.prototype as unknown as { getBBox: (this: SVGGraphicsElement) => DOMRect };
+    const shortened = svgProto.getBBox;
+    // this case wants the synthetic font's own heights back
+    svgProto.getBBox = function (this: SVGGraphicsElement) {
+      const bounds = shortened.call(this);
+      return bounds.height === LABEL_HEIGHT ? { ...bounds, height: 16 * 1.2 } as DOMRect : bounds;
+    };
+    try {
+      const rows = Array.from({ length: 12 }, (_, i) => ({ c: 'Month number ' + (i + 1), v: 10 + i }));
+      const rotated = {
+        version: '1.0.0',
+        animation: { animate: false },
+        categoryAxis: { property: 'c', type: 'string', scale: 'ordinal', tickLabelRotation: 45 },
+        series: [{ property: 'v', renderer: 'bar' }]
+      } as unknown as MochartInputConfig;
+      const container = mountContainer();
+      const handle = trackHandle(createDefaultChart(container, { config: rotated, data: rows, width: WIDTH, height: 300 } as DefaultChartProps));
+      const plotHeight = () => Number(container.querySelector(getCssSelector('seriesBackground') + ' rect')!.getAttribute('height'));
+      const labels = () => [...container.querySelectorAll(getCssSelector('categoryAxis') + ' ' + getCssSelector('axisTickLabel') + ' text')].map(text => text.textContent);
+      const mounted = plotHeight();
+      // the labels did truncate at mount
+      expect(labels()[0]).toMatch(/…$/);
+      handle.update({ config: JSON.parse(JSON.stringify(rotated)) as MochartInputConfig } as Partial<DefaultChartProps>);
+      expect(mounted).toBe(plotHeight());
+    }
+    finally {
+      svgProto.getBBox = shortened;
+    }
+  });
+});
+
 describe('mount-time axis rebuild', () => {
   it('sizes the value axis ticks from the measured labels at mount, the same as a later full rebuild', () => {
     const container = mountContainer();

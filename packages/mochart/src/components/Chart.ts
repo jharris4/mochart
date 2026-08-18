@@ -741,9 +741,14 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     return null;
   }
 
+  /** the mount pass measures the tick labels before they truncate; one follow-up pass re-reads them once they have */
+  private remeasureAfterMount = false;
+
   measure(prevProps: ChartProps | null, prevState: ChartState | null): void {
     this.flushSeriesLayoutBoundsChange();
     if (prevProps === null || prevState === null) {
+      // set before the measure: its setState flushes the follow-up measure synchronously
+      this.remeasureAfterMount = true;
       this.calculateTextSizes();
       return;
     }
@@ -756,6 +761,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         const { chartData, mochartConfig } = prevProps;
         if (chartData === null || newChartData === null) {
           if (newChartData !== chartData || newMochartConfig !== mochartConfig) {
+            this.remeasureAfterMount = true;
             this.calculateInitialTextSizes();
           }
           else {
@@ -780,6 +786,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           const textMayHaveChanged = axisDataChanged || this.state.chartTextBoundsData.hasDefault === true;
 
           if (mochartConfigChanged || sizeChanged || (dataChanged && textMayHaveChanged)) {
+            this.remeasureAfterMount = false;
+            this.calculateInitialTextSizes();
+          }
+          else if (this.remeasureAfterMount) {
+            // bounded to one pass: the truncation resets whenever the plot extent moves, so chasing it could ping-pong
+            this.remeasureAfterMount = false;
             this.calculateInitialTextSizes();
           }
 
