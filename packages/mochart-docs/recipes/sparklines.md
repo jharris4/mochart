@@ -19,7 +19,9 @@ import * as sparkline from '../examples/sparkline'
   piece back, set it explicitly: `legend: { visible: true }` survives the
   preset untouched. The value axes are hidden through
   [`valueAxisDefaults`](/reference/valueAxes), so it works whether or not
-  the config declares any.
+  the config declares any; their
+  [base line](/reference/valueAxes#valueAxes.showBaseLine), which draws in the
+  plot rather than the axis band, is switched off there too.
 - `interactive: true` keeps the tooltip and crosshair enabled for sparklines
   large enough to host them; `padding` (default 2px) is set as the chart
   [`padding`](/reference/chart#chart.padding) and keeps strokes at the data

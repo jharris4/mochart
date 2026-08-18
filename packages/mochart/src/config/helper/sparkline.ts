@@ -39,7 +39,8 @@ export function createSparklineConfig(config: MochartInputConfig, options: Creat
     crosshair: { visible: interactive, ...config.crosshair },
     categoryAxis: { visible: false, ...config.categoryAxis },
     ...(config.valueAxes !== undefined ? { valueAxes: config.valueAxes } : {}),
-    valueAxisDefaults: { visible: false, ...config.valueAxisDefaults },
+    // the base line draws in the plot, not the axis band, so hiding the axis does not hide it
+    valueAxisDefaults: { visible: false, showBaseLine: false, ...config.valueAxisDefaults },
     seriesDefaults: { markerShape: null, ...config.seriesDefaults }
   };
 }

@@ -23,6 +23,17 @@ describe('createSparklineConfig', () => {
     expect(mochartConfig.chart.padding).toEqual({ top: 2, right: 2, bottom: 2, left: 2 });
   });
 
+  // Regression: the base line is plot decoration, drawn regardless of the axis being visible, so a
+  // resolved base (an explicit one, or a stack's default 0) drew a line through the sparkline
+  it('hides the value axis base line', () => {
+    const config = baseConfig();
+    config.valueAxes = [{ id: 'va', base: 0 }];
+    const mochartConfig = enhanceConfig(createSparklineConfig(config));
+    expect(mochartConfig.valueAxes[0].showBaseLine).toBe(false);
+    const explicit = enhanceConfig(createSparklineConfig({ ...config, valueAxisDefaults: { showBaseLine: true } }));
+    expect(explicit.valueAxes[0].showBaseLine).toBe(true);
+  });
+
   it('hides the per-point markers line series default to', () => {
     const mochartConfig = enhanceConfig(createSparklineConfig(baseConfig()));
     expect(mochartConfig.series[0].markerShape).toBeNull();
