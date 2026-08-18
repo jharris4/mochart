@@ -78,6 +78,7 @@ const sharedInterfaceSources: SharedInterfaceSource[] = [
   { interfaceName: 'SeriesCurve', sectionId: 'series', propertyKey: 'curve' },
   { interfaceName: 'SeriesColorScale', sectionId: 'series', propertyKey: 'colorScale' },
   { interfaceName: 'SeriesColorScaleBase', sectionId: 'series', propertyKey: 'colorScale.base' },
+  { interfaceName: 'ClipIndicatorHatchConfig', sectionId: 'clipIndicator', propertyKey: 'hatch' },
   { interfaceName: 'ThresholdConfig', sectionId: 'valueAxes', propertyKey: 'thresholds', includeDefaults: true },
   { interfaceName: 'ValueAxisTick', sectionId: 'valueAxes', propertyKey: 'ticks', includeDefaults: true },
   { interfaceName: 'GradientStop', sectionId: 'linearGradients', propertyKey: 'stops', includeDefaults: true }

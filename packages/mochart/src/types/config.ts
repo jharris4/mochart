@@ -489,7 +489,12 @@ export interface PlotConfig {
 }
 
 export interface ClipIndicatorHatchConfig {
+  /** The distance (in pixels) between neighbouring hatch lines. */
   spacing: number;
+  /**
+   * The thickness (in pixels) of each hatch line; at or above spacing the hatch
+   * closes up into a flat fill.
+   */
   width: number;
 }
 
