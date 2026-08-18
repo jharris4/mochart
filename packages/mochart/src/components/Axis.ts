@@ -108,7 +108,8 @@ export default class Axis extends Renderer<AxisProps> {
         this.titleSlot.set(null);
       }
       else {
-        this.titleSlot.set(AxisTitle, { axisConfig, axisLayoutInfo, titleClipPathUniqueId, axisFocusPercentage: axisFocusPercentage ?? null, seriesFocusPercentage: seriesFocusPercentage ?? null, ariaHidden: accessibility && namedGroup });
+        // the named group (in whichever half) already reads the title, so the drawn title stays hidden even when it draws in the other half
+        this.titleSlot.set(AxisTitle, { axisConfig, axisLayoutInfo, titleClipPathUniqueId, axisFocusPercentage: axisFocusPercentage ?? null, seriesFocusPercentage: seriesFocusPercentage ?? null, ariaHidden: accessibility && axisTicks.length > 0 });
       }
 
       if (front !== focusTickMarkFront) {

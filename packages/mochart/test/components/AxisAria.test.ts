@@ -101,6 +101,15 @@ describe('axis text in the accessibility tree', () => {
     expect(exposedTexts(container)).not.toContain('Months');
   });
 
+  it('stops the drawn title repeating the group name when it draws in the other half', () => {
+    const container = mountChart(makeConfig({ categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Months', titleFront: true } }));
+    const backCategoryAxis = container.querySelector(getDescendantCssSelector('plotBack', 'categoryAxis'))!;
+    expect(backCategoryAxis.getAttribute('aria-label')).toBe('Months');
+    const axisTitle = container.querySelector(getDescendantCssSelector('plotFront', 'axisTitle'))!;
+    expect(axisTitle.getAttribute('aria-hidden')).toBe('true');
+    expect(exposedTexts(container)).not.toContain('Months');
+  });
+
   it('groups only the axis half that draws the tick labels', () => {
     const container = mountChart(makeConfig());
     const frontCategoryAxis = container.querySelector(getDescendantCssSelector('plotFront', 'categoryAxis'))!;
