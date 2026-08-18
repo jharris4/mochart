@@ -79,9 +79,12 @@ export { typeValidators };
 // SameValueZero, the equality Array.prototype.includes uses: NaN equals NaN (a strict === never matches it), and 0 still equals -0
 const sameValue = (a: any, b: any): boolean => a === b || (a !== a && b !== b);
 
-const printAny = (value: any, recurse?: boolean): string => {
+// seen: the objects on the current path, so a self-referencing value prints [Circular] instead of overflowing the stack
+const printAny = (value: any, recurse?: boolean, seen: Set<object> = new Set()): string => {
   if (recurse === false) {
     return value;
+  } else if (typeof value === "object" && value !== null && seen.has(value)) {
+    return "[Circular]";
   } else if (typeof value === "number") {
     // JSON.stringify prints NaN and the infinities as null
     return String(value);
@@ -90,9 +93,9 @@ const printAny = (value: any, recurse?: boolean): string => {
   } else if (value === null) {
     return "null";
   } else if (Array.isArray(value)) {
-    return printArray(value);
+    return printArray(value, recurse, seen);
   } else if (typeof value === "object") {
-    return printObject(value);
+    return printObject(value, recurse, seen);
   } else if (typeof value === "function") {
     // the name only, since string-coercing a function inlines its whole source
     return value.name ? "function " + value.name : "an anonymous function";
@@ -106,14 +109,30 @@ const printAny = (value: any, recurse?: boolean): string => {
     return JSON.stringify(value);
   }
 };
-const printArray = (array: any[], recurse?: boolean): string =>
-  "[ " + array.map(value => printAny(value, recurse)).join(", ") + " ]";
-const printObject = (object: Record<string, any>, recurse?: boolean): string =>
-  "{ " +
-  Object.keys(object)
-    .map(key => key + ": " + printAny(object[key], recurse))
-    .join(", ") +
-  " }";
+const withSeen = (seen: Set<object>, value: object): Set<object> => new Set(seen).add(value);
+// a getter that throws must not turn a validation message into an exception
+const readMember = (object: Record<string, any>, key: string): { value?: any; unreadable?: boolean } => {
+  try {
+    return { value: object[key] };
+  } catch {
+    return { unreadable: true };
+  }
+};
+const printArray = (array: any[], recurse?: boolean, seen: Set<object> = new Set()): string => {
+  const path = withSeen(seen, array);
+  return "[ " + array.map(value => printAny(value, recurse, path)).join(", ") + " ]";
+};
+const printObject = (object: Record<string, any>, recurse?: boolean, seen: Set<object> = new Set()): string => {
+  const path = withSeen(seen, object);
+  return "{ " +
+    Object.keys(object)
+      .map(key => {
+        const member = readMember(object, key);
+        return key + ": " + (member.unreadable ? "[Unreadable]" : printAny(member.value, recurse, path));
+      })
+      .join(", ") +
+    " }";
+};
 
 const colorHexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
 const colorRGBARegex = /^(rgba\()(.*)(\))$/;

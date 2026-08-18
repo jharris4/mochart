@@ -1941,6 +1941,20 @@ describe("validators", () => {
       });
     });
 
+    // Regression: printing walked a circular value until the stack overflowed, and rethrew a throwing getter
+    it("should print a circular value as [Circular] and a throwing getter as [Unreadable]", () => {
+      const circular: Record<string, any> = { a: 1 };
+      circular.self = circular;
+      circular.list = [circular];
+      expect(baseValidators.number().getErrorMessage(circular)).toBe("should be a number: { a: 1, self: [Circular], list: [ [Circular] ] }");
+      expect(baseValidators.equal(circular).errorMessage).toBe("should be equal to { a: 1, self: [Circular], list: [ [Circular] ] }");
+      const throwing = { get x(): number { throw new Error("getter boom"); }, y: 2 };
+      expect(baseValidators.number().getErrorMessage(throwing)).toBe("should be a number: { x: [Unreadable], y: 2 }");
+      // a repeated but non-circular reference still prints in full
+      const shared = { s: 1 };
+      expect(baseValidators.number().getErrorMessage({ a: shared, b: shared })).toBe("should be a number: { a: { s: 1 }, b: { s: 1 } }");
+    });
+
     it("should allow a custom message via a message property on a custom validator function", () => {
       const validator = baseValidators.custom(customValidator);
       expect(validator.errorMessage).toBe(customValidator.message);
