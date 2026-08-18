@@ -590,7 +590,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       chartTextBoundsData = getChartTextBoundsDataWithMutations(this.state.chartTextBoundsData, chartTextBoundsData);
       let layoutInfo = this.state.layoutInfo;
       if (chartTextBoundsData !== this.state.chartTextBoundsData || layoutInfo === null) {
-        layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
+        layoutInfo = getChartLayoutInfoWithMutations(layoutInfo, getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height));
         newState = { chartTextBoundsData, layoutInfo };
       }
       const { tooltipVisible } = this.state;
@@ -604,15 +604,18 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       }
       if (setState === true && (newState.layoutInfo !== undefined || newState.tooltipBounds !== undefined)) {
         const { layoutInfo: oldLayoutInfo, axisData: oldAxisData } = this.state;
-        const categoryExtentChanged = oldLayoutInfo === null || oldLayoutInfo.seriesLayoutInfo.categoryExtent !== layoutInfo.seriesLayoutInfo.categoryExtent;
-        const seriesExtentChanged = oldLayoutInfo === null || oldLayoutInfo.seriesLayoutInfo.valueExtent !== layoutInfo.seriesLayoutInfo.valueExtent;
+        // axis data depends on the axis layout (tick label space), not only on the extents, so rebuild by layout identity like derive()
+        const categoryLayoutChanged = oldLayoutInfo === null || oldLayoutInfo.categoryAxisLayoutInfo !== layoutInfo.categoryAxisLayoutInfo ||
+          oldLayoutInfo.seriesLayoutInfo.categoryExtent !== layoutInfo.seriesLayoutInfo.categoryExtent;
+        const valueLayoutChanged = oldLayoutInfo === null || oldLayoutInfo.valueAxisLayoutInfos !== layoutInfo.valueAxisLayoutInfos ||
+          oldLayoutInfo.seriesLayoutInfo.valueExtent !== layoutInfo.seriesLayoutInfo.valueExtent;
         if (chartData) {
-          if (oldAxisData === null || categoryExtentChanged && seriesExtentChanged) {
+          if (oldAxisData === null || categoryLayoutChanged && valueLayoutChanged) {
             newState.axisData = getAxisDataWithMutations(this.state.axisData, mochartConfig, layoutInfo, chartData);
           }
-          else if (categoryExtentChanged || seriesExtentChanged) {
+          else if (categoryLayoutChanged || valueLayoutChanged) {
             const { axisData } = this.state;
-            if (categoryExtentChanged) {
+            if (categoryLayoutChanged) {
               newState.axisData = getAxisDataForCategoryChange(axisData!, mochartConfig, layoutInfo, chartData);
             }
             else {
