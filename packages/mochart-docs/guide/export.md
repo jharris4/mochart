@@ -5,9 +5,11 @@ companion package downloads a rendered chart as a standalone SVG or PNG
 file. The export captures everything inside the chart svg — title, plot,
 axes, and legend, in their current state — with the chart's computed styles
 inlined, so the image renders the same outside your page's stylesheets. The
-crosshair is stripped, and the HTML tooltip is never included. Colors, sizes,
-and geometry travel with the file; fonts are the exception, and
-[Web fonts](#web-fonts) explains what to do about that.
+export shows the chart as it is on screen, focus included: the crosshair and
+axis focus marks stay unless you pass `showFocusElements: false`, and series
+keep their focused or defocused styling either way. The HTML tooltip is never
+included. Colors, sizes, and geometry travel with the file; fonts are the
+exception, and [Web fonts](#web-fonts) explains what to do about that.
 
 <script setup>
 import * as basic from '../examples/basic'
@@ -50,7 +52,8 @@ exportSVG(element, {
   filenamePrefix: 'acme-',   // prefix for the title-derived filename
   transparent: true,         // keep the background transparent
   backgroundColor: '#f5f5f5',  // background when not transparent (defaults to the page background behind the chart)
-  fontFaceCss: '@font-face{…}' // font data to embed in the file (see Web fonts)
+  fontFaceCss: '@font-face{…}', // font data to embed in the file (see Web fonts)
+  showFocusElements: false   // strip the crosshair and axis focus marks (default true keeps them as shown)
 });
 
 await exportPNG(element, {

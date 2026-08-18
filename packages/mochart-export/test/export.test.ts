@@ -164,18 +164,23 @@ describe('getChartSvgText', () => {
     expect(svgText).toMatch(/fill: rgb\(255, 255, 255\)/);
   });
 
-  it('strips the crosshair from the exported svg', () => {
-    const crosshairClass = mochartCssClasses['crosshair'].split(' ')[0];
+  it('keeps the focus chrome by default and strips it when showFocusElements is false', () => {
     const svg = findChartSvg(container)!;
-    const crosshair = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    crosshair.setAttribute('class', crosshairClass);
-    svg.appendChild(crosshair);
-    expect(svg.querySelector('.' + crosshairClass)).not.toBeNull();
+    const focusClasses = (['crosshair', 'axisFocusRange', 'axisFocusTickMarks'] as const).map(key => mochartCssClasses[key].split(' ')[0]);
+    for (const focusClass of focusClasses) {
+      const focusElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      focusElement.setAttribute('class', focusClass);
+      svg.appendChild(focusElement);
+    }
 
-    const svgText = getChartSvgText(container)!;
-    expect(svgText).not.toContain(crosshairClass);
-    // the live chart keeps its crosshair — only the clone is stripped
-    expect(svg.querySelector('.' + crosshairClass)).not.toBeNull();
+    const shown = getChartSvgText(container)!;
+    const stripped = getChartSvgText(container, { showFocusElements: false })!;
+    for (const focusClass of focusClasses) {
+      expect(shown).toContain(focusClass);
+      expect(stripped).not.toContain(focusClass);
+      // the live chart keeps its focus chrome — only the clone is stripped
+      expect(svg.querySelector('.' + focusClass)).not.toBeNull();
+    }
   });
 
   it('returns null when no chart is present', () => {

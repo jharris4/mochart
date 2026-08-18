@@ -3,8 +3,9 @@
 SVG and PNG image export for the
 [@mochart/core](https://github.com/mocharts/mochart) charting library. Give it any
 element containing a rendered chart and it downloads the chart as a
-standalone image — computed styles inlined, crosshair stripped, and an
-optional solid background painted beneath the chart.
+standalone image — computed styles inlined, the on-screen focus state kept
+unless `showFocusElements: false`, and an optional solid background painted
+beneath the chart.
 
 Docs: [mochart.org](https://mochart.org) — start with the
 [export guide](https://mochart.org/guide/export).
@@ -45,7 +46,8 @@ exportSVG(element, {
   filenamePrefix: 'acme-',   // prefix for the title-derived filename
   transparent: true,         // keep the background transparent
   backgroundColor: '#f5f5f5',  // background when not transparent (defaults to the page background behind the chart)
-  fontFaceCss: '@font-face{…}' // font data to embed in the file (see Web fonts)
+  fontFaceCss: '@font-face{…}', // font data to embed in the file (see Web fonts)
+  showFocusElements: false   // strip the crosshair and axis focus marks (default true keeps them as shown)
 });
 
 await exportPNG(element, {
