@@ -645,6 +645,15 @@ describe('style null semantics', () => {
     expect(errorsFor({ ...base, series: [{ property: 'v', shapeStyle: { normal: { fillOpacity: null } } }] }))
       .toContainEqual(expect.stringContaining('fillOpacity'));
   });
+
+  // Regression: the showColorInLegend/showColorInTooltip conditional defaults read shapeStyle.normal
+  // unguarded, so a non-object shapeStyle threw from getDefaults before the validator could report it.
+  it.each([null, 'red', [], { normal: null }])('reports a non-object series shapeStyle %j instead of throwing', shapeStyle => {
+    expect(errorsFor({ ...base, series: [{ property: 'v', shapeStyle }] }))
+      .toContainEqual(expect.stringContaining('shapeStyle'));
+    expect(errorsFor({ ...base, seriesDefaults: { shapeStyle }, series: [{ property: 'v' }] }))
+      .toContainEqual(expect.stringContaining('shapeStyle'));
+  });
 });
 
 // Regression: curve alone used the exact-shape validator, so { param } (type from the default) was

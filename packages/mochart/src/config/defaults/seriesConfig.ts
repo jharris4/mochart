@@ -119,8 +119,10 @@ export function getRegularDefaults() {
 
 // A category-index colored shape has no one color to put in a legend or tooltip swatch, so such a series
 // defaults to no color icon. Only the normal state counts; the other two resolve back to it via 'same'.
+// Defaults run before validation, so a non-object shapeStyle/normal must fall through to the validator, not throw.
 function isCategoryIndexColored({ shapeStyle }: SeriesConfig): boolean {
-  const { strokeColor, fillColor } = shapeStyle.normal;
+  const normal = shapeStyle !== null && typeof shapeStyle === 'object' && !Array.isArray(shapeStyle) ? shapeStyle.normal : undefined;
+  const { strokeColor, fillColor } = normal !== null && typeof normal === 'object' ? normal : {};
   return strokeColor === COLOR_CATEGORY_INDEX || fillColor === COLOR_CATEGORY_INDEX;
 }
 
