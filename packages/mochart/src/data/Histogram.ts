@@ -100,18 +100,18 @@ export function binValues(values: readonly number[], options: BinValuesOptions =
     throw new Error(`binValues: invalid domain [${domainMin}, ${domainMax}]`);
   }
 
-  const { start, width, binCount } = getBinLayout(domainMin, domainMax, finiteValues.length, options);
+  const { start, width, binCount, roundEdge } = getBinLayout(domainMin, domainMax, finiteValues.length, options);
   if (binCount > MAX_BIN_COUNT) {
     throw new Error(`binValues: ${binCount} bins requested, more than the ${MAX_BIN_COUNT} maximum`);
   }
   const bins: HistogramBin[] = [];
   for (let i = 0; i < binCount; i++) {
-    const binStart = roundToPrecision(start + i * width, width);
-    const binEnd = roundToPrecision(start + (i + 1) * width, width);
+    const binStart = roundEdge(start + i * width, width);
+    const binEnd = roundEdge(start + (i + 1) * width, width);
     bins.push({
       start: binStart,
       end: binEnd,
-      center: roundToPrecision(binStart + width / 2, width / 2),
+      center: roundEdge(binStart + width / 2, width / 2),
       count: 0,
       value: 0
     });
@@ -215,9 +215,11 @@ function getBinLayout(
   domainMax: number,
   valueCount: number,
   options: BinValuesOptions
-): { start: number; width: number; binCount: number } {
+): { start: number; width: number; binCount: number; roundEdge: EdgeRounder } {
   const extent = domainMax - domainMin;
   const nice = options.nice ?? true;
+  // nice edges are multiples of a decimal step; an exact division keeps the data's own precision and snaps only float noise
+  const roundEdge: EdgeRounder = nice ? roundToPrecision : roundToSignificant;
 
   // a non-finite width would carry NaN into every edge, so it counts as unset
   const requestedWidth = options.binWidth;
@@ -230,24 +232,24 @@ function getBinLayout(
     } else if (nice) {
       width = getNiceStep(extent / Math.max(1, targetCount));
     } else {
-      return { start: domainMin, width: extent / Math.max(1, targetCount), binCount: Math.max(1, targetCount) };
+      return { start: domainMin, width: extent / Math.max(1, targetCount), binCount: Math.max(1, targetCount), roundEdge };
     }
   }
 
   // Count by the rounded edges the bins report, with the min and max read at the same precision: the raw
   // quotient (0.3 / 0.1, 2.1 / 0.3) or the extreme itself (31 * 0.3, 3 * 0.05) can land one ulp off an
   // edge, which would open an empty bin below the min or beyond the max instead of closing on it.
-  const roundedMin = roundToPrecision(domainMin, width);
-  const roundedMax = roundToPrecision(domainMax, width);
+  const roundedMin = roundEdge(domainMin, width);
+  const roundedMax = roundEdge(domainMax, width);
   let start = nice ? roundToPrecision(Math.floor(domainMin / width) * width, width) : domainMin;
-  while (roundToPrecision(start + width, width) <= roundedMin) {
-    start = roundToPrecision(start + width, width);
+  while (roundEdge(start + width, width) <= roundedMin) {
+    start = roundEdge(start + width, width);
   }
   let binCount = Math.max(1, Math.ceil((domainMax - start) / width));
-  while (binCount > 1 && roundToPrecision(start + (binCount - 1) * width, width) >= roundedMax) {
+  while (binCount > 1 && roundEdge(start + (binCount - 1) * width, width) >= roundedMax) {
     binCount--;
   }
-  return { start, width, binCount };
+  return { start, width, binCount, roundEdge };
 }
 
 // bin counts size an array, so a fractional or non-finite request would index bins that do not exist
@@ -273,7 +275,13 @@ function getNiceStep(rawStep: number): number {
   return 10 * magnitude;
 }
 
+type EdgeRounder = (value: number, step: number) => number;
+
 function roundToPrecision(value: number, step: number): number {
   const decimals = Math.max(0, -Math.floor(Math.log10(Math.abs(step))) + 2);
   return Number(value.toFixed(Math.min(20, decimals)));
+}
+
+function roundToSignificant(value: number): number {
+  return Number(value.toPrecision(12));
 }

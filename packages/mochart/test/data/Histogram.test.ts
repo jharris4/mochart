@@ -49,6 +49,23 @@ describe('binValues', () => {
     expect(bins[3].end).toBe(9);
   });
 
+  // Regression: non-nice edges were rounded to the width's precision, so a min with more precision
+  // shifted every reported edge off the true division and membership followed the shifted edges
+  it('keeps the data\'s own precision on non-nice edges', () => {
+    const bins = binValues([3.75, 103.8, 250], { nice: false, binWidth: 100 });
+    expect(bins.map(bin => [bin.start, bin.end, bin.count])).toEqual([[3.75, 103.75, 1], [103.75, 203.75, 1], [203.75, 303.75, 1]]);
+    const thirds = binValues([0.1, 0.4], { nice: false, binCount: 3 });
+    expect(thirds.map(bin => bin.start)).toEqual([0.1, 0.2, 0.3]);
+    expect(thirds[2].end).toBe(0.4);
+    for (let seed = 1; seed < 200; seed++) {
+      const min = seed * 0.0137;
+      const values = [min, min + 1.234, min + 5.678];
+      const exact = binValues(values, { nice: false, binWidth: 1.5 });
+      expect(exact[0].start).toBeCloseTo(min, 12);
+      expect(exact.map(bin => bin.count)).toEqual([2, 0, 0, 1]);
+    }
+  });
+
   it('handles a single value', () => {
     const bins = binValues([5]);
     expect(bins).toHaveLength(1);
