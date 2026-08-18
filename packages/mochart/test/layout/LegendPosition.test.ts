@@ -41,6 +41,14 @@ function groupY(container: Element, key: 'legend' | 'title'): number {
   return Number(match![1]);
 }
 
+/** The x of a group's translate transform. */
+function groupX(container: Element, key: 'legend' | 'title'): number {
+  const transform = container.querySelector(getCssSelector(key))!.getAttribute('transform') ?? '';
+  const match = /translate\(\s*([-\d.]+)\s*,/.exec(transform);
+  expect(match).not.toBeNull();
+  return Number(match![1]);
+}
+
 /** The plot's own band, taken from the plot background rect. */
 function plotBand(container: Element): { top: number; bottom: number } {
   const rect = container.querySelector(getCssSelector('plotBackground') + ' rect');
@@ -51,6 +59,47 @@ function plotBand(container: Element): { top: number; bottom: number } {
 
 beforeAll(() => {
   installSvgMeasurementShims();
+});
+
+// Regression: a legend not aligned to the axes was laid out from x = 0 over the content width, so it sat in the
+// chart margin/padding on the left and stopped short of the content edge on the right
+describe('legend horizontal frame when not aligned to axes', () => {
+  const chart = { padding: { left: 100, right: 20 } };
+
+  it('starts a left-aligned legend at the content edge, where the title starts', () => {
+    const container = mountChart({ alignedToAxes: false, align: 'left' }, { alignedToAxes: false, align: 'left' });
+    expect(groupX(container, 'legend')).toBe(groupX(container, 'title'));
+  });
+
+  it('shares the content frame with the title under a chart padding', () => {
+    for (const align of ['left', 'right', 'center'] as const) {
+      const container = mountContainer();
+      const config = {
+        version: VERSION, chart,
+        animation: { animate: false },
+        categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+        series: [{ property: 'sales' }, { property: 'costs' }],
+        title: { text: 'Trading', alignedToAxes: false, align },
+        legend: { visible: true, alignedToAxes: false, align }
+      } as unknown as MochartInputConfig;
+      trackHandle(createDefaultChart(container, { config, data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps));
+      const legendRect = container.querySelector(getCssSelector('legendBackground') + ' rect')!;
+      const titleRect = container.querySelector(getCssSelector('titleBackground') + ' rect')!;
+      const legendLeft = groupX(container, 'legend') + Number(legendRect.getAttribute('x'));
+      const legendRight = legendLeft + Number(legendRect.getAttribute('width'));
+      const titleLeft = groupX(container, 'title') + Number(titleRect.getAttribute('x'));
+      const titleRight = titleLeft + Number(titleRect.getAttribute('width'));
+      if (align === 'left') {
+        expect(legendLeft, align).toBe(titleLeft);
+      }
+      else if (align === 'right') {
+        expect(legendRight, align).toBe(titleRight);
+      }
+      else {
+        expect((legendLeft + legendRight) / 2, align).toBeCloseTo((titleLeft + titleRight) / 2, 5);
+      }
+    }
+  });
 });
 
 describe('legend position', () => {

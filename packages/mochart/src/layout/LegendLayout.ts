@@ -61,7 +61,7 @@ function placeLegendItems(mochartConfig: EnhancedMochartConfig, chartTextBoundsD
   const { margin, padding, itemMargin, itemPadding, alignedToAxes, iconSpacerSize } = legendConfig;
   const { legendItemMaxTextBounds } = chartTextBoundsData;
   const legendItemTextRawBounds = getLegendItemBoundsList(mochartConfig, chartTextBoundsData.legendItemTextRawBounds);
-  const { width } = contentBounds;
+  const { x: contentX, width } = contentBounds;
   const iconSize = resolveLegendIconSize(legendConfig, legendItemMaxTextBounds);
 
   const legendSpacingLeft = getSpacingLeft(margin, padding);
@@ -81,7 +81,8 @@ function placeLegendItems(mochartConfig: EnhancedMochartConfig, chartTextBoundsD
   const iconWidth = iconSize + iconSpacerSize;
   const iconHeight = iconSize;
 
-  const legendMinX = alignedToAxes ? plotBounds.x : 0;
+  // the content frame is offset by the chart margin/padding, like the title's
+  const legendMinX = alignedToAxes ? plotBounds.x : contentX;
   const legendMaxWidth = alignedToAxes ? plotBounds.width : width;
 
   const legendMinSpacingX = legendMinX + legendSpacingLeft;
