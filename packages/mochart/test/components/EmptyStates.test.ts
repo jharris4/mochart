@@ -94,6 +94,14 @@ describe('no-series state', () => {
     const container = mountChart({}, makeConfig({ series: [] }));
     expect(container.querySelectorAll(getCssSelector('series')).length).toBe(0);
   });
+
+  // Regression: the layout places no legend for zero series, but Legend/LegendClip were gated only on
+  // legend.visible and destructured the missing layout info while rendering.
+  it('renders the message with a visible legend and no series instead of throwing', () => {
+    const container = mountChart({}, makeConfig({ series: [], legend: { visible: true } }));
+    expect(container.querySelector(getCssSelector('noSeries'))).not.toBeNull();
+    expect(container.querySelector(getCssSelector('legend'))).toBeNull();
+  });
 });
 
 describe('ChartFactories overrides', () => {

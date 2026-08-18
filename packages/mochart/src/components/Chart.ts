@@ -1500,8 +1500,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
     body.legend.set(Legend, { mochartConfig, filteredFlags, focusedSeriesId,
       valueAxisFocusPercentages, seriesFocusPercentages, onFocus: onFocus ?? (() => {}),
-      uniqueIds: uniqueIds!, onSeriesFilter: onSeriesFilter ?? (() => {}), legendLayoutInfo: legendLayoutInfo!, legendItemTextLayoutInfo: legendItemTextLayoutInfo!,
-      legendItemLayoutInfos: legendItemLayoutInfos!, legendItemRawLayoutInfos: legendItemRawLayoutInfos! });
+      uniqueIds: uniqueIds!, onSeriesFilter: onSeriesFilter ?? (() => {}), legendLayoutInfo, legendItemTextLayoutInfo,
+      legendItemLayoutInfos, legendItemRawLayoutInfos });
 
     // The error state wins: never stack the loading overlay on top of error content.
     if (loading && !isErrorActive(error)) {

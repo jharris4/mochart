@@ -28,10 +28,11 @@ interface LegendItemUniqueIds {
 
 interface LegendProps {
   mochartConfig: EnhancedMochartConfig;
-  legendLayoutInfo: SpacingLayoutInfo;
-  legendItemTextLayoutInfo: SpacingLayoutInfo;
-  legendItemLayoutInfos: SpacingLayoutInfo[];
-  legendItemRawLayoutInfos: SpacingLayoutInfo[];
+  // the layout leaves these undefined when there is nothing to place (no series), legend.visible notwithstanding
+  legendLayoutInfo: SpacingLayoutInfo | undefined;
+  legendItemTextLayoutInfo: SpacingLayoutInfo | undefined;
+  legendItemLayoutInfos: SpacingLayoutInfo[] | undefined;
+  legendItemRawLayoutInfos: SpacingLayoutInfo[] | undefined;
   filteredFlags: Record<string, boolean>;
   uniqueIds: LegendItemUniqueIds;
   focusedSeriesId: string | null;
@@ -136,7 +137,8 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
       legendItemRawLayoutInfos, filteredFlags, uniqueIds, focusedSeriesId, valueAxisFocusPercentages, seriesFocusPercentages } = this.props;
     const { legendClipPathUniqueId } = uniqueIds;
     const { legend: legendConfig } = mochartConfig;
-    if (legendConfig.visible) {
+    if (legendConfig.visible && legendLayoutInfo !== undefined && legendItemTextLayoutInfo !== undefined &&
+      legendItemLayoutInfos !== undefined && legendItemRawLayoutInfos !== undefined) {
       const { series: seriesConfigs, seriesIndicesById: seriesConfigIndicesById, colorPalette: colorPaletteConfig } = mochartConfig;
       const { truncationEnabled } = legendConfig;
       const transform = translateObject(legendLayoutInfo);
