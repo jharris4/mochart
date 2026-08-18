@@ -370,10 +370,11 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
   adjustFilteredAxisDomainDeltas(valueAxisConfigs, rawSet.valueAxisDomainDeltas, filteredSet.valueAxisDomainDeltas);
 
   // series hidden at the start of the expansion render nothing during it, so they must not stretch its duration
+  const rawSeriesPacingDeltaPercentage = getVisibleSeriesPacingDeltaPercentage(rawSet.seriesDomainDeltas, prevChartData.seriesData.filtered.values);
   const filteredSeriesPacingDeltaPercentage = getVisibleSeriesPacingDeltaPercentage(filteredSet.seriesDomainDeltas, prevChartData.seriesData.filtered.values);
 
   return createAxisDeltaData(startChartData, endChartData, finalChartData, categoryAxisDomainDelta, rawSet.valueAxisDomainDeltas,
-    filteredSet.valueAxisDomainDeltas, rawSet.seriesDomainDeltas, filteredSet.seriesDomainDeltas, filteredSeriesPacingDeltaPercentage, categoryValueDeltaData);
+    filteredSet.valueAxisDomainDeltas, rawSet.seriesDomainDeltas, filteredSet.seriesDomainDeltas, rawSeriesPacingDeltaPercentage, filteredSeriesPacingDeltaPercentage, categoryValueDeltaData);
 }
 
 export function getTransitionAxisContractionData(mochartConfig: EnhancedMochartConfig, prevChartData: ChartData, newChartData: ChartData, categoryDeltaData: CategoryDeltaData): AxisDeltaData {
@@ -418,10 +419,11 @@ export function getTransitionAxisContractionData(mochartConfig: EnhancedMochartC
   adjustFilteredAxisDomainDeltas(valueAxisConfigs, rawSet.valueAxisDomainDeltas, filteredSet.valueAxisDomainDeltas);
 
   // series hidden at the end of the contraction render nothing during it, so they must not stretch its duration
+  const rawSeriesPacingDeltaPercentage = getVisibleSeriesPacingDeltaPercentage(rawSet.seriesDomainDeltas, newChartData.seriesData.filtered.values);
   const filteredSeriesPacingDeltaPercentage = getVisibleSeriesPacingDeltaPercentage(filteredSet.seriesDomainDeltas, newChartData.seriesData.filtered.values);
 
   return invertAxisDeltas(createAxisDeltaData(startChartData, endChartData, newChartData, categoryAxisDomainDelta,
-    rawSet.valueAxisDomainDeltas, filteredSet.valueAxisDomainDeltas, rawSet.seriesDomainDeltas, filteredSet.seriesDomainDeltas, filteredSeriesPacingDeltaPercentage, categoryValueDeltaData));
+    rawSet.valueAxisDomainDeltas, filteredSet.valueAxisDomainDeltas, rawSet.seriesDomainDeltas, filteredSet.seriesDomainDeltas, rawSeriesPacingDeltaPercentage, filteredSeriesPacingDeltaPercentage, categoryValueDeltaData));
 }
 
 // one raw-or-filtered slice of the expansion/contraction pipeline: copied, base-filled start (prev) and end (new) domains plus the deltas measured from one side to the other
@@ -582,9 +584,9 @@ function getSeriesDomainDelta(fromDomainObject: SeriesDomainObject, toDomainObje
 
 function createAxisDeltaData(startChartData: ChartData, endChartData: ChartData, finalChartData: ChartData, categoryAxisDomainDelta: DomainDelta, rawValueAxisDomainDeltas: DomainDeltaMap,
                              filteredValueAxisDomainDeltas: DomainDeltaMap, rawSeriesDomainDeltas: SeriesDomainDeltaMap, filteredSeriesDomainDeltas: SeriesDomainDeltaMap,
-                             filteredSeriesPacingDeltaPercentage: number, categoryValueDeltaData: CompleteNumericArrayDelta | null): AxisDeltaData {
+                             rawSeriesPacingDeltaPercentage: number, filteredSeriesPacingDeltaPercentage: number, categoryValueDeltaData: CompleteNumericArrayDelta | null): AxisDeltaData {
   const deltaPercentage = Math.max(categoryAxisDomainDelta.deltaPercentage, rawValueAxisDomainDeltas.deltaPercentage,
-    filteredValueAxisDomainDeltas.deltaPercentage, rawSeriesDomainDeltas.deltaPercentage, filteredSeriesPacingDeltaPercentage,
+    filteredValueAxisDomainDeltas.deltaPercentage, rawSeriesPacingDeltaPercentage, filteredSeriesPacingDeltaPercentage,
     categoryValueDeltaData ? categoryValueDeltaData.deltaPercentage : 0);
   setDeltaFactor(categoryAxisDomainDelta, deltaPercentage);
   setCategoryValueDeltaFactor(categoryValueDeltaData, deltaPercentage);

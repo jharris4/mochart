@@ -602,4 +602,13 @@ describe('hidden series are excluded from axis phase pacing', () => {
     expect(cad.axisContractionData.deltaPercentage).toBe(0);
     expect(cad.valueChangeData.deltaPercentage).toBeGreaterThan(0);
   });
+
+  it('a data change confined to a series hidden on both sides paces neither union phase', () => {
+    const filtered = { [bId]: true };
+    const cad = getChartAnimationData(pacingConfig,
+      getChartData(pacingConfig, new ArrayOfObjectsDataProvider(rows), filtered),
+      getChartData(pacingConfig, new ArrayOfObjectsDataProvider([{ c: 0, a: 0, b: 40 }, { c: 1, a: 100, b: 60 }]), filtered)) as any;
+    expect(cad.axisExpansionData.deltaPercentage).toBe(0);
+    expect(cad.axisContractionData.deltaPercentage).toBe(0);
+  });
 });
