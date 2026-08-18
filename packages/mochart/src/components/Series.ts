@@ -315,11 +315,21 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
               }
             }
             else if (hasDifferentColors) {
+              // the non-categoryIndex member still follows the per-bar focus, like the branch below
+              const categoryFocused = focusPercentage !== seriesFocusPercentage;
               if (hasDifferentStrokeColors) {
                 barStrokeColor = getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
               }
-              if (hasDifferentFillColors && !patterned) {
-                barFillColor = getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
+              else {
+                barStrokeColor = categoryFocused ? getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage) : seriesStrokeColor;
+              }
+              if (!patterned) {
+                if (hasDifferentFillColors) {
+                  barFillColor = getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
+                }
+                else if (seriesConfig.gradient === NONE) {
+                  barFillColor = categoryFocused ? getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage) : seriesFillColor;
+                }
               }
             }
             else if (focusPercentage !== seriesFocusPercentage) {

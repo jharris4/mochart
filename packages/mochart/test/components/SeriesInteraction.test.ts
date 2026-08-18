@@ -47,6 +47,35 @@ beforeAll(() => {
   mockBoundingClientRect(WIDTH, HEIGHT);
 });
 
+// Regression: with one colour member on categoryIndex, the other member kept the series-level
+// colour, so a category focus never reached its focused/defocused colour.
+describe('category focus colours with a categoryIndex member', () => {
+  it('applies the focused and defocused fill when the stroke is categoryIndex', () => {
+    const container = mountChart({
+      shapeStyle: {
+        normal: { strokeColor: 'categoryIndex', fillColor: '#111111' },
+        focused: { fillColor: '#ff0000' },
+        defocused: { fillColor: '#00ff00' }
+      }
+    }, { focusedCategoryIndex: 1 } as Partial<DefaultChartProps>);
+    expect(bar(container, 1).getAttribute('fill')).toBe('#ff0000');
+    expect(bar(container, 0).getAttribute('fill')).toBe('#00ff00');
+    expect(bar(container, 2).getAttribute('fill')).toBe('#00ff00');
+  });
+
+  it('applies the focused and defocused stroke when the fill is categoryIndex', () => {
+    const container = mountChart({
+      shapeStyle: {
+        normal: { fillColor: 'categoryIndex', strokeColor: '#111111', strokeWidth: 1 },
+        focused: { strokeColor: '#ff0000' },
+        defocused: { strokeColor: '#00ff00' }
+      }
+    }, { focusedCategoryIndex: 1 } as Partial<DefaultChartProps>);
+    expect(bar(container, 1).getAttribute('stroke')).toBe('#ff0000');
+    expect(bar(container, 0).getAttribute('stroke')).toBe('#00ff00');
+  });
+});
+
 describe('series shape hover focus', () => {
   it('reports no focus when neither focus-on-hover config is set', () => {
     const focuses: ChartFocus[] = [];
