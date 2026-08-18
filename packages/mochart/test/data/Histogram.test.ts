@@ -105,6 +105,9 @@ describe('binValues', () => {
     // a bin width small enough to ask for ~90 million bins used to exhaust the heap
     expect(() => binValues([1, 10], { binWidth: 1e-7 })).toThrow(/10000 maximum/);
     expect(() => binValues([1, 10], { binCount: 1e6, nice: false })).toThrow(/10000 maximum/);
+    // a count past 2^53 used to spin in the trailing trim, whose decrement no longer changes the number
+    expect(() => binValues([0, 1e18], { binWidth: 1 })).toThrow(/10000 maximum/);
+    expect(() => binValues([0, 1], { binWidth: 1e-16 })).toThrow(/10000 maximum/);
   });
 
   it('rounds a fractional binCount down to a whole count', () => {

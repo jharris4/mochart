@@ -101,9 +101,6 @@ export function binValues(values: readonly number[], options: BinValuesOptions =
   }
 
   const { start, width, binCount, roundEdge } = getBinLayout(domainMin, domainMax, finiteValues.length, options);
-  if (binCount > MAX_BIN_COUNT) {
-    throw new Error(`binValues: ${binCount} bins requested, more than the ${MAX_BIN_COUNT} maximum`);
-  }
   const bins: HistogramBin[] = [];
   for (let i = 0; i < binCount; i++) {
     const binStart = roundEdge(start + i * width, width);
@@ -232,7 +229,7 @@ function getBinLayout(
     } else if (nice) {
       width = getNiceStep(extent / Math.max(1, targetCount));
     } else {
-      return { start: domainMin, width: extent / Math.max(1, targetCount), binCount: Math.max(1, targetCount), roundEdge };
+      return { start: domainMin, width: extent / Math.max(1, targetCount), binCount: checkBinCount(Math.max(1, targetCount)), roundEdge };
     }
   }
 
@@ -242,14 +239,22 @@ function getBinLayout(
   const roundedMin = roundEdge(domainMin, width);
   const roundedMax = roundEdge(domainMax, width);
   let start = nice ? roundToPrecision(Math.floor(domainMin / width) * width, width) : domainMin;
-  while (roundEdge(start + width, width) <= roundedMin) {
+  if (roundEdge(start + width, width) <= roundedMin) {
     start = roundEdge(start + width, width);
   }
-  let binCount = Math.max(1, Math.ceil((domainMax - start) / width));
+  // checked before the trim, which steps one bin at a time and would never end past 2^53
+  let binCount = checkBinCount(Math.max(1, Math.ceil((domainMax - start) / width)));
   while (binCount > 1 && roundEdge(start + (binCount - 1) * width, width) >= roundedMax) {
     binCount--;
   }
   return { start, width, binCount, roundEdge };
+}
+
+function checkBinCount(binCount: number): number {
+  if (binCount > MAX_BIN_COUNT) {
+    throw new Error(`binValues: ${binCount} bins requested, more than the ${MAX_BIN_COUNT} maximum`);
+  }
+  return binCount;
 }
 
 // bin counts size an array, so a fractional or non-finite request would index bins that do not exist
