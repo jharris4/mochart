@@ -249,6 +249,27 @@ describe('getCategoryDeltaData with a linear axis (sorted merge)', () => {
     expect(delta.outerCounts).toEqual({ added: { before: 0, after: 0 }, removed: { before: 1, after: 1 } });
   });
 
+  // Regression: the merge assumed ascending data, so a sliding window over a descending axis (accepted by
+  // the validator) put the removed values at the wrong end and flagged a reorder
+  it('follows a descending axis when interleaving removed values', () => {
+    const delta = deltaFor(linearNumber, [10, 9, 8], [9, 8, 7]);
+    expect(delta.values.merged).toEqual([10, 9, 8, 7]);
+    expect(delta.indices).toEqual({ old: [0, 1, 2], new: [1, 2, 3], added: [3], removed: [0], reordered: false });
+    expect(delta.outerCounts).toEqual({ added: { before: 0, after: 1 }, removed: { before: 1, after: 0 } });
+  });
+
+  it('follows a descending date axis by instant', () => {
+    const delta = deltaFor(linearDate, [day(3), day(2), day(1)], [day(2).toISOString(), day(1).toISOString(), day(0).toISOString()]);
+    expect(delta.values.merged.map(v => new Date(v as string | Date).getTime())).toEqual([3, 2, 1, 0].map(i => day(i).getTime()));
+    expect(delta.indices.reordered).toBe(false);
+  });
+
+  it('takes the direction from the old values when the new set is too short to tell', () => {
+    const delta = deltaFor(linearNumber, [10, 9, 8], [9]);
+    expect(delta.values.merged).toEqual([10, 9, 8]);
+    expect(delta.indices).toEqual({ old: [0, 1, 2], new: [1], added: [], removed: [0, 2], reordered: false });
+  });
+
   it('sorts Date values by time across fresh instances', () => {
     const delta = deltaFor(linearDate, [day(0), day(1), day(2)], [day(1), day(3)]);
     expect(delta.values.merged.map(v => (v as Date).getTime())).toEqual([0, 1, 2, 3].map(i => day(i).getTime()));

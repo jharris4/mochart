@@ -36,12 +36,15 @@ export function indexOfCategoryValue(categoryAxisConfig: CategoryAxisConfig, val
   return -1;
 }
 
-// orders by the same coercion the merge keys use, so Date, ISO string and epoch forms of one instant compare by instant
-function categoryValueIsLessFor(categoryAxisConfig: CategoryAxisConfig): CategoryValueIsLess {
-  if (categoryAxisConfig.type === TYPE_DATE && categoryAxisConfig.keyProperty === NONE) {
-    return (left, right) => new Date(left as string | number | Date).getTime() < new Date(right as string | number | Date).getTime();
-  }
-  return categoryValueIsLess;
+// orders by the same coercion the merge keys use, so Date, ISO string and epoch forms of one instant compare by instant;
+// the validator accepts a descending linear axis, so the sorted merge follows the data's own direction
+function categoryValueIsLessFor(categoryAxisConfig: CategoryAxisConfig, categoryValuesOld: readonly CategoryValue[], categoryValuesNew: readonly CategoryValue[]): CategoryValueIsLess {
+  const isLess: CategoryValueIsLess = categoryAxisConfig.type === TYPE_DATE && categoryAxisConfig.keyProperty === NONE
+    ? (left, right) => new Date(left as string | number | Date).getTime() < new Date(right as string | number | Date).getTime()
+    : categoryValueIsLess;
+  const directional = categoryValuesNew.length > 1 ? categoryValuesNew : categoryValuesOld;
+  const descending = directional.length > 1 && isLess(directional[directional.length - 1], directional[0]);
+  return descending ? (left, right) => isLess(right, left) : isLess;
 }
 
 function categoryValueIsLess(left: CategoryValue, right: CategoryValue): boolean {
@@ -90,7 +93,7 @@ export function getCategoryDeltaData(categoryAxisConfig: CategoryAxisConfig, old
   const categoryValuesNew = newCategoryData.values.raw;
 
   const getMapKey = categoryMapKeyFor(categoryAxisConfig);
-  const isLess = categoryValueIsLessFor(categoryAxisConfig);
+  const isLess = categoryValueIsLessFor(categoryAxisConfig, categoryValuesOld, categoryValuesNew);
   const mergedValuesWithoutDisplay = getCategoryMergedValuesData(categoryValuesOld, categoryValuesNew, categoryAxisConfig.scale !== SCALE_ORDINAL, getMapKey, isLess);
   const mergedIndicesData = getCategoryMergedIndicesData(categoryValuesOld, categoryValuesNew, mergedValuesWithoutDisplay, getMapKey);
   const mergedOuterCounts = getCategoryMergedOuterCountsData(mergedIndicesData);
