@@ -155,6 +155,17 @@ describe('color palette defaults', () => {
       }
     }
   });
+
+  // getDefaults is public: a consumer mutating one list must not change another state's list or a later call's defaults
+  it('hands out a fresh color list per state and per call', () => {
+    const config = { version: '1.0.0', categoryAxis: { property: 'p' } };
+    const first = getDefaults(config) as { colorPalette: Record<string, Record<string, { strokeColors: string[]; fillColors: string[] }>> };
+    const lists = Object.values(first.colorPalette).flatMap(palettes => Object.values(palettes).flatMap(palette => [palette.strokeColors, palette.fillColors]));
+    expect(new Set(lists).size).toBe(lists.length);
+    first.colorPalette.series.normal.strokeColors.push('#000000');
+    const second = getDefaults(config) as typeof first;
+    expect(second.colorPalette.series.normal.strokeColors).toHaveLength(7);
+  });
 });
 
 describe('series color-icon defaults', () => {
