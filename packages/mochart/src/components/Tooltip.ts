@@ -76,7 +76,8 @@ export default class Tooltip extends Renderer<TooltipProps> {
         paddingRight: tooltipConfig.padding.right,
         paddingBottom: tooltipConfig.padding.bottom,
         paddingLeft: tooltipConfig.padding.left,
-        borderWidth: backgroundStyle.strokeWidth,
+        // a null width must not leave the solid border at css 'medium'; the layout counts it as 0 too
+        borderWidth: backgroundStyle.strokeWidth ?? 0,
         borderColor: cssStyleColor(backgroundStyle.strokeColor, backgroundStyle.strokeOpacity),
         borderRadius: tooltipConfig.borderRadius,
         boxShadow: boxShadowStyle,

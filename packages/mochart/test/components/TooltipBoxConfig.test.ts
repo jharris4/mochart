@@ -111,6 +111,12 @@ describe('tooltip box style', () => {
     expect(rows[0].style.paddingBottom).toBe('19px');
     expect(rows[rows.length - 1].style.paddingBottom).not.toBe('19px');
   });
+
+  it('draws no border for a null strokeWidth, matching the layout', () => {
+    const container = mountChart({ tooltip: { backgroundStyle: { strokeWidth: null } } });
+    openTooltip(container);
+    expect(tooltipStyle(container).borderWidth).toBe('0px');
+  });
 });
 
 describe('crosshair behind the tooltip', () => {
