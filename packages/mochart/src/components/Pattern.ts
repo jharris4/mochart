@@ -65,10 +65,12 @@ export default class Pattern extends Renderer<PatternProps> {
     setChildPresent(this.marks, this.crossLine, type === PATTERN_TYPE_CROSSHATCH);
 
     if (linePattern) {
-      this.line.set({ x1: 0, y1: 0, x2: 0, y2: spacing,
+      // centred in the tile like the dot: on the edge the tile clips half of the stroke's width
+      const center = spacing / 2;
+      this.line.set({ x1: center, y1: 0, x2: center, y2: spacing,
         stroke: foregroundColor, strokeWidth: patternConfig.lineWidth });
       if (type === PATTERN_TYPE_CROSSHATCH) {
-        this.crossLine.set({ x1: 0, y1: 0, x2: spacing, y2: 0,
+        this.crossLine.set({ x1: 0, y1: center, x2: spacing, y2: center,
           stroke: foregroundColor, strokeWidth: patternConfig.lineWidth });
       }
     }

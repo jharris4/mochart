@@ -60,6 +60,9 @@ describe('built-in SVG patterns', () => {
     expect(patterns[0].getAttribute('patternTransform')).toBe('rotate(-30)');
     expect(patterns[0].querySelectorAll('line')).toHaveLength(1);
     expect(patterns[0].querySelector('line')!.getAttribute('stroke-width')).toBe('3');
+    // centred in the tile, so the whole stroke width shows (an edge line loses half to the tile clip)
+    expect(patterns[0].querySelector('line')!.getAttribute('x1')).toBe('4.5');
+    expect(patterns[0].querySelector('line')!.getAttribute('x2')).toBe('4.5');
 
     expect(patterns[1].querySelectorAll('line')).toHaveLength(2);
     expect(patterns[1].querySelector('line')!.getAttribute('stroke')).toBe('currentColor');
