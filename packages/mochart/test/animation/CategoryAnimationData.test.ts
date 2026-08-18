@@ -268,6 +268,13 @@ describe('getCategoryDeltaData with a linear axis (sorted merge)', () => {
     expect(newIndexForOldIndex(delta, 2)).toBe(-1);
     expect(newIndexForMergedIndex(delta, 3)).toBe(2);
   });
+
+  it('interleaves a removed Date among ISO string new values by instant', () => {
+    const delta = deltaFor(linearDate, [day(0), day(1), day(2)], [day(0).toISOString(), day(1).toISOString(), day(3).toISOString()]);
+    expect(delta.values.merged.map(v => new Date(v as string | Date).getTime())).toEqual([0, 1, 2, 3].map(i => day(i).getTime()));
+    expect(delta.indices).toEqual({ old: [0, 1, 2], new: [0, 1, 3], added: [3], removed: [2], reordered: false });
+    expect(delta.outerCounts).toEqual({ added: { before: 0, after: 1 }, removed: { before: 0, after: 0 } });
+  });
 });
 
 describe('indexOfCategoryValue', () => {

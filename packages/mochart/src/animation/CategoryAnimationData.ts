@@ -1,4 +1,4 @@
-import { NONE, SCALE_ORDINAL } from '../config/core/constants';
+import { NONE, SCALE_ORDINAL, TYPE_DATE } from '../config/core/constants';
 import { getCategoryValueKey } from '../data/CategoryValue';
 import { getMaxAbsoluteValue } from '../utils/utils';
 import type { CategoryAxisConfig } from '../types/config';
@@ -15,6 +15,7 @@ import type {
 
 type CategoryMapKey = string;
 type CategoryMapKeyAccessor = (value: CategoryValue) => CategoryMapKey;
+type CategoryValueIsLess = (left: CategoryValue, right: CategoryValue) => boolean;
 type CategoryIndexMap = Record<CategoryMapKey, number | undefined>;
 type CategoryMergedValuesWithoutDisplay = Omit<CategoryMergedValuesData, 'displayMerged'>;
 type ChartDataWithCategories = { categoryData: CategoryData };
@@ -33,6 +34,14 @@ export function indexOfCategoryValue(categoryAxisConfig: CategoryAxisConfig, val
     }
   }
   return -1;
+}
+
+// orders by the same coercion the merge keys use, so Date, ISO string and epoch forms of one instant compare by instant
+function categoryValueIsLessFor(categoryAxisConfig: CategoryAxisConfig): CategoryValueIsLess {
+  if (categoryAxisConfig.type === TYPE_DATE && categoryAxisConfig.displayProperty === NONE) {
+    return (left, right) => new Date(left as string | number | Date).getTime() < new Date(right as string | number | Date).getTime();
+  }
+  return categoryValueIsLess;
 }
 
 function categoryValueIsLess(left: CategoryValue, right: CategoryValue): boolean {
@@ -81,7 +90,8 @@ export function getCategoryDeltaData(categoryAxisConfig: CategoryAxisConfig, old
   const categoryValuesNew = newCategoryData.values.raw;
 
   const getMapKey = categoryMapKeyFor(categoryAxisConfig);
-  const mergedValuesWithoutDisplay = getCategoryMergedValuesData(categoryValuesOld, categoryValuesNew, categoryAxisConfig.scale !== SCALE_ORDINAL, getMapKey);
+  const isLess = categoryValueIsLessFor(categoryAxisConfig);
+  const mergedValuesWithoutDisplay = getCategoryMergedValuesData(categoryValuesOld, categoryValuesNew, categoryAxisConfig.scale !== SCALE_ORDINAL, getMapKey, isLess);
   const mergedIndicesData = getCategoryMergedIndicesData(categoryValuesOld, categoryValuesNew, mergedValuesWithoutDisplay, getMapKey);
   const mergedOuterCounts = getCategoryMergedOuterCountsData(mergedIndicesData);
   const mergedValuesData: CategoryMergedValuesData = {
@@ -221,12 +231,13 @@ function getCategoryMergedValuesData(
   categoryValuesOld: readonly CategoryValue[],
   categoryValuesNew: readonly CategoryValue[],
   sort: boolean,
-  getMapKey: CategoryMapKeyAccessor
+  getMapKey: CategoryMapKeyAccessor,
+  isLess: CategoryValueIsLess
 ): CategoryMergedValuesWithoutDisplay {
   const valueToNewIndexMap = getValueToNewIndexMap(categoryValuesOld, categoryValuesNew, getMapKey);
   const added = getValuesWithIndex(valueToNewIndexMap, categoryValuesNew, undefined, getMapKey);
   const removed = getValuesWithIndex(valueToNewIndexMap, categoryValuesOld, -1, getMapKey);
-  const merged = getCategoryValuesMerged(categoryValuesOld, categoryValuesNew, removed, added, valueToNewIndexMap, sort, getMapKey);
+  const merged = getCategoryValuesMerged(categoryValuesOld, categoryValuesNew, removed, added, valueToNewIndexMap, sort, getMapKey, isLess);
 
   return {
     old: categoryValuesOld,
@@ -326,7 +337,8 @@ function getCategoryValuesMerged(
   _categoryValuesAdded: readonly CategoryValue[],
   oldCategoryValueToNewIndexMap: CategoryIndexMap,
   sort: boolean,
-  getMapKey: CategoryMapKeyAccessor
+  getMapKey: CategoryMapKeyAccessor,
+  isLess: CategoryValueIsLess
 ): readonly CategoryValue[] {
   let categoryValuesMerged: readonly CategoryValue[];
   if (sort === false) {
@@ -338,7 +350,7 @@ function getCategoryValuesMerged(
         categoryValuesMerged = categoryValuesOld;
       }
       else {
-        categoryValuesMerged = getCategoryValuesMergedSorted(categoryValuesRemoved, categoryValuesNew);
+        categoryValuesMerged = getCategoryValuesMergedSorted(categoryValuesRemoved, categoryValuesNew, isLess);
       }
     }
     else { // no categories removed, all old categories present in new categories...
@@ -349,7 +361,7 @@ function getCategoryValuesMerged(
 }
 
 // Returns a merged list of category values for the inputs, where the result is sorted by value
-function getCategoryValuesMergedSorted(categoryValuesRemoved: readonly CategoryValue[], categoryValuesNew: readonly CategoryValue[]): CategoryValue[] {
+function getCategoryValuesMergedSorted(categoryValuesRemoved: readonly CategoryValue[], categoryValuesNew: readonly CategoryValue[], isLess: CategoryValueIsLess): CategoryValue[] {
   const categoryValuesMerged: CategoryValue[] = [];
   const removedLength = categoryValuesRemoved.length;
   const newLength = categoryValuesNew.length;
@@ -358,7 +370,7 @@ function getCategoryValuesMergedSorted(categoryValuesRemoved: readonly CategoryV
   let newIndex = 0;
   for (let i = 0; i < mergedLength; i++) {
     if (removedIndex < removedLength && newIndex < newLength) {
-      if (categoryValueIsLess(categoryValuesRemoved[removedIndex], categoryValuesNew[newIndex])) {
+      if (isLess(categoryValuesRemoved[removedIndex], categoryValuesNew[newIndex])) {
         categoryValuesMerged.push(categoryValuesRemoved[removedIndex++]);
       }
       else {
