@@ -528,4 +528,28 @@ describe('animateBaseFromAdjacent across a sliding window', () => {
       dataFor([{ g: 1, v: 10 }, { g: 2, v: 20 }, { g: 3, v: 30 }, { g: 4, v: 40 }]));
     expect(vcd.start.seriesData.raw.values['S0'].plain).toEqual([10, 20, 30, 30]);
   });
+
+  // Regression: only the position keys were seeded, but stacked series render from stack/prior, which the
+  // stack base fill then set to 0, so stacked edges always rose from and sank to the floor
+  it('seeds the stack and prior edges of stacked series from their neighbours', () => {
+    const stacked = makeConfig({
+      categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+      series: [{ stack: 'SS0', property: 'a', renderer: 'area' }, { stack: 'SS0', property: 'b', renderer: 'area' }],
+      seriesStacks: [{ id: 'SS0' }],
+      valueAxes: [{ min: 0, max: 50 }]
+    });
+    const stackedDataFor = (r: Record<string, number>[]) => getChartData(stacked, new ArrayOfObjectsDataProvider(r), {});
+    const prev = stackedDataFor([{ g: 1, a: 10, b: 1 }, { g: 2, a: 20, b: 2 }, { g: 3, a: 30, b: 3 }]);
+    const next = stackedDataFor([{ g: 2, a: 20, b: 2 }, { g: 3, a: 30, b: 3 }, { g: 4, a: 40, b: 4 }]);
+    const vcd = getTransitionValueChangeData(stacked, prev, next, getCategoryDeltaData(stacked.categoryAxis, prev.categoryData, next.categoryData));
+    const start = vcd.start.seriesData.raw.values;
+    const end = vcd.end.seriesData.raw.values;
+    // entering point 4 starts on the old last stack edges; leaving point 1 ends on the new first ones
+    expect(start['S0'].stack).toEqual([10, 20, 30, 30]);
+    expect(start['S1'].prior).toEqual([10, 20, 30, 30]);
+    expect(start['S1'].stack).toEqual([11, 22, 33, 33]);
+    expect(end['S0'].stack).toEqual([20, 20, 30, 40]);
+    expect(end['S1'].prior).toEqual([20, 20, 30, 40]);
+    expect(end['S1'].stack).toEqual([22, 22, 33, 44]);
+  });
 });

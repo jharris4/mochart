@@ -34,7 +34,7 @@ import type {
   CategoryDeltaData, NumericValuesDelta, OuterChangeCounts,
   SeriesValueDelta, SeriesValueDeltaMap, ValueChangeData
 } from '../types/animation';
-import type { ExtraCopyKey, ExtraKey, PositionKey, PositionOrComputedKey, ValueKey } from '../data/constants';
+import type { ExtraCopyKey, ExtraKey, PositionOrComputedKey, ValueKey } from '../data/constants';
 
 type AxisExtents = Record<string, number>;
 type ValueDeltaObject = Record<ValueKey, NumericValuesDelta> & { deltaPercentage: number; deltaCopied?: boolean };
@@ -500,7 +500,8 @@ function setAllBaseValuesForOuterChanges(_animationConfig: AnimationConfig, seri
       const oldValueObject = oldSeriesData.raw.values[id];
       const newValueObject = newSeriesData.raw.values[id];
 
-      for (const key of positionKeys) {
+      // stacked series render from stack/prior, so those edges follow the adjacent category too
+      for (const key of positionOrComputedKeys) {
         setBaseValuesForOuterChanges(startValueObject, endValueObject, oldValueObject, newValueObject, key, outerCounts);
       }
 
@@ -509,7 +510,7 @@ function setAllBaseValuesForOuterChanges(_animationConfig: AnimationConfig, seri
       const oldFilteredValueObject = oldSeriesData.filtered.values[id];
       const newFilteredValueObject = newSeriesData.filtered.values[id];
 
-      for (const key of positionKeys) {
+      for (const key of positionOrComputedKeys) {
         if (areValueReferencesDifferent(startFilteredValueObject, endFilteredValueObject, startValueObject, endValueObject, key)) {
           setBaseValuesForOuterChanges(startFilteredValueObject, endFilteredValueObject,
             oldFilteredValueObject, newFilteredValueObject, key, outerCounts);
@@ -519,7 +520,7 @@ function setAllBaseValuesForOuterChanges(_animationConfig: AnimationConfig, seri
   };
 }
 
-function setBaseValuesForOuterChanges(startValueObject: SeriesValueObject, endValueObject: SeriesValueObject, oldValueObject: SeriesValueObject, newValueObject: SeriesValueObject, valueKey: PositionKey, outerCounts: { added: OuterChangeCounts; removed: OuterChangeCounts }): void {
+function setBaseValuesForOuterChanges(startValueObject: SeriesValueObject, endValueObject: SeriesValueObject, oldValueObject: SeriesValueObject, newValueObject: SeriesValueObject, valueKey: PositionOrComputedKey, outerCounts: { added: OuterChangeCounts; removed: OuterChangeCounts }): void {
   setBaseValuesForOuterChange(startValueObject[valueKey], oldValueObject[valueKey], newValueObject[valueKey], outerCounts.added);
   setBaseValuesForOuterChange(endValueObject[valueKey], newValueObject[valueKey], oldValueObject[valueKey], outerCounts.removed);
 }
