@@ -122,7 +122,8 @@ export function binValues(values: readonly number[], options: BinValuesOptions =
       continue;
     }
     // Half-open bins [start, end); the last bin also includes its upper edge.
-    let index = Math.min(Math.floor((value - start) / width), binCount - 1);
+    // an extreme one ulp off the rounded first or last edge still belongs to that bin
+    let index = Math.max(0, Math.min(Math.floor((value - start) / width), binCount - 1));
     // the raw quotient can disagree with the rounded edges by one ulp-sized
     // step; membership follows the edges the bins report
     if (index < binCount - 1 && value >= bins[index].end) {
@@ -233,11 +234,15 @@ function getBinLayout(
     }
   }
 
-  const start = nice ? roundToPrecision(Math.floor(domainMin / width) * width, width) : domainMin;
-  // Count by the rounded edges the bins report, with the max read at the same precision: the raw
-  // quotient (2.1 / 0.3) or the max itself (3 * 0.05) can land one ulp past an edge, which would open
-  // an empty bin beyond the max instead of closing the last bin on it.
+  // Count by the rounded edges the bins report, with the min and max read at the same precision: the raw
+  // quotient (0.3 / 0.1, 2.1 / 0.3) or the extreme itself (31 * 0.3, 3 * 0.05) can land one ulp off an
+  // edge, which would open an empty bin below the min or beyond the max instead of closing on it.
+  const roundedMin = roundToPrecision(domainMin, width);
   const roundedMax = roundToPrecision(domainMax, width);
+  let start = nice ? roundToPrecision(Math.floor(domainMin / width) * width, width) : domainMin;
+  while (roundToPrecision(start + width, width) <= roundedMin) {
+    start = roundToPrecision(start + width, width);
+  }
   let binCount = Math.max(1, Math.ceil((domainMax - start) / width));
   while (binCount > 1 && roundToPrecision(start + (binCount - 1) * width, width) >= roundedMax) {
     binCount--;

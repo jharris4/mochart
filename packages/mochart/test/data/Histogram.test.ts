@@ -279,6 +279,21 @@ describe('bin membership on floating-point edges', () => {
     }
   });
 
+  // Regression: the raw min / width quotient landing one ulp under an integer (0.3 / 0.1) floored one
+  // step too low, opening an empty bin below the min
+  it('starts the first bin on a min that is a whole number of widths', () => {
+    expect(binValues([0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7]).map(bin => bin.start)).toEqual([0.3, 0.4, 0.5, 0.6]);
+    expect(binValues([1.2, 1.4], { binWidth: 0.2 }).map(bin => [bin.start, bin.count])).toEqual([[1.2, 2]]);
+    for (const binWidth of [0.1, 0.2, 0.3, 0.7, 0.05]) {
+      for (let k = 1; k < 40; k++) {
+        const bins = binValues([k * binWidth, (k + 3) * binWidth], { binWidth });
+        expect(bins[0].start).toBeCloseTo(k * binWidth, 10);
+        expect(bins[0].count).toBe(1);
+        expect(bins).toHaveLength(3);
+      }
+    }
+  });
+
   // a custom binLabel can collapse distinct bins onto one category value
   it('throws when a custom binLabel produces duplicates', () => {
     expect(() => createHistogram([1, 2, 3, 4, 5, 6], { binCount: 3, binLabel: () => 'bin' }))
