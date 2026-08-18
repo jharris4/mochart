@@ -339,7 +339,7 @@ describe("validators", () => {
       });
 
       it("should not allow strings that look like objects", () => {
-        expect(baseValidators.array()("{}")).toBe(false);
+        expect(baseValidators.object()("{}")).toBe(false);
       });
 
       it("should not allow booleans", () => {
@@ -606,7 +606,7 @@ describe("validators", () => {
       });
 
       it("should not allow rgba notation strings when the alpha value is not numeric", () => {
-        expect(baseValidators.color()("rgb(123,123,123,a)")).toBe(false);
+        expect(baseValidators.color()("rgba(123,123,123,a)")).toBe(false);
       });
     });
 
@@ -2217,7 +2217,7 @@ describe("validators", () => {
           expect(extension).toBeInstanceOf(Function);
           expect(extension(extensionInputs[extensionKey].valid)).toIsEqual(true, validatorKey + " - " + extensionKey);
           if (validatorKey !== "any") {
-            expect(validator(validatorInputs[validatorKey].invalid)).toIsEqual(
+            expect(extension(validatorInputs[validatorKey].invalid)).toIsEqual(
               false,
               validatorKey + " - " + extensionKey
             );
