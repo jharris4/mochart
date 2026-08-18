@@ -353,6 +353,22 @@ describe('refresh', () => {
     handle!.refresh();
     expect(el.textContent).toContain('D');
   });
+
+  // Regression: a swapped-out chartRef callback was never told it lost the handle
+  it('tells a replaced chartRef callback it lost the handle, like Lit ref()', async () => {
+    const el = mountPoint();
+    const first: (ChartRef | null)[] = [];
+    const second: (ChartRef | null)[] = [];
+    const chartFor = (chartRef: (value: ChartRef | null) => void) => html`${defaultChart({ config: rawConfig(), data: rows, width: 400, height: 300, chartRef })}`;
+    render(chartFor(value => first.push(value)), el);
+    await flushMount();
+    render(chartFor(value => second.push(value)), el);
+    expect(first).toEqual([expect.any(Object), null]);
+    expect(second).toEqual([expect.any(Object)]);
+    render(nothing, el);
+    expect(second).toEqual([expect.any(Object), null]);
+    expect(first).toHaveLength(2);
+  });
 });
 
 // The callback maps are string-to-string plumbing — a dropped or misspelled row ships and the callback never fires — and core switches behaviour on callback presence, so every row gets a delivery case.

@@ -46,8 +46,9 @@ abstract class ChartHostDirective extends AsyncDirective {
     }
     const previousCallback = this.chartRefCallback;
     this.chartRefCallback = typeof chartRef === 'function' ? chartRef : null;
-    // a callback swapped in after mount still gets the handle, like Lit's ref()
+    // a callback swapped in after mount still gets the handle, and the one swapped out is told it lost it, like Lit's ref()
     if (this.host !== null && this.chartRefCallback !== previousCallback) {
+      previousCallback?.(null);
       this.chartRefCallback?.(this.chartRef);
     }
     this.applyContainerProps(className, style, dataTestId);
