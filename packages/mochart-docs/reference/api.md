@@ -301,13 +301,11 @@ recur in code that builds configs:
 | `SCALE_ORDINAL`, `SCALE_LINEAR` | axis `scale` values |
 | `CHART_TYPE_XY`, `CHART_TYPE_PIE` | [`chart.type`](/reference/chart#chart.type) values |
 
-The union types the enumerated values form are all exported — `Align`,
-`VerticalAlign`, `Anchor`, `Position`, `AxisSide`, `ThresholdTitleSide`,
-`MissingValues`, `Scale`, `DataType`, `ChartType`, `RendererType`,
-`PatternType`, `CurveType`, `CapType`, `LabelPosition`, `ColorMode`,
-`ColorInterpolation`, `MarkerShape`, `MarkerSizeScale`, `PieLabelType`,
-`PieTooltipLabelType`, `DomainChange`, `Auto` — so a wrapper can name one in its own
-signature rather than reaching for `SeriesConfig['renderer']`.
+The literal type each set of enumerated values forms is exported too, so a
+wrapper can name one in its own signature — `function setRenderer(renderer:
+RendererType)` — instead of indexing into a config type as
+`SeriesConfig['renderer']`. [Enumerated values](/reference/enumerations) lists
+every one of them with its values and the config members that use it.
 
 ## Styling hooks
 

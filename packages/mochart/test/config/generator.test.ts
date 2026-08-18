@@ -5,7 +5,7 @@ import path from 'path';
 
 import generateDocs, { renderHtml } from '../../scripts/generator';
 import { buildConfigReference, type ConfigReferenceModel, type PropertyDoc } from '../../scripts/configReferenceModel';
-import { buildApiReference } from '../../scripts/apiReferenceModel';
+import { buildApiReference, type ApiReferenceModel } from '../../scripts/apiReferenceModel';
 
 vi.mock('../../scripts/configReferenceModel', async importOriginal => {
   const actual = await importOriginal<typeof import('../../scripts/configReferenceModel')>();
@@ -77,6 +77,11 @@ const fixture: ConfigReferenceModel = {
       ]
     }
   ]
+};
+
+const emptyApiModel: ApiReferenceModel = {
+  pages: [],
+  enumerations: { id: 'enumerations', title: 'Enumerated values', lead: '', entries: [] }
 };
 
 function rows(html: string): string[] {
@@ -209,6 +214,8 @@ describe('generateDocs', () => {
     fs.writeFileSync(jsonPath, 'previous json');
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(buildConfigReference).mockReturnValueOnce({ model: fixture, integrityErrors: ['chart: missing description'] });
+    // the enumerations page validates its links against the config model, which the fixture cannot back
+    vi.mocked(buildApiReference).mockReturnValueOnce({ model: emptyApiModel, integrityErrors: [] });
 
     expect(generateDocs(htmlPath, jsonPath, apiJsonPath)).toBe(false);
 
@@ -221,7 +228,7 @@ describe('generateDocs', () => {
   it('reports api integrity errors and writes nothing, even when the config model is clean', () => {
     const { htmlPath, jsonPath, apiJsonPath } = paths(tempDir());
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.mocked(buildApiReference).mockReturnValueOnce({ model: { pages: [] }, integrityErrors: ['createPie: undocumented'] });
+    vi.mocked(buildApiReference).mockReturnValueOnce({ model: emptyApiModel, integrityErrors: ['createPie: undocumented'] });
 
     expect(generateDocs(htmlPath, jsonPath, apiJsonPath)).toBe(false);
 

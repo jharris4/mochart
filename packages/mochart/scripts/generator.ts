@@ -179,7 +179,7 @@ export default function generateDocs(htmlPath: string, jsonPath: string, apiJson
   // both models are built before anything is written: a failing run must leave the
   // previous artifacts in place rather than half-regenerated ones the checks rejected
   const { model, integrityErrors } = buildConfigReference();
-  const api = buildApiReference();
+  const api = buildApiReference(model);
 
   let valid = true;
   if (integrityErrors.length > 0) {

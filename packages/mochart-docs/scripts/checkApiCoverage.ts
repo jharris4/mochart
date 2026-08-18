@@ -46,6 +46,7 @@ const docsGlobs = ['guide', 'reference', 'recipes'];
 
 interface ApiReferenceModel {
   pages: { groups: { interfaceName: string; properties: { key: string }[] }[] }[];
+  enumerations: { entries: { name: string }[] };
 }
 
 function readDocsText(): string {
@@ -63,9 +64,9 @@ function readDocsText(): string {
   return files.map(file => fs.readFileSync(file, 'utf8')).join('\n');
 }
 
-// The documented interfaces and the members documented for them, both taken
-// from the generated model.
-function readApiReference(): { propInterfaces: string[]; propKeys: Set<string> } {
+// The documented interfaces, the members documented for them, and the
+// enumerated-value types the generated enumerations page names.
+function readApiReference(): { propInterfaces: string[]; propKeys: Set<string>; enumerationNames: Set<string> } {
   if (!fs.existsSync(apiModelPath)) {
     console.error(`✗ ${apiModelPath} not found — run "npm run gen" first`);
     process.exit(1);
@@ -85,7 +86,7 @@ function readApiReference(): { propInterfaces: string[]; propKeys: Set<string> }
     console.error(`✗ ${apiModelPath} declares no interface groups — the prop check would be vacuous`);
     process.exit(1);
   }
-  return { propInterfaces: [...interfaceNames], propKeys };
+  return { propInterfaces: [...interfaceNames], propKeys, enumerationNames: new Set(model.enumerations.entries.map(entry => entry.name)) };
 }
 
 /**
@@ -149,7 +150,7 @@ function interfaceMemberNames(source: string, interfaceName: string, sourceLabel
 }
 
 const docsText = readDocsText();
-const { propInterfaces, propKeys: documentedPropKeys } = readApiReference();
+const { propInterfaces, propKeys: documentedPropKeys, enumerationNames } = readApiReference();
 const chartTypesSource = fs.readFileSync(path.join(coreSrcDir, 'types', 'chart.ts'), 'utf8');
 const createChartSource = fs.readFileSync(path.join(coreSrcDir, 'createChart.ts'), 'utf8');
 
@@ -176,7 +177,7 @@ for (const member of interfaceMemberNames(createChartSource, 'ChartHandle', 'cre
 const coreTypesDir = path.join(coreSrcDir, 'types') + path.sep;
 for (const { name, declarationFiles } of moduleExports(path.join(coreSrcDir, 'index.ts'))) {
   if (declarationFiles.length > 0 && declarationFiles.every(file => file.startsWith(coreTypesDir))) continue;
-  check('export', name, new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page');
+  check('export', name, enumerationNames.has(name) || new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page or the enumerations page');
 }
 for (const { name } of moduleExports(path.join(docsDir, '..', 'mochart-export', 'src', 'index.ts'))) {
   check('@mochart/export', name, new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page');

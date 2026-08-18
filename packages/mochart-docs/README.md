@@ -16,8 +16,10 @@ The site has three legs:
     (`packages/mochart/scripts/generator.ts`) emits
     `packages/mochart/generated/config-reference.json`;
   - chart props, callbacks, and callback payloads, from the JSDoc on the
-    prop interfaces in `@mochart/core`'s `src/types/chart.ts` — the same
-    generator emits `packages/mochart/generated/api-reference.json`;
+    prop interfaces in `@mochart/core`'s `src/types/chart.ts`, and the
+    enumerated values, from the union types in `src/config/core/constants.ts`
+    and their uses in `src/types/config.ts` — the same generator emits both
+    into `packages/mochart/generated/api-reference.json`;
   - framework props, from the five binding packages' own prop declarations —
     [scripts/generateBindings.ts](scripts/generateBindings.ts) emits
     `generated/binding-reference.json`.

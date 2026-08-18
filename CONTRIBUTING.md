@@ -197,11 +197,14 @@ undocumented goes in the script's `undocumented` map with a reason.
    editor package's entry).
 2. Name it on a docs page. `packages/mochart-docs/reference/api.md` is the
    hand-written home for the exported surface: a function or class gets its
-   own entry there; a config union (`MarkerShape`, `DomainChange`, …) joins
-   the "union types the enumerated values form" list; a constant joins the
-   constants table. A recipe or guide mention counts too. A name that should
-   stay undocumented goes in the `undocumented` map of
-   `packages/mochart-docs/scripts/checkApiCoverage.ts` with a reason.
+   own entry there, a constant joins the constants table, and a recipe or
+   guide mention counts too. A literal union type declared in
+   `src/config/core/constants.ts` (`MarkerShape`, `DomainChange`, …) is
+   instead documented by the generated `/reference/enumerations` page: give it
+   a description in `packages/mochart/scripts/enumerationsModel.ts` — the
+   generator fails without one — and its values and uses are read from the
+   source. A name that should stay undocumented goes in the `undocumented`
+   map of `packages/mochart-docs/scripts/checkApiCoverage.ts` with a reason.
 3. Run `npm test -w @mochart/docs`; `checkApiCoverage.ts` fails on any export
    no page names, and on any stale `undocumented` entry.
 
@@ -245,9 +248,9 @@ Points worth knowing when contributing:
   CI with the library's own `validateConfig`/`getDataErrors`
   (`npm test -w @mochart/docs`) — a broken example fails the build.
 - The config reference pages and their "Used in" links are generated, as are
-  the props, callbacks, and framework-props pages; edit the sources (above),
-  not the pages. `reference/api.md` is the one reference page still written by
-  hand.
+  the props, callbacks, enumerated-values, and framework-props pages; edit
+  the sources (above), not the pages. `reference/api.md` is the one reference
+  page still written by hand.
 - VitePress fails the build on dead internal links. Links into the demo
   galleries (`/vanilla/…`) resolve only on the assembled site and are
   exempted in `.vitepress/config.ts`; demo deep links need a trailing slash

@@ -16,7 +16,9 @@ The reference has three parts:
   Generated from the packages' type declarations.
 - **[API](/reference/api)** — the functions and classes `@mochart/core`
   exports: the entry points and `ChartHandle`, the data providers, the config
-  and chart helpers, constants, and `mochartCssClasses`.
+  and chart helpers, constants, and `mochartCssClasses`. The literal types
+  behind the enumerated config values (`RendererType`, `CurveType`, …) have
+  their own generated page, [Enumerated values](/reference/enumerations).
 
 ## Config sections
 

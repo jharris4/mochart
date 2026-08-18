@@ -45,8 +45,9 @@ const referenceItems = loadConfigReference().sections.map(section => ({
   link: '/reference/' + section.id
 }));
 
+const apiReference = loadApiReference();
 const apiItems = [
-  ...loadApiReference().pages.map(page => ({
+  ...apiReference.pages.map(page => ({
     text: page.title,
     link: '/reference/' + page.id
   })),
@@ -88,6 +89,7 @@ export default defineConfig({
       '/reference/': [
         { text: 'Overview', link: '/reference/' },
         { text: 'API', link: '/reference/api' },
+        { text: apiReference.enumerations.title, link: '/reference/' + apiReference.enumerations.id },
         { text: 'Props and callbacks', items: apiItems },
         { text: 'Config sections', items: referenceItems }
       ]

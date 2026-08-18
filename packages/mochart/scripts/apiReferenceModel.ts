@@ -7,6 +7,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { parseInterfaces } from './tsSource';
+import { buildConfigReference, type ConfigReferenceModel } from './configReferenceModel';
+import { buildEnumerations, type EnumerationsPageDoc } from './enumerationsModel';
 
 const packageDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const chartTypesPath = path.join(packageDir, 'src', 'types', 'chart.ts');
@@ -47,6 +49,8 @@ export interface ApiPageDoc {
 
 export interface ApiReferenceModel {
   pages: ApiPageDoc[];
+  /** The enumerated config values, by the union type each set forms. */
+  enumerations: EnumerationsPageDoc;
 }
 
 export interface ApiReferenceResult {
@@ -185,7 +189,8 @@ const pageSources: PageSource[] = [
   }
 ];
 
-export function buildApiReference(): ApiReferenceResult {
+/** `configModel` lets a caller that has already built the config reference pass it in rather than build it twice. */
+export function buildApiReference(configModel: ConfigReferenceModel = buildConfigReference().model): ApiReferenceResult {
   const integrityErrors: string[] = [];
   const interfaces = parseInterfaces(chartTypesPath);
   const exportedNames = [...interfaces.values()]
@@ -255,5 +260,8 @@ export function buildApiReference(): ApiReferenceResult {
     })
   }));
 
-  return { model: { pages }, integrityErrors };
+  const enumerations = buildEnumerations(configModel);
+  integrityErrors.push(...enumerations.integrityErrors);
+
+  return { model: { pages, enumerations: enumerations.page }, integrityErrors };
 }
