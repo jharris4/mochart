@@ -18,6 +18,8 @@ interface PlotEmptyProps {
   categoryAxisLayoutInfo: CategoryAxisLayoutInfo;
   valueAxisLayoutInfos: Record<string, AxisLayoutInfo>;
   plotLayoutInfo: SpacingLayoutInfo;
+  /** series per value axis id, as the layout sized the axes with: absent while loading */
+  valueAxisSeriesCounts: Record<string, number>;
   categoryAxisTitleClipPathUniqueId: string;
   categoryAxisTickLabelClipPathUniqueId: string;
   valueAxisTitleClipPathUniqueIds: Record<string, string>;
@@ -36,7 +38,7 @@ export default class PlotEmpty extends Renderer<PlotEmptyProps> {
   }
 
   sync() {
-    const { mochartConfig, categoryAxisLayoutInfo, valueAxisLayoutInfos, plotLayoutInfo,
+    const { mochartConfig, categoryAxisLayoutInfo, valueAxisLayoutInfos, plotLayoutInfo, valueAxisSeriesCounts,
       categoryAxisTitleClipPathUniqueId, categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds } = this.props;
     const { categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs, accessibility: accessibilityConfig } = mochartConfig;
 
@@ -56,7 +58,8 @@ export default class PlotEmpty extends Renderer<PlotEmptyProps> {
         accessibleLabel: getAxisAccessibleLabel(categoryAxisConfig.title, accessibilityConfig.categoryAxisLabel),
         ...commonProps });
 
-      valueAxes.sync(valueAxisConfigs.map((axisConfig: EnhancedValueAxisConfig) => {
+      // the same gate ValueAxis and the layout apply: an axis hidden with its filtered series has no band to draw in
+      valueAxes.sync(valueAxisConfigs.filter(axisConfig => axisConfig.visibleWhenAllFiltered || (valueAxisSeriesCounts[axisConfig.id] ?? 0) > 0).map((axisConfig: EnhancedValueAxisConfig) => {
         const { id } = axisConfig;
         return {
           key: 'value-axis-' + id,

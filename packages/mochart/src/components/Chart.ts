@@ -119,6 +119,7 @@ type FactoryContent = ChartFactoryContent | El;
 type FactoryEl = El & { _factory?: ChartContentFactory | null; _factoryContext?: ChartFactoryContext | null };
 
 const emptyFilteredFlags = {};
+const emptyAxisSeriesCounts: Record<string, number> = {};
 
 const mochartChartIdPrefix = '__mochart__chart__';
 const tooltipClipPathIdPrefix = 'tooltip__clippath__';
@@ -1494,6 +1495,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
       body.plotEmpty.set(PlotEmpty, { mochartConfig, categoryAxisLayoutInfo,
         valueAxisLayoutInfos, plotLayoutInfo,
+        valueAxisSeriesCounts: hasChartData ? chartData.seriesData.axisSeriesCounts : emptyAxisSeriesCounts,
         categoryAxisTitleClipPathUniqueId,
         categoryAxisTickLabelClipPathUniqueId,
         valueAxisTitleClipPathUniqueIds });

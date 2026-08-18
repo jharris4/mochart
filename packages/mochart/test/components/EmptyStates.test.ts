@@ -6,7 +6,7 @@ import { createChart, createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartFactoryContext, DefaultChartProps, ManagedChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
-import { getCssSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
+import { getCssSelector, getIdCssSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -94,6 +94,19 @@ describe('no-data state', () => {
     }
     expect(empty.querySelectorAll(getCssSelector('axisTitle')).length).toBe(2);
     expect(empty.querySelectorAll(getCssSelector('axisLine')).length).toBe(2);
+  });
+
+  // the layout gives an axis hidden with its filtered series no band while loading, so the empty plot must not draw it there
+  it('leaves an axis hidden when all its series are filtered out of the loading plot', () => {
+    const config = makeConfig({
+      valueAxes: [{ id: 'A', title: 'Hidden', visibleWhenAllFiltered: false }, { id: 'B', title: 'Shown' }],
+      series: [{ property: 'sales', axis: 'B' }]
+    });
+    const loading = mountChart({ loading: true }, config, []);
+    expect(loading.querySelector(getIdCssSelector('valueAxis', 'A'))).toBeNull();
+    expect(loading.querySelector(getIdCssSelector('valueAxis', 'B'))).not.toBeNull();
+    expect(loading.textContent).not.toContain('Hidden');
+    expect(loading.textContent).toContain('Shown');
   });
 });
 
