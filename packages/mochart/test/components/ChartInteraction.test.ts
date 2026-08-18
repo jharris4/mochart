@@ -673,8 +673,10 @@ describe('tooltip', () => {
     const root = chartRoot(container);
     mouse(root, 'mouseenter', 100, 100);
     mouse(root, 'click', 100, 100);
+    // Regression: the click bubbled to the chart root, which toggled the tooltip straight back
+    // open at the category under the pointer, so click over the plot rather than at 0,0.
     container.querySelector(getDescendantCssSelector('tooltip', 'tooltipContent'))!
-      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      .dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 250, clientY: 100 }));
     expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
 
     const sticky = mountChart(makeConfig({ tooltip: { closeOnClick: false } }));

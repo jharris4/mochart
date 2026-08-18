@@ -471,12 +471,11 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
   onClick = (event: Event) => {
     const { mochartConfig, onClose } = this.props;
     const { tooltip: tooltipConfig } = mochartConfig;
+    // never reaches the chart root's click, which would toggle the tooltip straight back open
+    event.stopPropagation();
     if (tooltipConfig.closeOnClick) {
       event.preventDefault();
       onClose();
-    }
-    else {
-      event.stopPropagation();
     }
   }
 
