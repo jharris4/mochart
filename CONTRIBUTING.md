@@ -191,6 +191,20 @@ undocumented goes in the script's `undocumented` map with a reason.
 6. Run `npm run gen -w @mochart/docs`, then `npm test -w @mochart/docs` for
    the coverage checks and `npm test -w @mochart/core` for the rest.
 
+### Adding a public export
+
+1. Export the name from `packages/mochart/src/index.ts` (or the export or
+   editor package's entry).
+2. Name it on a docs page. `packages/mochart-docs/reference/api.md` is the
+   hand-written home for the exported surface: a function or class gets its
+   own entry there; a config union (`MarkerShape`, `DomainChange`, …) joins
+   the "union types the enumerated values form" list; a constant joins the
+   constants table. A recipe or guide mention counts too. A name that should
+   stay undocumented goes in the `undocumented` map of
+   `packages/mochart-docs/scripts/checkApiCoverage.ts` with a reason.
+3. Run `npm test -w @mochart/docs`; `checkApiCoverage.ts` fails on any export
+   no page names, and on any stale `undocumented` entry.
+
 ## Golden snapshot tests
 
 `packages/mochart/test/golden/` renders **every demo config** from
