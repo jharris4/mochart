@@ -120,11 +120,23 @@ function defaultText(property: EditorPropertyModel): string {
   return placeholder(property.editor);
 }
 
+// the model stores a default as text, a single color, a color list, or only per-condition values
+function defaultLines(property: EditorPropertyModel): string[] {
+  const { default: value, conditionalDefaults } = property;
+  if (value?.text) return ['Default: ' + value.text];
+  if (value?.color) return ['Default: ' + JSON.stringify(value.color)];
+  if (value?.colors) return ['Default: ' + JSON.stringify(value.colors)];
+  if (conditionalDefaults && conditionalDefaults.length > 0) {
+    return conditionalDefaults.filter(entry => entry.value.text).map(entry => 'Default ' + entry.condition + ': ' + entry.value.text);
+  }
+  return [];
+}
+
 function propertyInfo(property: EditorPropertyModel): string {
   const lines = [property.description];
   if (property.details) lines.push(property.details);
   if (property.rules.length > 0) lines.push('Rules: ' + property.rules.join('; '));
-  if (property.default?.text) lines.push('Default: ' + property.default.text);
+  lines.push(...defaultLines(property));
   return lines.join('\n\n');
 }
 

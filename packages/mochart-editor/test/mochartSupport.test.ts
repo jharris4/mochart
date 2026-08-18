@@ -234,6 +234,20 @@ describe('Mochart support hover documentation', () => {
     expect(text).toContain('Rules:');
     expect(text).toContain('Default: "xy"');
   });
+
+  // Regression: only text defaults were shown, so color, color-list and conditional-only defaults had no Default line
+  it('shows color, color list and conditional defaults', () => {
+    const hover = (source: string, key: string) => {
+      const tooltip = mochartSupportTesting.hoverSource(viewFor(source), source.indexOf('"' + key + '"') + 2);
+      expect(tooltip, key).not.toBeNull();
+      return tooltip!.create().dom.textContent ?? '';
+    };
+    expect(hover('{"legend":{"iconFilteredColor":"#000"}}', 'iconFilteredColor')).toMatch(/Default: "/);
+    expect(hover('{"colorPalette":{"series":{"normal":{"fillColors":[]}}}}', 'fillColors')).toMatch(/Default: \["#/);
+    const conditional = hover('{"categoryAxis":{"maxTickCount":3}}', 'maxTickCount');
+    expect(conditional).toContain('Default when scale is linear: 10');
+    expect(conditional).toContain('Default when scale is ordinal: 0');
+  });
 });
 
 describe('Mochart support diagnostics', () => {
