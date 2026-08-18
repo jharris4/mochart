@@ -479,6 +479,16 @@ describe('list-section validation with ignored entries', () => {
     expect(errors).toEqual([]);
   });
 
+  // the single-object shorthand entry is "as though not specified" too, so its references are not cross-checked
+  it('does not reference-check an ignored shorthand entry', () => {
+    const shorthand = errorsFor({ version: V, categoryAxis: { property: 'c' }, series: { ignore: true, axis: 'nope', property: 'x' } });
+    const listed = errorsFor({ version: V, categoryAxis: { property: 'c' }, series: [{ ignore: true, axis: 'nope', property: 'x' }] });
+    expect(shorthand).toEqual([]);
+    expect(listed).toEqual([]);
+    expect(errorsFor({ version: V, categoryAxis: { property: 'c' }, series: { axis: 'nope', property: 'x' } })
+      .some(error => error.includes('axis'))).toBe(true);
+  });
+
   it('locates diagnostics after an ignored entry at the raw index', () => {
     const config = {
       version: V,

@@ -2,7 +2,7 @@ import validators from './validators';
 import { getMessage, getPropertyMessage, getMessages, addWarningMessages, DEFAULT } from './messages';
 import type { LocatedValidationMessage } from './messages';
 import { CHART_TYPE_PIE, NONE, CONFIG_VERSION } from '../core/constants';
-import { configWithAll, filterConfigs, getConfigKey, getRawIndices } from '../core/configUtils';
+import { configWithAll, filterConfig, filterConfigs, getConfigKey, getRawIndices } from '../core/configUtils';
 import { getConfigWithDefaults, sectionKeyAllMap } from '../core/mochartConfig';
 import { getDefaults } from '../defaults/mochartConfig';
 
@@ -529,7 +529,8 @@ function validateReferences(config: ConfigRecord, configWithoutDefaults: ConfigR
   // entries carrying ignore: true are "as though not specified", so they must not be
   // cross-checked; report at the raw index so messages still point at the user's own array
   const rawTargetSection = configWithoutDefaults[targetSectionKey];
-  validateReferencesInternal(config, Array.isArray(rawTargetSection) ? filterConfigs(rawTargetSection) : rawTargetSection,
+  const targetSection = Array.isArray(rawTargetSection) ? filterConfigs(rawTargetSection) : filterConfig(rawTargetSection) ? rawTargetSection : undefined;
+  validateReferencesInternal(config, targetSection,
     targetSectionKey, targetProperty, sourceSectionKey, sourceProperty, errors, errorDetails, getRawIndices(rawTargetSection));
 }
 
