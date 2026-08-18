@@ -383,6 +383,11 @@ describe('refresh', () => {
     expect(typeof chartRef.value!.refresh).toBe('function');
     chartRef.value!.refresh();
     expect(plainRef.value).toBeNull();
+    // the instance type is a real type, not any: a never[] construct signature used to collapse it
+    // @ts-expect-error nope is not on the instance
+    void chartRef.value?.nope;
+    // @ts-expect-error nope is not on the instance
+    void plainRef.value?.nope;
     app.unmount();
     el.remove();
   });

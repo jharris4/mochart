@@ -45,4 +45,4 @@ const Chart = defineComponent({
 });
 
 // SetupContext.expose does not reach the instance type, so the exposed surface is declared here
-export default Chart as typeof Chart & { new (...args: never[]): ChartRef };
+export default Chart as typeof Chart & { new (): ChartRef };

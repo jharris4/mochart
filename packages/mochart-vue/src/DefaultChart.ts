@@ -46,4 +46,4 @@ const DefaultChart = defineComponent({
 });
 
 // SetupContext.expose does not reach the instance type, so the exposed surface is declared here
-export default DefaultChart as typeof DefaultChart & { new (...args: never[]): ChartRef };
+export default DefaultChart as typeof DefaultChart & { new (): ChartRef };
