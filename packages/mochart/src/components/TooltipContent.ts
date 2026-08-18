@@ -99,11 +99,12 @@ type PlainLineEl = El & { textHandle: El };
 
 const itemPadding = 2;
 
+// longhands only: a row that becomes the last row must have its bottom padding written back, not cleared
 const baseLineStyle = {
   whiteSpace: 'nowrap',
-  padding: itemPadding,
   paddingTop: itemPadding,
   paddingRight: itemPadding,
+  paddingBottom: itemPadding,
   paddingLeft: itemPadding
 };
 

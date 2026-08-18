@@ -112,6 +112,17 @@ describe('tooltip box style', () => {
     expect(rows[rows.length - 1].style.paddingBottom).not.toBe('19px');
   });
 
+  it('gives a row that becomes the last row the last row bottom padding', () => {
+    const container = mountChart({ tooltip: { hideFiltered: true, linePadding: 19 } });
+    openTooltip(container);
+    const row = container.querySelector<HTMLElement>(getCssSelector('tooltip') + ' ' + getIdCssSelector('tooltipSeriesLine', 'S0'))!;
+    expect(row.style.paddingBottom).toBe('19px');
+    filterSeries(container, 'S1');
+    // the same element is now the last row: it takes a fresh last row's padding, not none
+    expect(row.isConnected).toBe(true);
+    expect(row.style.paddingBottom).toBe('2px');
+  });
+
   it('draws no border for a null strokeWidth, matching the layout', () => {
     const container = mountChart({ tooltip: { backgroundStyle: { strokeWidth: null } } });
     openTooltip(container);
