@@ -1554,6 +1554,14 @@ describe("validators", () => {
           baseValidators.objectWithSome(["a", "b", "c"], baseValidators.notEqual(null))({ a: 6, bbb: 2, c: 4, d: 5 })
         ).toBe(false);
       });
+
+      // Regression: a present-but-undefined member failed the predicate while nestedValues said it was allowed
+      it("should treat a present but undefined member as unspecified, like its nestedValues", () => {
+        const validator = baseValidators.objectWithSome(["a", "b"], baseValidators.number());
+        expect(validator({ a: undefined, b: 1 })).toBe(true);
+        expect(validator.nestedValues!.a(undefined)).toBe(true);
+        expect(validator({ a: null, b: 1 })).toBe(false);
+      });
     });
 
     describe("object with shape", () => {

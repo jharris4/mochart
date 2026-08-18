@@ -443,7 +443,8 @@ const compoundValidatorDefinitions = {
         propertyMap[property] = property;
       });
       const someInvalid = valueKeys.some(valueKey => {
-        if (propertyMap[valueKey] === undefined || !propertyValidator(v[valueKey])) {
+        // present but undefined counts as "not specified", like partialObjectWithShape and this validator's own nestedValues
+        if (propertyMap[valueKey] === undefined || (v[valueKey] !== undefined && !propertyValidator(v[valueKey]))) {
           return true;
         }
         return false;
