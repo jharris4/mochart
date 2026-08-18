@@ -112,6 +112,29 @@ describe('getChartDataForAxisDelta (category removed)', () => {
   });
 });
 
+describe('expansion final axis bases (raw-only domain change)', () => {
+  const twoSeriesConfig = makeConfig({
+    categoryAxis: { property: 'c', type: 'number', scale: 'ordinal' },
+    series: [{ property: 'a', renderer: 'bar' }, { property: 'b', renderer: 'bar' }]
+  });
+  const [seriesA, seriesB] = twoSeriesConfig.series.map(s => s.id);
+  const axisId = twoSeriesConfig.valueAxes[0].id;
+  const filtered = { [seriesA]: true };
+  const dataFor = (rows: Record<string, number>[]) => getChartData(twoSeriesConfig, new ArrayOfObjectsDataProvider(rows), filtered);
+
+  it('moves the base with the raw domain even though the filtered domain is unchanged', () => {
+    // a is filtered out; its min drops below the raw min while b's extent stays put and a category is added
+    const cad = getChartAnimationData(twoSeriesConfig,
+      dataFor([{ c: 0, a: 5, b: 10 }, { c: 1, a: 8, b: 20 }]),
+      dataFor([{ c: 0, a: -22, b: 10 }, { c: 1, a: 8, b: 20 }, { c: 2, a: 3, b: 15 }]));
+    const final = cad.axisExpansionData.final!;
+    expect(final.seriesData.raw.renderAxisDomains[axisId][0]).toBeLessThan(0);
+    expect(final.seriesData.axisBases[axisId]).toBe(final.seriesData.raw.renderAxisDomains[axisId][0]);
+    // the entering bar starts at the base, so it has zero height instead of spanning the old base to the new min
+    expect(getStartChartData(cad).seriesData.raw.values[seriesB].plain![2]).toBe(final.seriesData.axisBases[axisId]);
+  });
+});
+
 // a translating domain (old and new barely overlap) skips the union phases and interpolates its render domain during the value phase, so a flat value holds its pixel position
 describe('isDomainTranslation', () => {
   it('classifies barely-overlapping domains as a translation', () => {

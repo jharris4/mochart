@@ -334,6 +334,9 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
     finalFilteredValueAxisDomains = withAxisDomainsForIds(
       getMaxAxisDomains(prevChartData.seriesData.filtered.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains),
       prevChartData.seriesData.filtered.renderAxisDomains, combinedAxisIds);
+  }
+  // a base follows its axis's raw or filtered domain, so either changing moves it
+  if (rawSet.valueAxisDomainDeltas.deltaPercentage !== 0 || filteredSet.valueAxisDomainDeltas.deltaPercentage !== 0) {
     finalValueAxisBases = getValueAxisBases(valueAxisConfigs, finalRawValueAxisDomains, finalFilteredValueAxisDomains);
   }
   if (rawSet.seriesDomainDeltas.deltaPercentage !== 0) {
