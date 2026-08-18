@@ -117,7 +117,7 @@ export interface ChartCallbacks {
   onChartMouseMove?: (event: ChartEventPayload) => void;
   /** The pointer left the plot area. */
   onChartMouseLeave?: (event: ChartEventPayload) => void;
-  /** The chart title was clicked (see `titleConfig.link`/`linkDisabled`). */
+  /** The chart title was clicked (see `title.link`/`title.linkDisabled`). */
   onTitleClick?: () => void;
   /**
    * The focused series/category/value axis — via pointer over/click on the
@@ -126,7 +126,7 @@ export interface ChartCallbacks {
   onFocus?: (focus: ChartFocus) => void;
   /**
    * A legend click toggled a series in or out of the filtered set
-   * (requires `legendConfig.filterOnClick`).
+   * (requires `legend.filterOnClick`).
    */
   onSeriesFilter?: (filter: ChartSeriesFilter) => void;
   /** The plot area was re-laid-out; reports its new bounds. */
