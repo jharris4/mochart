@@ -127,6 +127,47 @@ describe('value axis reversed', () => {
   });
 });
 
+/** Series labels as `{ y, dy, anchor }` in plot-local coordinates. */
+function labels(container: Element) {
+  return [...container.querySelectorAll(getCssSelector('seriesLabels') + ' text')].map((text) => {
+    const transform = text.getAttribute('transform') ?? '';
+    const match = /translate\((-?[\d.]+)[ ,]\s*(-?[\d.]+)\)/.exec(transform);
+    expect(match, `unexpected label transform: ${transform}`).not.toBeNull();
+    return { x: Number(match![1]), y: Number(match![2]), dy: text.getAttribute('dy'), anchor: text.getAttribute('text-anchor') };
+  });
+}
+
+describe('value axis reversed series labels', () => {
+  const mixed = [{ c: 'a', v: -2 }, { c: 'b', v: 8 }];
+  const series = (overrides: Record<string, unknown>) => [{ property: 'v', renderer: 'bar', labelProperty: 'v', ...overrides }];
+
+  it('keeps outside labels outside the bar and inside labels inside', () => {
+    for (const labelPosition of ['outside', 'inside'] as const) {
+      const container = mount({ valueAxes: [{ min: -5, max: 10, base: 0, reversed: true }], series: series({ labelPosition }) }, mixed);
+      const [below, above] = labels(container);
+      // reversed: the positive bar grows downward, so an outside label hangs below its end and an inside one sits above it
+      expect(above.dy).toBe(labelPosition === 'outside' ? '1.35em' : '-0.65em');
+      expect(below.dy).toBe(labelPosition === 'outside' ? '-0.65em' : '1.35em');
+    }
+  });
+
+  it('mirrors the text anchor when inverted', () => {
+    const container = mount({ plot: { inverted: true }, valueAxes: [{ min: -5, max: 10, base: 0, reversed: true }], series: series({ labelPosition: 'outside' }) }, mixed);
+    const [below, above] = labels(container);
+    // reversed + inverted: the positive bar grows leftward, so its outside label ends at the bar end
+    expect(above.anchor).toBe('end');
+    expect(below.anchor).toBe('start');
+  });
+
+  it('flips the label offset with the pixel direction', () => {
+    const plain = labels(mount({ valueAxes: [{ min: -5, max: 10, base: 0, reversed: true }], series: series({}) }, mixed));
+    const offset = labels(mount({ valueAxes: [{ min: -5, max: 10, base: 0, reversed: true }], series: series({ labelOffset: 5 }) }, mixed));
+    // a positive offset moves labels toward the base: upward for the positive bar once reversed
+    expect(offset[1].y - plain[1].y).toBe(-5);
+    expect(offset[0].y - plain[0].y).toBe(5);
+  });
+});
+
 describe('category axis reversed', () => {
   it('reverses the category order on an ordinal axis', () => {
     const normal = bars(mount({}));

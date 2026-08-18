@@ -106,8 +106,12 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
 
         const { labelOffset } = seriesConfig;
 
+        // a reversed value axis flips the pixel direction, so the offset and the label side flip with it
+        const { reversed } = valueAxisConfig;
+        const offsetSign = reversed ? -1 : 1;
+
         let getOffset = (_aboveBase: boolean) => {
-          return labelOffset;
+          return offsetSign * labelOffset;
         };
 
         if (hasBase) {
@@ -115,7 +119,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
           const belowBaseLabelOffset = seriesConfig.labelBelowBaseOffset === AUTO ? -1 * labelOffset : seriesConfig.labelBelowBaseOffset;
 
           getOffset = (aboveBase: boolean) => {
-            return aboveBase ? aboveBaseLabelOffset : belowBaseLabelOffset;
+            return offsetSign * (aboveBase ? aboveBaseLabelOffset : belowBaseLabelOffset);
           };
         }
 
@@ -222,10 +226,11 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
         // labelBelowBasePosition fall back to labelPosition).
         const aboveBasePosition = getLabelPosition(true, hasBase, seriesConfig);
         const belowBasePosition = getLabelPosition(false, hasBase, seriesConfig);
-        const aboveBaseTextAnchor = getTextAnchor(inverted, true, aboveBasePosition);
-        const belowBaseTextAnchor = getTextAnchor(inverted, false, belowBasePosition);
-        const aboveBaseDY = getDY(inverted, true, aboveBasePosition);
-        const belowBaseDY = getDY(inverted, false, belowBasePosition);
+        // the side is a value-space choice; the anchor/dy direction is a pixel-space one
+        const aboveBaseTextAnchor = getTextAnchor(inverted, !reversed, aboveBasePosition);
+        const belowBaseTextAnchor = getTextAnchor(inverted, reversed, belowBasePosition);
+        const aboveBaseDY = getDY(inverted, !reversed, aboveBasePosition);
+        const belowBaseDY = getDY(inverted, reversed, belowBasePosition);
 
         const { length, getDefined, getSeriesPosition, getCategoryPosition, getOffsetCategoryPosition, categoryValueExtent, skipped, skipCategoryIndexMap } = seriesPositionData;
         // a bar label centers on the bar's own slot (group sub-slot, barWidthFraction), not the category slot
