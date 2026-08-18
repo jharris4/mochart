@@ -1955,6 +1955,22 @@ describe("validators", () => {
       expect(baseValidators.number().getErrorMessage({ a: shared, b: shared })).toBe("should be a number: { a: { s: 1 }, b: { s: 1 } }");
     });
 
+    // Regression: any non-array object printed only its own keys, so a Date, RegExp, Map, Set or boxed primitive read as {  }
+    it("should print non-plain objects by value or constructor name", () => {
+      const message = (value: unknown) => baseValidators.number().getErrorMessage(value).replace("should be a number: ", "");
+      expect(message(new Date("2016-09-01T00:00:00Z"))).toBe("2016-09-01T00:00:00.000Z");
+      expect(message(new Date("nope"))).toBe("Invalid Date");
+      expect(message(/re/g)).toBe("/re/g");
+      expect(message(new Number(5))).toBe("5");
+      expect(message(new String("s"))).toBe("\"s\"");
+      expect(message(new Map([[1, 2]]))).toBe("Map [ [ 1, 2 ] ]");
+      expect(message(new Set(["a"]))).toBe("Set [ \"a\" ]");
+      class Thing {}
+      expect(message(new Thing())).toBe("Thing {  }");
+      expect(message({ a: 1 })).toBe("{ a: 1 }");
+      expect(message({})).toBe("{  }");
+    });
+
     it("should allow a custom message via a message property on a custom validator function", () => {
       const validator = baseValidators.custom(customValidator);
       expect(validator.errorMessage).toBe(customValidator.message);

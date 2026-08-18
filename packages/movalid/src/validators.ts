@@ -95,7 +95,7 @@ const printAny = (value: any, recurse?: boolean, seen: Set<object> = new Set()):
   } else if (Array.isArray(value)) {
     return printArray(value, recurse, seen);
   } else if (typeof value === "object") {
-    return printObject(value, recurse, seen);
+    return printNonPlainObject(value) ?? printObject(value, recurse, seen);
   } else if (typeof value === "function") {
     // the name only, since string-coercing a function inlines its whole source
     return value.name ? "function " + value.name : "an anonymous function";
@@ -108,6 +108,27 @@ const printAny = (value: any, recurse?: boolean, seen: Set<object> = new Set()):
   } else {
     return JSON.stringify(value);
   }
+};
+// Objects whose identity is not in their own keys would print as {  }: dates, regexps, boxed primitives and
+// collections print by value, and any other keyless exotic by its constructor name. Null for a plain object.
+const printNonPlainObject = (value: object): string | null => {
+  if (value instanceof Date) {
+    return isNaN(value.getTime()) ? "Invalid Date" : value.toISOString();
+  } else if (value instanceof RegExp) {
+    return String(value);
+  } else if (value instanceof Number || value instanceof String || value instanceof Boolean) {
+    return printAny(value.valueOf());
+  } else if (value instanceof Map) {
+    return "Map " + printArray(Array.from(value.entries()));
+  } else if (value instanceof Set) {
+    return "Set " + printArray(Array.from(value.values()));
+  } else if (Object.keys(value).length === 0) {
+    const proto = Object.getPrototypeOf(value);
+    if (proto !== null && proto !== Object.prototype && typeof proto.constructor === "function" && proto.constructor.name) {
+      return proto.constructor.name + " {  }";
+    }
+  }
+  return null;
 };
 const withSeen = (seen: Set<object>, value: object): Set<object> => new Set(seen).add(value);
 // a getter that throws must not turn a validation message into an exception
