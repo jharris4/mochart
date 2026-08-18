@@ -293,6 +293,27 @@ describe('config validation', () => {
 // Regression: sole-id defaults read the raw section arrays, so ignored entries
 // blocked the sole-entry semantics; and a fully-ignored list section built zero
 // entries instead of falling back to defaults like an unspecified section.
+// Regression: ignore was only excluded from patternDefaults, so ignore: true on any other *Defaults section
+// validated, stamped every built entry with ignore: true and made getConfigWithoutDefaults drop the whole list
+describe('ignore on a *Defaults section', () => {
+  const base = { version: VERSION_STRING, categoryAxis: { property: 'g' }, series: [{ property: 'v' }] };
+  const cases: [string, Record<string, unknown>][] = [
+    ['seriesDefaults', { seriesDefaults: { ignore: true } }],
+    ['valueAxisDefaults', { valueAxisDefaults: { ignore: true } }],
+    ['seriesStackDefaults', { seriesStackDefaults: { ignore: true } }],
+    ['seriesGroupDefaults', { seriesGroupDefaults: { ignore: true } }],
+    ['linearGradientDefaults', { linearGradientDefaults: { ignore: true } }],
+    ['radialGradientDefaults', { radialGradientDefaults: { ignore: true } }]
+  ];
+  for (const [section, overrides] of cases) {
+    it(`rejects ignore on ${section}`, () => {
+      const result = validateConfig({ ...base, ...overrides } as never);
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(section + ' - ignore - entry-only properties cannot be set on an all config');
+    });
+  }
+});
+
 describe('ignored entries and sole-id defaults', () => {
   const base = { version: VERSION_STRING, categoryAxis: { property: 'g' } };
 

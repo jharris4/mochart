@@ -133,7 +133,8 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
     list: true,
     validator: arrayOfObjectsOrEmpty,
     validators: () => linearGradientValidators(),
-    uniqueKeys: ['id']
+    uniqueKeys: ['id'],
+    allExcludedKeys: ['ignore']
   },
   patterns: {
     list: true,
@@ -154,13 +155,15 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
     list: true,
     validator: arrayOfObjectsOrEmpty,
     validators: () => radialGradientValidators(),
-    uniqueKeys: ['id']
+    uniqueKeys: ['id'],
+    allExcludedKeys: ['ignore']
   },
   valueAxes: {
     list: true,
     validator: arrayOfObjectsNonEmpty,
     validators: () => valueAxisValidators(),
-    uniqueKeys: ['id', 'order']
+    uniqueKeys: ['id', 'order'],
+    allExcludedKeys: ['ignore']
   },
   series: {
     list: true,
@@ -170,6 +173,7 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
       return seriesValidators(configSection, isConfigRecord(chart) && chart.type === CHART_TYPE_PIE);
     },
     uniqueKeys: ['id', 'order'],
+    allExcludedKeys: ['ignore'],
     references: {
       axis: { section: 'valueAxes', key: 'id' },
       group: { section: 'seriesGroups', key: 'id' },
@@ -190,13 +194,15 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
     list: true,
     validator: arrayOfObjectsOrEmpty,
     validators: () => seriesGroupValidators(),
-    uniqueKeys: ['id']
+    uniqueKeys: ['id'],
+    allExcludedKeys: ['ignore']
   },
   seriesStacks: {
     list: true,
     validator: arrayOfObjectsOrEmpty,
     validators: () => seriesStackValidators(),
     uniqueKeys: ['id'],
+    allExcludedKeys: ['ignore'],
     references: {
       axis: { section: 'valueAxes', key: 'id' }
     }
