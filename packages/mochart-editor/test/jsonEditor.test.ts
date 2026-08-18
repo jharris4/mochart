@@ -96,6 +96,30 @@ describe('JSON editor', () => {
     host.remove();
   });
 
+  // Regression: setValue dispatched a history-recorded change, so undo brought the host's previous document back
+  it('does not undo a controlled setValue back to the previous document', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const onChange = vi.fn();
+    const editor = createJsonEditor(host, { value: '{"a":1}', ariaLabel: 'Configuration', onChange });
+    // a user edit first, so there is history to unwind
+    expect(editor.format()).toBe(true);
+    onChange.mockClear();
+
+    editor.setValue('{"b":2}');
+    editor.setReadOnly(true);
+    editor.setReadOnly(false);
+    const content = host.querySelector<HTMLElement>('.cm-content')!;
+    content.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true, cancelable: true }));
+    content.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', metaKey: true, bubbles: true, cancelable: true }));
+
+    expect(editor.getValue()).toBe('{"b":2}');
+    expect(onChange).not.toHaveBeenCalled();
+    expect(content.getAttribute('aria-readonly')).toBe('false');
+    editor.destroy();
+    host.remove();
+  });
+
   it('leaves invalid JSON unchanged when formatting', () => {
     const host = document.createElement('div');
     const editor = createJsonEditor(host, { value: '{', ariaLabel: 'Configuration' });

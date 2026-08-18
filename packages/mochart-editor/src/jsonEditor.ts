@@ -61,6 +61,9 @@ export function createJsonEditor(host: HTMLElement, options: JsonEditorOptions):
   const readOnly = new Compartment();
   const theme = new Compartment();
   let externalUpdate = false;
+  // the current compartment values, so a state rebuilt for a controlled replacement keeps them
+  let currentReadOnly = options.readOnly === true;
+  let currentTheme: 'light' | 'dark' = options.theme ?? 'light';
 
   const syntaxLinter = jsonParseLinter();
   const diagnosticsExtension = linter(view => {
@@ -93,12 +96,12 @@ export function createJsonEditor(host: HTMLElement, options: JsonEditorOptions):
   };
   if (options.ariaDescribedBy) contentAttributes['aria-describedby'] = options.ariaDescribedBy;
 
-  const extensions = [
+  const makeExtensions = () => [
     basicSetup,
     json(),
     diagnosticsExtension,
-    readOnly.of(EditorState.readOnly.of(options.readOnly === true)),
-    theme.of(options.theme === 'dark' ? darkTheme : []),
+    readOnly.of(EditorState.readOnly.of(currentReadOnly)),
+    theme.of(currentTheme === 'dark' ? darkTheme : []),
     EditorView.contentAttributes.of(contentAttributes),
     EditorView.updateListener.of(update => {
       if (update.docChanged && !externalUpdate) options.onChange?.(update.state.doc.toString());
@@ -109,15 +112,13 @@ export function createJsonEditor(host: HTMLElement, options: JsonEditorOptions):
       '.cm-content': { minHeight: '100%' }
     }),
     ...implementations.flatMap(implementation => implementation.extensions),
-  ];
-  if (options.lineNumbers === false) {
     // basicSetup includes a gutter; hide it without disabling folding/search.
-    extensions.push(EditorView.theme({ '.cm-gutters': { display: 'none' } }));
-  }
+    ...(options.lineNumbers === false ? [EditorView.theme({ '.cm-gutters': { display: 'none' } })] : [])
+  ];
 
   const view = new EditorView({
     parent: element,
-    state: EditorState.create({ doc: options.value ?? '', extensions })
+    state: EditorState.create({ doc: options.value ?? '', extensions: makeExtensions() })
   });
 
   return {
@@ -125,17 +126,21 @@ export function createJsonEditor(host: HTMLElement, options: JsonEditorOptions):
     getValue: () => view.state.doc.toString(),
     setValue(value: string) {
       if (value === view.state.doc.toString()) return;
+      // a fresh state, not a change: the host replaced the document, so undo must not bring the old one back
       externalUpdate = true;
-      view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: value } });
+      view.setState(EditorState.create({ doc: value, extensions: makeExtensions() }));
       externalUpdate = false;
     },
     setReadOnly(value: boolean) {
+      currentReadOnly = value;
+      contentAttributes['aria-readonly'] = String(value);
       view.dispatch({ effects: readOnly.reconfigure(EditorState.readOnly.of(value)) });
       view.contentDOM.setAttribute('aria-readonly', String(value));
     },
     setTheme(value: 'light' | 'dark') {
       if (element.dataset.theme === value) return;
       element.dataset.theme = value;
+      currentTheme = value;
       view.dispatch({ effects: theme.reconfigure(value === 'dark' ? darkTheme : []) });
     },
     focus: () => view.focus(),
