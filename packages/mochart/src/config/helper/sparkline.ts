@@ -32,7 +32,8 @@ export function createSparklineConfig(config: MochartInputConfig, options: Creat
   const padding = options.padding ?? 2;
   return {
     ...config,
-    chart: { margin: uniform(0), padding: uniform(padding), ...config.chart },
+    // per side, so a partial margin or padding falls back to the sparkline's sides, not the chart defaults'
+    chart: { ...config.chart, margin: { ...uniform(0), ...config.chart?.margin }, padding: { ...uniform(padding), ...config.chart?.padding } },
     legend: { visible: false, ...config.legend },
     tooltip: { visible: interactive, ...config.tooltip },
     crosshair: { visible: interactive, ...config.crosshair },

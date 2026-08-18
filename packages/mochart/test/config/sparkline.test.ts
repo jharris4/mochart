@@ -77,6 +77,14 @@ describe('createSparklineConfig', () => {
     expect(mochartConfig.chart.margin).toEqual({ top: 0, right: 0, bottom: 0, left: 0 });
   });
 
+  it('fills the sides a partial margin or padding leaves unnamed from the preset', () => {
+    const config = baseConfig();
+    config.chart = { margin: { left: 4 }, padding: { top: 0 } };
+    const mochartConfig = enhanceConfig(createSparklineConfig(config));
+    expect(mochartConfig.chart.margin).toEqual({ top: 0, right: 0, bottom: 0, left: 4 });
+    expect(mochartConfig.chart.padding).toEqual({ top: 0, right: 2, bottom: 2, left: 2 });
+  });
+
   it('does not mutate the passed config', () => {
     const config = baseConfig();
     const snapshot = JSON.parse(JSON.stringify(config));
