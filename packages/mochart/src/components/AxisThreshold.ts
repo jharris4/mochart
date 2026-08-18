@@ -23,6 +23,8 @@ interface AxisThresholdProps {
   axisFocusPercentage: number | null;
   seriesFocusPercentage: number | null;
   axisThresholdClass: string;
+  /** a value axis's id, written as data-axis-id so its titles can be found by id regardless of the id's characters */
+  axisId?: string | null;
 }
 
 export default class AxisThreshold extends Renderer<AxisThresholdProps> {
@@ -36,12 +38,12 @@ export default class AxisThreshold extends Renderer<AxisThresholdProps> {
   sync() {
     const { hidden } = this.props;
     if (!hidden) {
-      const { axisConfig, axisLayoutInfo, seriesLayoutInfo, axisDomain, vertical, ascending, positionRange, axisFocusPercentage, seriesFocusPercentage, axisThresholdClass, front } = this.props;
+      const { axisConfig, axisLayoutInfo, seriesLayoutInfo, axisDomain, vertical, ascending, positionRange, axisFocusPercentage, seriesFocusPercentage, axisThresholdClass, axisId, front } = this.props;
       const { useSeriesFocus = false } = axisConfig;
       const thresholds = resolveThresholds(axisConfig.thresholds);
 
       this.setPresent(true);
-      this.root.set({ className: axisThresholdClass });
+      this.root.set({ className: axisThresholdClass, dataAxisId: axisId ?? null });
 
       const items: { key: string; ctor: typeof AxisThresholdLine; props: AxisThresholdLineProps }[] = [];
       thresholds.forEach((threshold, thresholdIndex) => {

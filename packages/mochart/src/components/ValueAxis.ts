@@ -85,7 +85,7 @@ export default class ValueAxis extends Renderer<ValueAxisProps, ValueAxisState> 
     const { onValueAxisEnter, onValueAxisLeave, onValueAxisClick } = this.state;
     if (valueAxisConfig.visibleWhenAllFiltered || seriesCount > 0) {
       const axisId = valueAxisConfig.id;
-      this.axis!.set(Axis, { front, axisClass: mochartCssClasses['valueAxis'] + axisId, axisConfig: valueAxisConfig,
+      this.axis!.set(Axis, { front, axisClass: mochartCssClasses['valueAxis'] + axisId, axisId, axisConfig: valueAxisConfig,
         axisLayoutInfo: valueAxisLayoutInfo, plotLayoutInfo,
         focusPercentages, axisTicks: valueAxisData.axisTickData[axisId],
         axisFocusPercentage, seriesFocusPercentage,

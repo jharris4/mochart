@@ -5,7 +5,7 @@ import { mountContainer, trackHandle, mockBoundingClientRect } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
-import { getCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
+import { getCssSelector, getDescendantCssSelector, getValueAxisIdSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -96,6 +96,18 @@ describe('axis side and collapse', () => {
     const collapsed = mount({ ...categoryAxis({ side: 'end', collapsed: true, ...tickLabelStyle }) });
     // the label sits at the same offset into its background box whether or not the axis is collapsed
     expect(labelY(collapsed) - backgroundY(collapsed)).toBe(labelY(normal) - backgroundY(normal));
+  });
+});
+
+// Regression: the value axis measurement selectors embedded the raw id in a class selector, so an id
+// with a space or a css-significant character was never measured and laid out from placeholder bounds
+describe('value axis ids in measurement', () => {
+  it.each(['left axis', 'a.b', 'x#y', 'q"r'])('measures the value axis text for id %j like a plain id', id => {
+    const plain = mount({ valueAxes: [{ id: 'leftaxis', title: 'Title', thresholds: [{ value: 15, title: 'Limit' }] }] });
+    const odd = mount({ valueAxes: [{ id, title: 'Title', thresholds: [{ value: 15, title: 'Limit' }] }] });
+    const width = (container: Element, axisId: string) =>
+      container.querySelector(getCssSelector('valueAxis') + getValueAxisIdSelector(axisId) + ' ' + getCssSelector('axisBackground') + ' rect')!.getAttribute('width');
+    expect(width(odd, id)).toBe(width(plain, 'leftaxis'));
   });
 });
 

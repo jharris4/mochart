@@ -56,7 +56,7 @@ export default class PlotEmpty extends Renderer<PlotEmptyProps> {
       return {
         key: 'value-axis-' + id,
         ctor: Axis,
-        props: { front: false, axisClass: mochartCssClasses['valueAxis'] + id, axisConfig,
+        props: { front: false, axisClass: mochartCssClasses['valueAxis'] + id, axisId: id, axisConfig,
           axisLayoutInfo: valueAxisLayoutInfos[id], titleClipPathUniqueId: valueAxisTitleClipPathUniqueIds[id],
           accessibleLabel: getAxisAccessibleLabel(axisConfig.title, accessibilityConfig.valueAxisLabel),
           ...commonProps }
