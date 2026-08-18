@@ -238,6 +238,19 @@ describe('pie chart rendering', () => {
       const labels = Array.from(container.querySelectorAll(getCssSelector('seriesSliceLabel'))).map(label => label.textContent);
       expect(labels).toEqual(['Chrome: 62%', 'Safari: 20%', 'Firefox: 18%']);
     });
+
+    // an untitled series is named the same way everywhere: legend, tooltip, aria label and slice label
+    it('names an untitled series in the label like the legend does', () => {
+      const { config, data } = pieChartProps(ITEMS, {}, {
+        pie: { showLabels: true, labelType: 'titlePercent' } as Partial<PieConfig>
+      });
+      const untitled = { ...config, series: (config.series as { title?: string }[]).map(({ title: _title, ...rest }) => rest) } as MochartInputConfig;
+      const { container } = mountChart(untitled, data);
+      const labels = Array.from(container.querySelectorAll(getCssSelector('seriesSliceLabel'))).map(label => label.textContent);
+      const legendItems = Array.from(container.querySelectorAll(getCssSelector('legendItemText'))).map(item => item.textContent);
+      expect(legendItems).toHaveLength(3);
+      expect(labels.map(label => label!.replace(/: \d+%$/, ''))).toEqual(legendItems);
+    });
   });
 
   it('leaves the single category value out of the tooltip unless showCategory is set', () => {

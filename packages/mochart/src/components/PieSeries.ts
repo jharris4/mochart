@@ -73,7 +73,7 @@ interface PieSeriesState {
 function getPieLabelText(pieConfig: PieConfig, { valueFormat, percentFormat }: PieLabelFormats, seriesConfig: EnhancedSeriesConfig,
     sliceAngles: PieSliceAngles, labelFraction: number): string {
   return formatPieLabelType(pieConfig.labelType, {
-    title: seriesConfig.title ?? seriesConfig.id,
+    title: getSeriesTitle(seriesConfig),
     value: valueFormat(sliceAngles.value),
     percent: percentFormat(labelFraction)
   });
