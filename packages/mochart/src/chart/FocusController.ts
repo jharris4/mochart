@@ -129,7 +129,8 @@ export class FocusController {
     if (hostChangedSeriesId) {
       this.focusedSeriesId = next.focusedSeriesId!;
     }
-    if (hostChangedFilteredSeriesIds) {
+    // by value: a host echoing the filter it was just told must not hand the data pipeline a new identity
+    if (hostChangedFilteredSeriesIds && !sameFilteredSeriesIds(next.filteredSeriesIds!, this.filteredSeriesIds)) {
       this.filteredSeriesIds = next.filteredSeriesIds!;
     }
     const { focusedValueAxisId, focusedSeriesId, focusedCategoryIndex, filteredSeriesIds } = this;

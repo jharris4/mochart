@@ -5,7 +5,7 @@
 import { describe, it, beforeAll, expect, vi } from 'vitest';
 import { installSvgMeasurementShims } from '../components/svgShims';
 import { installFakeFrameClock, runFrames, advanceFrames, mountContainer, barRects } from '../components/helpers';
-import { getIdCssClass, getCssSelector } from '../../src/utils/ChartDom';
+import { getIdCssClass, getCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
 
 let mochart: typeof import('../../src');
 
@@ -102,6 +102,44 @@ describe('controlled filteredSeriesIds', () => {
     runFrames();
     expect(reads).toHaveBeenCalled();
     expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales'), getIdCssClass('series', 'costs')]);
+  });
+
+  // Regression: reconcile took the host's echoed (fresh but equal) object as a host change and swapped
+  // the identity applyExternal had deduped by value, so the legend toggle's data pipeline ran twice.
+  it.each([false, true])('does not recompute data when a controlled host echoes a legend toggle (animate: %s)', animate => {
+    const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
+    const dataProvider = new ArrayOfObjectsDataProvider(data);
+    const reads = vi.spyOn(dataProvider, 'getPropertyValues');
+    const container = mountContainer();
+    let chart: ReturnType<typeof createChart> | null = null;
+    const onSeriesFilter = vi.fn((filter: { filteredSeriesIds: Record<string, boolean> }) => {
+      chart!.update({ filteredSeriesIds: { ...filter.filteredSeriesIds } });
+    });
+    chart = createChart(container, {
+      mochartConfig: enhanceConfig({
+        version: '1.0.0',
+        animation: { animate },
+        legend: { visible: true },
+        categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+        series: [
+          { id: 'sales', property: 'sales', renderer: 'line' },
+          { id: 'costs', property: 'costs', renderer: 'line' }
+        ]
+      }),
+      dataProvider, width: 300, height: 200,
+      filteredSeriesIds: {}, onSeriesFilter
+    });
+    runFrames();
+
+    reads.mockClear();
+    container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', 'costs')))!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    runFrames();
+    expect(onSeriesFilter).toHaveBeenCalledWith({ filteredSeriesIds: { costs: true } });
+    // the toggle reads the provider once per property; the echo must not read it again
+    expect(reads).toHaveBeenCalledTimes(3);
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales')]);
+    chart.destroy();
   });
 
   it('treats an explicit false as not filtered', () => {
