@@ -197,7 +197,7 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
       for (const uniqueAllKey of uniqueAllKeys) {
         const message = 'unique properties cannot be set on an all config';
         errorMessages.push(
-          prefixPropertyErrorMessage(allKey ?? sectionKey, uniqueAllKey, message, i));
+          prefixPropertyErrorMessage(allKey ?? sectionKey, uniqueAllKey, message));
         errorDetails.push({ path: messagePath(allKey ?? sectionKey, undefined, uniqueAllKey), message });
       }
 

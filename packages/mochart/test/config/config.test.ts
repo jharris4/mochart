@@ -279,6 +279,16 @@ describe('config validation', () => {
       warnings: []
     });
   });
+
+  it('names the defaults object without an entry index when the section has entries', () => {
+    const mochartConfig = enhance({
+      version: VERSION_STRING,
+      categoryAxis: { property: 'c' },
+      seriesDefaults: { id: 'id' },
+      series: [{ property: 'p' }]
+    });
+    expect(mochartConfig.validation.errors).toEqual(['seriesDefaults - id - unique properties cannot be set on an all config']);
+  });
 });
 // Regression: sole-id defaults read the raw section arrays, so ignored entries
 // blocked the sole-entry semantics; and a fully-ignored list section built zero
