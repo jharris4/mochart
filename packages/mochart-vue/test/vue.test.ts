@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { createApp, createSSRApp, defineComponent, h, markRaw, nextTick, onUnmounted, reactive, ref } from 'vue';
+import { createApp, createSSRApp, defineComponent, h, markRaw, nextTick, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import type { App } from 'vue';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
@@ -147,6 +147,7 @@ describe('placeholder components', () => {
       height: 300
     });
 
+    await nextTick();
     expect(el.textContent).toContain('Loading 400x300');
 
     state.width = 500;
@@ -169,6 +170,7 @@ describe('placeholder components', () => {
     const { el, app, state } = mountWith(Chart, {
       mochartConfig: null, dataProvider: null, loading: true, loadingComponent: First, width: 400, height: 300
     });
+    await nextTick();
     expect(el.textContent).toContain('first placeholder');
 
     state.loadingComponent = Second;
@@ -180,7 +182,38 @@ describe('placeholder components', () => {
     el.remove();
   });
 
-  it('renders configErrorComponent when the config fails validation', () => {
+  // Regression: on the update path the placeholder rendered into its container before the core inserted it,
+  // so its mounted hooks ran detached, unlike the initial mount path
+  it('mounts a placeholder inside the document on both the initial and the update path', async () => {
+    const log: string[] = [];
+    const Loading = markRaw(
+      defineComponent({
+        name: 'Loading',
+        setup: () => {
+          const root = ref<HTMLElement | null>(null);
+          onMounted(() => { log.push('mounted connected=' + root.value?.isConnected); });
+          return () => h('div', { ref: root }, 'Custom loading');
+        }
+      })
+    );
+    const initial = mountWith(Chart, { mochartConfig: null, dataProvider: null, loading: true, loadingComponent: Loading, width: 400, height: 300 });
+    await nextTick();
+    expect(log).toEqual(['mounted connected=true']);
+    initial.app.unmount();
+    initial.el.remove();
+
+    log.length = 0;
+    const updated = mountWith(Chart, { mochartConfig: null, dataProvider: null, loading: false, loadingComponent: Loading, width: 400, height: 300 });
+    await nextTick();
+    updated.state.loading = true;
+    await nextTick();
+    expect(log).toEqual(['mounted connected=true']);
+    expect(updated.el.textContent).toContain('Custom loading');
+    updated.app.unmount();
+    updated.el.remove();
+  });
+
+  it('renders configErrorComponent when the config fails validation', async () => {
     const mochartConfig = enhanceConfig({ ...rawConfig(), unknownExtra: 1 });
     expect(mochartConfig.validation.valid).toBe(false);
     const ConfigError = markRaw(
@@ -198,6 +231,7 @@ describe('placeholder components', () => {
       height: 300
     });
 
+    await nextTick();
     expect(el.textContent).toContain('Bad config 400x300');
 
     app.unmount();
@@ -250,6 +284,7 @@ describe('DefaultChart', () => {
       height: 300
     });
 
+    await nextTick();
     // the loading overlay factory receives the plot-area bounds, not the outer size
     expect(el.textContent).toContain('Loading');
 
@@ -280,6 +315,7 @@ describe('removed placeholder components', () => {
       width: 400,
       height: 300
     });
+    await nextTick();
     expect(el.textContent).toContain('Custom loading');
 
     state.loadingComponent = undefined;
@@ -311,6 +347,7 @@ describe('removed placeholder components', () => {
       width: 400,
       height: 300
     });
+    await nextTick();
     expect(el.textContent).toContain('Custom loading');
     expect(unmounted).toBe(0);
 

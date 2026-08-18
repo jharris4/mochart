@@ -18,6 +18,8 @@ interface PlaceholderSlot {
   context: PlaceholderProps | null;
   container: HTMLDivElement;
   factory: (context: PlaceholderProps) => Node;
+  /** Whether a deferred render is scheduled for the container. */
+  renderPending: boolean;
 }
 
 export interface PlaceholderAdapter {
@@ -35,12 +37,25 @@ export interface PlaceholderAdapter {
 export function createPlaceholderAdapter(appContext: AppContext | null = null): PlaceholderAdapter {
   const slots = new Map<string, PlaceholderSlot>();
 
+  // The container returns synchronously for the core to insert; the vnode renders in a microtask so the
+  // placeholder mounts inside the document on every path (a mid-flush render would run its mounted hooks
+  // detached). A microtask, not nextTick: it lands before a host's own awaited nextTick.
   function renderSlot(slot: PlaceholderSlot, context: PlaceholderProps): Node {
     slot.context = context;
-    const vnode = h(slot.component as any, { ...context });
-    // the host app's context, so placeholders can inject app-level providers
-    vnode.appContext = appContext;
-    render(vnode, slot.container);
+    if (!slot.renderPending) {
+      slot.renderPending = true;
+      queueMicrotask(() => {
+        slot.renderPending = false;
+        // released before the tick: the slot is gone and its container already rendered empty
+        if (slot.context === null) {
+          return;
+        }
+        const vnode = h(slot.component as any, { ...slot.context });
+        // the host app's context, so placeholders can inject app-level providers
+        vnode.appContext = appContext;
+        render(vnode, slot.container);
+      });
+    }
     return slot.container;
   }
 
@@ -54,7 +69,8 @@ export function createPlaceholderAdapter(appContext: AppContext | null = null): 
         component,
         context: null,
         container,
-        factory: (context: PlaceholderProps) => renderSlot(slots.get(propName)!, context)
+        factory: (context: PlaceholderProps) => renderSlot(slots.get(propName)!, context),
+        renderPending: false
       };
       slots.set(propName, slot);
     }
@@ -74,6 +90,7 @@ export function createPlaceholderAdapter(appContext: AppContext | null = null): 
     if (!slot) {
       return;
     }
+    slot.context = null;
     render(null, slot.container);
     slots.delete(propName);
   }
