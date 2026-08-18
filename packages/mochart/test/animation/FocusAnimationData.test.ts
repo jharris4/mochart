@@ -50,6 +50,17 @@ describe('getFocusAnimationData', () => {
     expect(data.deltaPercentage).toBe(1);
   });
 
+  // Regression: a move from one focused value to another swung by 2 (1 -> -1 and -1 -> 1) and doubled the focus duration
+  it('paces a move between two focused values at one focus duration', () => {
+    const start = focusData({ categoryFocusPercentages: [1, -1, -1] });
+    const end = focusData({ categoryFocusPercentages: [-1, 1, -1] });
+    const data = getFocusAnimationData(config, start, end);
+    expect(data.category.deltas).toEqual([-2, 2, 0]);
+    expect(data.deltaPercentage).toBe(1);
+    // per-key pacing is still relative to the largest swing
+    expect(data.category.deltaPercentages).toEqual([1, 1, 0]);
+  });
+
   it('treats null focus percentages as zero', () => {
     const start = focusData({ categoryFocusPercentages: [null, 1] });
     const end = focusData({ categoryFocusPercentages: [1, null] });

@@ -17,7 +17,8 @@ export function getFocusAnimationData(_mochartConfig: EnhancedMochartConfig, old
   const seriesFocusDeltaData = getMapFocusDeltaData(oldFocusData.seriesFocusPercentages, newFocusData.seriesFocusPercentages);
   return {
     start: startFocusData,
-    deltaPercentage: Math.max(categoryFocusDeltaData.deltaPercentage, valueAxisFocusDeltaData.deltaPercentage, seriesFocusDeltaData.deltaPercentage),
+    // focus percentages span -1..1, so a move between two values swings by 2; the pace is capped at one focusDuration
+    deltaPercentage: Math.min(1, Math.max(categoryFocusDeltaData.deltaPercentage, valueAxisFocusDeltaData.deltaPercentage, seriesFocusDeltaData.deltaPercentage)),
     category: categoryFocusDeltaData,
     valueAxis: valueAxisFocusDeltaData,
     series: seriesFocusDeltaData,
