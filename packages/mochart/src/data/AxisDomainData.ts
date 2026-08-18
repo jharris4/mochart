@@ -123,6 +123,13 @@ function getAxisDomainWithMinAndMax(axisConfig: AxisDomainConfig, axisDomainCalc
     else if (axisDomain[1] === null && axisDomain[0] !== null) {
       axisDomain[1] = axisDomain[0];
     }
+    // an explicit bound past all the data clips the auto bound to it rather than inverting the domain
+    if (min !== AUTO && axisDomain[1] !== null && numericValue(axisDomain[1]) < numericValue(axisDomain[0]!)) {
+      axisDomain[1] = axisDomain[0];
+    }
+    else if (max !== AUTO && axisDomain[0] !== null && numericValue(axisDomain[0]) > numericValue(axisDomain[1]!)) {
+      axisDomain[0] = axisDomain[1];
+    }
     const axisExtent = getDomainExtent(axisDomain);
     if (axisExtent > 0) {
       const { minMarginFraction = 0, maxMarginFraction = 0 } = axisConfig;

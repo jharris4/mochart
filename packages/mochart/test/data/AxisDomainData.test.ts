@@ -37,6 +37,14 @@ describe('getAxisDomain', () => {
     expect(getAxisDomain(cfg({ max: 100 }), () => [10, 90])).toEqual([10, 100]);
   });
 
+  it('clips an auto max up to an explicit min above all the data instead of inverting', () => {
+    expect(getAxisDomain(cfg({ min: 0 }), () => [-8, -5])).toEqual([0, 0]);
+  });
+
+  it('clips an auto min down to an explicit max below all the data instead of inverting', () => {
+    expect(getAxisDomain(cfg({ max: 10 }), () => [20, 30])).toEqual([10, 10]);
+  });
+
   it('extends the min to a lower softMin', () => {
     expect(getAxisDomain(cfg({ softMin: -5 }), () => [10, 90])).toEqual([-5, 90]);
   });
