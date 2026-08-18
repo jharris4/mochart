@@ -4,7 +4,7 @@
  */
 import { describe, it, beforeAll, expect, vi } from 'vitest';
 import { installSvgMeasurementShims } from '../components/svgShims';
-import { installFakeFrameClock, runFrames, mountContainer } from '../components/helpers';
+import { installFakeFrameClock, runFrames, advanceFrames, mountContainer, barRects } from '../components/helpers';
 import { getIdCssClass, getCssSelector } from '../../src/utils/ChartDom';
 
 let mochart: typeof import('../../src');
@@ -382,5 +382,35 @@ describe('controlled focus props', () => {
     expect(onFocus).toHaveBeenCalledWith(expect.objectContaining({ focusedCategoryIndex: 0 }));
     expect(onSeriesFilter).not.toHaveBeenCalled();
     chart.destroy();
+  });
+});
+
+describe('focusedCategoryIndex on mount with animation', () => {
+  // Regression: the entrance delta lists every category as added, so the value-start focus
+  // rebuild remapped the pinned category through an empty old index set and tweened it back
+  // from unfocused over two focus durations.
+  it('keeps the pinned category focused from the first frame', () => {
+    const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
+    const mochartConfig = enhanceConfig({
+      version: '1.0.0',
+      animation: { animate: true, focusDuration: 800 },
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ id: 'sales', property: 'sales', renderer: 'bar' }]
+    });
+    const container = mountContainer();
+    createChart(container, {
+      mochartConfig,
+      dataProvider: new ArrayOfObjectsDataProvider(data),
+      width: 300,
+      height: 200,
+      focusedCategoryIndex: 1
+    });
+    const opacities = () => barRects(container, 'sales').map(bar => bar.path.getAttribute('fill-opacity'));
+    advanceFrames(3);
+    const early = opacities();
+    runFrames();
+    expect(early).toEqual(opacities());
+    expect(early[1]).not.toBe(early[0]);
+    expect(early[0]).toBe(early[2]);
   });
 });

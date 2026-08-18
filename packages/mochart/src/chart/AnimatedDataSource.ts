@@ -160,9 +160,12 @@ export class AnimatedDataSource implements ChartDataSource {
   }
 
   private startDataTween(mochartConfig: EnhancedMochartConfig, chartAnimationData: ChartAnimationData): void {
-    this.hasCategoryAdditions = hasCategoryAdditions(chartAnimationData.categoryDeltaData);
-    this.hasCategoryRemovals = hasCategoryRemovals(chartAnimationData.categoryDeltaData);
-    this.hasCategoryReorder = hasCategoryReorder(chartAnimationData.categoryDeltaData);
+    const { categoryDeltaData } = chartAnimationData;
+    // an entrance from no categories has no old focus state to remap: every category is "added" but focus is already snapped
+    const fromEmpty = categoryDeltaData.values.old.length === 0;
+    this.hasCategoryAdditions = !fromEmpty && hasCategoryAdditions(categoryDeltaData);
+    this.hasCategoryRemovals = hasCategoryRemovals(categoryDeltaData);
+    this.hasCategoryReorder = !fromEmpty && hasCategoryReorder(categoryDeltaData);
 
     this.dataTweening = true;
     this.valuesTweening = false;
