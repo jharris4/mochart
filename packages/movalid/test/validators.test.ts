@@ -1303,6 +1303,13 @@ describe("validators", () => {
         expect(baseValidators.oneIn({ a: true, b: 2 })("constructor")).toBe(false);
         expect(baseValidators.oneIn({ a: true, b: 2 })("toString")).toBe(false);
       });
+
+      // Regression: allowedValues listed keys with undefined values that the predicate rejects
+      it("should publish only the keys with defined values as allowedValues", () => {
+        const validator = baseValidators.oneIn({ a: undefined, b: 1 });
+        expect(validator("a")).toBe(false);
+        expect(validator.allowedValues).toEqual(["b"]);
+      });
     });
 
     describe("not equal", () => {

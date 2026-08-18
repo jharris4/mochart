@@ -546,7 +546,8 @@ const compoundValidatorDefinitions = {
 const validatorArgsToAllowedValues: Record<string, (...args: any[]) => any[] | null> = {
   equal: value => [value],
   oneOf: values => values,
-  oneIn: valueMap => Object.keys(valueMap),
+  // only keys with a defined value: the predicate reads an undefined value as absent
+  oneIn: valueMap => Object.keys(valueMap).filter(key => valueMap[key] !== undefined),
   or: validators => {
     let allowedValues: any[] | null = null;
     validators.forEach((validator: Validator) => {
