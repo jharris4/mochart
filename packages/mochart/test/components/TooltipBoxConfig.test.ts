@@ -123,6 +123,18 @@ describe('tooltip box style', () => {
     expect(row.style.paddingBottom).toBe('2px');
   });
 
+  // Regression: minWidth was applied to padded content-box rows, so the visible box was 4px wider than the sizer measured
+  it('sizes the visible rows border-box to the measured width', () => {
+    const container = mountChart();
+    openTooltip(container);
+    const rows = [...container.querySelectorAll<HTMLElement>(getCssSelector('tooltip') + ' ' + getCssSelector('tooltipLines') + ' > *')];
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) {
+      expect(row.style.boxSizing).toBe('border-box');
+      expect(row.style.minWidth).not.toBe('');
+    }
+  });
+
   it('draws no border for a null strokeWidth, matching the layout', () => {
     const container = mountChart({ tooltip: { backgroundStyle: { strokeWidth: null } } });
     openTooltip(container);

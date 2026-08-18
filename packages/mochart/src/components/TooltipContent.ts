@@ -99,9 +99,11 @@ type PlainLineEl = El & { textHandle: El };
 
 const itemPadding = 2;
 
-// longhands only: a row that becomes the last row must have its bottom padding written back, not cleared
+// longhands only: a row that becomes the last row must have its bottom padding written back, not cleared.
+// border-box: the visible rows take the sizer's measured width as minWidth, which already includes this padding
 const baseLineStyle = {
   whiteSpace: 'nowrap',
+  boxSizing: 'border-box',
   paddingTop: itemPadding,
   paddingRight: itemPadding,
   paddingBottom: itemPadding,
