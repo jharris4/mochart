@@ -28,7 +28,10 @@ const defaultRule = { condition: () => true };
 
 export default function getValidators(config: Partial<CategoryAxisConfig>) {
   return {
-    ...getAxisValidators(),
+    ...getAxisValidators(validators.conditional([
+      { ...typeDateRule, validator: validators.datePrimitive() },
+      { ...defaultRule, validator: validators.number() }
+    ], config)),
 
     dateUTC: validators.boolean(),
 

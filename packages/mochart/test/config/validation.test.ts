@@ -576,6 +576,19 @@ describe('ordinal-scale thresholds validation', () => {
     expect(errorsFor({ ...base, categoryAxis: { property: 'p', thresholds: [] } }))
       .toEqual([]);
   });
+
+  // a threshold value takes the axis's own primitive: a date string on a number axis would silently draw nothing
+  it('rejects a date string threshold value on a number category axis and on a value axis', () => {
+    expect(errorsFor({ ...base, categoryAxis: { property: 'p', type: 'number', scale: 'linear', thresholds: [{ value: '2020-01-01' }] } }))
+      .toContainEqual(expect.stringContaining('thresholds'));
+    expect(errorsFor({ ...base, categoryAxis: { property: 'p' }, valueAxes: [{ thresholds: [{ value: '2020-01-01' }] }] }))
+      .toContainEqual(expect.stringContaining('thresholds'));
+  });
+
+  it('accepts a date string threshold value on a date category axis', () => {
+    expect(errorsFor({ ...base, categoryAxis: { property: 'p', type: 'date', scale: 'linear', thresholds: [{ value: '2020-01-01' }] } }))
+      .toEqual([]);
+  });
 });
 
 // Regression: margin/padding (and categoryPaddingFraction) demanded all their keys at once, though

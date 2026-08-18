@@ -14,7 +14,8 @@ const { styleShape, styleStates } = createStyleValidators(allowSame =>
 
 export const axisStyleValidators = { styleShape, styleStates, lineMembers, styleMembers };
 
-export default function getValidators() {
+// a threshold sits on the axis's value scale, so its value takes the axis's own primitive: number by default, date on a date category axis
+export default function getValidators(thresholdValue = validators.number()) {
   return {
     showAxisLine: validators.boolean(),
     axisLineFront: validators.boolean(),
@@ -57,7 +58,7 @@ export default function getValidators() {
     paddingOuter: validators.numberMin(0),
 
     thresholds: validators.arrayOf(validators.objectWithShape({
-      value: validators.datePrimitive(),
+      value: thresholdValue,
       front: validators.boolean().orEqual(undefined),
       style: styleStates(lineMembers).orEqual(undefined),
       title: validators.string().orOneOf([NONE, undefined]),
