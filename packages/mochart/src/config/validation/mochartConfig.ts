@@ -403,7 +403,10 @@ function validateConfigSections(config: ConfigRecord, configWithoutDefaults: Con
       all, sectionValidators, config, uniqueKeys, allExcludedKeys, errors, warnings, errorDetails, warningDetails, false, rawIndex ?? i, i === 0);
   }
   if (sections.length === 0 && all) {
-    validateSection(sectionKey, allKey, all, undefined, undefined, all, sectionValidators, config, uniqueKeys, allExcludedKeys,
+    // the bare all-config lacks the entry defaults the conditional rules read (stack, renderer…), so it is
+    // validated as the entry it would build: the defaults of a lone empty entry, which the defaults merge with it
+    const allDefaults = safeIndex(getDefaults({ ...configWithoutDefaults, [sectionKey]: [{}] })[sectionKey], 0);
+    validateSection(sectionKey, allKey, configWithAll(allDefaults, all), undefined, undefined, all, sectionValidators, config, uniqueKeys, allExcludedKeys,
       errors, warnings, errorDetails, warningDetails, true);
   }
 }

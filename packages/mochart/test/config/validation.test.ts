@@ -501,6 +501,19 @@ describe('list-section validation with ignored entries', () => {
     }));
   });
 
+  // Regression: with no entries the all-config was validated bare, so a rule conditioned on a defaulted
+  // member (stack, renderer) read undefined and picked the wrong branch
+  it('validates an all-config without entries against the entry defaults', () => {
+    const seriesDefaults = { errorLowProperty: 'e', renderer: 'bar' };
+    const empty = errorsFor({ version: V, categoryAxis: { property: 'c' }, seriesDefaults, series: [] });
+    const listed = errorsFor({ version: V, categoryAxis: { property: 'c' }, seriesDefaults, series: [{ property: 'v' }] });
+    expect(listed).toEqual([]);
+    expect(empty).toEqual([]);
+    // a rule that does hold for the built entry still fires
+    expect(errorsFor({ version: V, categoryAxis: { property: 'c' }, seriesDefaults: { renderer: 'bogus' }, series: [] })
+      .some(error => error.startsWith('seriesDefaults - renderer - '))).toBe(true);
+  });
+
   it('still runs once-per-section all-config checks when the first entry is ignored', () => {
     const errors = errorsFor({
       version: V,
