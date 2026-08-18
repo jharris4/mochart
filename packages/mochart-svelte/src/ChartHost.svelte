@@ -40,6 +40,13 @@
     };
   });
 
+  // one style string, size declarations after the host's: removing an explicit size then restores the host's own width or height
+  const containerStyle = $derived([
+    style,
+    typeof chartProps.width === 'number' ? `width: ${chartProps.width}px` : null,
+    typeof chartProps.height === 'number' ? `height: ${chartProps.height}px` : null
+  ].filter(Boolean).join('; ') || undefined);
+
   $effect(() => {
     // Spreading reads every chart prop so this effect tracks them all; comparing
     // (not run-counting) keeps a change made before the first run, e.g. in a
@@ -56,8 +63,6 @@
 <div
   bind:this={container}
   class={className}
-  {style}
+  style={containerStyle}
   data-testid={dataTestId}
-  style:width={typeof chartProps.width === 'number' ? `${chartProps.width}px` : undefined}
-  style:height={typeof chartProps.height === 'number' ? `${chartProps.height}px` : undefined}
 ></div>

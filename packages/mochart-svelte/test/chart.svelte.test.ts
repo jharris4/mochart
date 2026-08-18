@@ -366,6 +366,34 @@ describe('removed placeholder components', () => {
   });
 });
 
+// Regression: style directives dropped the host's own width when the explicit width was removed
+describe('host style with explicit sizes', () => {
+  it('restores the host style width when the explicit width is removed', () => {
+    const el = target();
+    const props = $state({
+      mochartConfig: enhanceConfig(rawConfig()),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
+      style: 'width: 300px; margin: 4px',
+      width: 400 as number | undefined,
+      height: 300
+    });
+    const instance = mount(Chart, { target: el, props });
+    flushSync();
+    const containerDiv = el.firstElementChild as HTMLDivElement;
+    expect(containerDiv.style.width).toBe('400px');
+    expect(containerDiv.style.margin).toBe('4px');
+
+    props.width = undefined;
+    flushSync();
+    expect(containerDiv.style.width).toBe('300px');
+    expect(containerDiv.style.height).toBe('300px');
+    expect(containerDiv.style.margin).toBe('4px');
+
+    void unmount(instance);
+    el.remove();
+  });
+});
+
 describe('dataTestId', () => {
   it('applies and removes data-testid on the container div', () => {
     const el = target();
