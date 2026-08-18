@@ -133,6 +133,28 @@ describe('common-reference validation', () => {
   });
 });
 
+// Regression: ids were unique per gradient list only, so a linear and a radial gradient sharing an id both
+// validated and resolved for the same series (radial fill, linear swatch)
+describe('gradient id validation across both lists', () => {
+  const stops = [{ offset: 0, color: '#000000', opacity: 1 }, { offset: 1, color: '#ffffff', opacity: 1 }];
+
+  it('flags an id shared by a linear and a radial gradient on both entries', () => {
+    const errors = errorsFor({ version: V, categoryAxis: { property: 'p' }, series: [{ property: 'a', renderer: 'bar', gradient: 'G' }],
+      linearGradients: [{ id: 'G', stops }], radialGradients: [{ id: 'H', stops }, { id: 'G', stops }] });
+    expect(errors).toContain('linearGradients[0] - id - should be unique across linearGradients and radialGradients: "G"');
+    expect(errors).toContain('radialGradients[1] - id - should be unique across linearGradients and radialGradients: "G"');
+    expect(errors.filter(error => error.includes('across'))).toHaveLength(2);
+  });
+
+  it('reports at the raw index past an ignored entry and accepts distinct ids', () => {
+    const errors = errorsFor({ version: V, categoryAxis: { property: 'p' }, series: [{ property: 'a', renderer: 'bar', gradient: 'G' }],
+      linearGradients: [{ id: 'G', stops }], radialGradients: [{ ignore: true, id: 'X', stops }, { id: 'G', stops }] });
+    expect(errors).toContain('radialGradients[1] - id - should be unique across linearGradients and radialGradients: "G"');
+    expect(errorsFor({ version: V, categoryAxis: { property: 'p' }, series: [{ property: 'a', renderer: 'bar', gradient: 'G' }],
+      linearGradients: [{ id: 'G', stops }], radialGradients: [{ id: 'H', stops }] })).toEqual([]);
+  });
+});
+
 describe('unique-key validation', () => {
   it('flags duplicate series ids at both offending indices', () => {
     const errors = errorsFor({

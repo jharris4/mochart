@@ -88,6 +88,10 @@ export function getStackGroupMessage(): string {
   return 'should equal the id property of a series stack whose series all share this series\' group property';
 }
 
+export function getGradientIdMessage(): string {
+  return 'should be unique across linearGradients and radialGradients';
+}
+
 export const configWithoutAllValidators: Record<string, ConfigSectionValidator> = {
   version: {
     // optional: an omitted version means the current config format; a present
@@ -134,7 +138,10 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
     validator: arrayOfObjectsOrEmpty,
     validators: () => linearGradientValidators(),
     uniqueKeys: ['id'],
-    allExcludedKeys: ['ignore']
+    allExcludedKeys: ['ignore'],
+    crossRules: {
+      id: getGradientIdMessage
+    }
   },
   patterns: {
     list: true,
@@ -156,7 +163,10 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
     validator: arrayOfObjectsOrEmpty,
     validators: () => radialGradientValidators(),
     uniqueKeys: ['id'],
-    allExcludedKeys: ['ignore']
+    allExcludedKeys: ['ignore'],
+    crossRules: {
+      id: getGradientIdMessage
+    }
   },
   valueAxes: {
     list: true,
@@ -326,6 +336,7 @@ function validateConfigInternal(configWithoutDefaults: unknown, configDefaults: 
     }
     validateFollowSeries(config, configWithoutDefaults, errors, errorDetails);
     validateStackGroups(config, configWithoutDefaults, errors, errorDetails);
+    validateGradientIds(config, configWithoutDefaults, errors, errorDetails);
     validateAxisBounds(config, configWithoutDefaults, errors, errorDetails);
     validateOrdinalThresholds(config, errors, errorDetails);
   }
@@ -550,6 +561,41 @@ function validateFollowSeries(config: ConfigRecord, configWithoutDefaults: Confi
     const reportIndex = rawIndices?.[i] ?? i;
     errors.push(getPropertyMessage('series', 'followSeries', message, reportIndex));
     errorDetails.push({ path: ['series', reportIndex, 'followSeries'], message });
+  }
+}
+
+// series.gradient resolves against both gradient lists at once, so an id shared between them would paint two different gradients
+function validateGradientIds(config: ConfigRecord, configWithoutDefaults: ConfigRecord, errors: string[], errorDetails: LocatedValidationMessage[]): void {
+  const sectionKeys = ['linearGradients', 'radialGradients'];
+  const idSections: Record<string, string[]> = Object.create(null); // null proto: ids like "__proto__" must be storable
+  for (const sectionKey of sectionKeys) {
+    const sections = config[sectionKey];
+    if (Array.isArray(sections)) {
+      for (const section of sections.filter(isConfigRecord)) {
+        const key = getConfigKey(section['id']);
+        if (key !== null && section['id'] !== undefined) {
+          (idSections[key] ??= []).push(sectionKey);
+        }
+      }
+    }
+  }
+  for (const sectionKey of sectionKeys) {
+    const sections = config[sectionKey];
+    if (!Array.isArray(sections)) {
+      continue;
+    }
+    const rawIndices = getRawIndices(configWithoutDefaults[sectionKey]);
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i];
+      const key = isConfigRecord(section) ? getConfigKey(section['id']) : null;
+      if (key === null || section['id'] === undefined || !idSections[key]!.some(otherKey => otherKey !== sectionKey)) {
+        continue;
+      }
+      const message = getGradientIdMessage() + ': ' + JSON.stringify(section['id']);
+      const reportIndex = rawIndices?.[i] ?? i;
+      errors.push(getPropertyMessage(sectionKey, 'id', message, reportIndex));
+      errorDetails.push({ path: [sectionKey, reportIndex, 'id'], message });
+    }
   }
 }
 
