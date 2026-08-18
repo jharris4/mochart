@@ -39,6 +39,12 @@ describe('getWithMutations', () => {
     expect(result).toBe(oldValue);
   });
 
+  it('keeps the old reference for a plain object whose NaN member is unchanged', () => {
+    const oldValue = { v: NaN, w: 1, nested: { arr: [NaN], n: { v: NaN } } };
+    expect(getWithMutations(oldValue, { v: NaN, w: 1, nested: { arr: [NaN], n: { v: NaN } } })).toBe(oldValue);
+    expect(getWithMutations(oldValue, { v: NaN, w: 2, nested: { arr: [NaN], n: { v: NaN } } })).not.toBe(oldValue);
+  });
+
   it('replaces non-plain objects instead of merging them', () => {
     const oldValue = { items: new Set([1]) };
     const newSet = new Set([2]);

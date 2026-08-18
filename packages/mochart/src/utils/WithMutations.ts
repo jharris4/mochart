@@ -52,7 +52,8 @@ export function getWithMutations(oldValue: unknown, newValue: unknown, customMut
         newObject[newKey] = incomingObject[newKey];
       }
     }
-    if (oldKeys.length === newKeys.length && newKeys.every(newKey => oldKeyMap[newKey]) && oldKeys.every(oldKey => newObject[oldKey] === oldObject[oldKey])) {
+    // areValuesEqual, like the array branch: a NaN member is unchanged when both sides hold NaN
+    if (oldKeys.length === newKeys.length && newKeys.every(newKey => oldKeyMap[newKey]) && oldKeys.every(oldKey => areValuesEqual(newObject[oldKey], oldObject[oldKey]))) {
       return oldValue;
     }
     else {
