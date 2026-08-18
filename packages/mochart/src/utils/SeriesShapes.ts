@@ -185,12 +185,13 @@ const connectRoundInverted: Connector = (pathGenerator, y1, x1, x2, yExtent, off
   let y = y1;
   let yOffset = yExtent;
 
-  const radius = Math.min(offset, (yExtent - minFlatForRounded) / 2, Math.abs(x1 - x2));
   if (size < offset && !expand) {
     const diff = Math.min(offset - size, (yExtent - minFlatForRounded) / 2);
     y = y1 + diff / 2;
     yOffset = yExtent - diff;
   }
+  // bounded by the narrowed height, or the two arcs would overlap on a short bar
+  const radius = Math.min(offset, (yExtent - minFlatForRounded) / 2, yOffset / 2, Math.abs(x1 - x2));
   const y2 = y + yOffset;
   pathGenerator.moveTo(x, y);
   pathGenerator.arcTo(x1, y, x1, y + radius, radius);
@@ -213,12 +214,13 @@ const connectRound: Connector = (pathGenerator, x1, y1, y2, xExtent, offsetSign,
   const y = y2;
   let xOffset = xExtent;
 
-  const radius = Math.min(offset, (xExtent - minFlatForRounded) / 2, Math.abs(y1 - y2));
   if (size < offset && !expand) {
     const diff = Math.min(offset - size, (xExtent - minFlatForRounded) / 2);
     x = x1 + diff / 2;
     xOffset = xExtent - diff;
   }
+  // bounded by the narrowed width, or the two arcs would overlap on a short bar
+  const radius = Math.min(offset, (xExtent - minFlatForRounded) / 2, xOffset / 2, Math.abs(y1 - y2));
   const x2 = x + xOffset;
   pathGenerator.moveTo(x, y);
   pathGenerator.arcTo(x, y1, x + radius, y1, radius);

@@ -139,6 +139,21 @@ describe('rounded cap geometry', () => {
       expect(paths.every(d => d.length > 0)).toBe(true);
     });
 
+    // Regression: the radius was bounded by the full slot, not the narrowed short bar, so the two arcs overlapped
+    it(`keeps a short narrowed bar's arcs from overlapping on an ${orientation} plot`, () => {
+      // 30 slots of ~20px; the first bar is ~7px tall and the cap narrows it, so its arcs must share the width
+      const data = Array.from({ length: 30 }, (_, i) => ({ month: 'M' + i, a: i === 0 ? 14 : 1000 }));
+      const paths = barPaths(mount({
+        ...plot, legend: { visible: false }, categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', visible: false }, valueAxes: [{ visible: false }],
+        series: [{ property: 'a', renderer: 'bar', capType: 'round', capSize: 100, capExpand: false }]
+      }, data));
+      const match = /A[^L]*?,([-\d.]+),([-\d.]+)L([-\d.]+),([-\d.]+)A/.exec(paths[0])!;
+      expect(match).not.toBeNull();
+      // the flat between the arcs runs forward along the bar's width, never back over the first arc
+      const [arcEnd, flatEnd] = inverted ? [Number(match[2]), Number(match[4])] : [Number(match[1]), Number(match[3])];
+      expect(flatEnd).toBeGreaterThanOrEqual(arcEnd - 1e-9);
+    });
+
     it(`expands a cap wider than the bar when capExpand is off on an ${orientation} plot`, () => {
       const expanded = barPaths(mount({
         ...plot, series: [{ property: 'a', renderer: 'bar', capType: 'point', capSize: 200, capExpand: true }]
