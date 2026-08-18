@@ -306,7 +306,7 @@ The union types the enumerated values form are all exported — `Align`,
 `MissingValues`, `Scale`, `DataType`, `ChartType`, `RendererType`,
 `PatternType`, `CurveType`, `CapType`, `LabelPosition`, `ColorMode`,
 `ColorInterpolation`, `MarkerShape`, `MarkerSizeScale`, `PieLabelType`,
-`PieTooltipLabelType`, `Auto` — so a wrapper can name one in its own
+`PieTooltipLabelType`, `DomainChange`, `Auto` — so a wrapper can name one in its own
 signature rather than reaching for `SeriesConfig['renderer']`.
 
 ## Styling hooks
