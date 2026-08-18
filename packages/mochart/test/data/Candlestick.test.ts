@@ -122,6 +122,11 @@ describe('createCandlestick', () => {
   });
 
   describe('volume', () => {
+    // Regression: the price min margin ignored the axis's default max margin, so the lows sat below the
+    // pane split (overlapping the volume bars once gapFraction was 0); both margins share one extent
+    const bottomShare = (axis: { minMarginFraction?: number; maxMarginFraction?: number }) =>
+      axis.minMarginFraction! / (1 + axis.minMarginFraction! + axis.maxMarginFraction!);
+
     const items = [
       { label: 'Mon', open: 1, high: 3, low: 0, close: 2, volume: 1200 }, // up
       { label: 'Tue', open: 2, high: 4, low: 1, close: 1.5, volume: 800 } // down
@@ -153,9 +158,10 @@ describe('createCandlestick', () => {
         expect(seriesConfig.axis, seriesConfig.id).toBe(seriesConfig.id!.includes('Volume') ? 'volume' : 'price');
       }
       const [priceAxis, volumeAxis] = valueAxisConfigs!;
-      // defaults: volume pane 20%, gap 5% — price margin (0.25 / 0.75), volume margin (0.8 / 0.2)
-      expect(priceAxis).toMatchObject({ id: 'price' });
-      expect(priceAxis.minMarginFraction).toBeCloseTo(1 / 3, 6);
+      // defaults: volume pane 20%, gap 5% — the price margins put the lows at 25% of the plot, volume margin (0.8 / 0.2)
+      expect(priceAxis).toMatchObject({ id: 'price', maxMarginFraction: 0.05 });
+      expect(priceAxis.minMarginFraction).toBeCloseTo(0.25 * 1.05 / 0.75, 6);
+      expect(bottomShare(priceAxis)).toBeCloseTo(0.25, 6);
       expect(volumeAxis).toMatchObject({ id: 'volume', min: 0, visible: false });
       expect(volumeAxis.maxMarginFraction).toBeCloseTo(4, 6);
     });
@@ -165,7 +171,7 @@ describe('createCandlestick', () => {
         volume: { heightFraction: 0.25, gapFraction: 0.05, valueLabel: 'Shares' }
       });
       const [priceAxis, volumeAxis] = valueAxisConfigs!;
-      expect(priceAxis.minMarginFraction).toBeCloseTo(0.3 / 0.7, 6);
+      expect(bottomShare(priceAxis)).toBeCloseTo(0.3, 6);
       expect(volumeAxis.maxMarginFraction).toBeCloseTo(3, 6);
       expect(seriesConfigs.find((seriesConfig) => seriesConfig.id === 'upVolume')!.valueLabel).toBe('Shares');
     });
