@@ -358,6 +358,34 @@ describe('tweenFocus', () => {
     expect(completeCallback).not.toHaveBeenCalled();
   });
 
+  // Regression: a throwing callback left the fired frame's id armed, so no later frame was ever
+  // requested and every chart on the page lost animation.
+  it('keeps the shared frame loop alive after a tween callback throws', () => {
+    const throwing = makeManager();
+    let updates = 0;
+    throwing.tweenFocus(makeConfig(), makeFocusData().animationData, () => {
+      if (++updates === 2) {
+        throw new Error('render failed');
+      }
+    });
+    let thrown: unknown = null;
+    while (thrown === null && vi.getTimerCount() > 0) {
+      try { vi.advanceTimersByTime(FRAME_MS); } catch (error) { thrown = error; }
+    }
+    expect(thrown).toEqual(new Error('render failed'));
+    // the throwing tween keeps driving on later frames
+    runFrames();
+    expect(updates).toBeGreaterThan(2);
+
+    const manager = makeManager();
+    const updateCallback = vi.fn();
+    const completeCallback = vi.fn();
+    manager.tweenFocus(makeConfig(), makeFocusData().animationData, updateCallback, { completeCallback });
+    runFrames();
+    expect(updateCallback).toHaveBeenCalled();
+    expect(completeCallback).toHaveBeenCalledTimes(1);
+  });
+
   // Regression: a tween started from the final frame's updateCallback was clobbered by the
   // completing tween's wrapper and the replaced tween reported complete; now identity-guarded.
   it('keeps a tween started from the final frame cancelable, without completing the replaced tween', () => {

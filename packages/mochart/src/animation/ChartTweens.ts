@@ -266,11 +266,13 @@ if (MochartTween._requestRaf === undefined) {
     if (!ts) {
       ts = MochartTween.now();
     }
-    if (MochartTween.update(ts)) {
-      MochartTween._animationId = requestAnimationFrame(MochartTween._rafCallback!);
+    // a throwing tween callback must still re-arm the frame, or the shared loop wedges for every chart
+    let active = true;
+    try {
+      active = MochartTween.update(ts);
     }
-    else {
-      MochartTween._animationId = null;
+    finally {
+      MochartTween._animationId = active ? requestAnimationFrame(MochartTween._rafCallback!) : null;
     }
   };
   MochartTween._requestRaf = function() {
