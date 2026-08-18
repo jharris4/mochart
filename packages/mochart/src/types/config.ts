@@ -7,11 +7,12 @@ import type { MarginPadding, InnerOuter } from './geometry';
 
 /**
  * A CSS color string, or one of the palette color modes
- * ('series' | 'same' | 'seriesIndex' | 'categoryIndex').
+ * ('series' | 'seriesIndex' | 'categoryIndex'); the focused and defocused
+ * states of a style additionally accept 'same' (see StyleStates).
  * The `string & {}` keeps ColorMode literals in autocomplete while still
  * accepting arbitrary color strings.
  */
-export type SeriesColor = ColorMode | (string & {});
+export type SeriesColor = Exclude<ColorMode, 'same'> | (string & {});
 
 /** A browser-rendered SVG color, or `"series"` to use the owning series' normal base fill color. */
 export type PatternColor = 'series' | (string & {});
@@ -3038,7 +3039,7 @@ export interface SeriesConfig {
    *
    * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  shapeStyle: StyleStates<SeriesColor>;
+  shapeStyle: StyleStates<Exclude<SeriesColor, 'series'>>;
   /**
    * The minimum marker size (in pixels) to use when interpolating the marker
    * size based on a marker property value.

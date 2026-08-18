@@ -209,10 +209,26 @@ describe('DeepPartial', () => {
     expectType<Equal<DeepPartial<SeriesColor>, SeriesColor>>();
     expectType<Equal<DeepPartial<string | null>, string | null>>();
     expectType<Equal<DeepPartial<number | 'auto'>, number | 'auto'>>();
-    type StrokeColor = Defined<Defined<Defined<DeepPartial<SeriesConfig>['shapeStyle']>['normal']>['strokeColor']>;
+    type StrokeColor = Defined<Defined<Defined<DeepPartial<SeriesConfig>['markerStyle']>['normal']>['strokeColor']>;
     expectType<Equal<StrokeColor, SeriesColor>>();
     expectType<Extends<'#ff0000', StrokeColor>>();
     expectType<Extends<'seriesIndex', StrokeColor>>();
+  });
+
+  // the modes the validators reject stay out of autocomplete: 'same' has nothing to inherit in the normal
+  // state, and shapeStyle defines the series color so cannot reference it with 'series'
+  it('offers only the modes each style state accepts', () => {
+    type Modes<T> = Extract<T, 'series' | 'same' | 'seriesIndex' | 'categoryIndex'>;
+    type ShapeNormal = Defined<Defined<Defined<DeepPartial<SeriesConfig>['shapeStyle']>['normal']>['fillColor']>;
+    type ShapeFocused = Defined<Defined<Defined<DeepPartial<SeriesConfig>['shapeStyle']>['focused']>['fillColor']>;
+    type MarkerNormal = Defined<Defined<Defined<DeepPartial<SeriesConfig>['markerStyle']>['normal']>['fillColor']>;
+    type MarkerFocused = Defined<Defined<Defined<DeepPartial<SeriesConfig>['markerStyle']>['focused']>['fillColor']>;
+    expectType<Equal<Modes<ShapeNormal>, 'seriesIndex' | 'categoryIndex'>>();
+    expectType<Equal<Modes<ShapeFocused>, 'same' | 'seriesIndex' | 'categoryIndex'>>();
+    expectType<Equal<Modes<MarkerNormal>, 'series' | 'seriesIndex' | 'categoryIndex'>>();
+    expectType<Equal<Modes<MarkerFocused>, 'series' | 'same' | 'seriesIndex' | 'categoryIndex'>>();
+    // any string still compiles: the validators, not the types, reject a mode out of place
+    expectType<Extends<'series', ShapeNormal>>();
   });
 
   it('leaves functions alone rather than mapping them to an empty object', () => {
