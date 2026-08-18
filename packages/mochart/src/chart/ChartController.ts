@@ -60,7 +60,8 @@ export class ChartController {
     if (changes.focus) {
       this.props.onFocus?.(changes.focus);
     }
-    if (changes.seriesFilter) {
+    // a host may also destroy() from the first callback; the second must not reach a destroyed chart
+    if (changes.seriesFilter && !this.destroyed) {
       this.props.onSeriesFilter?.(changes.seriesFilter);
     }
   }
@@ -178,7 +179,7 @@ export class ChartController {
     const snapshot = this.focus.toggleSeriesFilter(seriesId, followerSeriesIds);
     this.applyInput();
     this.props.onSeriesFilter?.(snapshot);
-    if (this.focus.focusedSeriesId !== prevFocusedSeriesId) {
+    if (this.focus.focusedSeriesId !== prevFocusedSeriesId && !this.destroyed) {
       this.props.onFocus?.(this.focus.focus());
     }
   }

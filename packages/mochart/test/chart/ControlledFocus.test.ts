@@ -255,6 +255,61 @@ describe('synchronous host re-entrancy', () => {
     expect(freshFilter).toHaveBeenCalledWith({ filteredSeriesIds: {} });
     chart.destroy();
   });
+
+  // Regression: update() fired onFocus then onSeriesFilter with no destroyed check between them, so a
+  // host tearing the chart down inside the first callback still heard the second from a destroyed chart
+  it('stops notifying once the host destroys the chart from a callback', () => {
+    const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
+    const makeConfig = (categoryProperty: string) => enhanceConfig({
+      version: '1.0.0',
+      animation: { animate: false },
+      categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
+      series: [
+        { id: 'sales', property: 'sales', renderer: 'line' },
+        { id: 'costs', property: 'costs', renderer: 'line' }
+      ]
+    });
+    const rows = data.map((row, index) => ({ ...row, week: 'W' + index }));
+    const container = mountContainer();
+    let chart: ReturnType<typeof createChart> | null = null;
+    const onSeriesFilter = vi.fn();
+    const onFocus = vi.fn(() => chart!.destroy());
+    chart = createChart(container, {
+      mochartConfig: makeConfig('month'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
+      width: 300, height: 200,
+      focusedCategoryIndex: 1, filteredSeriesIds: { costs: true },
+      onFocus, onSeriesFilter
+    });
+    runFrames();
+
+    chart.update({
+      mochartConfig: makeConfig('week'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows),
+      focusedCategoryIndex: 1, filteredSeriesIds: { costs: true }
+    });
+    runFrames();
+
+    expect(onFocus).toHaveBeenCalledTimes(1);
+    expect(onSeriesFilter).not.toHaveBeenCalled();
+  });
+
+  it('stops notifying once the host destroys the chart from onSeriesFilter on a legend click', () => {
+    const { chart, container } = mountChart();
+    const onSeriesFilter = vi.fn(() => chart.destroy());
+    const onFocus = vi.fn();
+    chart.update({ focusedSeriesId: 'costs', onSeriesFilter, onFocus });
+    runFrames();
+    onFocus.mockClear();
+
+    // filtering the focused series clears the focus, which used to be reported after the destroy
+    const item = container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', 'costs')))!;
+    item.dispatchEvent(new MouseEvent('click'));
+    runFrames();
+
+    expect(onSeriesFilter).toHaveBeenCalledTimes(1);
+    expect(onFocus).not.toHaveBeenCalled();
+  });
 });
 
 describe('controlled focus props', () => {
