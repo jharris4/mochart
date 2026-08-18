@@ -6,6 +6,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector, getIdCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
+import { getRotatedBounds } from '../../src/layout/RotatedLayoutInfo';
 
 const VERSION = '1.0.0';
 
@@ -101,5 +102,52 @@ describe('multiple thresholds on one axis', () => {
     expect(titles.length).toBe(2);
     expect(container.textContent).toContain('Warning');
     expect(container.textContent).toContain('Critical');
+  });
+});
+
+// Regression: the tick text anchor was offset by half the unrotated label height, so a rotated label
+// (whose box is anchor-relative and asymmetric) hung out of its band, past the axis title's edge
+describe('rotated tick label placement', () => {
+  const rows = [{ g: 'A', value: 5 }, { g: 'B', value: 3 }];
+  // shims measure nothing, so every label takes the 20x20 default bounds
+  const LABEL = 20;
+
+  function tickLabelTranslate(container: Element, axis: 'categoryAxis' | 'valueAxis'): { x: number; y: number } {
+    const label = container.querySelector(getDescendantCssSelector(axis, 'axisTickLabel'));
+    expect(label).not.toBeNull();
+    const match = /translate\(([^,]+),([^)]+)\)/.exec(label!.getAttribute('transform') ?? '')!;
+    return { x: Number(match[1]), y: Number(match[2]) };
+  }
+
+  function categoryAnchor(axis: Record<string, unknown>): { x: number; y: number } {
+    return tickLabelTranslate(mountChart({
+      categoryAxis: { property: 'g', type: 'string', scale: 'ordinal', title: 'Cat', ...axis },
+      series: [{ property: 'value', renderer: 'bar' }]
+    }, rows), 'categoryAxis');
+  }
+
+  it('starts a 90° label at the inner edge of a bottom axis band, where an unrotated label is centered', () => {
+    expect(categoryAnchor({ tickLabelRotation: 90 }).y).toBe(categoryAnchor({}).y - LABEL / 2);
+  });
+
+  it('ends a 90° label at the inner edge of a top axis band', () => {
+    expect(categoryAnchor({ side: 'start', tickLabelRotation: 90 }).y).toBe(categoryAnchor({ side: 'start' }).y + LABEL / 2);
+  });
+
+  it('keeps a 45° label inside a left axis band', () => {
+    const rotated = getRotatedBounds({ width: LABEL, height: LABEL }, 45, 'end');
+    const unrotatedX = tickLabelTranslate(mountChart({
+      categoryAxis: { property: 'g', type: 'string', scale: 'ordinal' },
+      valueAxes: [{ title: 'Val' }],
+      series: [{ property: 'value', renderer: 'bar' }]
+    }, rows), 'valueAxis').x;
+    const rotatedX = tickLabelTranslate(mountChart({
+      categoryAxis: { property: 'g', type: 'string', scale: 'ordinal' },
+      valueAxes: [{ title: 'Val', tickLabelRotation: 45 }],
+      series: [{ property: 'value', renderer: 'bar' }]
+    }, rows), 'valueAxis').x;
+    // an unrotated end-anchored label sits at the band's inner edge; the rotated band is wider by the rotated width difference
+    const innerEdge = unrotatedX - LABEL + Math.ceil(rotated.width);
+    expect(rotatedX + Math.floor(rotated.x) + Math.ceil(rotated.width)).toBe(innerEdge);
   });
 });

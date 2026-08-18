@@ -100,7 +100,6 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   const notAfter = (before && !collapsed) || (!before && collapsed);
 
   axisLayoutInfo.tickLabelParallel = axisTickInfo.tickLabelParallel;
-  axisLayoutInfo.tickLabelSizeOffset = vertical ? tickBounds.width / 2.0 : tickBounds.height / 2.0;
   axisLayoutInfo.tickLabelSize = vertical ? rotatedTickBounds.width : rotatedTickBounds.height;
   axisLayoutInfo.tickLabelSpace = axisTickInfo.tickLabelParallel ? tickBounds.width : tickBounds.height;
   axisLayoutInfo.titleSize = getAxisTitleSize(axisConfig, titleBounds);
@@ -114,19 +113,12 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   if (tickLabelSize === AUTO) {
     tickLabelSize = axisLayoutInfo.tickLabelSize;
   }
-  let { tickLabelSizeOffset } = axisLayoutInfo;
-  const { tickLabelParallel } = axisLayoutInfo;
-  if (!vertical && notAfter && !tickLabelParallel) {
-    // AxisTickInfo never defines tickTextAnchor (only tickLabelAnchor), so this is always
-    // undefined and the else branch always runs; preserved as-is while adding types.
-    if ((axisTickInfo as AxisTickInfo & { tickTextAnchor?: Anchor }).tickTextAnchor === ANCHOR_MIDDLE) {
-      tickLabelSizeOffset = tickLabelSize / 2.0;
-    }
-    else {
-      tickLabelSizeOffset = tickLabelSize;
-    }
-  }
-  const tickLabelAnchorOffset = axisTickInfo.tickLabelAnchor === ANCHOR_MIDDLE ? tickLabelSize / 2.0 : axisTickInfo.tickLabelAnchor === ANCHOR_START ? 0 : tickLabelSize;
+  // The rotated label box sits inside its band, flush with the plot side: the anchor is offset by the
+  // box's extent on the outer side of the anchor (rotatedTickBounds is anchor-relative), which for
+  // unrotated text is half its height (or its anchored width) and for a 90° label nothing at all.
+  const rotatedOuterExtent = vertical ? -rotatedTickBounds.x : -rotatedTickBounds.y;
+  const rotatedInnerExtent = (vertical ? rotatedTickBounds.width : rotatedTickBounds.height) - rotatedOuterExtent;
+  const tickTextOffset = notAfter ? tickLabelSize - rotatedInnerExtent : rotatedOuterExtent;
 
   const { totalTickLabelSize, totalTitleSize, width, height } = axisLayoutInfo;
 
@@ -137,8 +129,8 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   const tickMarginOffset = notAfter ? tickLabelMarginOuter + tickLabelPaddingOuter : tickLabelMarginInner + tickLabelPaddingInner;
   const tickOffset = theTitleOffset + tickMarginOffset;
 
-  const tickTextX = vertical ? tickOffset + tickLabelAnchorOffset : 0;
-  const tickTextY = vertical ? 0 : tickOffset + tickLabelSizeOffset;
+  const tickTextX = vertical ? tickOffset + tickTextOffset : 0;
+  const tickTextY = vertical ? 0 : tickOffset + tickTextOffset;
 
   axisLayoutInfo.tickTextX = tickTextX;
   axisLayoutInfo.tickTextY = tickTextY;

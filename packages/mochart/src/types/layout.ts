@@ -42,7 +42,6 @@ export interface AxisTickInfos {
 /** SpacingLayoutInfo extended in place by setExtraAxisInfo (PlotLayout.ts). */
 export interface AxisLayoutInfo extends SpacingLayoutInfo, LayoutInfo {
   tickLabelParallel: boolean;
-  tickLabelSizeOffset: number;
   tickLabelSize: number;
   tickLabelSpace: number;
   titleSize: number;
