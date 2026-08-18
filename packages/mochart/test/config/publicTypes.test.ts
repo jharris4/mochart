@@ -5,7 +5,7 @@ import type {
   CssStyle, MochartInputConfig, MochartConfig,
   Auto, Align, VerticalAlign, Anchor, Position, MissingValues, AxisSide, ThresholdTitleSide,
   ChartType, PieLabelType, PieTooltipLabelType, Scale, DataType, RendererType, CurveType,
-  PatternType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale,
+  PatternType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale, DomainChange,
   ChartEventPayload, ChartFocus, ChartSeriesFilter, ChartSliceClickPayload, ChartSeriesClickPayload,
   ChartCallbacks, ChartFactories, ChartFactoryContext, ChartFactoryContent, ChartContentFactory,
   BaseChartProps, ManagedChartProps, DefaultChartProps, ChartHandle,
@@ -26,6 +26,7 @@ interface EveryUnion {
   patternType: PatternType;
   capType: CapType; labelPosition: LabelPosition; colorMode: ColorMode;
   colorInterpolation: ColorInterpolation; markerShape: MarkerShape; markerSizeScale: MarkerSizeScale;
+  domainChange: DomainChange;
 }
 
 describe('public config type surface', () => {
@@ -37,9 +38,9 @@ describe('public config type surface', () => {
       scale: 'linear', dataType: 'number', rendererType: 'bar', curveType: 'stepAfter',
       patternType: 'crosshatch',
       capType: 'round', labelPosition: 'inside', colorMode: 'seriesIndex',
-      colorInterpolation: 'hcl', markerShape: 'star', markerSizeScale: 'sqrt'
+      colorInterpolation: 'hcl', markerShape: 'star', markerSizeScale: 'sqrt', domainChange: 'staged'
     };
-    expect(Object.keys(values)).toHaveLength(22);
+    expect(Object.keys(values)).toHaveLength(23);
     expect(describeSeries(values.rendererType, values.curveType, values.markerShape)).toBe('bar/stepAfter/star');
   });
 
