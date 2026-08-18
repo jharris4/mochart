@@ -2,7 +2,7 @@ import validators from './validators';
 import { getMessage, getPropertyMessage, getMessages, addWarningMessages, DEFAULT } from './messages';
 import type { LocatedValidationMessage } from './messages';
 import { CHART_TYPE_PIE, NONE, CONFIG_VERSION } from '../core/constants';
-import { configWithAll, filterConfigs, getRawIndices } from '../core/configUtils';
+import { configWithAll, filterConfigs, getConfigKey, getRawIndices } from '../core/configUtils';
 import { getConfigWithDefaults, sectionKeyAllMap } from '../core/mochartConfig';
 import { getDefaults } from '../defaults/mochartConfig';
 
@@ -426,14 +426,15 @@ function validateUnique(config: ConfigRecord, configWithoutDefaults: ConfigRecor
   const rawIndices = getRawIndices(getRawSections(configWithoutDefaults, sectionKey));
   const seen: Record<string, boolean> = Object.create(null); // null proto: ids like "constructor" must not hit Object.prototype
   for (const section of sections) {
-    if (isConfigRecord(section) && section[property] !== undefined) {
-      const value = String(section[property]);
-      seen[value] = seen[value] !== undefined;
+    const key = isConfigRecord(section) ? getConfigKey(section[property]) : null;
+    if (key !== null && section[property] !== undefined) {
+      seen[key] = seen[key] !== undefined;
     }
   }
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i];
-    if (isConfigRecord(section) && section[property] !== undefined && seen[String(section[property])] === true) {
+    const key = isConfigRecord(section) ? getConfigKey(section[property]) : null;
+    if (key !== null && section[property] !== undefined && seen[key] === true) {
       const message = getUniqueMessage() + ': ' + JSON.stringify(section[property]);
       const reportIndex = rawIndices[i] ?? i;
       errors.push(getPropertyMessage(sectionKey, property, message, reportIndex));
@@ -460,15 +461,19 @@ function validateReferencesInternal(config: ConfigRecord, targetSections: unknow
     const sources: Record<string, boolean> = Object.create(null); // null proto: ids like "__proto__" must be storable
     const sourceSectionRecords = sourceSections.filter(isConfigRecord);
     for (const sourceSection of sourceSectionRecords) {
-      if (sourceSection[sourceProperty] !== undefined) {
-        sources[String(sourceSection[sourceProperty])] = true;
+      const key = getConfigKey(sourceSection[sourceProperty]);
+      if (key !== null && sourceSection[sourceProperty] !== undefined) {
+        sources[key] = true;
       }
     }
     if (Array.isArray(targetSections)) {
-      let target: unknown;
       for (let i = 0; i < targetSections.length; i++) {
-        target = targetSections[i];
-        if (isConfigRecord(target) && target[targetProperty] !== undefined && target[targetProperty] !== NONE && sources[String(target[targetProperty])] !== true) {
+        const target: unknown = targetSections[i];
+        if (!isConfigRecord(target)) {
+          continue;
+        }
+        const key = getConfigKey(target[targetProperty]);
+        if (key !== null && target[targetProperty] !== undefined && target[targetProperty] !== NONE && sources[key] !== true) {
           const message = getReferenceMessage(sourceSectionKey, sourceProperty) + ': ' + JSON.stringify(target[targetProperty]);
           const reportIndex = rawIndices !== null ? rawIndices[i]! : i;
           errors.push(getPropertyMessage(targetSectionKey, targetProperty, message, reportIndex));
@@ -480,7 +485,8 @@ function validateReferencesInternal(config: ConfigRecord, targetSections: unknow
     }
     else if (isConfigRecord(targetSections)) {
       const target = targetSections;
-      if (target[targetProperty] !== undefined && target[targetProperty] !== NONE && sources[String(target[targetProperty])] !== true) {
+      const key = getConfigKey(target[targetProperty]);
+      if (key !== null && target[targetProperty] !== undefined && target[targetProperty] !== NONE && sources[key] !== true) {
         const message = getReferenceMessage(sourceSectionKey, sourceProperty) + ': ' + JSON.stringify(target[targetProperty]);
         errors.push(getPropertyMessage(targetSectionKey, targetProperty, message));
         const cleanSectionKey = targetSectionKey.startsWith(DEFAULT)
@@ -518,8 +524,9 @@ function validateFollowSeries(config: ConfigRecord, configWithoutDefaults: Confi
   }
   const isFollower: Record<string, boolean> = Object.create(null); // null proto: ids like "__proto__" must be storable
   for (const section of seriesSections.filter(isConfigRecord)) {
-    if (section['id'] !== undefined && section['followSeries'] !== undefined && section['followSeries'] !== NONE) {
-      isFollower[String(section['id'])] = true;
+    const key = getConfigKey(section['id']);
+    if (key !== null && section['id'] !== undefined && section['followSeries'] !== undefined && section['followSeries'] !== NONE) {
+      isFollower[key] = true;
     }
   }
   const rawIndices = getRawIndices(configWithoutDefaults['series']);
@@ -529,7 +536,8 @@ function validateFollowSeries(config: ConfigRecord, configWithoutDefaults: Confi
       continue;
     }
     const followSeries = section['followSeries'];
-    if (followSeries === undefined || followSeries === NONE || isFollower[String(followSeries)] !== true) {
+    const key = getConfigKey(followSeries);
+    if (key === null || followSeries === undefined || followSeries === NONE || isFollower[key] !== true) {
       continue;
     }
     const message = getFollowSeriesMessage() + ': ' + JSON.stringify(followSeries);
@@ -554,10 +562,10 @@ function validateStackGroups(config: ConfigRecord, configWithoutDefaults: Config
     }
     const stack = section['stack'];
     const group = section['group'];
-    if (stack === undefined || stack === NONE || group === undefined) {
+    const stackKey = getConfigKey(stack);
+    if (stackKey === null || stack === undefined || stack === NONE || group === undefined) {
       continue;
     }
-    const stackKey = String(stack);
     if (!(stackKey in stackGroups)) {
       stackGroups[stackKey] = group;
       continue;
@@ -582,17 +590,19 @@ function validateCommonReferences(config: ConfigRecord, configWithoutDefaults: C
   }
   const sourceProperties: Record<string, unknown> = Object.create(null); // null proto: ids like "constructor" must not hit Object.prototype
   for (const sourceSection of sourceSections.filter(isConfigRecord)) {
-    if (sourceSection[sourceProperty] !== undefined && sourceSection[commonProperty] !== undefined) {
-      sourceProperties[String(sourceSection[sourceProperty])] = sourceSection[commonProperty];
+    const key = getConfigKey(sourceSection[sourceProperty]);
+    if (key !== null && sourceSection[sourceProperty] !== undefined && sourceSection[commonProperty] !== undefined) {
+      sourceProperties[key] = sourceSection[commonProperty];
     }
   }
   const rawIndices = getRawIndices(getRawSections(configWithoutDefaults, targetSectionKey));
   for (let i = 0; i < targetSections.length; i++) {
     const target = targetSections[i];
-    if (isConfigRecord(target) && target[targetProperty] !== undefined && target[commonProperty] !== undefined &&
-      sourceProperties[String(target[targetProperty])] !== undefined && sourceProperties[String(target[targetProperty])] !== target[commonProperty]) {
+    const key = isConfigRecord(target) ? getConfigKey(target[targetProperty]) : null;
+    if (key !== null && target[targetProperty] !== undefined && target[commonProperty] !== undefined &&
+      sourceProperties[key] !== undefined && sourceProperties[key] !== target[commonProperty]) {
       const message = getCommonReferenceMessage(sourceSectionKey, sourceProperty, commonProperty) + ': ' +
-        JSON.stringify(sourceProperties[String(target[targetProperty])]) + ' vs ' + JSON.stringify(target[commonProperty]);
+        JSON.stringify(sourceProperties[key]) + ' vs ' + JSON.stringify(target[commonProperty]);
       const reportIndex = rawIndices[i] ?? i;
       errors.push(getPropertyMessage(targetSectionKey, targetProperty, message, reportIndex));
       errorDetails.push({ path: [targetSectionKey, reportIndex, targetProperty], message });

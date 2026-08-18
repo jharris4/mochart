@@ -459,6 +459,28 @@ describe('prototype-member-named ids', () => {
   });
 });
 
+// Regression: id/order/reference slots holding an object were String()-coerced by the uniqueness, reference
+// and build maps; the deep clone makes them null-proto objects, so the coercion threw instead of the type error
+describe('object-valued ids and references', () => {
+  const base = { version: VERSION_STRING, categoryAxis: { property: 'g' } };
+  const cases: [string, Record<string, unknown>, string][] = [
+    ['valueAxes id', { valueAxes: [{ id: {} }], series: [{ property: 'v' }] }, 'valueAxes[0] - id - should be a string'],
+    ['series order', { series: [{ property: 'v', order: {} }] }, 'series[0] - order - should be an integer'],
+    ['series axis', { series: [{ property: 'v', axis: {} }] }, 'series[0] - axis - should be a string'],
+    ['series stack', { series: [{ property: 'v', stack: {} }] }, 'series[0] - stack - should be a string'],
+    ['stack axis + group', { series: [{ property: 'v', stack: 'S', group: {} }], seriesStacks: [{ id: 'S', axis: {} }] }, 'seriesStacks[0] - axis - should be a string'],
+    ['followSeries + id', { series: [{ property: 'v', id: {}, followSeries: {} }] }, 'series[0] - id - should be a string']
+  ];
+  for (const [name, overrides, error] of cases) {
+    it(`reports an object-valued ${name} instead of throwing`, () => {
+      let mochartConfig: ReturnType<typeof enhance> | undefined;
+      expect(() => { mochartConfig = enhance({ ...base, ...overrides }); }).not.toThrow();
+      expect(mochartConfig!.validation.valid).toBe(false);
+      expect(mochartConfig!.validation.errors).toContainEqual(expect.stringContaining(error));
+    });
+  }
+});
+
 // Regression: sections absent from the user config installed the defaults' own
 // entry objects into the built config, so the reference wiring mutated the
 // caller-supplied defaults and re-validating with them flipped valid to false.

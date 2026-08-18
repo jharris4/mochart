@@ -6,6 +6,11 @@ function isObject(v: unknown): v is ConfigRecord {
   return v !== null && v !== undefined && typeof v === "object";
 }
 
+/** Map key for an id or reference value; objects get null (the type validators report them) rather than a coercion that throws on a null-proto clone. */
+export function getConfigKey(value: unknown): string | null {
+  return typeof value === 'object' && value !== null ? null : String(value);
+}
+
 export function filterConfigs(configs: unknown): ConfigRecord[] {
   return Array.isArray(configs) ? configs.filter(filterConfig) : [];
 }

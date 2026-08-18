@@ -1,7 +1,7 @@
 import { isObject } from './utils';
 import { CHART_TYPE_PIE, NONE } from '../core/constants';
 import { deepMergeAll } from '../core/deepMerge';
-import { configWithAll, filterConfigs, filterConfig } from '../core/configUtils';
+import { configWithAll, filterConfigs, filterConfig, getConfigKey } from '../core/configUtils';
 
 import getAccessibilityDefaults from './accessibilityConfig';
 import getAnimationDefaults from './animationConfig';
@@ -132,16 +132,14 @@ function getValueAxisListOrSingleDefaults(config: MochartInputConfig, singleDefa
   for (const stackConfig of stackConfigs) {
     const { axis } = stackConfig;
     // a stack with no axis marks the first value axis (by its id, or its default id) as stacked
-    if (axis === undefined) {
-      stackMap[String(configs[0]?.id ?? 'VA0')] = true;
-    }
-    else {
-      stackMap[axis] = true;
+    const key = getConfigKey(axis === undefined ? (configs[0]?.id ?? 'VA0') : axis);
+    if (key !== null) {
+      stackMap[key] = true;
     }
   }
   // effective ids mirror the id default ('VA' + index), so a stack explicitly
   // referencing a defaulted axis id still marks that axis as stacked
-  const getDefaults = (aConfig: DeepPartial<ValueAxisConfig>, index: number) => getValueAxisDefaults(aConfig, index, stackMap[aConfig.id ?? 'VA' + index], pieMode);
+  const getDefaults = (aConfig: DeepPartial<ValueAxisConfig>, index: number) => getValueAxisDefaults(aConfig, index, stackMap[getConfigKey(aConfig.id ?? 'VA' + index) ?? ''], pieMode);
   if (singleDefaultIfEmpty && configs.length === 0) {
     return [getDefaults(configWithAll({}, allConfig) as DeepPartial<ValueAxisConfig>, 0) as ValueAxisConfig];
   }

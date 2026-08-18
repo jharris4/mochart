@@ -1,5 +1,5 @@
 import { NONE } from './constants';
-import { filterConfig, filterConfigs } from './configUtils';
+import { filterConfig, filterConfigs, getConfigKey } from './configUtils';
 import { deepClone, deepMerge, deepMergeAll, withoutUndefined } from './deepMerge';
 import { getDefaults } from '../defaults/mochartConfig';
 import type { ConfigValidation, MochartConfig } from '../../types/config';
@@ -24,7 +24,10 @@ const configsToIdMap = <T>(configs: ConfigRecord[], value: (config: ConfigRecord
   const map: Record<string, T> = Object.create(null); // null proto: ids like "constructor" must not hit Object.prototype
   if (Array.isArray(configs)) {
     for (const config of configs) {
-      map[String(config.id)] = value(config);
+      const key = getConfigKey(config.id);
+      if (key !== null) {
+        map[key] = value(config);
+      }
     }
   }
   return map;
@@ -69,9 +72,10 @@ const assignConfigReferences = (configs: ConfigRecord[], referenceKey: string, r
     for (const config of configs) {
       if (isObject(config) && config[referenceKey] !== undefined) {
         if (config[referenceName] !== undefined) {
-          console.warn('mochartConfig.' + configDescriptor + '[' + config.id + '] had a ' + referenceName + ' property that will be overriden');
+          console.warn('mochartConfig.' + configDescriptor + '[' + getConfigKey(config.id) + '] had a ' + referenceName + ' property that will be overriden');
         }
-        config[referenceName] = configMap[String(config[referenceKey])];
+        const key = getConfigKey(config[referenceKey]);
+        config[referenceName] = key !== null ? configMap[key] : undefined;
       }
     }
   }
@@ -82,9 +86,10 @@ const assignConfigListReferences = (configs: ConfigRecord[], referenceName: stri
     for (const config of configs) {
       if (isObject(config)) {
         if (config[referenceName] !== undefined) {
-          console.warn('mochartConfig.' + configDescriptor + '[' + config.id + '] had a ' + referenceName + ' property that will be overriden');
+          console.warn('mochartConfig.' + configDescriptor + '[' + getConfigKey(config.id) + '] had a ' + referenceName + ' property that will be overriden');
         }
-        config[referenceName] = configListMap[String(config.id)];
+        const key = getConfigKey(config.id);
+        config[referenceName] = key !== null ? configListMap[key] : undefined;
       }
     }
   }
@@ -95,7 +100,7 @@ const assignConfigListIndexReferences = (configs: ConfigRecord[], referenceName:
     for (const config of configs) {
       if (isObject(config)) {
         if (config[referenceName] !== undefined) {
-          console.warn('mochartConfig.' + configDescriptor + '[' + config.id + '] had a ' + referenceName + ' property that will be overriden');
+          console.warn('mochartConfig.' + configDescriptor + '[' + getConfigKey(config.id) + '] had a ' + referenceName + ' property that will be overriden');
         }
         config[referenceName] = arrayToIdIndexMap(config[listReferenceName]);
       }
