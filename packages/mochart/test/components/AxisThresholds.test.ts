@@ -97,6 +97,16 @@ describe('threshold lines', () => {
     expect(container.textContent).toContain('T');
   });
 
+  // the title is measured and laid out whether or not the axis is drawn
+  it('places a titled threshold on a hidden axis like one on a visible axis', () => {
+    const hidden = titlePosition(valueThreshold({ value: 50, title: 'T' }, { visible: false }));
+    const shown = titlePosition(valueThreshold({ value: 50, title: 'T' }));
+    expect(hidden.y).toEqual(shown.y);
+    expect(hidden.x).toBeLessThan(shown.x);
+    const hiddenLine = linePosition(valueThreshold({ value: 50, title: 'T' }, { visible: false }));
+    expect(hidden).not.toEqual(hiddenLine);
+  });
+
   it('draws a category axis threshold on a date axis', () => {
     const container = mount({
       categoryAxis: {

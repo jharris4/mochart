@@ -310,7 +310,7 @@ const thresholdTitleIndexPattern = /mochart-axis-threshold-title-(\d+)/;
 function getThresholdTitleBoundsByIndex(domAccessors: ChartDomAccessors | null | undefined, thresholds: readonly { title: string | null }[], accessor: () => NodeListOf<SVGGraphicsElement>): Record<number, TextBounds> {
   const boundsByIndex: Record<number, TextBounds> = {};
   const measured: Record<number, TextBounds> = {};
-  if (domAccessors) {
+  if (domAccessors && thresholds.some(threshold => threshold.title !== NONE)) {
     const elements = accessor();
     for (let i = 0; i < elements.length; i++) {
       const element = elements[i]!;
@@ -334,9 +334,6 @@ function getThresholdTitleBoundsByIndex(domAccessors: ChartDomAccessors | null |
 
 export function getCategoryAxisThresholdTitleBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): Record<number, TextBounds> {
   const { categoryAxis: categoryAxisConfig } = mochartConfig;
-  if (!categoryAxisConfig.visible) {
-    return {};
-  }
   return getThresholdTitleBoundsByIndex(domAccessors, resolveThresholds(categoryAxisConfig.thresholds),
     () => domAccessors!.getCategoryAxisThresholdTitleDomElements());
 }
@@ -371,9 +368,6 @@ export function getValueAxisTitleBounds(mochartConfig: EnhancedMochartConfig, do
 export function getValueAxisThresholdTitleBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): Record<string, Record<number, TextBounds>> {
   const { valueAxes: valueAxisConfigs } = mochartConfig;
   const valueAxisThresholdTitleBounds = arrayToMap(valueAxisConfigs, idAccessor, valueAxisConfig => {
-    if (!valueAxisConfig.visible) {
-      return {};
-    }
     return getThresholdTitleBoundsByIndex(domAccessors, resolveThresholds(valueAxisConfig.thresholds),
       () => domAccessors!.getValueAxisThresholdTitleDomElementsForId(valueAxisConfig.id));
   });
