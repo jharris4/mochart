@@ -68,6 +68,22 @@ describe('getCategoryAxisTickData', () => {
     expect(ticks).toHaveLength(1);
   });
 
+  // Regression: ordinal number labels came from a linear tickFormat whose precision is the tick step, so
+  // categories smaller than the step read "0" ("0k, 0k, 0k, 1k, 10k")
+  it('formats ordinal number categories individually', () => {
+    const config = makeConfig({ categoryAxis: { property: 'x', type: 'number', scale: 'ordinal' } });
+    const ordinalLayout = { tickLabelParallel: false, tickLabelSpace: 10 } as CategoryAxisLayoutInfo;
+    const labelsFor = (values: number[]) => {
+      const axisScale = scaleLinear().domain([0, values.length - 1]).range([0, 400]) as unknown as AxisScale;
+      const positions = values.map((_, i) => 400 * i / (values.length - 1));
+      return getCategoryAxisTickData(config.categoryAxis, ordinalLayout, axisScale, [0, values.length - 1] as CategoryAxisDomain, values, positions)
+        .map(tick => tick.label);
+    };
+    expect(labelsFor([1, 10, 100, 1000, 10000])).toEqual(['1', '10', '100', '1k', '10k']);
+    expect(labelsFor([0.05, 0.1, 1, 5])).toEqual(['50m', '100m', '1', '5']);
+    expect(labelsFor([1, 1.5, 2])).toEqual(['1', '1.5', '2']);
+  });
+
   it('draws a single tick for a single-category linear number axis', () => {
     const config = makeConfig({ categoryAxis: { property: 'x', type: 'number', scale: 'linear' } });
     const axisScale = scaleLinear().domain([5, 5]).range([0, 200]) as unknown as AxisScale;

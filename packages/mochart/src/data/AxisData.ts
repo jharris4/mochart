@@ -12,6 +12,8 @@ import type { AxisData, AxisScale, AxisTick, AxisValue, ChartData, CategoryAxisD
 import type { AxisLayoutInfo, ChartLayoutInfo, CategoryAxisLayoutInfo } from '../types/layout';
 
 const autoTickLabelFormatNumber = 's';
+// per-value form: without a tick step to take the precision from, the trailing zeros must be trimmed
+const autoOrdinalTickLabelFormatNumber = '~s';
 const autoTickLabelFormatDate = '%c';
 
 const enableOrdinalExperimentalMode = true;
@@ -522,15 +524,10 @@ function getOrdinalScaleTickLabelFormatter(axisConfig: CategoryAxisConfig, axisS
     let tickLabelFormatter: TickLabelFormatter = tick => tick;
     if (axisConfig.tickLabelFormat !== NONE) {
       if (axisConfig.type === TYPE_NUMBER) {
-        const formatSpecifier = axisConfig.tickLabelFormat === AUTO ? autoTickLabelFormatNumber : axisConfig.tickLabelFormat;
-        // Experimental code to try to create a nice uniform tick format for ordinal number scales. may need work...
-        if (enableOrdinalExperimentalMode) {
-          tickLabelFormatter = scaleLinear().domain(getDomainForValues(values)).tickFormat(tickCount, formatSpecifier);
-        }
-        else {
-          const formatter = format(formatSpecifier);
-          tickLabelFormatter = tick => formatter(tick as number);
-        }
+        const formatSpecifier = axisConfig.tickLabelFormat === AUTO ? autoOrdinalTickLabelFormatNumber : axisConfig.tickLabelFormat;
+        // per value, not a linear tickFormat: its precision comes from the tick step, which rounds small categories to 0
+        const formatter = format(formatSpecifier);
+        tickLabelFormatter = tick => formatter(tick as number);
       }
       else if (axisConfig.type === TYPE_DATE) {
         const timeFormatter = axisConfig.dateUTC ? utcFormat : timeFormat;
