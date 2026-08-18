@@ -223,6 +223,28 @@ describe('threshold styling', () => {
     expect(text.getAttribute('stroke')).toBe('#0000ff');
   });
 
+  it('draws the title background from titleBackgroundStyle behind the title text', () => {
+    for (const [mountThreshold, vertical] of [[valueThreshold, true], [categoryThreshold, false]] as const) {
+      const container = mountThreshold({
+        value: 50, title: 'Target', titlePadding: { top: 1, right: 2, bottom: 3, left: 4 },
+        titleBackgroundStyle: { fillColor: '#ffff00', fillOpacity: 1, strokeColor: '#ff00ff', strokeOpacity: 1, strokeWidth: 1 }
+      });
+      const title = container.querySelector(getCssSelector('axisThresholdTitle'))!;
+      const background = title.querySelector(getCssSelector('axisThresholdTitleBackground'))!;
+      expect(background).not.toBeNull();
+      expect(background.tagName).toBe('rect');
+      expect(background.nextElementSibling?.tagName).toBe('text');
+      expect(background.getAttribute('fill')).toBe('#ffff00');
+      expect(background.getAttribute('stroke')).toBe('#ff00ff');
+      // the rect wraps the measured text plus its padding: taller than wide when the title runs along a horizontal line
+      const width = Number(background.getAttribute('width'));
+      const height = Number(background.getAttribute('height'));
+      expect(width).toBeGreaterThan(0);
+      expect(height).toBeGreaterThan(0);
+      expect(vertical ? width > height : height > width).toBe(true);
+    }
+  });
+
   for (const useSeriesFocus of [true, false]) {
     it(`follows the focused series when useSeriesFocus is ${useSeriesFocus}`, () => {
       const container = mountContainer();

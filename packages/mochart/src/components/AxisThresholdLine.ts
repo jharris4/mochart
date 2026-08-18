@@ -2,6 +2,7 @@ import { Renderer, svgEl, textEl } from '../render';
 
 import { translate, translateRotate } from '../utils/utils';
 import { mochartCssClasses } from '../utils/ChartDom';
+import { styleToAttributes } from '../utils/style';
 import { NONE, SCALE_LINEAR, SIDE_START, TITLE_SIDE_LOW, TYPE_DATE } from '../config/core/constants';
 import type { El, TextEl } from '../render';
 import type { AxisConfigBase } from '../types/config';
@@ -9,7 +10,7 @@ import type { ResolvedThreshold } from '../config/defaults/axisConfig';
 import type { DataType, Scale } from '../config/core/constants';
 import type { AxisLayoutInfo, LayoutInfo } from '../types/layout';
 
-type ThresholdTitleEl = El & { textHandle: El; valueHandle: TextEl };
+type ThresholdTitleEl = El & { backgroundHandle: El; textHandle: El; valueHandle: TextEl };
 
 export type ThresholdAxisConfig = AxisConfigBase & {
   scale: Scale;
@@ -87,6 +88,9 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
         let titleY = thresholdY;
         const paddingRelativeBounds = 'paddingRelativeBounds' in thresholdTitleLayoutInfo
           ? thresholdTitleLayoutInfo.paddingRelativeBounds
+          : thresholdTitleLayoutInfo;
+        const marginRelativeBounds = 'marginRelativeBounds' in thresholdTitleLayoutInfo
+          ? thresholdTitleLayoutInfo.marginRelativeBounds
           : thresholdTitleLayoutInfo;
         let { width, height } = thresholdTitleLayoutInfo;
         let { x: paddingX, y: paddingY, height: paddingHeight } = paddingRelativeBounds;
@@ -172,15 +176,23 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
         }
         const titleGroup = this.title.set('title', () => {
           const group = svgEl('g') as ThresholdTitleEl;
+          const background = svgEl('rect');
           const text = svgEl('text');
           const value = textEl();
           text.append(value);
+          group.append(background);
           group.append(text);
+          group.backgroundHandle = background;
           group.textHandle = text;
           group.valueHandle = value;
           return group;
         }) as ThresholdTitleEl;
         titleGroup.set({ className: mochartCssClasses['axisThresholdTitle'] + thresholdIndex, transform: translate(titleX, titleY) });
+        // a horizontal title is rotated 90°, so its background takes the swapped bounds like the text does
+        titleGroup.backgroundHandle.set({ className: mochartCssClasses['axisThresholdTitleBackground'],
+          x: vertical ? marginRelativeBounds.x : marginRelativeBounds.y, y: vertical ? marginRelativeBounds.y : marginRelativeBounds.x,
+          width: vertical ? marginRelativeBounds.width : marginRelativeBounds.height, height: vertical ? marginRelativeBounds.height : marginRelativeBounds.width,
+          ...styleToAttributes(threshold.titleBackgroundStyle) });
         titleGroup.textHandle.set({ transform: translateRotate(paddingX, paddingY, vertical ? 0 : 90),
           fill: titleFill, fillOpacity: titleFillOpacity,
           stroke: titleStroke, strokeOpacity: titleStrokeOpacity, strokeWidth: titleStrokeWidth, dy: '0.35em' });

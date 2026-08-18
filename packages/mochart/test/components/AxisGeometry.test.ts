@@ -5,7 +5,7 @@ import { mountContainer, trackHandle } from './helpers';
 import { createDefaultChart } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
-import { getIdCssClass, getIdCssSelector, getDescendantCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
+import { getCssSelector, getIdCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 
@@ -97,7 +97,7 @@ describe('multiple thresholds on one axis', () => {
     }, rows);
     const lines = container.querySelectorAll(getDescendantCssSelector('axisThresholdContainer', 'axisThreshold') + ' line');
     expect(lines.length).toBe(3);
-    const titles = container.querySelectorAll(getCssClassMatchSelector(getIdCssClass('axisThresholdTitle', '')));
+    const titles = container.querySelectorAll(getCssSelector('axisThresholdTitle'));
     expect(titles.length).toBe(2);
     expect(container.textContent).toContain('Warning');
     expect(container.textContent).toContain('Critical');

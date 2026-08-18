@@ -43,6 +43,7 @@ export const mochartCssClasses = {
           valueAxisThreshold: 'mochart-value-axis-threshold mochart-value-axis-threshold-id-',
             axisThreshold: 'mochart-axis-threshold',
             axisThresholdTitle: 'mochart-axis-threshold-title mochart-axis-threshold-title-',
+              axisThresholdTitleBackground: 'mochart-axis-threshold-title-background',
             axisThresholdMin: 'mochart-axis-threshold-min',
             axisThresholdMax: 'mochart-axis-threshold-max',
             axisThresholdRange: 'mochart-axis-threshold-range',
