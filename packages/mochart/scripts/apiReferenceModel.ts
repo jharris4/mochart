@@ -72,7 +72,7 @@ interface PageSource {
 // generated props/callbacks pages, with the reason they need no group there.
 const internalInterfaces: Record<string, string> = {
   ChartDomAccessors: 'test/measurement seam; documented by the shipped .d.ts only',
-  InternalFocus: 'neither a prop nor a callback; exported for hosts embedding the data sources and described in reference/api.md'
+  InternalFocus: 'neither a prop nor a callback; internal to chart/ChartDataSource and the components, not exported by the package'
 };
 
 const pageSources: PageSource[] = [

@@ -12,7 +12,7 @@ export type {
   DataProvider, DataObject, DataValue, ArrayOfObjectsData, ObjectOfArraysData
 } from './data';
 
-// InternalFocus is published from chart/ChartDataSource, alongside the interface that raises it.
+// InternalFocus stays internal: chart/ChartDataSource re-exports it for the sources and components only, never the package.
 export type {
   ChartEventPayload, ChartFocus, ChartSeriesFilter, ChartSliceClickPayload,
   ChartSeriesClickPayload, ChartCallbacks, ChartFactories, ChartFactoryContext,
