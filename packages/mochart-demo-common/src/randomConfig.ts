@@ -191,7 +191,8 @@ function addGenericErrorMessages(errorMessages: string[], randomConfig: any): vo
       dateInterval *= dateUnit;
       dateRange = Math.floor(dateRange / dateInterval);
 
-      if (dateRange < requiredDistinct) {
+      // the generator draws 0 to the interval count inclusive, so both ends of the range are values of their own
+      if (dateRange + 1 < requiredDistinct) {
         errorMessages.push(datePrefix + 'range insufficient to fulfill category count');
       }
 
@@ -201,13 +202,13 @@ function addGenericErrorMessages(errorMessages: string[], randomConfig: any): vo
       const interval = number.interval;
       range = Math.floor(range / interval);
 
-      if (range < requiredDistinct) {
+      if (range + 1 < requiredDistinct) {
         errorMessages.push(numberPrefix + 'range insufficient to fulfill category count');
       }
 
       const stringRange = Math.pow(10, string.maxLength - 1) - Math.pow(10, string.minLength - 1);
 
-      if (stringRange < requiredDistinct) {
+      if (stringRange + 1 < requiredDistinct) {
         errorMessages.push(stringPrefix + 'range insufficient to fulfill category count');
       }
     }

@@ -98,6 +98,45 @@ describe('validateRandomConfig', () => {
         series: { ...genericConfig.series, reuse: { global: false, step: 'always' } } })).toBe(false);
     });
 
+    // Regression: the checks compared the interval count with the required
+    // number of values, but the generator draws both ends of the range, so a
+    // range with exactly enough values was rejected.
+    it('accepts a range with exactly enough values, and rejects one value short', () => {
+      const single = { count: 1, reuse: { globalFraction: 0, stepFraction: 0 } };
+      expect(validateRandomConfig(withCategory({ ...single, number: { min: 5, max: 5, interval: 1 } }))).toBe(true);
+      expect(validateRandomConfig(withCategory({
+        ...single, date: { min: '2014-01-01', max: '2014-01-01', interval: 1, intervalUnit: 'day' }
+      }))).toBe(true);
+      expect(validateRandomConfig(withCategory({ ...single, string: { minLength: 1, maxLength: 1 } }))).toBe(true);
+
+      // count 15 with no reuse needs 15 distinct values
+      const fifteen = { count: 15, reuse: { globalFraction: 0, stepFraction: 0 } };
+      expect(validateRandomConfig(withCategory({ ...fifteen, number: { min: 0, max: 14, interval: 1 } }))).toBe(true);
+      expect(validateRandomConfig(withCategory({ ...fifteen, number: { min: 0, max: 13, interval: 1 } }))).toBe(false);
+      expect(validateRandomConfig(withCategory({
+        ...fifteen, date: { min: '2014-01-01', max: '2014-01-15', interval: 1, intervalUnit: 'day' }
+      }))).toBe(true);
+      expect(validateRandomConfig(withCategory({
+        ...fifteen, date: { min: '2014-01-01', max: '2014-01-14', interval: 1, intervalUnit: 'day' }
+      }))).toBe(false);
+      expect(validateRandomConfig(withCategory({ count: 10, string: { minLength: 1, maxLength: 2 },
+        reuse: { globalFraction: 0, stepFraction: 0 } }))).toBe(true);
+      expect(validateRandomConfig(withCategory({ count: 11, string: { minLength: 1, maxLength: 2 },
+        reuse: { globalFraction: 0, stepFraction: 0 } }))).toBe(false);
+    });
+
+    it('counts the values a multi-step interval lands on, not the span it covers', () => {
+      const fifteen = { count: 15, reuse: { globalFraction: 0, stepFraction: 0 } };
+      expect(validateRandomConfig(withCategory({ ...fifteen, number: { min: 0, max: 28, interval: 2 } }))).toBe(true);
+      expect(validateRandomConfig(withCategory({ ...fifteen, number: { min: 0, max: 27, interval: 2 } }))).toBe(false);
+      expect(validateRandomConfig(withCategory({
+        ...fifteen, date: { min: '2014-01-01', max: '2015-02-25', interval: 30, intervalUnit: 'day' }
+      }))).toBe(true);
+      expect(validateRandomConfig(withCategory({
+        ...fifteen, date: { min: '2014-01-01', max: '2015-01-26', interval: 30, intervalUnit: 'day' }
+      }))).toBe(false);
+    });
+
     it('accounts for the step-reuse preview lineages', () => {
       // count 12, stepFraction 1 -> preview lineages need 18 uniques; 15 lattice values is enough for count alone
       const number = { min: 0, max: 14, interval: 1 };
