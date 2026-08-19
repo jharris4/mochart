@@ -23,7 +23,7 @@ export const config: MochartInputConfig = {
   title: { text: 'Daily Share Price (fictional, $)' },
   categoryAxis: candlestick.categoryAxis,
   valueAxes: candlestick.valueAxes!.map((axisConfig) =>
-    axisConfig.id === 'price' ? { ...axisConfig, title: '$ per share' } : axisConfig),
+    axisConfig.id === 'price' ? { ...axisConfig, title: { text: '$ per share' } } : axisConfig),
   series: candlestick.series
 };
 

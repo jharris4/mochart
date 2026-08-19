@@ -26,12 +26,14 @@ export default function getValidators() {
     // cssStyle / cssColor, not style / color: the tooltip is html, so 'none' is not a valid color here.
     backgroundStyle: validators.cssStyle(),
     borderRadius: validators.numberMin(0),
-    dropShadowColor: validators.cssColor(),
-    // negative offsets cast the css box-shadow up/left; only the blur radius must stay >= 0
-    dropShadowOffsetX: validators.number(),
-    dropShadowOffsetY: validators.number(),
-    dropShadowBlurRadius: validators.numberMin(0),
-    ...getSeriesIconValidators(),
+    dropShadow: validators.partialObjectWithShape({
+      color: validators.cssColor(),
+      // negative offsets cast the css box-shadow up/left; only the blur radius must stay >= 0
+      offsetX: validators.number(),
+      offsetY: validators.number(),
+      blurRadius: validators.numberMin(0)
+    }, true),
+    icon: validators.partialObjectWithShape(getSeriesIconValidators(), true),
     showFilteringOnLabels: validators.boolean(),
     adjustForFiltering: validators.boolean(),
     adjustSizeForFiltering: validators.boolean(),

@@ -209,7 +209,7 @@ describe('DeepPartial', () => {
     expectType<Equal<DeepPartial<SeriesColor>, SeriesColor>>();
     expectType<Equal<DeepPartial<string | null>, string | null>>();
     expectType<Equal<DeepPartial<number | 'auto'>, number | 'auto'>>();
-    type StrokeColor = Defined<Defined<Defined<DeepPartial<SeriesConfig>['markerStyle']>['normal']>['strokeColor']>;
+    type StrokeColor = Defined<Defined<Defined<Defined<DeepPartial<SeriesConfig>['marker']>['style']>['normal']>['strokeColor']>;
     expectType<Equal<StrokeColor, SeriesColor>>();
     expectType<Extends<'#ff0000', StrokeColor>>();
     expectType<Extends<'seriesIndex', StrokeColor>>();
@@ -221,8 +221,8 @@ describe('DeepPartial', () => {
     type Modes<T> = Extract<T, 'series' | 'same' | 'seriesIndex' | 'categoryIndex'>;
     type ShapeNormal = Defined<Defined<Defined<DeepPartial<SeriesConfig>['shapeStyle']>['normal']>['fillColor']>;
     type ShapeFocused = Defined<Defined<Defined<DeepPartial<SeriesConfig>['shapeStyle']>['focused']>['fillColor']>;
-    type MarkerNormal = Defined<Defined<Defined<DeepPartial<SeriesConfig>['markerStyle']>['normal']>['fillColor']>;
-    type MarkerFocused = Defined<Defined<Defined<DeepPartial<SeriesConfig>['markerStyle']>['focused']>['fillColor']>;
+    type MarkerNormal = Defined<Defined<Defined<Defined<DeepPartial<SeriesConfig>['marker']>['style']>['normal']>['fillColor']>;
+    type MarkerFocused = Defined<Defined<Defined<Defined<DeepPartial<SeriesConfig>['marker']>['style']>['focused']>['fillColor']>;
     expectType<Equal<Modes<ShapeNormal>, 'seriesIndex' | 'categoryIndex'>>();
     expectType<Equal<Modes<ShapeFocused>, 'same' | 'seriesIndex' | 'categoryIndex'>>();
     expectType<Equal<Modes<MarkerNormal>, 'series' | 'seriesIndex' | 'categoryIndex'>>();

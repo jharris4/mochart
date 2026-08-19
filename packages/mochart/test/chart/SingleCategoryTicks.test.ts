@@ -49,7 +49,7 @@ describe('single-category linear axis ticks', () => {
   });
 
   it('draws one date tick at the category date', () => {
-    const { container, chart } = renderChart({ type: 'date', tickLabelFormat: '%Y-%m-%d', dateUTC: true }, [{ x: '2026-01-01T00:00:00Z', value: 1 }]);
+    const { container, chart } = renderChart({ type: 'date', tickLabel: { format: '%Y-%m-%d' }, dateUTC: true }, [{ x: '2026-01-01T00:00:00Z', value: 1 }]);
     expect(categoryTickLabels(container)).toEqual(['2026-01-01']);
     chart.destroy();
   });

@@ -16,7 +16,7 @@ const valueAxis = (over: Record<string, unknown>): EnhancedValueAxisConfig => ov
 // the affix fields are read unconditionally (an enhanced config always carries them),
 // so they default to null here rather than each fixture having to remember them
 const series = (over: Record<string, unknown>): EnhancedSeriesConfig =>
-  ({ valuePrefix: null, valueSuffix: null, labelPrefix: null, labelSuffix: null, ...over }) as unknown as EnhancedSeriesConfig;
+  ({ valuePrefix: null, valueSuffix: null, ...over, label: { prefix: null, suffix: null, ...(over['label'] as object) } }) as unknown as EnhancedSeriesConfig;
 
 describe('getCategoryFormat', () => {
   it('is an identity for string categories with no formatting', () => {
@@ -44,7 +44,7 @@ describe('getCategoryFormat', () => {
 
   it('uses auto tickLabelFormat for dates when valueFormat is auto', () => {
     const fmt = getCategoryFormat(categoryAxis({
-      type: 'date', dateUTC: true, valueFormat: 'auto', tickLabelFormat: 'auto',
+      type: 'date', dateUTC: true, valueFormat: 'auto', tickLabel: { format: 'auto' },
       valuePrefix: null, valueSuffix: null
     }));
     // %c produces a full locale date/time string; just assert it is non-empty text
@@ -54,7 +54,7 @@ describe('getCategoryFormat', () => {
 
   it('uses an explicit tickLabelFormat for dates when valueFormat is auto', () => {
     const fmt = getCategoryFormat(categoryAxis({
-      type: 'date', dateUTC: true, valueFormat: 'auto', tickLabelFormat: '%Y',
+      type: 'date', dateUTC: true, valueFormat: 'auto', tickLabel: { format: '%Y' },
       valuePrefix: null, valueSuffix: null
     }));
     expect(fmt(new Date(Date.UTC(2021, 5, 15)))).toBe('2021');
@@ -76,7 +76,7 @@ describe('getCategoryFormat', () => {
 
   it('uses auto tickLabelFormat for numbers when valueFormat is auto', () => {
     const fmt = getCategoryFormat(categoryAxis({
-      type: 'number', dateUTC: false, valueFormat: 'auto', tickLabelFormat: 'auto',
+      type: 'number', dateUTC: false, valueFormat: 'auto', tickLabel: { format: 'auto' },
       valuePrefix: null, valueSuffix: null
     }));
     // .2s SI-prefixed: 1500 -> "1.5k"
@@ -85,7 +85,7 @@ describe('getCategoryFormat', () => {
 
   it('uses an explicit tickLabelFormat for numbers when valueFormat is auto', () => {
     const fmt = getCategoryFormat(categoryAxis({
-      type: 'number', dateUTC: false, valueFormat: 'auto', tickLabelFormat: '.0f',
+      type: 'number', dateUTC: false, valueFormat: 'auto', tickLabel: { format: '.0f' },
       valuePrefix: null, valueSuffix: null
     }));
     expect(fmt(1234.9)).toBe('1235');
@@ -93,7 +93,7 @@ describe('getCategoryFormat', () => {
 
   it('is an identity when valueFormat is auto and tickLabelFormat is none', () => {
     const fmt = getCategoryFormat(categoryAxis({
-      type: 'number', dateUTC: false, valueFormat: 'auto', tickLabelFormat: null,
+      type: 'number', dateUTC: false, valueFormat: 'auto', tickLabel: { format: null },
       valuePrefix: null, valueSuffix: null
     }));
     expect(fmt(1500)).toBe(1500);
@@ -127,7 +127,7 @@ describe('getSeriesFormat', () => {
   it('is an identity when valueFormat is none', () => {
     const fmt = getSeriesFormat(
       series({ valueFormat: null, valuePrefix: null, valueSuffix: null }),
-      valueAxis({ tickLabelFormat: 'auto' }),
+      valueAxis({ tickLabel: { format: 'auto' } }),
       scale
     );
     expect(fmt(42)).toBe(42);
@@ -136,7 +136,7 @@ describe('getSeriesFormat', () => {
   it('applies an explicit d3 format', () => {
     const fmt = getSeriesFormat(
       series({ valueFormat: '$.2f', valuePrefix: null, valueSuffix: null }),
-      valueAxis({ tickLabelFormat: 'auto' }),
+      valueAxis({ tickLabel: { format: 'auto' } }),
       scale
     );
     expect(fmt(9.5)).toBe('$9.50');
@@ -145,7 +145,7 @@ describe('getSeriesFormat', () => {
   it('derives an auto format from the axis scale', () => {
     const fmt = getSeriesFormat(
       series({ valueFormat: 'auto', valuePrefix: null, valueSuffix: null }),
-      valueAxis({ tickLabelFormat: 'auto' }),
+      valueAxis({ tickLabel: { format: 'auto' } }),
       scale
     );
     // auto uses the scale's tickFormat; just assert it produces a string
@@ -155,7 +155,7 @@ describe('getSeriesFormat', () => {
   it('uses an explicit axis tickLabelFormat when valueFormat is auto', () => {
     const fmt = getSeriesFormat(
       series({ valueFormat: 'auto', valuePrefix: null, valueSuffix: null }),
-      valueAxis({ tickLabelFormat: '.0f' }),
+      valueAxis({ tickLabel: { format: '.0f' } }),
       scale
     );
     expect(fmt(12.7)).toBe('13');
@@ -164,7 +164,7 @@ describe('getSeriesFormat', () => {
   it('is an identity when valueFormat is auto and the axis tickLabelFormat is none', () => {
     const fmt = getSeriesFormat(
       series({ valueFormat: 'auto', valuePrefix: null, valueSuffix: null }),
-      valueAxis({ tickLabelFormat: null }),
+      valueAxis({ tickLabel: { format: null } }),
       scale
     );
     expect(fmt(42)).toBe(42);
@@ -173,7 +173,7 @@ describe('getSeriesFormat', () => {
   it('applies prefix and suffix', () => {
     const fmt = getSeriesFormat(
       series({ valueFormat: '.0f', valuePrefix: '<', valueSuffix: '>' }),
-      valueAxis({ tickLabelFormat: 'auto' }),
+      valueAxis({ tickLabel: { format: 'auto' } }),
       scale
     );
     expect(fmt(7)).toBe('<7>');
@@ -188,7 +188,7 @@ describe('getSeriesFormats', () => {
       series({ id: 's2', valueFormat: null, valuePrefix: null, valueSuffix: null,
         valueAxisConfig: valueAxis({ id: 'y' }) })
     ];
-    const axisConfigs = [valueAxis({ id: 'y', tickLabelFormat: 'auto' })];
+    const axisConfigs = [valueAxis({ id: 'y', tickLabel: { format: 'auto' } })];
     const formats = getSeriesFormats(configs, axisConfigs, { y: [0, 100] });
     expect(Object.keys(formats)).toEqual(['s1', 's2']);
     expect(formats.s1(12.7)).toBe('13');
@@ -200,19 +200,19 @@ describe('getSeriesLabelFormat', () => {
   const scale = scaleLinear().domain([0, 100]);
 
   it('is an identity when labelFormat is none', () => {
-    const fmt = getSeriesLabelFormat(series({ labelFormat: null }), valueAxis({}), scale);
+    const fmt = getSeriesLabelFormat(series({ label: { format: null } }), valueAxis({}), scale);
     expect(fmt(3)).toBe(3);
   });
 
   it('applies an explicit label format', () => {
-    const fmt = getSeriesLabelFormat(series({ labelFormat: '.1f' }), valueAxis({}), scale);
+    const fmt = getSeriesLabelFormat(series({ label: { format: '.1f' } }), valueAxis({}), scale);
     expect(fmt(3.14)).toBe('3.1');
   });
 
   it('reuses the series numeric format when labelFormat is auto', () => {
     const fmt = getSeriesLabelFormat(
-      series({ labelFormat: 'auto', valueFormat: '.0f', valuePrefix: null, valueSuffix: null }),
-      valueAxis({ tickLabelFormat: 'auto' }),
+      series({ label: { format: 'auto' }, valueFormat: '.0f', valuePrefix: null, valueSuffix: null }),
+      valueAxis({ tickLabel: { format: 'auto' } }),
       scale
     );
     expect(fmt(8.6)).toBe('9');
@@ -222,8 +222,8 @@ describe('getSeriesLabelFormat', () => {
   // labels render labelProperty, potentially a different quantity than those affixes describe.
   it('leaves the tooltip prefix and suffix off labels in auto mode', () => {
     const fmt = getSeriesLabelFormat(
-      series({ labelFormat: 'auto', valueFormat: '.0f', valuePrefix: '$', valueSuffix: ' USD' }),
-      valueAxis({ tickLabelFormat: 'auto' }),
+      series({ label: { format: 'auto' }, valueFormat: '.0f', valuePrefix: '$', valueSuffix: ' USD' }),
+      valueAxis({ tickLabel: { format: 'auto' } }),
       scale
     );
     expect(fmt(8.6)).toBe('9');
@@ -231,8 +231,8 @@ describe('getSeriesLabelFormat', () => {
 
   it('leaves them off with an explicit labelFormat too', () => {
     const fmt = getSeriesLabelFormat(
-      series({ labelFormat: '.1f', valuePrefix: '$', valueSuffix: ' USD' }),
-      valueAxis({ tickLabelFormat: 'auto' }),
+      series({ label: { format: '.1f' }, valuePrefix: '$', valueSuffix: ' USD' }),
+      valueAxis({ tickLabel: { format: 'auto' } }),
       scale
     );
     expect(fmt(3.14)).toBe('3.1');
@@ -240,8 +240,8 @@ describe('getSeriesLabelFormat', () => {
 
   it('still leaves them off when labelFormat is none', () => {
     const fmt = getSeriesLabelFormat(
-      series({ labelFormat: null, valuePrefix: '$', valueSuffix: ' USD' }),
-      valueAxis({ tickLabelFormat: 'auto' }),
+      series({ label: { format: null }, valuePrefix: '$', valueSuffix: ' USD' }),
+      valueAxis({ tickLabel: { format: 'auto' } }),
       scale
     );
     expect(fmt(3)).toBe(3);
@@ -254,41 +254,41 @@ describe('getSeriesLabelFormat prefix and suffix', () => {
   // valuePrefix/valueSuffix are independent of valueFormat.
   it('applies them with an explicit labelFormat', () => {
     const fmt = getSeriesLabelFormat(
-      series({ labelFormat: '.1f', labelPrefix: '~', labelSuffix: ' kg' }),
-      valueAxis({ tickLabelFormat: 'auto' }), scale);
+      series({ label: { format: '.1f', prefix: '~', suffix: ' kg' } }),
+      valueAxis({ tickLabel: { format: 'auto' } }), scale);
     expect(fmt(3.14)).toBe('~3.1 kg');
   });
 
   it('applies them in auto mode', () => {
     const fmt = getSeriesLabelFormat(
-      series({ labelFormat: 'auto', valueFormat: '.0f', labelPrefix: '~', labelSuffix: ' kg' }),
-      valueAxis({ tickLabelFormat: 'auto' }), scale);
+      series({ label: { format: 'auto', prefix: '~', suffix: ' kg' }, valueFormat: '.0f' }),
+      valueAxis({ tickLabel: { format: 'auto' } }), scale);
     expect(fmt(8.6)).toBe('~9 kg');
   });
 
   it('applies them with no labelFormat at all', () => {
     const fmt = getSeriesLabelFormat(
-      series({ labelFormat: null, labelPrefix: '~', labelSuffix: ' kg' }),
-      valueAxis({ tickLabelFormat: 'auto' }), scale);
+      series({ label: { format: null, prefix: '~', suffix: ' kg' } }),
+      valueAxis({ tickLabel: { format: 'auto' } }), scale);
     expect(fmt(42)).toBe('~42 kg');
   });
 
   it('applies either one alone', () => {
     const prefixOnly = getSeriesLabelFormat(
-      series({ labelFormat: '.1f', labelPrefix: '~', labelSuffix: null }),
-      valueAxis({ tickLabelFormat: 'auto' }), scale);
+      series({ label: { format: '.1f', prefix: '~', suffix: null } }),
+      valueAxis({ tickLabel: { format: 'auto' } }), scale);
     expect(prefixOnly(3.14)).toBe('~3.1');
 
     const suffixOnly = getSeriesLabelFormat(
-      series({ labelFormat: '.1f', labelPrefix: null, labelSuffix: ' kg' }),
-      valueAxis({ tickLabelFormat: 'auto' }), scale);
+      series({ label: { format: '.1f', prefix: null, suffix: ' kg' } }),
+      valueAxis({ tickLabel: { format: 'auto' } }), scale);
     expect(suffixOnly(3.14)).toBe('3.1 kg');
   });
 
   it('keeps the label pair off the tooltip value format', () => {
     const fmt = getSeriesFormat(
-      series({ valueFormat: '.0f', valuePrefix: '$', valueSuffix: null, labelPrefix: '~', labelSuffix: ' kg' }),
-      valueAxis({ tickLabelFormat: 'auto' }), scale);
+      series({ valueFormat: '.0f', valuePrefix: '$', valueSuffix: null, label: { prefix: '~', suffix: ' kg' } }),
+      valueAxis({ tickLabel: { format: 'auto' } }), scale);
     expect(fmt(7)).toBe('$7');
   });
 });

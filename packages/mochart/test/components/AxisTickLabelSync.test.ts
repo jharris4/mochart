@@ -111,7 +111,7 @@ describe('axis tick label sync', () => {
     expect(style).toEqual({ textAnchor: 'middle' });
     expect(labelAnchors(container)).toEqual(['middle', 'middle', 'middle']);
 
-    handle.update({ config: makeConfig({ tickLabelAnchor: 'start' }) } as Partial<DefaultChartProps>);
+    handle.update({ config: makeConfig({ tickLabel: { anchor: 'start' } }) } as Partial<DefaultChartProps>);
     expect(categoryLabels.tickTextStyle).not.toBe(style);
     expect(categoryLabels.tickTextStyle).toEqual({ textAnchor: 'start' });
     expect(categoryLabels.hiddenTickTextStyle).toEqual({ textAnchor: 'start', visibility: 'hidden' });

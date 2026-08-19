@@ -71,8 +71,8 @@ export function getPieLabelFormats(pieConfig: PieConfig): PieLabelFormats {
   let formats = pieLabelFormatsByConfig.get(pieConfig);
   if (formats === undefined) {
     formats = {
-      valueFormat: format(pieConfig.labelValueFormat === AUTO ? AUTO_LABEL_VALUE_FORMAT : pieConfig.labelValueFormat),
-      percentFormat: format(pieConfig.labelPercentFormat === AUTO ? AUTO_LABEL_PERCENT_FORMAT : pieConfig.labelPercentFormat)
+      valueFormat: format(pieConfig.label.valueFormat === AUTO ? AUTO_LABEL_VALUE_FORMAT : pieConfig.label.valueFormat),
+      percentFormat: format(pieConfig.label.percentFormat === AUTO ? AUTO_LABEL_PERCENT_FORMAT : pieConfig.label.percentFormat)
     };
     pieLabelFormatsByConfig.set(pieConfig, formats);
   }

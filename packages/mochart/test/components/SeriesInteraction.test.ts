@@ -143,7 +143,7 @@ describe('series shape hover focus', () => {
     const focuses: ChartFocus[] = [];
     const clicks: string[] = [];
     const container = mountChart(
-      { id: 'sales', renderer: 'line', markerShape: 'circle', focusCategoryOnMouseOver: true, focusCategoryOnClick: true },
+      { id: 'sales', renderer: 'line', marker: { shape: 'circle' }, focusCategoryOnMouseOver: true, focusCategoryOnClick: true },
       { onFocus: focus => focuses.push(focus), onSeriesClick: payload => clicks.push(payload.seriesId) });
     const marker = container.querySelector(getIdCssSelector('seriesMarker', '1'))!;
     expect(marker).not.toBeNull();

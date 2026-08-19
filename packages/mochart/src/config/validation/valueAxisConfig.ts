@@ -2,22 +2,26 @@ import validators from './validators';
 
 import { AUTO, NONE, TYPE_NUMBER, SCALE_LINEAR } from '../core/constants';
 
-import getAxisValidators, { axisStyleValidators } from './axisConfig';
+import getAxisValidators, { axisStyleValidators, getTickLabelValidators } from './axisConfig';
 
 export default function getValidators() {
   return {
-    ...getAxisValidators(),
+    ...getAxisValidators(validators.number(), {
+      ...getTickLabelValidators(),
+      format: validators.numberFormat().orOneOf([NONE, AUTO]),
+      adjustSizeForFiltering: validators.boolean()
+    }),
 
     adjustForFiltering: validators.boolean(),
-
-    adjustTickLabelSizeForFiltering: validators.boolean(),
 
     visibleWhenAllFiltered: validators.boolean(),
 
     base: validators.number().orEqual(NONE),
-    showBaseLine: validators.boolean(),
-    baseLineFront: validators.boolean(),
-    baseLineStyle: axisStyleValidators.styleStates(axisStyleValidators.lineMembers),
+    baseLine: validators.partialObjectWithShape({
+      visible: validators.boolean(),
+      front: validators.boolean(),
+      style: axisStyleValidators.styleStates(axisStyleValidators.lineMembers)
+    }, true),
 
     focusOnMouseOver: validators.boolean(),
     focusOnClick: validators.boolean(),
@@ -44,9 +48,6 @@ export default function getValidators() {
 
     softMax: validators.number().orEqual(NONE),
     softMin: validators.number().orEqual(NONE),
-
-
-    tickLabelFormat: validators.numberFormat().orOneOf([NONE, AUTO]),
 
     type: validators.equal(TYPE_NUMBER),
 

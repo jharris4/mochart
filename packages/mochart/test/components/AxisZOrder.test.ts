@@ -19,16 +19,27 @@ const rows = [
   { month: 'Mar', sales: 30 }
 ];
 
+// overrides merge one group deep, so a switch on a group keeps the group's other members
+function withOverrides(base: Record<string, unknown>, overrides: Record<string, unknown>): Record<string, unknown> {
+  const merged = { ...base };
+  for (const [key, value] of Object.entries(overrides)) {
+    const existing = merged[key];
+    merged[key] = existing !== null && typeof existing === 'object' && value !== null && typeof value === 'object'
+      ? { ...existing, ...value } : value;
+  }
+  return merged;
+}
+
 function mountChart(categoryOverrides: Record<string, unknown>, valueOverrides: Record<string, unknown> = {}): Element {
   const container = mountContainer();
   const config = {
     version: VERSION,
     animation: { animate: false },
     // every optional piece of chrome switched on, so each layer test has something to move
-    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Month',
-      showFocusRange: true, showGridLines: true, ...categoryOverrides },
-    valueAxes: [{ id: 'VA0', title: 'Sales', base: 0,
-      showFocusTickMarks: true, showGridLines: true, ...valueOverrides }],
+    categoryAxis: withOverrides({ property: 'month', type: 'string', scale: 'ordinal', title: { text: 'Month' },
+      focusRange: { visible: true }, gridLine: { visible: true } }, categoryOverrides),
+    valueAxes: [withOverrides({ id: 'VA0', title: { text: 'Sales' }, base: 0,
+      focusTickMark: { visible: true }, gridLine: { visible: true } }, valueOverrides)],
     series: [{ axis: 'VA0', property: 'sales', renderer: 'bar' }]
   } as unknown as MochartInputConfig;
   trackHandle(createDefaultChart(container, { config, data: rows, width: WIDTH, height: HEIGHT } as DefaultChartProps));
@@ -44,32 +55,32 @@ beforeAll(() => {
   installSvgMeasurementShims();
 });
 
-// each switch, the axis it is set on, and the chrome element it moves
+// each front switch (a flat key, or a group whose front member it is), the axis it is set on, and the chrome element it moves
 const switches: Array<{ key: string; axis: 'category' | 'value'; path: MochartCssClassKey[] }> = [
   { key: 'backgroundFront', axis: 'category', path: ['categoryAxis', 'axisBackground'] },
   { key: 'backgroundFront', axis: 'value', path: ['valueAxis', 'axisBackground'] },
-  { key: 'axisLineFront', axis: 'category', path: ['categoryAxis', 'axisLine'] },
-  { key: 'axisLineFront', axis: 'value', path: ['valueAxis', 'axisLine'] },
-  { key: 'focusRangeFront', axis: 'category', path: ['categoryAxis', 'axisFocusRange'] },
-  { key: 'focusRangeFront', axis: 'value', path: ['valueAxis', 'axisFocusRange'] },
-  { key: 'tickMarkFront', axis: 'category', path: ['categoryAxis', 'axisTickMarks'] },
-  { key: 'tickMarkFront', axis: 'value', path: ['valueAxis', 'axisTickMarks'] },
-  { key: 'tickLabelFront', axis: 'category', path: ['categoryAxis', 'axisTickLabels'] },
-  { key: 'tickLabelFront', axis: 'value', path: ['valueAxis', 'axisTickLabels'] },
-  { key: 'titleFront', axis: 'category', path: ['categoryAxis', 'axisTitle'] },
-  { key: 'titleFront', axis: 'value', path: ['valueAxis', 'axisTitle'] },
-  { key: 'focusTickMarkFront', axis: 'category', path: ['categoryAxis', 'axisFocusTickMarks'] },
-  { key: 'focusTickMarkFront', axis: 'value', path: ['valueAxis', 'axisFocusTickMarks'] },
-  { key: 'gridLineFront', axis: 'category', path: ['categoryAxisGrid'] },
-  { key: 'gridLineFront', axis: 'value', path: ['valueAxisGrid'] },
-  { key: 'baseLineFront', axis: 'value', path: ['valueAxisBaseLine'] }
+  { key: 'axisLine', axis: 'category', path: ['categoryAxis', 'axisLine'] },
+  { key: 'axisLine', axis: 'value', path: ['valueAxis', 'axisLine'] },
+  { key: 'focusRange', axis: 'category', path: ['categoryAxis', 'axisFocusRange'] },
+  { key: 'focusRange', axis: 'value', path: ['valueAxis', 'axisFocusRange'] },
+  { key: 'tickMark', axis: 'category', path: ['categoryAxis', 'axisTickMarks'] },
+  { key: 'tickMark', axis: 'value', path: ['valueAxis', 'axisTickMarks'] },
+  { key: 'tickLabel', axis: 'category', path: ['categoryAxis', 'axisTickLabels'] },
+  { key: 'tickLabel', axis: 'value', path: ['valueAxis', 'axisTickLabels'] },
+  { key: 'title', axis: 'category', path: ['categoryAxis', 'axisTitle'] },
+  { key: 'title', axis: 'value', path: ['valueAxis', 'axisTitle'] },
+  { key: 'focusTickMark', axis: 'category', path: ['categoryAxis', 'axisFocusTickMarks'] },
+  { key: 'focusTickMark', axis: 'value', path: ['valueAxis', 'axisFocusTickMarks'] },
+  { key: 'gridLine', axis: 'category', path: ['categoryAxisGrid'] },
+  { key: 'gridLine', axis: 'value', path: ['valueAxisGrid'] },
+  { key: 'baseLine', axis: 'value', path: ['valueAxisBaseLine'] }
 ];
 
 describe('axis chrome layer', () => {
   for (const { key, axis, path } of switches) {
     const what = path.join(' > ');
-    it(`keeps ${what} behind the series until ${axis} axis ${key} moves it in front`, () => {
-      const on = { [key]: true };
+    it(`keeps ${what} behind the series until ${axis} axis ${key === 'backgroundFront' ? key : key + '.front'} moves it in front`, () => {
+      const on = key === 'backgroundFront' ? { [key]: true } : { [key]: { front: true } };
       const front = axis === 'category' ? mountChart(on) : mountChart({}, on);
       const back = mountChart({});
 
@@ -82,7 +93,7 @@ describe('axis chrome layer', () => {
   }
 
   it('moves only the switched piece, leaving the rest of the axis behind', () => {
-    const container = mountChart({ titleFront: true });
+    const container = mountChart({ title: { front: true } });
 
     expect(countIn(container, 'plotFront', ['categoryAxis', 'axisTitle'])).toBe(1);
     expect(countIn(container, 'plotFront', ['categoryAxis', 'axisTickLabels'])).toBe(0);
@@ -94,6 +105,6 @@ describe('axis chrome layer', () => {
 describe('value axis base line', () => {
   it('draws a base line by default and drops it when showBaseLine is off', () => {
     expect(mountChart({}).querySelectorAll(getCssSelector('axisBaseLine')).length).toBeGreaterThan(0);
-    expect(mountChart({}, { showBaseLine: false }).querySelectorAll(getCssSelector('axisBaseLine')).length).toBe(0);
+    expect(mountChart({}, { baseLine: { visible: false } }).querySelectorAll(getCssSelector('axisBaseLine')).length).toBe(0);
   });
 });

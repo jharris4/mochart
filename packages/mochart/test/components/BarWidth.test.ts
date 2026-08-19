@@ -44,7 +44,7 @@ describe('barWidthFraction', () => {
   it('narrows bars within the slot, centered on a full-width sibling series', () => {
     const container = mountChart(makeConfig([
       { id: 'F', property: 'full', renderer: 'bar' },
-      { id: 'N', property: 'narrow', renderer: 'bar', barWidthFraction: 0.25 }
+      { id: 'N', property: 'narrow', renderer: 'bar', bar: { widthFraction: 0.25 } }
     ]));
     const fullBars = barRects(container, 'F');
     const narrowBars = barRects(container, 'N');
@@ -60,7 +60,7 @@ describe('barWidthFraction', () => {
   it('narrows grouped bars within their per-series sub-slot', () => {
     const container = mountChart(makeConfig([
       { id: 'F', property: 'full', renderer: 'bar', group: 'G' },
-      { id: 'N', property: 'narrow', renderer: 'bar', group: 'G', barWidthFraction: 0.5 }
+      { id: 'N', property: 'narrow', renderer: 'bar', group: 'G', bar: { widthFraction: 0.5 } }
     ], { seriesGroups: [{ id: 'G' }] }));
     const fullBars = barRects(container, 'F');
     const narrowBars = barRects(container, 'N');
@@ -76,7 +76,7 @@ describe('barWidthFraction', () => {
   it('defaults to the full slot width', () => {
     const container = mountChart(makeConfig([
       { id: 'F', property: 'full', renderer: 'bar' },
-      { id: 'N', property: 'narrow', renderer: 'bar', barWidthFraction: 1 }
+      { id: 'N', property: 'narrow', renderer: 'bar', bar: { widthFraction: 1 } }
     ]));
     const fullBars = barRects(container, 'F');
     const narrowBars = barRects(container, 'N');
@@ -89,9 +89,9 @@ describe('barWidthFraction', () => {
   it('rejects out-of-range values in config validation', async () => {
     const { default: validateConfig } = await import('../../src/config/validation/mochartConfig');
     const { getDefaults } = await import('../../src/config/defaults/mochartConfig');
-    const bad = makeConfig([{ id: 'F', property: 'full', renderer: 'bar', barWidthFraction: 2 }]);
+    const bad = makeConfig([{ id: 'F', property: 'full', renderer: 'bar', bar: { widthFraction: 2 } }]);
     const { errors } = validateConfig(bad, getDefaults(bad as never) as never);
-    expect(errors.join('\n')).toContain('barWidthFraction');
+    expect(errors.join('\n')).toContain('bar.widthFraction');
   });
 });
 
@@ -99,8 +99,8 @@ describe('barAlignFraction', () => {
   it('aligns a narrowed bar with the slot start at 0 and the slot end at 1', () => {
     const container = mountChart(makeConfig([
       { id: 'F', property: 'full', renderer: 'bar' },
-      { id: 'L', property: 'narrow', renderer: 'bar', barWidthFraction: 0.5, barAlignFraction: 0 },
-      { id: 'R', property: 'narrow', renderer: 'bar', barWidthFraction: 0.5, barAlignFraction: 1 }
+      { id: 'L', property: 'narrow', renderer: 'bar', bar: { widthFraction: 0.5, alignFraction: 0 } },
+      { id: 'R', property: 'narrow', renderer: 'bar', bar: { widthFraction: 0.5, alignFraction: 1 } }
     ]));
     const fullBars = barRects(container, 'F');
     const leftBars = barRects(container, 'L');
@@ -116,7 +116,7 @@ describe('barAlignFraction', () => {
   it('defaults to centered', () => {
     const container = mountChart(makeConfig([
       { id: 'F', property: 'full', renderer: 'bar' },
-      { id: 'N', property: 'narrow', renderer: 'bar', barWidthFraction: 0.25, barAlignFraction: 0.5 }
+      { id: 'N', property: 'narrow', renderer: 'bar', bar: { widthFraction: 0.25, alignFraction: 0.5 } }
     ]));
     const fullBars = barRects(container, 'F');
     const narrowBars = barRects(container, 'N');
@@ -128,9 +128,9 @@ describe('barAlignFraction', () => {
   it('rejects out-of-range values in config validation', async () => {
     const { default: validateConfig } = await import('../../src/config/validation/mochartConfig');
     const { getDefaults } = await import('../../src/config/defaults/mochartConfig');
-    const bad = makeConfig([{ id: 'F', property: 'full', renderer: 'bar', barAlignFraction: -1 }]);
+    const bad = makeConfig([{ id: 'F', property: 'full', renderer: 'bar', bar: { alignFraction: -1 } }]);
     const { errors } = validateConfig(bad, getDefaults(bad as never) as never);
-    expect(errors.join('\n')).toContain('barAlignFraction');
+    expect(errors.join('\n')).toContain('bar.alignFraction');
   });
 });
 
@@ -138,7 +138,7 @@ describe('barMinExtent', () => {
   it('expands a zero-extent range bar to the minimum extent, centered on its value', () => {
     const container = mountChart(makeConfig([
       { id: 'F', property: 'narrow', renderer: 'bar' },
-      { id: 'T', property: 'narrow', rangeProperty: 'narrow', renderer: 'bar', barMinExtent: 4 }
+      { id: 'T', property: 'narrow', rangeProperty: 'narrow', renderer: 'bar', bar: { minExtent: 4 } }
     ]));
     const fullBars = barRects(container, 'F');
     const tickBars = barRects(container, 'T');
@@ -152,7 +152,7 @@ describe('barMinExtent', () => {
   it('leaves bars taller than the minimum extent untouched', () => {
     const container = mountChart(makeConfig([
       { id: 'F', property: 'full', renderer: 'bar' },
-      { id: 'M', property: 'full', renderer: 'bar', barMinExtent: 4 }
+      { id: 'M', property: 'full', renderer: 'bar', bar: { minExtent: 4 } }
     ]));
     const fullBars = barRects(container, 'F');
     const minBars = barRects(container, 'M');
@@ -165,8 +165,8 @@ describe('barMinExtent', () => {
   it('rejects negative values in config validation', async () => {
     const { default: validateConfig } = await import('../../src/config/validation/mochartConfig');
     const { getDefaults } = await import('../../src/config/defaults/mochartConfig');
-    const bad = makeConfig([{ id: 'F', property: 'full', renderer: 'bar', barMinExtent: -1 }]);
+    const bad = makeConfig([{ id: 'F', property: 'full', renderer: 'bar', bar: { minExtent: -1 } }]);
     const { errors } = validateConfig(bad, getDefaults(bad as never) as never);
-    expect(errors.join('\n')).toContain('barMinExtent');
+    expect(errors.join('\n')).toContain('bar.minExtent');
   });
 });

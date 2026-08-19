@@ -227,7 +227,7 @@ describe('prototype-key config validation', () => {
 // config the merge treats as "not specified" failed strict validation
 describe('explicit undefined members', () => {
   it('read as not specified, in an entry, an all-config and a top-level section', () => {
-    expect(errorsFor({ version: V, categoryAxis: { property: 'c' }, series: [{ property: 'p', markerShape: undefined }] })).toEqual([]);
+    expect(errorsFor({ version: V, categoryAxis: { property: 'c' }, series: [{ property: 'p', marker: { shape: undefined } }] })).toEqual([]);
     expect(errorsFor({ version: V, categoryAxis: { property: 'c' }, seriesDefaults: { renderer: undefined }, series: [{ property: 'p' }] })).toEqual([]);
     expect(errorsFor({ version: V, categoryAxis: { property: 'c' }, chart: { type: undefined }, series: [{ property: 'p' }] })).toEqual([]);
     expect(errorsFor({ version: V, categoryAxis: { property: 'c' }, valueAxes: [{ min: undefined }], series: [{ property: 'p' }] })).toEqual([]);
@@ -282,36 +282,36 @@ describe('icon size config validation', () => {
     expect(errorsFor({
       version: V,
       categoryAxis: { property: 'p' },
-      tooltip: { iconSize: 'auto' }
+      tooltip: { icon: { size: 'auto' } }
     })).toEqual([]);
     expect(errorsFor({
       version: V,
       categoryAxis: { property: 'p' },
-      tooltip: { iconSize: 20 }
+      tooltip: { icon: { size: 20 } }
     })).toEqual([]);
     expect(errorsFor({
       version: V,
       categoryAxis: { property: 'p' },
-      tooltip: { iconSize: 'large' }
-    })).toContain('tooltip - iconSize - should be a number >= to 0 or be equal to "auto": "large"');
+      tooltip: { icon: { size: 'large' } }
+    })).toContain('tooltip - icon.size - should be a number >= to 0 or be equal to "auto": "large"');
   });
 
   it('accepts automatic or numeric legend icon sizes and rejects other strings', () => {
     expect(errorsFor({
       version: V,
       categoryAxis: { property: 'p' },
-      legend: { iconSize: 'auto' }
+      legend: { icon: { size: 'auto' } }
     })).toEqual([]);
     expect(errorsFor({
       version: V,
       categoryAxis: { property: 'p' },
-      legend: { iconSize: 20 }
+      legend: { icon: { size: 20 } }
     })).toEqual([]);
     expect(errorsFor({
       version: V,
       categoryAxis: { property: 'p' },
-      legend: { iconSize: 'large' }
-    })).toContain('legend - iconSize - should be a number >= to 0 or be equal to "auto": "large"');
+      legend: { icon: { size: 'large' } }
+    })).toContain('legend - icon.size - should be a number >= to 0 or be equal to "auto": "large"');
   });
 });
 
@@ -422,7 +422,7 @@ describe('pie chart config validation', () => {
     const errors = errorsFor({
       version: V,
       chart: { type: 'pie' },
-      pie: { innerRadiusFraction: 0.6, startAngle: 45, showLabels: true, labelType: 'percent' },
+      pie: { innerRadiusFraction: 0.6, startAngle: 45, label: { visible: true, type: 'percent' } },
       categoryAxis: { property: 'p' },
       series: [{ property: 'a' }, { property: 'b' }]
     });
@@ -438,21 +438,21 @@ describe('pie chart config validation', () => {
     const errors = errorsFor({
       version: V,
       chart: { type: 'pie' },
-      pie: { innerRadiusFraction: 1.5, labelMinFraction: -1 },
+      pie: { innerRadiusFraction: 1.5, label: { minFraction: -1 } },
       categoryAxis: { property: 'p' }
     });
     expect(errors.some(error => error.startsWith('pie - innerRadiusFraction - '))).toBe(true);
-    expect(errors.some(error => error.startsWith('pie - labelMinFraction - '))).toBe(true);
+    expect(errors.some(error => error.startsWith('pie - label.minFraction - '))).toBe(true);
   });
 
-  it('flags an unknown pieConfig.labelType', () => {
+  it('flags an unknown pie label.type', () => {
     const errors = errorsFor({
       version: V,
       chart: { type: 'pie' },
-      pie: { labelType: 'nope' },
+      pie: { label: { type: 'nope' } },
       categoryAxis: { property: 'p' }
     });
-    expect(errors.some(error => error.startsWith('pie - labelType - '))).toBe(true);
+    expect(errors.some(error => error.startsWith('pie - label.type - '))).toBe(true);
   });
 });
 
@@ -463,10 +463,10 @@ describe('list-section validation with ignored entries', () => {
     const errors = errorsFor({
       version: V,
       categoryAxis: { property: 'g' },
-      series: [{ ignore: true, property: 'x' }, { renderer: 'bogus', property: 'v', markerSize: -5 }]
+      series: [{ ignore: true, property: 'x' }, { renderer: 'bogus', property: 'v', marker: { size: -5 } }]
     });
     expect(errors.some(error => error.startsWith('series[1] - renderer - '))).toBe(true);
-    expect(errors.some(error => error.startsWith('series[1] - markerSize - '))).toBe(true);
+    expect(errors.some(error => error.startsWith('series[1] - marker.size - '))).toBe(true);
     expect(errors.some(error => error.startsWith('series[0]'))).toBe(false);
   });
 
@@ -594,12 +594,12 @@ describe('tooltip drop-shadow validation', () => {
   const base = { version: V, categoryAxis: { property: 'p' }, series: [{ property: 'v' }] };
 
   it('accepts negative shadow offsets', () => {
-    expect(errorsFor({ ...base, tooltip: { dropShadowOffsetX: -3, dropShadowOffsetY: -5 } })).toEqual([]);
+    expect(errorsFor({ ...base, tooltip: { dropShadow: { offsetX: -3, offsetY: -5 } } })).toEqual([]);
   });
 
   it('still rejects a negative blur radius', () => {
-    expect(errorsFor({ ...base, tooltip: { dropShadowBlurRadius: -1 } }))
-      .toContainEqual(expect.stringContaining('dropShadowBlurRadius'));
+    expect(errorsFor({ ...base, tooltip: { dropShadow: { blurRadius: -1 } } }))
+      .toContainEqual(expect.stringContaining('dropShadow.blurRadius'));
   });
 });
 
@@ -686,14 +686,14 @@ describe('style null semantics', () => {
   it('accepts a null stroke width on axis and series style states', () => {
     const errors = errorsFor({
       ...base,
-      categoryAxis: { property: 'p', axisLineStyle: { normal: { strokeWidth: null } } },
+      categoryAxis: { property: 'p', axisLine: { style: { normal: { strokeWidth: null } } } },
       series: [{ property: 'v', shapeStyle: { normal: { strokeWidth: null }, focused: { strokeWidth: null } } }]
     });
     expect(errors).toEqual([]);
   });
 
   it('rejects null style-state colors on axis and series', () => {
-    expect(errorsFor({ ...base, categoryAxis: { property: 'p', axisLineStyle: { normal: { strokeColor: null } } }, series: [{ property: 'v' }] }))
+    expect(errorsFor({ ...base, categoryAxis: { property: 'p', axisLine: { style: { normal: { strokeColor: null } } } }, series: [{ property: 'v' }] }))
       .toContainEqual(expect.stringContaining('strokeColor'));
     expect(errorsFor({ ...base, series: [{ property: 'v', shapeStyle: { normal: { fillColor: null } } }] }))
       .toContainEqual(expect.stringContaining('fillColor'));
@@ -887,7 +887,7 @@ describe('dash array validation', () => {
   it('rejects non-dash-array strings containing digits', () => {
     const errors = errorsFor({
       version: V,
-      categoryAxis: { property: 'p', showGridLines: true, gridLineStyle: { normal: { strokeDashArray: 'abc5' } } },
+      categoryAxis: { property: 'p', gridLine: { visible: true, style: { normal: { strokeDashArray: 'abc5' } } } },
       series: [{ property: 'a' }]
     });
     expect(errors.some(error => error.includes('strokeDashArray'))).toBe(true);
@@ -897,7 +897,7 @@ describe('dash array validation', () => {
     for (const dashArray of ['5,3', '5, 3', '6 3', '0.5, 2', '5 , 3']) {
       const errors = errorsFor({
         version: V,
-        categoryAxis: { property: 'p', showGridLines: true, gridLineStyle: { normal: { strokeDashArray: dashArray } } },
+        categoryAxis: { property: 'p', gridLine: { visible: true, style: { normal: { strokeDashArray: dashArray } } } },
         series: [{ property: 'a' }]
       });
       expect(errors).toEqual([]);
@@ -907,13 +907,13 @@ describe('dash array validation', () => {
   it("accepts 'same' for focus-state width and dash but not on the normal state", () => {
     const valid = errorsFor({
       version: V,
-      categoryAxis: { property: 'p', showGridLines: true, gridLineStyle: { focused: { strokeWidth: 'same', strokeDashArray: 'same' } } },
+      categoryAxis: { property: 'p', gridLine: { visible: true, style: { focused: { strokeWidth: 'same', strokeDashArray: 'same' } } } },
       series: [{ property: 'a' }]
     });
     expect(valid).toEqual([]);
     const invalid = errorsFor({
       version: V,
-      categoryAxis: { property: 'p', showGridLines: true, gridLineStyle: { normal: { strokeWidth: 'same' } } },
+      categoryAxis: { property: 'p', gridLine: { visible: true, style: { normal: { strokeWidth: 'same' } } } },
       series: [{ property: 'a' }]
     });
     expect(invalid.some(error => error.includes('strokeWidth'))).toBe(true);

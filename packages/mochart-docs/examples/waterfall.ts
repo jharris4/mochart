@@ -19,7 +19,7 @@ export const config: MochartInputConfig = {
   title: { text: 'Income Statement (fictional, $k)' },
   categoryAxis: waterfall.categoryAxis,
   // the returned fragment carries the axis base; merge your own settings over it
-  valueAxes: [{ ...waterfall.valueAxes[0], title: '$ thousands' }],
+  valueAxes: [{ ...waterfall.valueAxes[0], title: { text: '$ thousands' } }],
   series: waterfall.series
 };
 

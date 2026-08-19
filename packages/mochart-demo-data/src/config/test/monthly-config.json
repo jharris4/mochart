@@ -12,12 +12,20 @@
     "focusDuration": 500
   },
   "categoryAxis": {
-    "title": "Month",
-    "showAxisLine": true,
-    "axisLineMargin": 0,
-    "showGridLines": true,
-    "tickLabelFormat": "%b",
-    "tickLabelRotation": 45,
+    "title": {
+      "text": "Month"
+    },
+    "axisLine": {
+      "visible": true,
+      "margin": 0
+    },
+    "gridLine": {
+      "visible": true
+    },
+    "tickLabel": {
+      "format": "%b",
+      "rotation": 45
+    },
     "tickCount": 12,
     "type": "date",
     "scale": "ordinal",
@@ -30,10 +38,18 @@
   "valueAxes": [
     {
       "visible": true,
-      "axisLineMargin": 0,
-      "showGridLines": true,
-      "tickLabelFormat": "$s",
-      "title": "Monthly Amount",
+      "axisLine": {
+        "margin": 0
+      },
+      "gridLine": {
+        "visible": true
+      },
+      "tickLabel": {
+        "format": "$s"
+      },
+      "title": {
+        "text": "Monthly Amount"
+      },
       "min": 0,
       "id": "VA0",
       "side": "start"
@@ -49,7 +65,9 @@
     {
       "renderer": "bar",
       "title": "Value 1",
-      "markerShape": null,
+      "marker": {
+        "shape": null
+      },
       "axis": "VA0",
       "stack": "SS0",
       "property": "value1"
@@ -57,7 +75,9 @@
     {
       "renderer": "bar",
       "title": "Value 2",
-      "markerShape": null,
+      "marker": {
+        "shape": null
+      },
       "axis": "VA0",
       "stack": "SS0",
       "property": "value2"

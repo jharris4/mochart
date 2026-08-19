@@ -9,15 +9,17 @@ export const config: MochartInputConfig = {
   title: { text: 'Monthly Net Cash Flow' },
   categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
   // The extra min margin leaves room for the lowest bar's outside label.
-  valueAxes: [{ id: 'VA0', title: 'Net cash flow ($k)', base: 0, minMarginFraction: 0.15 }],
+  valueAxes: [{ id: 'VA0', title: { text: 'Net cash flow ($k)' }, base: 0, minMarginFraction: 0.15 }],
   series: [
     {
       property: 'net',
       title: 'Net cash flow',
       renderer: 'bar',
       labelProperty: 'net',
-      labelPosition: 'outside',
-      labelFormat: ',.0f'
+      label: {
+        position: 'outside',
+        format: ',.0f'
+      }
     }
   ]
 };

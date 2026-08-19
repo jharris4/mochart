@@ -7,13 +7,13 @@ export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'p95 Response Time' },
   categoryAxis: { property: 'time', type: 'string', scale: 'ordinal' },
-  valueAxes: [{ id: 'VA0', title: 'Response time (ms)', min: 0, max: 200 }],
+  valueAxes: [{ id: 'VA0', title: { text: 'Response time (ms)' }, min: 0, max: 200 }],
   series: [
     {
       property: 'ms',
       title: 'p95',
       renderer: 'line',
-      markerShape: 'circle'
+      marker: { shape: 'circle' }
     }
   ]
 };

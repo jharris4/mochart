@@ -27,8 +27,8 @@ export function getCategoryFormat(categoryAxisConfig: CategoryAxisConfig): (cate
   if (categoryAxisConfig.valueFormat !== NONE) {
     const timeFormatter = categoryAxisConfig.dateUTC ? utcFormat : timeFormat;
     if (categoryAxisConfig.valueFormat === AUTO) {
-      if (categoryAxisConfig.tickLabelFormat !== NONE) {
-        if (categoryAxisConfig.tickLabelFormat === AUTO) {
+      if (categoryAxisConfig.tickLabel.format !== NONE) {
+        if (categoryAxisConfig.tickLabel.format === AUTO) {
           if (categoryAxisConfig.type === TYPE_DATE) {
             const formatter = timeFormatter(autoCategoryFormatDate);
             categoryFormat = category => formatter(category as Date);
@@ -40,11 +40,11 @@ export function getCategoryFormat(categoryAxisConfig: CategoryAxisConfig): (cate
         }
         else {
           if (categoryAxisConfig.type === TYPE_DATE) {
-            const formatter = timeFormatter(categoryAxisConfig.tickLabelFormat);
+            const formatter = timeFormatter(categoryAxisConfig.tickLabel.format);
             categoryFormat = category => formatter(category as Date);
           }
           else if (categoryAxisConfig.type === TYPE_NUMBER) {
-            const formatter = format(categoryAxisConfig.tickLabelFormat);
+            const formatter = format(categoryAxisConfig.tickLabel.format);
             categoryFormat = category => formatter(category as number);
           }
         }
@@ -77,10 +77,10 @@ function getSeriesValueFormatter(seriesConfig: EnhancedSeriesConfig, valueAxisCo
     return value => value;
   }
   if (seriesConfig.valueFormat === AUTO) {
-    if (valueAxisConfig.tickLabelFormat === NONE) {
+    if (valueAxisConfig.tickLabel.format === NONE) {
       return value => value;
     }
-    const formatSpecifier = valueAxisConfig.tickLabelFormat === AUTO ? autoValueFormatNumber : valueAxisConfig.tickLabelFormat;
+    const formatSpecifier = valueAxisConfig.tickLabel.format === AUTO ? autoValueFormatNumber : valueAxisConfig.tickLabel.format;
     return valueAxisScale.tickFormat(10, formatSpecifier);
   }
   const formatter = format(seriesConfig.valueFormat);
@@ -95,20 +95,20 @@ export function getSeriesFormat(seriesConfig: EnhancedSeriesConfig, valueAxisCon
 
 /** The numeric formatting a series applies to its label values, before any prefix/suffix. */
 function getSeriesLabelFormatter(seriesConfig: EnhancedSeriesConfig, valueAxisConfig: EnhancedValueAxisConfig, valueAxisScale: AxisScale): ValueFormatter {
-  if (seriesConfig.labelFormat === NONE) {
+  if (seriesConfig.label.format === NONE) {
     return value => value;
   }
   // numeric formatting alone: labels render labelProperty, not the series value
-  if (seriesConfig.labelFormat === AUTO) {
+  if (seriesConfig.label.format === AUTO) {
     return getSeriesValueFormatter(seriesConfig, valueAxisConfig, valueAxisScale);
   }
-  const formatter = format(seriesConfig.labelFormat);
+  const formatter = format(seriesConfig.label.format);
   return value => formatter(value as number);
 }
 
 export function getSeriesLabelFormat(seriesConfig: EnhancedSeriesConfig, valueAxisConfig: EnhancedValueAxisConfig, valueAxisScale: AxisScale): ValueFormatter {
   // labelPrefix/labelSuffix are independent of labelFormat, as the value pair is of valueFormat
-  return applyAffixes(seriesConfig.labelPrefix, seriesConfig.labelSuffix,
+  return applyAffixes(seriesConfig.label.prefix, seriesConfig.label.suffix,
     getSeriesLabelFormatter(seriesConfig, valueAxisConfig, valueAxisScale));
 }
 

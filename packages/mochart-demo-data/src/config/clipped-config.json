@@ -4,8 +4,12 @@
     "text": "Clipped Values"
   },
   "categoryAxis": {
-    "title": "Category Axis",
-    "showGridLines": true,
+    "title": {
+      "text": "Category Axis"
+    },
+    "gridLine": {
+      "visible": true
+    },
     "valueLabel": "Category",
     "property": "categoryNL",
     "type": "number",
@@ -15,14 +19,18 @@
   },
   "valueAxes": [
     {
-      "title": "Value Axis",
+      "title": {
+        "text": "Value Axis"
+      },
       "min": -5,
       "max": 5
     }
   ],
   "seriesDefaults": {
     "renderer": "line",
-    "markerShape": "circle"
+    "marker": {
+      "shape": "circle"
+    }
   },
   "series": [
     {

@@ -17,9 +17,9 @@ const baseConfig: MochartInputConfig = {
     type: 'date',
     scale: 'linear',
     dateUTC: true,
-    tickLabelFormat: '%b %d'
+    tickLabel: { format: '%b %d' }
   },
-  seriesDefaults: { renderer: 'line', markerShape: 'circle' },
+  seriesDefaults: { renderer: 'line', marker: { shape: 'circle' } },
   series: [{ property: 'value', title: 'Value' }]
 };
 

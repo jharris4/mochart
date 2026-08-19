@@ -10,7 +10,9 @@
   },
   "valueAxes": [
     {
-      "title": "$ per share"
+      "title": {
+        "text": "$ per share"
+      }
     }
   ],
   "series": [
@@ -19,7 +21,9 @@
       "property": "upHigh",
       "rangeProperty": "low",
       "renderer": "none",
-      "barWidthFraction": 0.15,
+      "bar": {
+        "widthFraction": 0.15
+      },
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,
@@ -34,11 +38,15 @@
           "fillOpacity": 1
         }
       },
-      "markerShape": null,
-      "labelTextStyle": {
-        "normal": {
-          "fillColor": "#1baf7a",
-          "fillOpacity": 1
+      "marker": {
+        "shape": null
+      },
+      "label": {
+        "textStyle": {
+          "normal": {
+            "fillColor": "#1baf7a",
+            "fillOpacity": 1
+          }
         }
       },
       "valueFormat": ",.2f"
@@ -48,7 +56,9 @@
       "property": "downHigh",
       "rangeProperty": "low",
       "renderer": "none",
-      "barWidthFraction": 0.15,
+      "bar": {
+        "widthFraction": 0.15
+      },
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,
@@ -63,11 +73,15 @@
           "fillOpacity": 1
         }
       },
-      "markerShape": null,
-      "labelTextStyle": {
-        "normal": {
-          "fillColor": "#e34948",
-          "fillOpacity": 1
+      "marker": {
+        "shape": null
+      },
+      "label": {
+        "textStyle": {
+          "normal": {
+            "fillColor": "#e34948",
+            "fillOpacity": 1
+          }
         }
       },
       "valueFormat": ",.2f"
@@ -77,7 +91,9 @@
       "property": "upHigh",
       "rangeProperty": "up",
       "renderer": "bar",
-      "barWidthFraction": 0.15,
+      "bar": {
+        "widthFraction": 0.15
+      },
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,
@@ -99,7 +115,9 @@
       "property": "upOpen",
       "rangeProperty": "low",
       "renderer": "bar",
-      "barWidthFraction": 0.15,
+      "bar": {
+        "widthFraction": 0.15
+      },
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,
@@ -121,7 +139,9 @@
       "property": "downHigh",
       "rangeProperty": "open",
       "renderer": "bar",
-      "barWidthFraction": 0.15,
+      "bar": {
+        "widthFraction": 0.15
+      },
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,
@@ -143,7 +163,9 @@
       "property": "down",
       "rangeProperty": "low",
       "renderer": "bar",
-      "barWidthFraction": 0.15,
+      "bar": {
+        "widthFraction": 0.15
+      },
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,
@@ -165,7 +187,9 @@
       "property": "up",
       "rangeProperty": "open",
       "renderer": "bar",
-      "barWidthFraction": 1,
+      "bar": {
+        "widthFraction": 1
+      },
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,
@@ -195,8 +219,10 @@
       "property": "down",
       "rangeProperty": "open",
       "renderer": "bar",
-      "barWidthFraction": 1,
-      "barMinExtent": 2,
+      "bar": {
+        "widthFraction": 1,
+        "minExtent": 2
+      },
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,

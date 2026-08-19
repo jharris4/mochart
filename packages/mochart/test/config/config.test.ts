@@ -384,16 +384,16 @@ describe('single-object sections with a *Defaults section', () => {
 
   it('applies the all config to a single-object section like an array of one', () => {
     const single = enhance({ ...base, series: [{ property: 'v', axis: 'y' }],
-      valueAxes: { id: 'y' }, valueAxisDefaults: { showGridLines: true } });
+      valueAxes: { id: 'y' }, valueAxisDefaults: { gridLine: { visible: true } } });
     expect(single.validation.valid).toBe(true);
-    expect(single.valueAxes[0].showGridLines).toBe(true);
+    expect(single.valueAxes[0].gridLine.visible).toBe(true);
   });
 
   it('keeps conditional defaults consistent with the all config values', () => {
     const single = enhance({ ...base, series: { property: 'v' }, seriesDefaults: { renderer: 'bar' } });
     const array = enhance({ ...base, series: [{ property: 'v' }], seriesDefaults: { renderer: 'bar' } });
     expect(single.series[0].renderer).toBe('bar');
-    expect(single.series[0].markerShape).toBe(array.series[0].markerShape);
+    expect(single.series[0].marker.shape).toBe(array.series[0].marker.shape);
   });
 
   it('applies gradient all configs to a single-object gradient section', () => {

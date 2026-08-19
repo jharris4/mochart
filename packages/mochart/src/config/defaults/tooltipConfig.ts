@@ -29,12 +29,14 @@ export function getRegularDefaults() {
     // Html, not svg: a null opacity leaves the color's own alpha alone, a named one is composited into it (utils/style cssStyleColor).
     backgroundStyle: { strokeColor: 'rgba(0,0,0,0.3)', strokeOpacity: NONE, strokeWidth: 2, fillColor: 'rgba(255,255,255,0.9)', fillOpacity: NONE },
     borderRadius: 4,
-    dropShadowColor: 'rgba(0,0,0,0.3)',
-    dropShadowOffsetX: 0,
-    dropShadowOffsetY: 5,
-    dropShadowBlurRadius: 10,
+    dropShadow: {
+      color: 'rgba(0,0,0,0.3)',
+      offsetX: 0,
+      offsetY: 5,
+      blurRadius: 10
+    },
     // The series icons are svg even inside the html tooltip, so they take the legend icon defaults.
-    ...getSeriesIconRegularDefaults(),
+    icon: getSeriesIconRegularDefaults(),
     showFilteringOnLabels: false,
     adjustForFiltering: true,
     adjustSizeForFiltering: false,

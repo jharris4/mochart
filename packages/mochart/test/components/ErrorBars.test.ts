@@ -121,8 +121,8 @@ describe('error bars on bar series', () => {
 
   it('clamps the cap width to the bar layout slot', () => {
     const container = mountChart(makeConfig([
-      { id: 'V', property: 'value', renderer: 'bar', barWidthFraction: 0.02,
-        errorLowProperty: 'low', errorHighProperty: 'high', errorBarCapSize: 500 }
+      { id: 'V', property: 'value', renderer: 'bar', bar: { widthFraction: 0.02 },
+        errorLowProperty: 'low', errorHighProperty: 'high', errorBar: { capSize: 500 } }
     ]));
     const valueBars = barRects(container, 'V');
     const valueWhiskers = whiskers(container, 'V');
@@ -134,7 +134,7 @@ describe('error bars on bar series', () => {
 
   it('draws plain whiskers without caps when errorBarCapSize is 0', () => {
     const container = mountChart(makeConfig([
-      { id: 'V', property: 'value', renderer: 'bar', errorLowProperty: 'low', errorHighProperty: 'high', errorBarCapSize: 0 }
+      { id: 'V', property: 'value', renderer: 'bar', errorLowProperty: 'low', errorHighProperty: 'high', errorBar: { capSize: 0 } }
     ]));
     const valueWhiskers = whiskers(container, 'V');
     expect(valueWhiskers).toHaveLength(rows.length);

@@ -327,7 +327,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       rangeProperty: 'low',
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: hollow ? 'none' : 'bar',
-      barWidthFraction: wickWidthFraction,
+      bar: { widthFraction: wickWidthFraction },
       missingValues: 'connect',
       partialRangeIsMissing: true,
       group: null,
@@ -338,9 +338,9 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       // strokeColor matches the fill: focused bars grow a 1px outline, and the default strokeColor
       // is the palette color for the series *index*, which would rim the wick in an unrelated color.
       shapeStyle: { normal: { strokeColor: color, fillColor: color, fillOpacity: 1 } },
-      // markerShape null overrides the renderer-none default (circle markers); the label fill
+      // marker.shape null overrides the renderer-none default (circle markers); the label fill
       // color/opacity color the tooltip icon, which falls back to them for shapeless series.
-      ...(hollow ? { markerShape: null, labelTextStyle: { normal: { fillColor: color, fillOpacity: 1 } } } : {})
+      ...(hollow ? { marker: { shape: null }, label: { textStyle: { normal: { fillColor: color, fillOpacity: 1 } } } } : {})
     } as DeepPartial<SeriesConfig>;
   });
 
@@ -350,7 +350,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
     const shared = {
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: 'bar',
-      barWidthFraction: wickWidthFraction,
+      bar: { widthFraction: wickWidthFraction },
       missingValues: 'connect',
       partialRangeIsMissing: true,
       group: null,
@@ -381,10 +381,9 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       rangeProperty: 'open',
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: 'bar',
-      barWidthFraction: bodyWidthFraction,
       // a doji (open === close) has a zero-height body; a filled one would draw nothing at all,
       // while a hollow one already shows its outline
-      ...(hollowBody ? {} : { barMinExtent: DEFAULT_BODY_MIN_EXTENT }),
+      bar: { widthFraction: bodyWidthFraction, ...(hollowBody ? {} : { minExtent: DEFAULT_BODY_MIN_EXTENT }) },
       missingValues: 'connect',
       partialRangeIsMissing: true,
       group: null,

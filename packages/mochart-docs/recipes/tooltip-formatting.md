@@ -16,7 +16,7 @@ import * as tooltipFormat from '../examples/tooltipFormat'
 
 - [`valueFormat`](/reference/series#series.valueFormat) is a d3-format
   string (`,.1f`, `.1%`, …); `"auto"` derives one from the data, preferring
-  the value axis `tickLabelFormat` when that is set.
+  the value axis `tickLabel.format` when that is set.
   [`valuePrefix`](/reference/series#series.valuePrefix) and
   [`valueSuffix`](/reference/series#series.valueSuffix) wrap the formatted
   value (`$41.2k` above).

@@ -89,7 +89,7 @@ describe('axis side and collapse', () => {
   // Regression: the margin boxes were assigned inner/outer by side alone while the text followed the
   // collapsed reading order, so a collapsed axis's tick label background missed its labels
   it('keeps a collapsed axis tick label background around its labels', () => {
-    const tickLabelStyle = { tickLabelMarginInner: 0, tickLabelMarginOuter: 20, tickLabelBackgroundStyle: { fillColor: 'red', fillOpacity: 1 } };
+    const tickLabelStyle = { tickLabel: { marginInner: 0, marginOuter: 20, backgroundStyle: { fillColor: 'red', fillOpacity: 1 } } };
     const backgroundY = (container: Element) => Number(container.querySelector(getDescendantCssSelector('categoryAxis', 'axisTickLabelBackground') + ' rect')!.getAttribute('y'));
     const labelY = (container: Element) => Number(/translate\([^,]+,\s*([-\d.]+)\)/.exec(container.querySelector(getDescendantCssSelector('categoryAxis', 'axisTickLabel'))!.getAttribute('transform')!)![1]);
     const normal = mount({ ...categoryAxis({ side: 'end', collapsed: false, ...tickLabelStyle }) });
@@ -103,8 +103,8 @@ describe('axis side and collapse', () => {
 // with a space or a css-significant character was never measured and laid out from placeholder bounds
 describe('value axis ids in measurement', () => {
   it.each(['left axis', 'a.b', 'x#y', 'q"r'])('measures the value axis text for id %j like a plain id', id => {
-    const plain = mount({ valueAxes: [{ id: 'leftaxis', title: 'Title', thresholds: [{ value: 15, title: 'Limit' }] }] });
-    const odd = mount({ valueAxes: [{ id, title: 'Title', thresholds: [{ value: 15, title: 'Limit' }] }] });
+    const plain = mount({ valueAxes: [{ id: 'leftaxis', title: { text: 'Title' }, thresholds: [{ value: 15, title: { text: 'Limit' } }] }] });
+    const odd = mount({ valueAxes: [{ id, title: { text: 'Title' }, thresholds: [{ value: 15, title: { text: 'Limit' } }] }] });
     const width = (container: Element, axisId: string) =>
       container.querySelector(getCssSelector('valueAxis') + getValueAxisIdSelector(axisId) + ' ' + getCssSelector('axisBackground') + ' rect')!.getAttribute('width');
     expect(width(odd, id)).toBe(width(plain, 'leftaxis'));
@@ -123,12 +123,12 @@ describe('axis visibility and chrome', () => {
   });
 
   it('omits tick marks when showTickMarks is off', () => {
-    expect(mount({ ...categoryAxis({ showTickMarks: false }) })
+    expect(mount({ ...categoryAxis({ tickMark: { visible: false } }) })
       .querySelector(getDescendantCssSelector('categoryAxis', 'axisTickMark'))).toBeNull();
   });
 
   it('omits the axis line when showAxisLine is off', () => {
-    expect(mount({ ...categoryAxis({ showAxisLine: false }) })
+    expect(mount({ ...categoryAxis({ axisLine: { visible: false } }) })
       .querySelector(getDescendantCssSelector('categoryAxis', 'axisLine'))).toBeNull();
   });
 
@@ -151,11 +151,11 @@ describe('axis visibility and chrome', () => {
 describe('tick label anchoring and rotation', () => {
   for (const tickLabelAnchor of ['start', 'middle', 'end'] as const) {
     it(`anchors category tick labels at ${tickLabelAnchor}`, () => {
-      expectAnchoredAt(mount({ ...categoryAxis({ tickLabelAnchor }) }), tickLabelAnchor);
+      expectAnchoredAt(mount({ ...categoryAxis({ tickLabel: { anchor: tickLabelAnchor } }) }), tickLabelAnchor);
     });
 
     it(`anchors tick labels at ${tickLabelAnchor} on a single-category chart`, () => {
-      const container = mount({ ...categoryAxis({ tickLabelAnchor }) }, [rows[0]]);
+      const container = mount({ ...categoryAxis({ tickLabel: { anchor: tickLabelAnchor } }) }, [rows[0]]);
       expectAnchoredAt(container, tickLabelAnchor);
       const visible = categoryTickLabelTexts(container)
         .filter(el => !(el.getAttribute('style') ?? '').includes('hidden'));
@@ -164,7 +164,7 @@ describe('tick label anchoring and rotation', () => {
 
     it(`anchors tick labels at ${tickLabelAnchor} on a linear axis`, () => {
       const container = mount({
-        categoryAxis: { property: 'x', type: 'number', scale: 'linear', tickLabelAnchor },
+        categoryAxis: { property: 'x', type: 'number', scale: 'linear', tickLabel: { anchor: tickLabelAnchor } },
         series: [{ property: 'sales', renderer: 'line' }]
       }, [{ x: 1, sales: 10 }, { x: 2, sales: 20 }]);
       expectAnchoredAt(container, tickLabelAnchor);
@@ -174,7 +174,7 @@ describe('tick label anchoring and rotation', () => {
   for (const tickLabelRotation of [45, -45] as const) {
     for (const side of ['start', 'end'] as const) {
       it(`rotates ${side}-side tick labels by ${tickLabelRotation}`, () => {
-        const container = mount({ ...categoryAxis({ tickLabelRotation, side }) });
+        const container = mount({ ...categoryAxis({ tickLabel: { rotation: tickLabelRotation }, side }) });
         // the rotation lands on the text inside the label group, which is translated
         const text = container.querySelector(getDescendantCssSelector('categoryAxis', 'axisTickLabel') + ' text');
         expect(text!.getAttribute('transform') ?? '').toContain('rotate');
@@ -186,25 +186,25 @@ describe('tick label anchoring and rotation', () => {
 describe('explicit axis sizing', () => {
   // a measured size would be identical in both mounts, so the plot must shrink by exactly the difference
   it('uses an explicit tickLabelSize instead of measuring', () => {
-    const at40 = plotClipHeight(mount({ ...categoryAxis({ tickLabelSize: 40 }) }));
-    const at80 = plotClipHeight(mount({ ...categoryAxis({ tickLabelSize: 80 }) }));
+    const at40 = plotClipHeight(mount({ ...categoryAxis({ tickLabel: { size: 40 } }) }));
+    const at80 = plotClipHeight(mount({ ...categoryAxis({ tickLabel: { size: 80 } }) }));
     expect(at40 - at80).toBe(40);
   });
 
   it('uses an explicit titleSize instead of measuring', () => {
-    const container = mount({ ...categoryAxis({ title: 'Month', titleSize: 30 }) });
+    const container = mount({ ...categoryAxis({ title: { text: 'Month', size: 30 } }) });
     expect(container.textContent).toContain('Month');
-    const at60 = plotClipHeight(mount({ ...categoryAxis({ title: 'Month', titleSize: 60 }) }));
+    const at60 = plotClipHeight(mount({ ...categoryAxis({ title: { text: 'Month', size: 60 } }) }));
     expect(plotClipHeight(container) - at60).toBe(30);
   });
 
   it('extends the focus range over the title when focusRangeApplyToTitle is set', () => {
-    const container = mount({ ...categoryAxis({ title: 'Month', focusRangeApplyToTitle: true }) });
+    const container = mount({ ...categoryAxis({ title: { text: 'Month' }, focusRange: { applyToTitle: true } }) });
     expect(container.querySelector(getCssSelector('axisFocusRange'))).not.toBeNull();
   });
 
   it('appends a tick label suffix', () => {
-    const container = mount({ valueAxes: [{ tickLabelSuffix: '%' }] });
+    const container = mount({ valueAxes: [{ tickLabel: { suffix: '%' } }] });
     const valueLabels = [...container.querySelectorAll(getDescendantCssSelector('valueAxis', 'axisTickLabel'))]
       .map(el => el.textContent ?? '');
     expect(valueLabels.length).toBeGreaterThan(0);

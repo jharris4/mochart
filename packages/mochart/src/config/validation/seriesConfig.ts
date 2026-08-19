@@ -42,6 +42,14 @@ const colorPropertyNoneRule = { condition: ({ colorProperty }: ColorCondition) =
 const colorBaseRule = { condition: ({ colorProperty, colorScale }: ColorCondition) => colorProperty !== NONE && colorScale?.base?.value !== NONE, suffix: colorBaseSuffix };
 const colorBaseNoneRule = { condition: ({ colorProperty, colorScale }: ColorCondition) => colorProperty !== NONE && colorScale?.base?.value === NONE, suffix: colorBaseNoneSuffix };
 
+// The label placement bounds applied to one side of the base ("auto" falls back to the plain label setting).
+const labelBaseSideValidators = () => validators.partialObjectWithShape({
+  minPositionFraction: validators.numberMinMax(0, 1).orOneOf([NONE, AUTO]),
+  maxPositionFraction: validators.numberMinMax(0, 1).orOneOf([NONE, AUTO]),
+  offset: validators.number().orEqual(AUTO),
+  position: validators.oneOf([AUTO].concat(LABEL_POSITIONS))
+}, true);
+
 export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode = false) {
   const supportsFill = ({ renderer }: RendererCondition) =>
     pieMode || renderer === RENDERER_AREA || renderer === RENDERER_BAR;
@@ -87,15 +95,21 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
       type: validators.oneOf(CURVE_TYPES),
       param: validators.numberMinMax(0, 1)
     }, true),
-    barWidthFraction: validators.numberMinMax(0, 1),
-    barAlignFraction: validators.numberMinMax(0, 1),
-    barMinExtent: validators.numberMin(0),
-    capSize: validators.numberMin(0),
-    capType: validators.oneOf(CAP_TYPES).orEqual(NONE),
-    capExpand: validators.boolean(),
-    capOnlyStackOuter: validators.boolean(),
-    errorBarCapSize: validators.numberMin(0),
-    errorBarStyle: seriesStyle.styleStates(lineMembers),
+    bar: validators.partialObjectWithShape({
+      widthFraction: validators.numberMinMax(0, 1),
+      alignFraction: validators.numberMinMax(0, 1),
+      minExtent: validators.numberMin(0)
+    }, true),
+    cap: validators.partialObjectWithShape({
+      size: validators.numberMin(0),
+      type: validators.oneOf(CAP_TYPES).orEqual(NONE),
+      expand: validators.boolean(),
+      onlyStackOuter: validators.boolean()
+    }, true),
+    errorBar: validators.partialObjectWithShape({
+      capSize: validators.numberMin(0),
+      style: seriesStyle.styleStates(lineMembers)
+    }, true),
     valueLabel: validators.string().orEqual(NONE),
     valueFormat: validators.numberFormat().orOneOf([NONE, AUTO]),
     valuePrefix: validators.string().orEqual(NONE),
@@ -103,23 +117,19 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
     useTitleForValueLabel: validators.boolean(),
     title: validators.string().orEqual(NONE),
     shapeStyle: ownStyle.styleStates(styleMembers),
-    labelFormat: validators.numberFormat().orOneOf([NONE, AUTO]),
-    labelPrefix: validators.string().orEqual(NONE),
-    labelSuffix: validators.string().orEqual(NONE),
-    labelTextStyle: seriesStyle.styleStates(styleMembers),
-    labelMinPositionFraction: validators.numberMinMax(0, 1).orEqual(NONE),
-    labelMaxPositionFraction: validators.numberMinMax(0, 1).orEqual(NONE),
-    labelMinRangeFraction: validators.numberMinMax(0, 1).orEqual(NONE),
-    labelOffset: validators.number(),
-    labelPosition: validators.oneOf(LABEL_POSITIONS),
-    labelAboveBaseMinPositionFraction: validators.numberMinMax(0, 1).orOneOf([NONE, AUTO]),
-    labelAboveBaseMaxPositionFraction: validators.numberMinMax(0, 1).orOneOf([NONE, AUTO]),
-    labelBelowBaseMinPositionFraction: validators.numberMinMax(0, 1).orOneOf([NONE, AUTO]),
-    labelBelowBaseMaxPositionFraction: validators.numberMinMax(0, 1).orOneOf([NONE, AUTO]),
-    labelAboveBaseOffset: validators.number().orEqual(AUTO),
-    labelBelowBaseOffset: validators.number().orEqual(AUTO),
-    labelAboveBasePosition: validators.oneOf([AUTO].concat(LABEL_POSITIONS)),
-    labelBelowBasePosition: validators.oneOf([AUTO].concat(LABEL_POSITIONS)),
+    label: validators.partialObjectWithShape({
+      format: validators.numberFormat().orOneOf([NONE, AUTO]),
+      prefix: validators.string().orEqual(NONE),
+      suffix: validators.string().orEqual(NONE),
+      textStyle: seriesStyle.styleStates(styleMembers),
+      minPositionFraction: validators.numberMinMax(0, 1).orEqual(NONE),
+      maxPositionFraction: validators.numberMinMax(0, 1).orEqual(NONE),
+      minRangeFraction: validators.numberMinMax(0, 1).orEqual(NONE),
+      offset: validators.number(),
+      position: validators.oneOf(LABEL_POSITIONS),
+      aboveBase: labelBaseSideValidators(),
+      belowBase: labelBaseSideValidators()
+    }, true),
     gradient: validators.conditional([
       { ...nonFillRendererRule, validator: validators.equal(NONE) },
       { ...colorPropertyRule, validator: validators.equal(NONE) },
@@ -173,12 +183,14 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
         ], config)
       }, true)
     }, true),
-    markerShape: validators.oneOf([NONE, ...MARKER_SHAPES]),
-    markerMinSize: validators.numberMin(0),
-    missingValueMarkers: validators.boolean(),
-    markerSize: validators.numberMin(0),
-    markerSizeScale: validators.oneOf(MARKER_SIZE_SCALES),
-    markerStyle: seriesStyle.styleStates(styleMembers),
+    marker: validators.partialObjectWithShape({
+      shape: validators.oneOf([NONE, ...MARKER_SHAPES]),
+      minSize: validators.numberMin(0),
+      showForMissingValues: validators.boolean(),
+      size: validators.numberMin(0),
+      sizeScale: validators.oneOf(MARKER_SIZE_SCALES),
+      style: seriesStyle.styleStates(styleMembers)
+    }, true),
     showInLegend: validators.boolean(),
     showInTooltip: validators.boolean(),
     showColorInLegend: validators.boolean(),

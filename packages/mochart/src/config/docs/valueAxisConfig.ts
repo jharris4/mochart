@@ -1,4 +1,4 @@
-import getAxisDescriptions, { axisStyleStatesDescription, axisStrokeMembers } from './axisConfig';
+import getAxisDescriptions, { axisStyleStatesDescription, axisStrokeMembers, getTickLabelDescriptions, tickLabelDescription } from './axisConfig';
 
 export default function getDescriptions() {
   return {
@@ -9,18 +9,29 @@ export default function getDescriptions() {
     scale: 'the scale of the value axis, must be linear',
     order: 'the unique integer order of the value axis controlling its order of appearance',
     base: 'the numeric base value of the axis, used for animation and relative positioning for shapes (use null for none)',
-    showBaseLine: 'whether to show a line along the base of the axis',
-    baseLineFront: 'whether the base line should be shown in front (true) or behind (false) the series shapes',
-    baseLineStyle: axisStyleStatesDescription('the style of the line shown along the base of the axis', axisStrokeMembers),
+    baseLine: {
+      description: 'the line drawn along the base value of the axis',
+      properties: {
+        visible: 'whether to show a line along the base of the axis',
+        front: 'whether the base line should be shown in front (true) or behind (false) the series shapes',
+        style: axisStyleStatesDescription('the style of the line shown along the base of the axis', axisStrokeMembers)
+      }
+    },
     adjustForFiltering: 'whether to adjust the domain of the axis as series belonging to it are filtered',
-    adjustTickLabelSizeForFiltering: 'whether to adjust the size of the axis tick label bounds as series belonging to it are filtered',
     visibleWhenAllFiltered: 'whether the axis should be visible when all series belonging to it are filtered',
-    tickLabelFormat: 'the d3 format string to be applied to the series values when displayed in axis tick labels (use null for none, use "auto" to derive from data)',
+    tickLabel: {
+      description: tickLabelDescription,
+      properties: {
+        ...getTickLabelDescriptions(),
+        format: 'the d3 format string to be applied to the series values when displayed in axis tick labels (use null for none, use "auto" to derive from data)',
+        adjustSizeForFiltering: 'whether to adjust the size of the axis tick label bounds as series belonging to it are filtered'
+      }
+    },
     ticks: {
       description: 'the explicit ticks to show on the axis in place of the generated ones, each placing label text at an axis value (use null for none)',
       properties: {
         value: 'the axis value to place the tick at',
-        label: 'the text of the tick label (leave it out to format the value with tickLabelFormat)'
+        label: 'the text of the tick label (leave it out to format the value with tickLabel.format)'
       }
     },
     maxMarginFraction: 'the margin, as a fraction (0 or greater) of the domain of the axis, to use at the maximum extent of the axis (only applied if max is "auto" and max value is not equal base)',

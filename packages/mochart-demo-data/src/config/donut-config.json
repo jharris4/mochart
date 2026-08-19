@@ -9,8 +9,10 @@
   "pie": {
     "tooltipValues": "percent",
     "innerRadiusFraction": 0.6,
-    "showLabels": true,
-    "labelType": "percent",
+    "label": {
+      "visible": true,
+      "type": "percent"
+    },
     "focusOffsetFraction": 0.05
   },
   "categoryAxis": {

@@ -11,13 +11,21 @@
     "property": "categoryDO",
     "type": "date",
     "scale": "ordinal",
-    "tickLabelFormat": "%Y-%m-%d",
-    "tickLabelRotation": 90,
-    "title": "Date Ticks Rotated 90 Degrees"
+    "tickLabel": {
+      "format": "%Y-%m-%d",
+      "rotation": 90
+    },
+    "title": {
+      "text": "Date Ticks Rotated 90 Degrees"
+    }
   },
   "valueAxes": {
-    "tickLabelRotation": 45,
-    "title": "Ticks Rotated 45 Degrees"
+    "tickLabel": {
+      "rotation": 45
+    },
+    "title": {
+      "text": "Ticks Rotated 45 Degrees"
+    }
   },
   "series": {
     "property": "value9",

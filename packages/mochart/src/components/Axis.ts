@@ -57,7 +57,9 @@ export default class Axis extends Renderer<AxisProps> {
       focusPercentages, tickSpacing, titleClipPathUniqueId, tickLabelClipPathUniqueId,
       onPointerEnter, onPointerLeave, onClick, accessibility, accessibleLabel } = this.props;
     if (axisConfig.visible) {
-      const { backgroundFront, axisLineFront, focusRangeFront, focusTickMarkFront, tickLabelFront, tickMarkFront, titleFront } = axisConfig;
+      const { backgroundFront } = axisConfig;
+      const axisLineFront = axisConfig.axisLine.front, focusRangeFront = axisConfig.focusRange.front, focusTickMarkFront = axisConfig.focusTickMark.front,
+        tickLabelFront = axisConfig.tickLabel.front, tickMarkFront = axisConfig.tickMark.front, titleFront = axisConfig.title.front;
 
       // the front and back passes split one axis in two; only the half that draws tick labels is a named group
       const namedGroup = front === tickLabelFront && axisTicks.length > 0;

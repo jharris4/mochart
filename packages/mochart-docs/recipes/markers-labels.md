@@ -14,11 +14,11 @@ import * as scatterBubble from '../examples/scatterBubble'
 
 ## How it works
 
-- [`markerShape`](/reference/series#series.markerShape) picks from `circle`,
+- [`marker.shape`](/reference/series#series.marker.shape) picks from `circle`,
   `cross`, `diamond`, `square`, `star`, `triangle` and `wye`; `line`, `area`
   and `none` series default to `circle`, bars to `null` (no marker).
-  [`markerSize`](/reference/series#series.markerSize) sets the size (default
-  6px) and [`markerStyle`](/reference/series#series.markerStyle) styles it —
+  [`marker.size`](/reference/series#series.marker.size) sets the size (default
+  6px) and [`marker.style`](/reference/series#series.marker.style) styles it —
   stroke and fill colors, opacities and widths per `normal`/`focused`/
   `defocused` state. Point
   [`markerProperty`](/reference/series#series.markerProperty) at a data
@@ -27,40 +27,41 @@ import * as scatterBubble from '../examples/scatterBubble'
 - Labels come from [`labelProperty`](/reference/series#series.labelProperty)
   — point it at the series' own `property` (as above) for value labels, or
   at any other data property.
-  [`labelFormat`](/reference/series#series.labelFormat) formats the value
+  [`label.format`](/reference/series#series.label.format) formats the value
   (`"auto"` derives a format from the data), and
-  [`labelPrefix`](/reference/series#series.labelPrefix) /
-  [`labelSuffix`](/reference/series#series.labelSuffix) wrap it with text a
+  [`label.prefix`](/reference/series#series.label.prefix) /
+  [`label.suffix`](/reference/series#series.label.suffix) wrap it with text a
   d3 format can't express, such as a unit. They are separate from the
   tooltip's [`valuePrefix`](/reference/series#series.valuePrefix) /
   [`valueSuffix`](/reference/series#series.valueSuffix) because a label may
   show a different property than the series value.
-- [`labelPosition`](/reference/series#series.labelPosition) places labels
+- [`label.position`](/reference/series#series.label.position) places labels
   `inside`, `center` (the default) or `outside` the shape, and
-  [`labelOffset`](/reference/series#series.labelOffset) nudges every label by
+  [`label.offset`](/reference/series#series.label.offset) nudges every label by
   a fixed pixel amount along the value axis.
 - Three fraction guards hide labels that wouldn't fit:
-  [`labelMinRangeFraction`](/reference/series#series.labelMinRangeFraction)
+  [`label.minRangeFraction`](/reference/series#series.label.minRangeFraction)
   (used above — it hides labels on bars shorter than 5% of the axis extent),
   and
-  [`labelMinPositionFraction`](/reference/series#series.labelMinPositionFraction) /
-  [`labelMaxPositionFraction`](/reference/series#series.labelMaxPositionFraction),
+  [`label.minPositionFraction`](/reference/series#series.label.minPositionFraction) /
+  [`label.maxPositionFraction`](/reference/series#series.label.maxPositionFraction),
   which hide labels whose values sit too close to the domain's minimum or
   maximum.
-- `labelPosition`, `labelOffset` and the two position-fraction guards each
-  have `labelAboveBase*` / `labelBelowBase*` variants
-  ([`labelAboveBasePosition`](/reference/series#series.labelAboveBasePosition),
-  [`labelBelowBaseOffset`](/reference/series#series.labelBelowBaseOffset), …)
+- `label.position`, `label.offset` and the two position-fraction guards each
+  have a variant under [`label.aboveBase`](/reference/series#series.label.aboveBase) /
+  [`label.belowBase`](/reference/series#series.label.belowBase)
+  ([`label.aboveBase.position`](/reference/series#series.label.aboveBase.position),
+  [`label.belowBase.offset`](/reference/series#series.label.belowBase.offset), …)
   that apply only to values above or below the value axis
   [`base`](/reference/valueAxes#valueAxes.base) — handy for labeling positive
   and negative bars differently. Their default `'auto'` inherits the plain
   setting (the below-base offset mirrors it, so labels move away from the
   base on both sides).
-- [`labelTextStyle`](/reference/series#series.labelTextStyle) styles the
+- [`label.textStyle`](/reference/series#series.label.textStyle) styles the
   label text, again per focus state. Its colors accept the palette modes
   (`series`, `seriesIndex`, `categoryIndex`) as well as literal colors — see
   [`colorPalette`](/reference/colorPalette). The example above sets only
-  [`labelTextStyle.normal`](/reference/series#series.labelTextStyle.normal)`.strokeColor`
+  [`label.textStyle.normal`](/reference/series#series.label.textStyle.normal)`.strokeColor`
   and `.fillColor`; every other member, including both other states, keeps
   its default.
 
@@ -82,13 +83,13 @@ no shape, and only its markers remain.
 - For bubbles, point
   [`markerProperty`](/reference/series#series.markerProperty) at a data
   property; marker sizes scale between
-  [`markerMinSize`](/reference/series#series.markerMinSize) (default 1px) and
-  [`markerSize`](/reference/series#series.markerSize) with the property's
+  [`marker.minSize`](/reference/series#series.marker.minSize) (default 1px) and
+  [`marker.size`](/reference/series#series.marker.size) with the property's
   value.
-- [`markerSizeScale`](/reference/series#series.markerSizeScale) picks how
+- [`marker.sizeScale`](/reference/series#series.marker.sizeScale) picks how
   they scale: the default `sqrt` scales each marker's **area** with its value
   — the way readers judge bubble magnitude — while `linear` scales its
-  diameter, which visually exaggerates differences. The `markerMinSize` floor
+  diameter, which visually exaggerates differences. The `marker.minSize` floor
   keeps the smallest bubble visible (and hoverable); for exactly
   value-proportional areas, set it to `0` on data whose minimum is `0`.
 - Every series reads its x from the row's category value, so series share x

@@ -29,7 +29,7 @@ import * as curvesStep from '../examples/curvesStep'
 - Markers stay at the true data values whatever the curve draws — keep the
   default circles on a raw series to show the measurements against a smoothed
   line, or turn them off with
-  [`markerShape: null`](/reference/series#series.markerShape) as the
+  [`marker.shape: null`](/reference/series#series.marker.shape) as the
   smoothed series above does. Tooltips and the crosshair read the data too,
   never the interpolated path.
 

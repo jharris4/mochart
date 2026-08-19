@@ -78,10 +78,10 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
         thresholdX += positionPercentage * seriesLayoutInfo.width;
       }
 
-      if (threshold.title !== NONE) {
+      if (threshold.title.text !== NONE) {
         const start = axisConfig.side === SIDE_START;
-        const titleLow = threshold.titleSide === TITLE_SIDE_LOW;
-        const { titleSnapToValue } = threshold;
+        const titleLow = threshold.title.side === TITLE_SIDE_LOW;
+        const { snapToValue: titleSnapToValue } = threshold.title;
         const { axisLayoutInfo, thresholdIndex, titleStroke, titleStrokeOpacity, titleStrokeWidth, titleFill, titleFillOpacity } = this.props;
         const thresholdTitleLayoutInfo = axisLayoutInfo.thresholdTitleLayoutInfos[thresholdIndex] ?? { x: 0, y: 0, width: 0, height: 0 };
         let titleX = thresholdX;
@@ -192,11 +192,11 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
         titleGroup.backgroundHandle.set({ className: mochartCssClasses['axisThresholdTitleBackground'],
           x: vertical ? marginRelativeBounds.x : marginRelativeBounds.y, y: vertical ? marginRelativeBounds.y : marginRelativeBounds.x,
           width: vertical ? marginRelativeBounds.width : marginRelativeBounds.height, height: vertical ? marginRelativeBounds.height : marginRelativeBounds.width,
-          ...styleToAttributes(threshold.titleBackgroundStyle) });
+          ...styleToAttributes(threshold.title.backgroundStyle) });
         titleGroup.textHandle.set({ transform: translateRotate(paddingX, paddingY, vertical ? 0 : 90),
           fill: titleFill, fillOpacity: titleFillOpacity,
           stroke: titleStroke, strokeOpacity: titleStrokeOpacity, strokeWidth: titleStrokeWidth, dy: '0.35em' });
-        titleGroup.valueHandle.set(threshold.title);
+        titleGroup.valueHandle.set(threshold.title.text);
       }
       else {
         this.title.set(null);

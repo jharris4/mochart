@@ -37,7 +37,9 @@ export function getTitleHeight(mochartConfig: EnhancedMochartConfig, chartTextBo
   const { titleTextRawBounds, titlePrefixBounds, titleSuffixBounds } = chartTextBoundsData;
   let titleHeight = 0;
   if (titleConfig.text !== NONE) {
-    const { margin, padding, textMargin, textPadding, prefix, suffix, prefixMargin, prefixPadding, suffixMargin, suffixPadding } = titleConfig;
+    const { margin, padding, textMargin, textPadding } = titleConfig;
+    const { text: prefix, margin: prefixMargin, padding: prefixPadding } = titleConfig.prefix;
+    const { text: suffix, margin: suffixMargin, padding: suffixPadding } = titleConfig.suffix;
 
     titleHeight = getSpacingOuterHeight(titleTextRawBounds, textMargin, textPadding);
     if (prefix !== NONE) {
@@ -53,8 +55,9 @@ export function getTitleHeight(mochartConfig: EnhancedMochartConfig, chartTextBo
 
 export function getTitleLayoutInfo(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, seriesLayoutInfo: LayoutInfo, titleHeight: number, titleY: number): TitleLayoutResult {
   const { title: titleConfig } = mochartConfig;
-  const { text: title, prefix: titlePrefix, suffix: titleSuffix, alignedToAxes, align, verticalAlign, verticalExpand,
-          margin, padding, textMargin, textPadding, prefixMargin, prefixPadding, suffixMargin, suffixPadding } = titleConfig;
+  const { text: title, alignedToAxes, align, verticalAlign, verticalExpand, margin, padding, textMargin, textPadding } = titleConfig;
+  const { text: titlePrefix, margin: prefixMargin, padding: prefixPadding } = titleConfig.prefix;
+  const { text: titleSuffix, margin: suffixMargin, padding: suffixPadding } = titleConfig.suffix;
   const spacingLeft = getSpacingLeft(margin, padding);
   const { titlePrefixBounds, titleTextBounds, titleTextRawBounds, titleSuffixBounds } = chartTextBoundsData;
   const hasDefaultBounds = titlePrefixBounds.default || titleTextBounds.default || titleTextRawBounds.default || titleSuffixBounds.default;

@@ -6,8 +6,8 @@ import type { MochartInputConfig } from '@mochart/core';
 export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'Inventory on Hand' },
-  categoryAxis: { title: 'Week', property: 'week', type: 'number', scale: 'linear' },
-  valueAxes: [{ id: 'VA0', title: 'Units', min: 0 }],
+  categoryAxis: { title: { text: 'Week' }, property: 'week', type: 'number', scale: 'linear' },
+  valueAxes: [{ id: 'VA0', title: { text: 'Units' }, min: 0 }],
   series: [
     {
       property: 'onHand',

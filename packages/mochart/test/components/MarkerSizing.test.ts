@@ -17,16 +17,20 @@ function markerPath(size: number): string {
   return getSymbolGenerator(size, 'circle')()!;
 }
 
-function mountChart(data: readonly unknown[], seriesOverrides: Record<string, unknown> = {}): Element {
+function mountChart(data: readonly unknown[], markerOverrides: Record<string, unknown> = {}): Element {
   const config = {
     version: VERSION,
     animation: { animate: false },
     tooltip: { visible: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{
-      property: 'sales', renderer: 'line', markerShape: 'circle',
-      markerProperty: 'size', markerSize: MARKER_SIZE, markerMinSize: MARKER_MIN_SIZE,
-      ...seriesOverrides
+      property: 'sales', renderer: 'line', marker: {
+        shape: 'circle',
+        size: MARKER_SIZE,
+        minSize: MARKER_MIN_SIZE,
+        ...markerOverrides
+      },
+      markerProperty: 'size'
     }]
   } as unknown as MochartInputConfig;
   const container = mountContainer();
@@ -63,7 +67,7 @@ describe('markerProperty size scale', () => {
       { month: 'Jan', sales: 10, size: 0 },
       { month: 'Feb', sales: 20, size: 0.25 },
       { month: 'Mar', sales: 30, size: 0.5 }
-    ], { markerSizeScale: 'linear' });
+    ], { sizeScale: 'linear' });
 
     expect(renderedMarkerPaths(container)).toEqual([
       markerPath(MARKER_MIN_SIZE), markerPath(8), markerPath(MARKER_SIZE)

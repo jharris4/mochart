@@ -13,7 +13,9 @@
       "id": "price",
       "minMarginFraction": 0.35,
       "maxMarginFraction": 0.05,
-      "title": "$ per share"
+      "title": {
+        "text": "$ per share"
+      }
     },
     {
       "id": "volume",
@@ -29,7 +31,9 @@
       "rangeProperty": "low",
       "axis": "price",
       "renderer": "bar",
-      "barWidthFraction": 0.15,
+      "bar": {
+        "widthFraction": 0.15
+      },
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,
@@ -52,7 +56,9 @@
       "rangeProperty": "low",
       "axis": "price",
       "renderer": "bar",
-      "barWidthFraction": 0.15,
+      "bar": {
+        "widthFraction": 0.15
+      },
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,
@@ -75,8 +81,10 @@
       "rangeProperty": "open",
       "axis": "price",
       "renderer": "bar",
-      "barWidthFraction": 1,
-      "barMinExtent": 2,
+      "bar": {
+        "widthFraction": 1,
+        "minExtent": 2
+      },
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,
@@ -97,8 +105,10 @@
       "rangeProperty": "open",
       "axis": "price",
       "renderer": "bar",
-      "barWidthFraction": 1,
-      "barMinExtent": 2,
+      "bar": {
+        "widthFraction": 1,
+        "minExtent": 2
+      },
       "missingValues": "connect",
       "partialRangeIsMissing": true,
       "group": null,

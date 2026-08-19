@@ -21,7 +21,7 @@ import * as dualAxes from '../examples/dualAxes'
   ids matter only when there are several.
 - [`side: 'end'`](/reference/valueAxes#valueAxes.side)
   moves the second axis to the end side (right, for vertical charts).
-- [`tickLabelFormat: '.0%'`](/reference/valueAxes#valueAxes.tickLabelFormat)
+- [`tickLabel.format: '.0%'`](/reference/valueAxes#valueAxes.tickLabel.format)
   is a d3-format string; the series' own
   [`valueFormat`](/reference/series#series.valueFormat) formats
   the tooltip value independently.

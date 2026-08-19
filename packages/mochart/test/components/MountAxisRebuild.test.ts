@@ -61,7 +61,7 @@ describe('mount-time remeasure after tick label truncation', () => {
       const rotated = {
         version: '1.0.0',
         animation: { animate: false },
-        categoryAxis: { property: 'c', type: 'string', scale: 'ordinal', tickLabelRotation: 45 },
+        categoryAxis: { property: 'c', type: 'string', scale: 'ordinal', tickLabel: { rotation: 45 } },
         series: [{ property: 'v', renderer: 'bar' }]
       } as unknown as MochartInputConfig;
       const container = mountContainer();

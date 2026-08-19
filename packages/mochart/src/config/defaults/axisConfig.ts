@@ -6,13 +6,15 @@ import type { ThresholdTitleSide } from '../core/constants';
 
 export default function getDefaults() {
   return {
-    showAxisLine: true,
-    axisLineFront: false,
-    axisLineMargin: 0,
-    axisLineStyle: {
-      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: NONE },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME }
+    axisLine: {
+      visible: true,
+      front: false,
+      margin: 0,
+      style: {
+        normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: NONE },
+        focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
+        defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME }
+      }
     },
 
     backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
@@ -24,25 +26,31 @@ export default function getDefaults() {
 
     collapsed: false,
 
-    showFocusRange: true,
-    focusRangeFront: false,
-    focusRangeApplyToTitle: false,
-    // 0.2 / 0.12 matches the old '#000033' / '#aaccff' wash on a light page and stays legible on a dark one.
-    focusRangeStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.2, strokeWidth: 1, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 0.12 },
+    focusRange: {
+      visible: true,
+      front: false,
+      applyToTitle: false,
+      // 0.2 / 0.12 matches the old '#000033' / '#aaccff' wash on a light page and stays legible on a dark one.
+      style: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.2, strokeWidth: 1, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 0.12 }
+    },
 
-    showFocusTickMarks: false,
-    focusTickMarkFront: false,
-    focusTickMarkSize: 9,
-    focusTickMarkMargin: 3,
-    focusTickMarkStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 1, strokeWidth: 3, strokeDashArray: NONE },
+    focusTickMark: {
+      visible: false,
+      front: false,
+      size: 9,
+      margin: 3,
+      style: { strokeColor: COLOR_CURRENT, strokeOpacity: 1, strokeWidth: 3, strokeDashArray: NONE }
+    },
 
-    showGridLines: false,
-    gridLineFront: false,
-    // currentColor at 0.13 approximates the old '#e5e5e5' grid on a light page and still reads as a grid line on a dark one.
-    gridLineStyle: {
-      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.13, strokeWidth: 1, strokeDashArray: '5, 5' },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.17, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.09, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME }
+    gridLine: {
+      visible: false,
+      front: false,
+      // currentColor at 0.13 approximates the old '#e5e5e5' grid on a light page and still reads as a grid line on a dark one.
+      style: {
+        normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.13, strokeWidth: 1, strokeDashArray: '5, 5' },
+        focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.17, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
+        defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.09, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME }
+      }
     },
 
     marginInner: 0,
@@ -69,48 +77,54 @@ export default function getDefaults() {
 
     tickCount: AUTO,
 
-    tickLabelFront: false,
-    tickLabelAnchor: AUTO,
-    tickLabelBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
-    tickLabelSize: AUTO,
-    tickLabelMarginInner: 2,
-    tickLabelMarginOuter: 1,
-    tickLabelPaddingInner: 5,
-    tickLabelPaddingOuter: 5,
-    tickLabelFormat: AUTO,
-    tickLabelPrefix: NONE,
-    tickLabelSuffix: NONE,
-    tickLabelRotation: 0,
-    tickLabelTextStyle: {
-      normal: { strokeColor: 'none', strokeOpacity: 1, strokeWidth: 0, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 1 },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 0, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.5, strokeWidth: 0, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 0.5 }
+    tickLabel: {
+      front: false,
+      anchor: AUTO,
+      backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
+      size: AUTO,
+      marginInner: 2,
+      marginOuter: 1,
+      paddingInner: 5,
+      paddingOuter: 5,
+      format: AUTO,
+      prefix: NONE,
+      suffix: NONE,
+      rotation: 0,
+      textStyle: {
+        normal: { strokeColor: 'none', strokeOpacity: 1, strokeWidth: 0, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 1 },
+        focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 0, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
+        defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.5, strokeWidth: 0, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 0.5 }
+      }
     },
 
-    showTickMarks: true,
-    tickMarkFront: false,
-    tickMarkSize: 3,
-    tickMarkMargin: 0,
-    tickMarkStyle: {
-      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: NONE },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME }
+    tickMark: {
+      visible: true,
+      front: false,
+      size: 3,
+      margin: 0,
+      style: {
+        normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: NONE },
+        focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
+        defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME }
+      }
     },
 
-    title: NONE,
-    titleFront: false,
-    titleBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
-    titleTruncationEnabled: true,
-    titleTruncationValue: ELLIPSIS,
-    titleSize: AUTO,
-    titleMarginInner: 2,
-    titleMarginOuter: 2,
-    titlePaddingInner: 3,
-    titlePaddingOuter: 3,
-    titleTextStyle: {
-      normal: { strokeColor: 'none', strokeOpacity: 1, strokeWidth: 0, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 1 },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 0, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.5, strokeWidth: 0, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 0.5 }
+    title: {
+      text: NONE,
+      front: false,
+      backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
+      truncationEnabled: true,
+      truncationValue: ELLIPSIS,
+      size: AUTO,
+      marginInner: 2,
+      marginOuter: 2,
+      paddingInner: 3,
+      paddingOuter: 3,
+      textStyle: {
+        normal: { strokeColor: 'none', strokeOpacity: 1, strokeWidth: 0, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 1 },
+        focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 0, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
+        defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.5, strokeWidth: 0, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 0.5 }
+      }
     },
     visible: true
   };
@@ -125,19 +139,32 @@ export function getThresholdEntryDefaults() {
       focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
       defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME }
     },
-    title: NONE,
-    titleSide: TITLE_SIDE_HIGH,
-    titleSnapToValue: true,
-    titleMargin: { top: 0, right: 0, bottom: 0, left: 0 },
-    titlePadding: { top: 0, right: 0, bottom: 0, left: 0 },
-    // 'none' rather than null: stroke="none" firewalls a host-css stroke inheriting onto the text.
-    titleTextStyle: {
-      normal: { strokeColor: 'none', strokeOpacity: 1, strokeWidth: NONE, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 1 },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: NONE, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: NONE, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 }
-    },
-    titleBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 }
+    title: {
+      text: NONE,
+      side: TITLE_SIDE_HIGH,
+      snapToValue: true,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 },
+      padding: { top: 0, right: 0, bottom: 0, left: 0 },
+      // 'none' rather than null: stroke="none" firewalls a host-css stroke inheriting onto the text.
+      textStyle: {
+        normal: { strokeColor: 'none', strokeOpacity: 1, strokeWidth: NONE, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 1 },
+        focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: NONE, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
+        defocused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: NONE, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 }
+      },
+      backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 }
+    }
   };
+}
+
+/** A threshold title with every member filled from the entry defaults. */
+export interface ResolvedThresholdTitle {
+  text: string | null;
+  side: ThresholdTitleSide;
+  snapToValue: boolean;
+  margin: MarginPadding;
+  padding: MarginPadding;
+  textStyle: StyleStates;
+  backgroundStyle: Style;
 }
 
 /** A `thresholds` entry with every member filled from the entry defaults. */
@@ -146,13 +173,7 @@ export interface ResolvedThreshold {
   value: number | string;
   front: boolean;
   style: StrokeStyleStates;
-  title: string | null;
-  titleSide: ThresholdTitleSide;
-  titleSnapToValue: boolean;
-  titleMargin: MarginPadding;
-  titlePadding: MarginPadding;
-  titleTextStyle: StyleStates;
-  titleBackgroundStyle: Style;
+  title: ResolvedThresholdTitle;
 }
 
 export function resolveThresholds(thresholds: readonly ThresholdConfig[] | undefined): ResolvedThreshold[] {

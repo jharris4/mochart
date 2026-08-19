@@ -4,7 +4,7 @@ export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'Signups by Quarter' },
   categoryAxis: { property: 'quarter', type: 'string', scale: 'ordinal' },
-  valueAxes: [{ title: 'signups', showGridLines: true }],
+  valueAxes: [{ title: { text: 'signups' }, gridLine: { visible: true } }],
   seriesDefaults: { renderer: 'bar' },
   series: [
     { property: 'organic', title: 'Organic' },

@@ -12,12 +12,20 @@
     "focusDuration": 800
   },
   "categoryAxis": {
-    "title": "Month",
-    "showAxisLine": true,
-    "axisLineMargin": 0,
-    "showGridLines": true,
-    "tickLabelFormat": "%b",
-    "tickLabelRotation": 45,
+    "title": {
+      "text": "Month"
+    },
+    "axisLine": {
+      "visible": true,
+      "margin": 0
+    },
+    "gridLine": {
+      "visible": true
+    },
+    "tickLabel": {
+      "format": "%b",
+      "rotation": 45
+    },
     "tickCount": 12,
     "type": "date",
     "scale": "ordinal",
@@ -29,36 +37,52 @@
   },
   "valueAxes": {
     "visible": true,
-    "axisLineMargin": 0,
-    "showGridLines": true,
-    "tickLabelFormat": "$s",
-    "title": "Monthly Amount",
+    "axisLine": {
+      "margin": 0
+    },
+    "gridLine": {
+      "visible": true
+    },
+    "tickLabel": {
+      "format": "$s"
+    },
+    "title": {
+      "text": "Monthly Amount"
+    },
     "min": 0,
     "side": "start"
   },
   "seriesStacks": {},
   "seriesDefaults": {
     "renderer": "bar",
-    "markerShape": null
+    "marker": {
+      "shape": null
+    }
   },
   "series": [
     {
       "title": "Round",
       "property": "value1",
-      "capSize": 15,
-      "capType": "round"
+      "cap": {
+        "size": 15,
+        "type": "round"
+      }
     },
     {
       "title": "Curve",
       "property": "value2",
-      "capSize": 15,
-      "capType": "curve"
+      "cap": {
+        "size": 15,
+        "type": "curve"
+      }
     },
     {
       "title": "Point",
       "property": "value3",
-      "capSize": 15,
-      "capType": "point"
+      "cap": {
+        "size": 15,
+        "type": "point"
+      }
     }
   ]
 }

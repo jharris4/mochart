@@ -123,9 +123,9 @@ describe('tooltip defaults', () => {
     const automatic = getDefaults({
       version: '1.0.0',
       categoryAxis: { property: 'p' }
-    }) as { tooltip: { iconSize: string | number } };
+    }) as { tooltip: { icon: { size: string | number } } };
 
-    expect(automatic.tooltip.iconSize).toBe('auto');
+    expect(automatic.tooltip.icon.size).toBe('auto');
   });
 });
 
@@ -134,9 +134,9 @@ describe('legend defaults', () => {
     const defaults = getDefaults({
       version: '1.0.0',
       categoryAxis: { property: 'p' }
-    }) as { legend: { iconSize: string | number } };
+    }) as { legend: { icon: { size: string | number } } };
 
-    expect(defaults.legend.iconSize).toBe('auto');
+    expect(defaults.legend.icon.size).toBe('auto');
   });
 });
 
@@ -206,13 +206,13 @@ describe('pie-mode conditional defaults', () => {
       categoryAxis: { visible: boolean };
       valueAxes: { visible: boolean }[];
       tooltip: { snapToCategory: boolean; showCategory: boolean };
-      pie: { innerRadiusFraction: number; labelType: string };
+      pie: { innerRadiusFraction: number; label: { type: string } };
     };
     expect(defaults.categoryAxis.visible).toBe(false);
     expect(defaults.valueAxes[0]!.visible).toBe(false);
     expect(defaults.tooltip.snapToCategory).toBe(false);
     expect(defaults.tooltip.showCategory).toBe(false);
-    expect(defaults.pie).toEqual(expect.objectContaining({ innerRadiusFraction: 0, labelType: 'percent' }));
+    expect(defaults.pie).toEqual(expect.objectContaining({ innerRadiusFraction: 0, label: expect.objectContaining({ type: 'percent' }) }));
   });
 
   it('derives pieConfig.endAngle from startAngle so rotation never truncates the pie', () => {

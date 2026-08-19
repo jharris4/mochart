@@ -1,4 +1,4 @@
-// Legend/tooltip icon config that had never been set anywhere: showIconColors, showIconPlaceholders, iconUnfilteredColor, the border/spacer numbers, and the legend/tooltip icon gradient paths.
+// Legend/tooltip icon config that had never been set anywhere: icon.showColors, icon.showPlaceholders, icon.unfilteredColor, the border/spacer numbers, and the legend/tooltip icon gradient paths.
 import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { mountContainer, trackHandle, lastHandle } from './helpers';
@@ -86,8 +86,8 @@ describe('legend icon switches', () => {
     expect(icons[0].getAttribute('fill')).not.toBe(icons[1].getAttribute('fill'));
   });
 
-  it('falls back to the unfiltered placeholder color when showIconColors is off', () => {
-    const icons = legendIcons(mountChart({ legend: { visible: true, showIconColors: false, iconUnfilteredColor: 'rgb(4,5,6)' } }));
+  it('falls back to the unfiltered placeholder color when icon.showColors is off', () => {
+    const icons = legendIcons(mountChart({ legend: { visible: true, icon: { showColors: false, unfilteredColor: 'rgb(4,5,6)' } } }));
 
     // both icons stop carrying their series color and become identical placeholders
     expect(icons.length).toBe(2);
@@ -95,21 +95,21 @@ describe('legend icon switches', () => {
   });
 
   it('draws no icon at all when neither colors nor placeholders are wanted', () => {
-    expect(legendIcons(mountChart({ legend: { visible: true, showIconColors: false, showIconPlaceholders: false } }))).toHaveLength(0);
+    expect(legendIcons(mountChart({ legend: { visible: true, icon: { showColors: false, showPlaceholders: false } } }))).toHaveLength(0);
     // a series that opts out of its color still gets a placeholder while placeholders are on
     expect(legendIcons(mountChart({
       series: [{ id: 'S0', property: 'sales', renderer: 'bar', showColorInLegend: false }],
-      legend: { visible: true, showIconPlaceholders: true }
+      legend: { visible: true, icon: { showPlaceholders: true } }
     }))).toHaveLength(1);
     expect(legendIcons(mountChart({
       series: [{ id: 'S0', property: 'sales', renderer: 'bar', showColorInLegend: false }],
-      legend: { visible: true, showIconPlaceholders: false }
+      legend: { visible: true, icon: { showPlaceholders: false } }
     }))).toHaveLength(0);
   });
 
   it('writes the icon border color, opacity and size onto the shape', () => {
     const icons = legendIcons(mountChart({
-      legend: { visible: true, iconBorderColor: 'rgb(9,9,9)', iconBorderOpacity: 0.11, iconBorderSize: 2 }
+      legend: { visible: true, icon: { borderColor: 'rgb(9,9,9)', borderOpacity: 0.11, borderSize: 2 } }
     }));
 
     expect(icons[0].getAttribute('stroke')).toBe('rgb(9,9,9)');
@@ -123,8 +123,8 @@ describe('legend icon switches', () => {
       const transform = container.querySelector(getDescendantCssSelector('legendItemText') + ' text')!.getAttribute('transform') ?? '';
       return Number(/translate\(\s*([-\d.]+)/.exec(transform)![1]);
     };
-    const narrow = mountChart({ legend: { visible: true, iconSize: 10, iconSpacerSize: 2 } });
-    const wide = mountChart({ legend: { visible: true, iconSize: 10, iconSpacerSize: 22 } });
+    const narrow = mountChart({ legend: { visible: true, icon: { size: 10, spacerSize: 2 } } });
+    const wide = mountChart({ legend: { visible: true, icon: { size: 10, spacerSize: 22 } } });
 
     // the item text starts after the icon plus its spacer, so 20 more spacer is 20 more offset
     expect(textX(wide) - textX(narrow)).toBeCloseTo(20);
@@ -264,14 +264,14 @@ describe('tooltip icon switches', () => {
   });
 
   it('drops the tooltip icons when neither colors nor placeholders are wanted', () => {
-    const container = mountChart({ tooltip: { showIconColors: false, showIconPlaceholders: false } });
+    const container = mountChart({ tooltip: { icon: { showColors: false, showPlaceholders: false } } });
     openTooltip(container);
 
     expect(tooltipIcons(container)).toHaveLength(0);
   });
 
   it('keeps placeholder icons when only the colors are switched off', () => {
-    const container = mountChart({ tooltip: { showIconColors: false, showIconPlaceholders: true, iconUnfilteredColor: 'rgb(4,5,6)' } });
+    const container = mountChart({ tooltip: { icon: { showColors: false, showPlaceholders: true, unfilteredColor: 'rgb(4,5,6)' } } });
     openTooltip(container);
     const icons = tooltipIcons(container);
 
@@ -280,7 +280,7 @@ describe('tooltip icon switches', () => {
   });
 
   it('takes the filtered color once its series is filtered', () => {
-    const container = mountChart({ tooltip: { iconFilteredColor: 'rgb(7,7,7)' } });
+    const container = mountChart({ tooltip: { icon: { filteredColor: 'rgb(7,7,7)' } } });
     filterSeries(container, 'S0');
     openTooltip(container);
     const icons = tooltipIcons(container);

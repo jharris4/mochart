@@ -10,7 +10,9 @@
   },
   "valueAxes": [
     {
-      "title": "units per day"
+      "title": {
+        "text": "units per day"
+      }
     }
   ],
   "seriesGroups": [

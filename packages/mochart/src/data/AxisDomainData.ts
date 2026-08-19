@@ -73,7 +73,7 @@ function getDateHalfWidth(axisConfig: AxisDomainConfig): number {
   if (axisConfig.minTickInterval > 0) {
     return axisConfig.minTickInterval;
   }
-  const { tickLabelFormat } = axisConfig;
+  const { format: tickLabelFormat } = axisConfig.tickLabel;
   if (tickLabelFormat !== AUTO && tickLabelFormat !== NONE) {
     let unit = Infinity;
     const directivePattern = /%[-_0]?(.)/g;

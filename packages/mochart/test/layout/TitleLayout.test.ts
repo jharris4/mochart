@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getTitleHeight, getTitleLayoutInfo } from '../../src/layout/TitleLayout';
 import type { MarginPadding, TextBounds } from '../../src/types/geometry';
-import type { TitleConfig } from '../../src/types/config';
+import type { TitleAffixConfig, TitleConfig } from '../../src/types/config';
 import type { EnhancedMochartConfig } from '../../src/types/enhanced';
 import type { ChartTextBoundsData, LayoutInfo } from '../../src/types/layout';
 
@@ -10,8 +10,18 @@ const box = (top: number, right: number, bottom: number, left: number): MarginPa
 
 const baseTitle: TitleConfig = {
   text: 'Title',
-  prefix: null,
-  suffix: null,
+  prefix: {
+    text: null,
+    // prefix outer width 24, outer height = text height
+    margin: box(0, 2, 0, 2),
+    padding: zero
+  },
+  suffix: {
+    text: null,
+    // suffix outer width +2, outer height +2
+    margin: zero,
+    padding: box(1, 1, 1, 1)
+  },
   alignedToAxes: false,
   align: 'left',
   verticalAlign: 'top',
@@ -21,13 +31,7 @@ const baseTitle: TitleConfig = {
   padding: box(1, 6, 1, 6),
   // textSpacingWidth 10, textSpacingHeight 6
   textMargin: box(0, 5, 0, 5),
-  textPadding: box(3, 0, 3, 0),
-  // prefix outer width 24, outer height = text height
-  prefixMargin: box(0, 2, 0, 2),
-  prefixPadding: zero,
-  // suffix outer width +2, outer height +2
-  suffixMargin: zero,
-  suffixPadding: box(1, 1, 1, 1)
+  textPadding: box(3, 0, 3, 0)
 } as TitleConfig;
 
 const bounds = (width: number, height: number, extra: Partial<TextBounds> = {}): TextBounds => ({ width, height, ...extra });
@@ -39,7 +43,14 @@ const baseText: ChartTextBoundsData = {
   titleSuffixBounds: bounds(30, 40)
 } as ChartTextBoundsData;
 
-const config = (title: Partial<TitleConfig> = {}): EnhancedMochartConfig => ({ title: { ...baseTitle, ...title } }) as unknown as EnhancedMochartConfig;
+// overrides merge the prefix / suffix groups one level deep, so a caller can set just the text or just a margin
+type TitleOverrides = Partial<Omit<TitleConfig, 'prefix' | 'suffix'>> & { prefix?: Partial<TitleAffixConfig>; suffix?: Partial<TitleAffixConfig> };
+const withTitle = (title: TitleOverrides): TitleConfig => ({
+  ...baseTitle, ...title,
+  prefix: { ...baseTitle.prefix, ...title.prefix },
+  suffix: { ...baseTitle.suffix, ...title.suffix }
+});
+const config = (title: TitleOverrides = {}): EnhancedMochartConfig => ({ title: withTitle(title) }) as unknown as EnhancedMochartConfig;
 const text = (overrides: Partial<ChartTextBoundsData> = {}): ChartTextBoundsData => ({ ...baseText, ...overrides });
 
 const content = { x: 10, y: 0, width: 400, height: 300 };
@@ -47,7 +58,7 @@ const series = { x: 60, y: 40, width: 300, height: 200 } as LayoutInfo;
 
 const rect = ({ x, y, width, height }: { x: number; y: number; width: number; height: number }) => ({ x, y, width, height });
 
-function layout(title: Partial<TitleConfig> = {}, textData: ChartTextBoundsData = baseText, contentBounds = content, seriesLayoutInfo = series, titleY = 0) {
+function layout(title: TitleOverrides = {}, textData: ChartTextBoundsData = baseText, contentBounds = content, seriesLayoutInfo = series, titleY = 0) {
   const mochartConfig = config(title);
   const titleHeight = getTitleHeight(mochartConfig, textData);
   return getTitleLayoutInfo(mochartConfig, textData, contentBounds, seriesLayoutInfo, titleHeight, titleY);
@@ -65,10 +76,10 @@ describe('getTitleHeight', () => {
 
   it('takes the tallest of text, prefix and suffix', () => {
     // suffix 40 + 2 padding = 42, plus title spacing 6
-    expect(getTitleHeight(config({ prefix: 'A', suffix: 'Z' }), baseText)).toBe(48);
-    expect(getTitleHeight(config({ prefix: 'A' }), baseText)).toBe(32);
+    expect(getTitleHeight(config({ prefix: { text: 'A' }, suffix: { text: 'Z' } }), baseText)).toBe(48);
+    expect(getTitleHeight(config({ prefix: { text: 'A' } }), baseText)).toBe(32);
     // a tall prefix wins when present
-    expect(getTitleHeight(config({ prefix: 'A' }), text({ titlePrefixBounds: bounds(20, 50) }))).toBe(56);
+    expect(getTitleHeight(config({ prefix: { text: 'A' } }), text({ titlePrefixBounds: bounds(20, 50) }))).toBe(56);
   });
 
   it('ignores prefix and suffix bounds when they are not configured', () => {
@@ -130,7 +141,7 @@ describe('getTitleLayoutInfo width branches', () => {
 
   it('truncates around the prefix and suffix', () => {
     const narrow = { ...content, width: 150 };
-    const { titleLayoutInfo, titlePrefixLayoutInfo, titleTextLayoutInfo, titleSuffixLayoutInfo } = layout({ prefix: 'A', suffix: 'Z' }, baseText, narrow);
+    const { titleLayoutInfo, titlePrefixLayoutInfo, titleTextLayoutInfo, titleSuffixLayoutInfo } = layout({ prefix: { text: 'A' }, suffix: { text: 'Z' } }, baseText, narrow);
     // text width = content 150 - spacing 20 - prefix 24 - suffix 32 = 74
     expect(rect(titleLayoutInfo)).toEqual({ x: 10, y: 0, width: 150, height: 48 });
     expect(rect(titlePrefixLayoutInfo)).toEqual({ x: 10, y: 0, width: 24, height: 10 });
@@ -148,7 +159,7 @@ describe('getTitleLayoutInfo width branches', () => {
   });
 
   it('places the prefix, text and suffix side by side', () => {
-    const { titleLayoutInfo, titlePrefixLayoutInfo, titleTextLayoutInfo, titleSuffixLayoutInfo } = layout({ prefix: 'A', suffix: 'Z' });
+    const { titleLayoutInfo, titlePrefixLayoutInfo, titleTextLayoutInfo, titleSuffixLayoutInfo } = layout({ prefix: { text: 'A' }, suffix: { text: 'Z' } });
     // 20 + 24 + 110 + 32
     expect(rect(titleLayoutInfo)).toEqual({ x: 10, y: 0, width: 186, height: 48 });
     expect(rect(titlePrefixLayoutInfo)).toEqual({ x: 10, y: 0, width: 24, height: 10 });
@@ -162,7 +173,7 @@ describe('getTitleLayoutInfo width branches', () => {
   });
 
   it('gives no width to the prefix and suffix without title text', () => {
-    const { titleLayoutInfo, titlePrefixLayoutInfo, titleSuffixLayoutInfo } = layout({ text: null, prefix: 'A', suffix: 'Z' });
+    const { titleLayoutInfo, titlePrefixLayoutInfo, titleSuffixLayoutInfo } = layout({ text: null, prefix: { text: 'A' }, suffix: { text: 'Z' } });
     expect(titleLayoutInfo.height).toBe(0);
     expect(titlePrefixLayoutInfo.width).toBe(0);
     expect(titleSuffixLayoutInfo.width).toBe(0);
@@ -170,7 +181,7 @@ describe('getTitleLayoutInfo width branches', () => {
 });
 
 describe('getTitleLayoutInfo vertical placement', () => {
-  const titled: Partial<TitleConfig> = { prefix: 'A', suffix: 'Z' };
+  const titled: TitleOverrides = { prefix: { text: 'A' }, suffix: { text: 'Z' } };
 
   it('keeps every part at the top by default', () => {
     const { titlePrefixLayoutInfo, titleTextLayoutInfo, titleSuffixLayoutInfo } = layout(titled);
@@ -222,7 +233,7 @@ describe('getTitleLayoutInfo vertical placement', () => {
 
   it('caps the expansion at the spare height when margins differ', () => {
     // prefix margin adds 4 of vertical space its padding-only expansion does not know about
-    const { titlePrefixLayoutInfo } = layout({ ...titled, verticalExpand: true, prefixMargin: box(2, 2, 2, 2) });
+    const { titlePrefixLayoutInfo } = layout({ ...titled, verticalExpand: true, prefix: { text: 'A', margin: box(2, 2, 2, 2) } });
     // outer prefix height 14 → 28 spare, but padding-based expansion asks for 32
     expect(titlePrefixLayoutInfo.height).toBe(42);
     expect(titlePrefixLayoutInfo.paddingBounds).toEqual({ x: 12, y: 2, width: 20, height: 10 });

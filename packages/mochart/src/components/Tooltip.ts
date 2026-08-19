@@ -52,8 +52,8 @@ export default class Tooltip extends Renderer<TooltipProps> {
 
       const { x, y } = tooltipLayoutInfo;
 
-      const boxShadowStyle = tooltipConfig.dropShadowOffsetX + 'px ' + tooltipConfig.dropShadowOffsetY + 'px ' +
-        tooltipConfig.dropShadowBlurRadius + 'px ' + tooltipConfig.dropShadowColor;
+      const { dropShadow } = tooltipConfig;
+      const boxShadowStyle = dropShadow.offsetX + 'px ' + dropShadow.offsetY + 'px ' + dropShadow.blurRadius + 'px ' + dropShadow.color;
 
       const tooltipSizerStyle = {
         position: 'absolute',

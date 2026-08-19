@@ -144,7 +144,7 @@ single [`getPropertyValues`](#the-provider-interface) accessor.
 Series values must be numeric or missing (`null`/`undefined`/`NaN`) — how missing
 values render is controlled per series with
 [`missingValues`](/reference/series#series.missingValues). Pair it with
-[`missingValueMarkers`](/reference/series#series.missingValueMarkers) to
+[`marker.showForMissingValues`](/reference/series#series.marker.showForMissingValues) to
 keep a marker at the missing values — most useful with
 `missingValues: 'base'`, which gives the marker a position.
 

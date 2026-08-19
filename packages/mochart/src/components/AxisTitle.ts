@@ -40,12 +40,12 @@ export default class AxisTitle extends Renderer<AxisTitleProps, AxisTitleState> 
 
   derive(props: AxisTitleProps, _state: AxisTitleState, prevProps: AxisTitleProps | null): Partial<AxisTitleState> | null {
     if (prevProps === null) {
-      return this.truncation.mount(props.axisConfig.titleTruncationEnabled);
+      return this.truncation.mount(props.axisConfig.title.truncationEnabled);
     }
     const { axisConfig, axisLayoutInfo } = props;
-    const truncationEnabled = axisConfig.title !== NONE && axisConfig.titleTruncationEnabled;
+    const truncationEnabled = axisConfig.title.text !== NONE && axisConfig.title.truncationEnabled;
     const truncationChanged = truncationEnabled && layoutInfoExtentChanged(prevProps.axisLayoutInfo, axisLayoutInfo);
-    return this.truncation.prepare(truncationEnabled, truncationChanged, prevProps.axisConfig.title !== axisConfig.title);
+    return this.truncation.prepare(truncationEnabled, truncationChanged, prevProps.axisConfig.title.text !== axisConfig.title.text);
   }
 
   create() {
@@ -56,28 +56,28 @@ export default class AxisTitle extends Renderer<AxisTitleProps, AxisTitleState> 
 
   sync() {
     const { axisConfig } = this.props;
-    if (axisConfig.title !== NONE) {
+    if (axisConfig.title.text !== NONE) {
       const { axisLayoutInfo, titleClipPathUniqueId, axisFocusPercentage, seriesFocusPercentage } = this.props;
       const { truncationData } = this.state;
-      const title = getTruncatedText(axisConfig.titleTruncationEnabled, axisConfig.titleTruncationValue, axisConfig.title!, truncationData);
+      const title = getTruncatedText(axisConfig.title.truncationEnabled, axisConfig.title.truncationValue, axisConfig.title.text!, truncationData);
 
       const titleTextDY = '0.35em'; // more or less centers the text vertically http://stackoverflow.com/questions/12250403/vertical-alignment-of-text-element-in-svg
       const titleTextAnchor = 'middle';
       const { titleTextX, titleTextY, titleTextAngle } = axisLayoutInfo;
       const titleTextTransform = 'translate(' + Math.floor(titleTextX) + ',' + Math.floor(titleTextY) + ') rotate(' + titleTextAngle + ')';
 
-      const clipPath = axisConfig.titleTruncationEnabled ? getClipPathReference(titleClipPathUniqueId) : null;
+      const clipPath = axisConfig.title.truncationEnabled ? getClipPathReference(titleClipPathUniqueId) : null;
 
       const useSeriesFocus = axisConfig.useSeriesFocus ?? false;
       // destructured rather than spread whole: this attribute order is what the golden snapshots record
       const { stroke, strokeOpacity, strokeWidth, fill, fillOpacity } = styleToAttributes(
-        getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, axisConfig.titleTextStyle));
+        getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, axisConfig.title.textStyle));
 
       this.setPresent(true);
       // hidden when the sibling tick labels are grouped: this same string, untruncated, is that group's name
       this.root.set({ className: mochartCssClasses['axisTitle'], clipPath,
         ariaHidden: this.props.ariaHidden ? 'true' : null });
-      this.background.set(Background, { config: axisConfig, configStyleKey: 'titleBackgroundStyle', classKey: 'axisTitleBackground', spacingRelative: false, spacingLayoutInfo: axisLayoutInfo.titleLayoutInfo });
+      this.background.set(Background, { config: axisConfig.title, classKey: 'axisTitleBackground', spacingRelative: false, spacingLayoutInfo: axisLayoutInfo.titleLayoutInfo });
       this.text.set({ transform: titleTextTransform, textAnchor: titleTextAnchor, dy: titleTextDY,
         stroke, strokeOpacity,
         fill, fillOpacity, strokeWidth });
@@ -97,7 +97,7 @@ export default class AxisTitle extends Renderer<AxisTitleProps, AxisTitleState> 
       const domElement = this.root.node.querySelector<SVGTextContentElement>(getAxisTitleCssSelector());
       const { axisConfig, axisLayoutInfo } = this.props;
       const maxLength = axisLayoutInfo.vertical ? axisLayoutInfo.height : axisLayoutInfo.width;
-      const { title, titleTruncationValue } = axisConfig;
+      const { text: title, truncationValue: titleTruncationValue } = axisConfig.title;
       this.truncation.update(this, titleTruncationValue, title!, maxLength, domElement);
     }
   }

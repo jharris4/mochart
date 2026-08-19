@@ -13,19 +13,23 @@ export const config: MochartInputConfig = {
       title: 'Planned',
       renderer: 'bar',
       labelProperty: 'planned',
-      labelFormat: ',.0f',
-      labelPosition: 'inside',
-      // Only the colors of the normal state are overridden — the opacities,
-      // the stroke width, and the focused/defocused states keep their defaults.
-      labelTextStyle: { normal: { strokeColor: '#ffffff', fillColor: '#ffffff' } },
-      labelMinRangeFraction: 0.05
+      label: {
+        format: ',.0f',
+        position: 'inside',
+        // Only the colors of the normal state are overridden — the opacities,
+        // the stroke width, and the focused/defocused states keep their defaults.
+        textStyle: { normal: { strokeColor: '#ffffff', fillColor: '#ffffff' } },
+        minRangeFraction: 0.05
+      }
     },
     {
       property: 'shipped',
       title: 'Shipped',
       renderer: 'line',
-      markerShape: 'circle',
-      markerSize: 5
+      marker: {
+        shape: 'circle',
+        size: 5
+      }
     }
   ]
 };

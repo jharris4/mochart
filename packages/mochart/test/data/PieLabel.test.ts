@@ -47,8 +47,9 @@ describe('formatPieLabelType', () => {
 });
 
 describe('pie label formats', () => {
-  const pieConfig = (over: Partial<PieConfig> = {}): PieConfig => ({
-    labelValueFormat: 'auto', labelPercentFormat: 'auto', tooltipPercentFormat: 'auto', ...over
+  const pieConfig = (over: { tooltipPercentFormat?: string; label?: Partial<PieConfig['label']> } = {}): PieConfig => ({
+    tooltipPercentFormat: 'auto', ...over,
+    label: { valueFormat: 'auto', percentFormat: 'auto', ...over.label }
   } as PieConfig);
 
   it('resolves auto to abbreviated values and whole percents for labels', () => {
@@ -62,7 +63,7 @@ describe('pie label formats', () => {
   });
 
   it('honors explicit specifiers per part', () => {
-    const { valueFormat, percentFormat } = getPieLabelFormats(pieConfig({ labelValueFormat: ',.0f', labelPercentFormat: '.2%' }));
+    const { valueFormat, percentFormat } = getPieLabelFormats(pieConfig({ label: { valueFormat: ',.0f', percentFormat: '.2%' } }));
     expect(valueFormat(12400)).toBe('12,400');
     expect(percentFormat(0.625)).toBe('62.50%');
     expect(getPieTooltipPercentFormat(pieConfig({ tooltipPercentFormat: '.0%' }))(0.625)).toBe('63%');

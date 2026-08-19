@@ -64,7 +64,7 @@ describe('per-side series label positions', () => {
     const container = mountChart({
       categoryAxis: { property: 'g', type: 'string', scale: 'ordinal' },
       valueAxes: [{ base: 0 }],
-      series: [{ property: 'value', renderer: 'bar', labelProperty: 'value', labelPosition: 'outside', labelAboveBasePosition: 'inside' }]
+      series: [{ property: 'value', renderer: 'bar', labelProperty: 'value', label: { position: 'outside', aboveBase: { position: 'inside' } } }]
     }, rows);
     expect(labelAttrs(container, 0).dy).toBe('1.35em');   // above base, inside
     expect(labelAttrs(container, 1).dy).toBe('1.35em');   // below base, outside
@@ -75,7 +75,7 @@ describe('per-side series label positions', () => {
       plot: { inverted: true },
       categoryAxis: { property: 'g', type: 'string', scale: 'ordinal' },
       valueAxes: [{ base: 0 }],
-      series: [{ property: 'value', renderer: 'bar', labelProperty: 'value', labelPosition: 'outside', labelBelowBasePosition: 'inside' }]
+      series: [{ property: 'value', renderer: 'bar', labelProperty: 'value', label: { position: 'outside', belowBase: { position: 'inside' } } }]
     }, rows);
     expect(labelAttrs(container, 0).anchor).toBe('start'); // above base, outside
     expect(labelAttrs(container, 1).anchor).toBe('start'); // below base, inside
@@ -89,8 +89,8 @@ describe('multiple thresholds on one axis', () => {
       categoryAxis: { property: 'g', type: 'string', scale: 'ordinal' },
       valueAxes: [{
         thresholds: [
-          { value: 10, title: 'Warning' },
-          { value: 30, title: 'Critical', front: false },
+          { value: 10, title: { text: 'Warning' } },
+          { value: 30, title: { text: 'Critical' }, front: false },
           { value: 35 }
         ]
       }],
@@ -121,29 +121,29 @@ describe('rotated tick label placement', () => {
 
   function categoryAnchor(axis: Record<string, unknown>): { x: number; y: number } {
     return tickLabelTranslate(mountChart({
-      categoryAxis: { property: 'g', type: 'string', scale: 'ordinal', title: 'Cat', ...axis },
+      categoryAxis: { property: 'g', type: 'string', scale: 'ordinal', title: { text: 'Cat' }, ...axis },
       series: [{ property: 'value', renderer: 'bar' }]
     }, rows), 'categoryAxis');
   }
 
   it('starts a 90° label at the inner edge of a bottom axis band, where an unrotated label is centered', () => {
-    expect(categoryAnchor({ tickLabelRotation: 90 }).y).toBe(categoryAnchor({}).y - LABEL / 2);
+    expect(categoryAnchor({ tickLabel: { rotation: 90 } }).y).toBe(categoryAnchor({}).y - LABEL / 2);
   });
 
   it('ends a 90° label at the inner edge of a top axis band', () => {
-    expect(categoryAnchor({ side: 'start', tickLabelRotation: 90 }).y).toBe(categoryAnchor({ side: 'start' }).y + LABEL / 2);
+    expect(categoryAnchor({ side: 'start', tickLabel: { rotation: 90 } }).y).toBe(categoryAnchor({ side: 'start' }).y + LABEL / 2);
   });
 
   it('keeps a 45° label inside a left axis band', () => {
     const rotated = getRotatedBounds({ width: LABEL, height: LABEL }, 45, 'end');
     const unrotatedX = tickLabelTranslate(mountChart({
       categoryAxis: { property: 'g', type: 'string', scale: 'ordinal' },
-      valueAxes: [{ title: 'Val' }],
+      valueAxes: [{ title: { text: 'Val' } }],
       series: [{ property: 'value', renderer: 'bar' }]
     }, rows), 'valueAxis').x;
     const rotatedX = tickLabelTranslate(mountChart({
       categoryAxis: { property: 'g', type: 'string', scale: 'ordinal' },
-      valueAxes: [{ title: 'Val', tickLabelRotation: 45 }],
+      valueAxes: [{ title: { text: 'Val' }, tickLabel: { rotation: 45 } }],
       series: [{ property: 'value', renderer: 'bar' }]
     }, rows), 'valueAxis').x;
     // an unrotated end-anchored label sits at the band's inner edge; the rotated band is wider by the rotated width difference

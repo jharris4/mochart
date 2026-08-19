@@ -1,7 +1,7 @@
 /**
  * Pie/donut rendering tests: chartConfig.type 'pie' mounts RadialPlot (slices,
  * no axes/crosshair), slices renormalize when a series is filtered, labels
- * respect labelMinFraction, and animated value updates settle on a fake
+ * respect label.minFraction, and animated value updates settle on a fake
  * clock (same technique as the golden suite).
  */
 import { describe, it, expect, beforeAll, vi } from 'vitest';
@@ -104,13 +104,13 @@ describe('pie chart rendering', () => {
     expect(donutD).not.toBe(pieD);
   });
 
-  it('shows labels when enabled and hides those under labelMinFraction', () => {
+  it('shows labels when enabled and hides those under label.minFraction', () => {
     const items: PieItem[] = [
       { label: 'Big', value: 98 },
       { label: 'Tiny', value: 2 }
     ];
     const { config, data } = pieChartProps(items, {}, {
-      pie: { showLabels: true, labelType: 'percent', labelMinFraction: 0.05 } as Partial<PieConfig>
+      pie: { label: { visible: true, type: 'percent', minFraction: 0.05 } } as Partial<PieConfig>
     });
     const { container } = mountChart(config, data);
     const labels = Array.from(container.querySelectorAll(getCssSelector('seriesSliceLabel')));
@@ -232,7 +232,7 @@ describe('pie chart rendering', () => {
 
     it('renders label combinations from the same shares', () => {
       const { config, data } = pieChartProps(ITEMS, {}, {
-        pie: { showLabels: true, labelType: 'titlePercent' } as Partial<PieConfig>
+        pie: { label: { visible: true, type: 'titlePercent' } } as Partial<PieConfig>
       });
       const { container } = mountChart(config, data);
       const labels = Array.from(container.querySelectorAll(getCssSelector('seriesSliceLabel'))).map(label => label.textContent);
@@ -242,7 +242,7 @@ describe('pie chart rendering', () => {
     // an untitled series is named the same way everywhere: legend, tooltip, aria label and slice label
     it('names an untitled series in the label like the legend does', () => {
       const { config, data } = pieChartProps(ITEMS, {}, {
-        pie: { showLabels: true, labelType: 'titlePercent' } as Partial<PieConfig>
+        pie: { label: { visible: true, type: 'titlePercent' } } as Partial<PieConfig>
       });
       const untitled = { ...config, series: (config.series as { title?: string }[]).map(({ title: _title, ...rest }) => rest) } as MochartInputConfig;
       const { container } = mountChart(untitled, data);
@@ -301,7 +301,7 @@ describe('pie chart rendering', () => {
 
   it('renders the center label and a filtering-aware total', () => {
     const { config, data } = pieChartProps(ITEMS, { donut: true }, {
-      pie: { innerRadiusFraction: 0.6, centerLabel: 'Total', showCenterTotal: true, centerTotalFormat: ',.0f' } as Partial<PieConfig>
+      pie: { innerRadiusFraction: 0.6, centerLabel: 'Total', centerTotal: { visible: true, format: ',.0f' } } as Partial<PieConfig>
     });
     const { container } = mountChart(config, data);
     expect(container.querySelector(getCssSelector('pieCenterLabel'))!.textContent).toBe('Total');
@@ -311,9 +311,9 @@ describe('pie chart rendering', () => {
     expect(filtered.container.querySelector(getCssSelector('pieCenterTotal'))!.textContent).toBe('38');
   });
 
-  it('keeps percent labels on the full total when adjustLabelsForFiltering is off', () => {
+  it('keeps percent labels on the full total when label.adjustForFiltering is off', () => {
     const labelConfig = (adjust: boolean) => pieChartProps(ITEMS, {}, {
-      pie: { showLabels: true, labelType: 'percent', labelMinFraction: 0, adjustLabelsForFiltering: adjust } as Partial<PieConfig>
+      pie: { label: { visible: true, type: 'percent', minFraction: 0, adjustForFiltering: adjust } } as Partial<PieConfig>
     });
     const filtered = { filteredSeriesIds: { slice2: true } };
 
@@ -326,9 +326,9 @@ describe('pie chart rendering', () => {
     expect(unadjustedLabels).toEqual(['62%', '20%']); // shares of the full total
   });
 
-  it('keeps the center total on the full total when adjustCenterTotalForFiltering is off', () => {
+  it('keeps the center total on the full total when centerTotal.adjustForFiltering is off', () => {
     const totalConfig = (adjust: boolean) => pieChartProps(ITEMS, {}, {
-      pie: { showCenterTotal: true, centerTotalFormat: ',.0f', adjustCenterTotalForFiltering: adjust } as Partial<PieConfig>
+      pie: { centerTotal: { visible: true, format: ',.0f', adjustForFiltering: adjust } } as Partial<PieConfig>
     });
     const filtered = { filteredSeriesIds: { slice0: true } };
 
@@ -345,7 +345,7 @@ describe('pie chart rendering', () => {
       version: VERSION,
       animation: { animate: true },
       chart: pie.chart,
-      pie: { showLabels: true, labelMinFraction: 0 },
+      pie: { label: { visible: true, minFraction: 0 } },
       categoryAxis: pie.categoryAxis,
       series: pie.series
     } as unknown as MochartInputConfig;

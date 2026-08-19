@@ -5,10 +5,8 @@ export default function getValidators() {
   return {
     visible: validators.boolean(),
     applyFocus: validators.boolean(),
-    showCategory: validators.boolean(),
-    showSeries: validators.boolean(),
-    categoryLineStyle: validators.strokeStyle(),
-    seriesLineStyle: validators.strokeStyle(),
+    categoryLine: validators.partialObjectWithShape({ visible: validators.boolean(), style: validators.strokeStyle() }, true),
+    seriesLine: validators.partialObjectWithShape({ visible: validators.boolean(), style: validators.strokeStyle() }, true),
     showBehindTooltip: validators.boolean()
   };
 }

@@ -9,21 +9,24 @@ export default function getDefaults(config: DeepPartial<ValueAxisConfig> = {}, i
 }
 
 export function getRegularDefaults() {
+  const axisDefaults = getAxisDefaults();
   return {
     ignore: false,
-    ...getAxisDefaults(),
+    ...axisDefaults,
 
     adjustForFiltering: false,
-    adjustTickLabelSizeForFiltering: false,
+    tickLabel: { ...axisDefaults.tickLabel, adjustSizeForFiltering: false },
 
     visibleWhenAllFiltered: true,
 
-    showBaseLine: true,
-    baseLineFront: false,
-    baseLineStyle: {
-      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: NONE },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME }
+    baseLine: {
+      visible: true,
+      front: false,
+      style: {
+        normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: NONE },
+        focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
+        defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME }
+      }
     },
 
     focusOnMouseOver: true,

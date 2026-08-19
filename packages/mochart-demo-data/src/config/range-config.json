@@ -22,7 +22,9 @@
           "fillColor": "#9467bd"
         }
       },
-      "markerShape": null
+      "marker": {
+        "shape": null
+      }
     },
     {
       "property": "middle",
@@ -34,8 +36,10 @@
           "fillColor": "#1f77b4"
         }
       },
-      "markerSize": 8,
-      "markerShape": "star"
+      "marker": {
+        "size": 8,
+        "shape": "star"
+      }
     }
   ]
 }

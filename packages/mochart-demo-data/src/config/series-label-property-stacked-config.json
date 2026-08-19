@@ -15,8 +15,10 @@
   },
   "seriesStacks": {},
   "seriesDefaults": {
-    "labelPosition": "outside",
-    "labelMinRangeFraction": 0.05,
+    "label": {
+      "position": "outside",
+      "minRangeFraction": 0.05
+    },
     "renderer": "area"
   },
   "series": [

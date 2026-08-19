@@ -29,8 +29,8 @@ import * as groupedSeries from '../examples/groupedSeries'
   groups: its series must all share one `group`, which validation enforces.
 - To overlay a narrower bar on a full-width one instead (a measure over its
   backing range), leave the series ungrouped and shrink the overlay with
-  [`barWidthFraction`](/reference/series#series.barWidthFraction);
-  [`barAlignFraction`](/reference/series#series.barAlignFraction) then places
+  [`bar.widthFraction`](/reference/series#series.bar.widthFraction);
+  [`bar.alignFraction`](/reference/series#series.bar.alignFraction) then places
   it within the slot (`0.5` centers). Both also apply inside a group sub-slot
   — the [OHLC recipe](/recipes/ohlc) uses them to put open and close ticks
   either side of one bar.

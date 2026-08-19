@@ -24,12 +24,12 @@ export default class AxisLine extends Renderer<AxisLineProps> {
 
   sync() {
     const { axisConfig } = this.props;
-    if (axisConfig.showAxisLine === true) {
+    if (axisConfig.axisLine.visible === true) {
       const { axisLayoutInfo, axisFocusPercentage, seriesFocusPercentage } = this.props;
       const { axisLineX1, axisLineY1, axisLineX2, axisLineY2 } = axisLayoutInfo;
 
       const style = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage,
-        axisConfig.useSeriesFocus ?? false, axisConfig.axisLineStyle));
+        axisConfig.useSeriesFocus ?? false, axisConfig.axisLine.style));
 
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['axisLine'] });

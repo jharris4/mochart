@@ -259,8 +259,10 @@ export function getColumnGenerator(seriesConfig: EnhancedSeriesConfig, seriesPos
   let pathGenerator: Path;
   const categoryValueExtent = Math.max(minColumnSize, seriesPositionData.categoryValueExtent);
 
-  const { id, stack, capType, capSize, capExpand, capOnlyStackOuter, seriesStackConfig, barMinExtent } = seriesConfig;
-  const { outerCapType, outerCapSize, outerCapExpand } = seriesStackConfig ? seriesStackConfig : {};
+  const { id, stack, seriesStackConfig } = seriesConfig;
+  const { type: capType, size: capSize, expand: capExpand, onlyStackOuter: capOnlyStackOuter } = seriesConfig.cap;
+  const { minExtent: barMinExtent } = seriesConfig.bar;
+  const { type: outerCapType, size: outerCapSize, expand: outerCapExpand } = seriesStackConfig ? seriesStackConfig.outerCap : { type: undefined, size: undefined, expand: undefined };
   const stackPositiveIds = stack ? stackData.filteredOuterPositiveSeriesIds[stack] : null;
   const stackNegativeIds = stack ? stackData.filteredOuterNegativeSeriesIds[stack] : null;
 

@@ -13,11 +13,13 @@ export default function getValidators() {
     margin: validators.margin(),
     padding: validators.padding(),
     backgroundStyle: validators.style(),
-    itemMargin: validators.margin(),
-    itemPadding: validators.padding(),
-    itemBackgroundStyle: validators.style(),
-    itemTextStyle: validators.style(),
-    ...getSeriesIconValidators(),
+    item: validators.partialObjectWithShape({
+      margin: validators.margin(),
+      padding: validators.padding(),
+      backgroundStyle: validators.style(),
+      textStyle: validators.style()
+    }, true),
+    icon: validators.partialObjectWithShape(getSeriesIconValidators(), true),
     showFilteringOnLabels: validators.boolean(),
     focusOnMouseOver: validators.boolean(),
     focusOnClick: validators.boolean(),

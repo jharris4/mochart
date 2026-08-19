@@ -8,18 +8,12 @@ import type { Bounds } from '../types/geometry';
 
 type CssClassKey = keyof typeof mochartCssClasses;
 
-type BackgroundStyleKey = 'backgroundStyle' | 'tickLabelBackgroundStyle' | 'titleBackgroundStyle' | 'itemBackgroundStyle';
-
 interface BackgroundConfig {
   backgroundStyle: Style;
-  tickLabelBackgroundStyle?: Style;
-  titleBackgroundStyle?: Style;
-  itemBackgroundStyle?: Style;
 }
 
 interface BackgroundProps {
   config: BackgroundConfig;
-  configStyleKey?: BackgroundStyleKey;
   classKey: CssClassKey;
   spacingRelative: boolean;
   spacingLayoutInfo: SpacingLayoutInfo | Bounds;
@@ -43,12 +37,12 @@ export default class Background extends Renderer<BackgroundProps> {
   }
 
   sync() {
-    const { config, configStyleKey = 'backgroundStyle', classKey, spacingRelative, spacingLayoutInfo } = this.props;
+    const { config, classKey, spacingRelative, spacingLayoutInfo } = this.props;
     const bounds = 'marginBounds' in spacingLayoutInfo
       ? (spacingRelative ? spacingLayoutInfo.marginRelativeBounds : spacingLayoutInfo.marginBounds)
       : spacingLayoutInfo;
     const { x, y, width, height } = bounds;
-    const backgroundProps = styleToAttributes(config[configStyleKey]);
+    const backgroundProps = styleToAttributes(config.backgroundStyle);
     this.root.set({ className: mochartCssClasses[classKey], onClick: this.backgroundClick });
     this.rect.set({ x, y, width, height, ...backgroundProps });
   }

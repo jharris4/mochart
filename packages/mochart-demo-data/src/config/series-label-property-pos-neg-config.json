@@ -25,15 +25,17 @@
     "title": "Series 1",
     "renderer": "bar",
     "labelProperty": "value7",
-    "labelPosition": "inside",
-    "labelTextStyle": {
-      "normal": {
-        "strokeColor": "#ffffff",
-        "fillColor": "#ffffff"
-      }
-    },
-    "labelMinPositionFraction": 0.05,
-    "labelMinRangeFraction": 0.05,
-    "labelOffset": -2
+    "label": {
+      "position": "inside",
+      "textStyle": {
+        "normal": {
+          "strokeColor": "#ffffff",
+          "fillColor": "#ffffff"
+        }
+      },
+      "minPositionFraction": 0.05,
+      "minRangeFraction": 0.05,
+      "offset": -2
+    }
   }
 }

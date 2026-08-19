@@ -11,7 +11,9 @@
   "valueAxes": [
     {
       "base": 0,
-      "title": "$ thousands"
+      "title": {
+        "text": "$ thousands"
+      }
     }
   ],
   "series": [

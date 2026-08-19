@@ -11,7 +11,9 @@
       "inner": 0,
       "outer": 0
     },
-    "title": "Response time (ms)"
+    "title": {
+      "text": "Response time (ms)"
+    }
   },
   "valueAxes": [
     {

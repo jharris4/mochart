@@ -23,7 +23,7 @@ function getLegendItemMinSize(mochartConfig: EnhancedMochartConfig): number {
 
 // 'auto' tracks the label's font size (like the tooltip's 1em icon), falling back to the measured em box
 export function resolveLegendIconSize(legendConfig: LegendConfig, legendTextBounds: TextBounds): number {
-  if (legendConfig.iconSize !== AUTO) return legendConfig.iconSize;
+  if (legendConfig.icon.size !== AUTO) return legendConfig.icon.size;
   if (legendTextBounds.default || legendTextBounds.height <= 0) return fallbackLegendIconSize;
   const { fontSize } = legendTextBounds;
   return fontSize !== undefined && fontSize > 0 ? Math.round(fontSize) : legendTextBounds.height;
@@ -58,7 +58,9 @@ interface LegendItemPlacements {
 function placeLegendItems(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, plotBounds: { x: number; width: number }): LegendItemPlacements | null {
   const { legend: legendConfig, series: seriesConfigs } = mochartConfig;
   if (legendConfig.visible !== true || seriesConfigs.length === 0) return null;
-  const { margin, padding, itemMargin, itemPadding, alignedToAxes, iconSpacerSize } = legendConfig;
+  const { margin, padding, alignedToAxes } = legendConfig;
+  const { margin: itemMargin, padding: itemPadding } = legendConfig.item;
+  const { spacerSize: iconSpacerSize } = legendConfig.icon;
   const { legendItemMaxTextBounds } = chartTextBoundsData;
   const legendItemTextRawBounds = getLegendItemBoundsList(mochartConfig, chartTextBoundsData.legendItemTextRawBounds);
   const { x: contentX, width } = contentBounds;
@@ -133,7 +135,8 @@ export function getLegendLayoutInfo(mochartConfig: EnhancedMochartConfig, chartT
   const placements = placeLegendItems(mochartConfig, chartTextBoundsData, contentBounds, seriesLayoutInfo);
   if (placements !== null) {
     const { legend: legendConfig } = mochartConfig;
-    const { margin, padding, itemMargin, itemPadding, align } = legendConfig;
+    const { margin, padding, align } = legendConfig;
+    const { margin: itemMargin, padding: itemPadding } = legendConfig.item;
     const { legendItemMaxTextBounds } = chartTextBoundsData;
     const legendItemTextRawBounds = getLegendItemBoundsList(mochartConfig, chartTextBoundsData.legendItemTextRawBounds);
     // Carry the placeholder marker into the item layouts so the rendered icon

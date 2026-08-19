@@ -11,7 +11,9 @@
   },
   "valueAxisDefaults": {
     "base": 0,
-    "tickLabelFormat": "$.2f"
+    "tickLabel": {
+      "format": "$.2f"
+    }
   },
   "valueAxes": [
     {

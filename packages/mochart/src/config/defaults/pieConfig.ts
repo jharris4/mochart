@@ -15,21 +15,25 @@ export function getRegularDefaults() {
     padAngle: 0,
     cornerRadius: 0,
     focusOffsetFraction: 0,
-    showLabels: false,
-    labelType: PIE_LABEL_TYPE_PERCENT,
-    labelValueFormat: AUTO,
-    labelPercentFormat: AUTO,
-    labelRadiusFraction: 0.5,
-    labelMinFraction: 0.05,
-    adjustLabelsForFiltering: true,
+    label: {
+      visible: false,
+      type: PIE_LABEL_TYPE_PERCENT,
+      valueFormat: AUTO,
+      percentFormat: AUTO,
+      radiusFraction: 0.5,
+      minFraction: 0.05,
+      adjustForFiltering: true
+    },
     tooltipValues: PIE_LABEL_TYPE_VALUE,
     tooltipPercentFormat: AUTO,
     centerLabel: NONE,
     centerLabelTextStyle: { strokeColor: NONE, strokeOpacity: NONE, strokeWidth: NONE, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },
-    showCenterTotal: false,
-    centerTotalTextStyle: { strokeColor: NONE, strokeOpacity: NONE, strokeWidth: NONE, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },
-    centerTotalFormat: AUTO,
-    adjustCenterTotalForFiltering: true,
+    centerTotal: {
+      visible: false,
+      textStyle: { strokeColor: NONE, strokeOpacity: NONE, strokeWidth: NONE, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },
+      format: AUTO,
+      adjustForFiltering: true
+    },
     centerOffsetXFraction: 0,
     centerOffsetYFraction: 0
   };

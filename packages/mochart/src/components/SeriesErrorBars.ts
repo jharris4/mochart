@@ -52,7 +52,7 @@ export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
       hasErrorValues && seriesConfig.stack === NONE) {
       const { categoryFocusPercentages, valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
-      const { errorBarCapSize } = seriesConfig;
+      const { capSize: errorBarCapSize } = seriesConfig.errorBar;
       const errorLowValues = filteredValues.errorLow;
       const errorHighValues = filteredValues.errorHigh;
 
@@ -105,7 +105,7 @@ export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
 
           const focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
           const strokeColor = getSeriesErrorBarStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
-          const { strokeWidth: errorBarStrokeWidth, strokeDashArray: errorBarStrokeDashArray, strokeOpacity } = getFocusStrokeStyle(focusPercentage, seriesConfig.errorBarStyle);
+          const { strokeWidth: errorBarStrokeWidth, strokeDashArray: errorBarStrokeDashArray, strokeOpacity } = getFocusStrokeStyle(focusPercentage, seriesConfig.errorBar.style);
 
           errorBars.push({
             key: 'error-bar-' + i,

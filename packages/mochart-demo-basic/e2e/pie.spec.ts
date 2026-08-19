@@ -96,7 +96,7 @@ test.describe('donut demo', () => {
     await expect.poll(() => slice.getAttribute('transform')).toBe(before);
   });
 
-  // The donut's labels and tooltip both show shares (labelType 'percent',
+  // The donut's labels and tooltip both show shares (label.type 'percent',
   // tooltipValues 'percent'), so filtering a slice has to move both.
   test('renormalizes the tooltip shares with the labels when a slice is filtered', async ({ page }) => {
     await openDemo(page, 'donut');
@@ -133,7 +133,7 @@ test.describe('donut demo', () => {
     const labels = page.locator(sliceLabelSelector);
     const sliceCount = await page.locator(sliceSelector).count();
     // labels stay hidden during the initial sweep-in; once settled they show
-    // on every slice except those under labelMinFraction
+    // on every slice except those under label.minFraction
     await expect.poll(async () => {
       const count = await labels.count();
       return count > 0 && count < sliceCount;

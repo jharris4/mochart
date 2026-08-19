@@ -6,13 +6,13 @@ export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'League Position' },
   categoryAxis: { property: 'week', type: 'string', scale: 'ordinal' },
-  valueAxes: [{ id: 'VA0', title: 'Position', reversed: true, min: 1, max: 10, tickLabelFormat: 'd' }],
+  valueAxes: [{ id: 'VA0', title: { text: 'Position' }, reversed: true, min: 1, max: 10, tickLabel: { format: 'd' } }],
   series: [
     {
       property: 'position',
       title: 'Position',
       renderer: 'line',
-      markerShape: 'circle'
+      marker: { shape: 'circle' }
     }
   ]
 };

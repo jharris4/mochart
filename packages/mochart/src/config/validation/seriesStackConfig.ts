@@ -8,8 +8,10 @@ export default function getValidators() {
     axis: validators.string(),
     id: validators.string(),
     ignore: validators.boolean(),
-    outerCapSize: validators.numberMin(0),
-    outerCapType: validators.oneOf(CAP_TYPES).orEqual(NONE),
-    outerCapExpand: validators.boolean(),
+    outerCap: validators.partialObjectWithShape({
+      size: validators.numberMin(0),
+      type: validators.oneOf(CAP_TYPES).orEqual(NONE),
+      expand: validators.boolean()
+    }, true),
   };
 }

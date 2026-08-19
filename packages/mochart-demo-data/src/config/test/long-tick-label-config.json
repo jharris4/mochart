@@ -14,8 +14,10 @@
     "property": "categoryDL",
     "type": "date",
     "scale": "ordinal",
-    "tickLabelFormat": "%B %e, %Y",
-    "tickLabelAnchor": "auto"
+    "tickLabel": {
+      "format": "%B %e, %Y",
+      "anchor": "auto"
+    }
   },
   "valueAxes": [
     {

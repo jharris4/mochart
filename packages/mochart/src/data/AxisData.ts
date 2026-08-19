@@ -220,7 +220,7 @@ export function getCategoryAxisTickData(axisConfig: CategoryAxisConfig, axisLayo
     }
     else {
       let tickLabelSpace = axisLayoutInfo.tickLabelSpace;
-      if (axisConfig.scale === SCALE_ORDINAL && axisConfig.tickLabelTruncationEnabled && axisLayoutInfo.tickLabelParallel) {
+      if (axisConfig.scale === SCALE_ORDINAL && axisConfig.tickLabel.truncationEnabled && axisLayoutInfo.tickLabelParallel) {
         tickLabelSpace = axisLayoutInfo.minTickSize;
       }
       tickCount = Math.max(1, getTickCount(axisConfig, categoryAxisRangeExtent, categoryAxisDomainExtent, tickLabelSpace));
@@ -255,7 +255,7 @@ export function getCategoryAxisTickData(axisConfig: CategoryAxisConfig, axisLayo
     }
     if (axisConfig.scale === SCALE_ORDINAL) {
       const tickInterval = Math.ceil(categoryValues.length / tickCount);
-      if (axisConfig.tickLabelTruncationEnabled && axisLayoutInfo.tickLabelParallel) {
+      if (axisConfig.tickLabel.truncationEnabled && axisLayoutInfo.tickLabelParallel) {
         ticks = scaleTicks.map((scaleTick, i) => createOrdinalTickObject(scaleTick as number, categoryValues, categoryPositions, tickLabelFormatter, () => i % tickInterval !== 0));
       }
       else {
@@ -354,7 +354,7 @@ function getValueAxisTickDataObject(axisConfig: EnhancedValueAxisConfig, axisLay
     let tickCount = axisConfig.tickCount;
     let scaleTicks: AxisValue[];
     const adjustForFiltering = axisConfig.adjustForFiltering;
-    const adjustTickLabelsForFiltering = adjustForFiltering && axisConfig.adjustTickLabelSizeForFiltering;
+    const adjustTickLabelsForFiltering = adjustForFiltering && axisConfig.tickLabel.adjustSizeForFiltering;
     const valueAxisDomain = adjustForFiltering ? filteredValueAxisDomain : rawValueAxisDomain;
     const tickBoundsValueAxisDomain = adjustTickLabelsForFiltering ? filteredValueAxisDomain : rawValueAxisDomain;
     if (valueAxisDomain[0] === valueAxisDomain[1]) {
@@ -470,28 +470,28 @@ function getTickCount(axisConfig: AxisConfigBase, axisRangeExtent: number, axisD
 
 function getLinearScaleTickLabelFormatter(axisConfig: CategoryAxisConfig | EnhancedValueAxisConfig, axisScale: AxisScale, tickCount: number): TickLabelFormatter {
   let tickLabelFormatter: TickLabelFormatter = tick => tick;
-  if (axisConfig.tickLabelFormat !== NONE) {
+  if (axisConfig.tickLabel.format !== NONE) {
     if (axisConfig.type === TYPE_NUMBER) {
       tickCount = Math.max(1, tickCount); // axisScale.tickFormat expects > 0 ...
-      if (axisConfig.tickLabelFormat === AUTO) {
+      if (axisConfig.tickLabel.format === AUTO) {
         tickLabelFormatter = axisScale.tickFormat(tickCount, autoTickLabelFormatNumber);
       }
       else {
-        tickLabelFormatter = axisScale.tickFormat(tickCount, axisConfig.tickLabelFormat);
+        tickLabelFormatter = axisScale.tickFormat(tickCount, axisConfig.tickLabel.format);
       }
     }
     else if (axisConfig.type === TYPE_DATE) {
-      if (axisConfig.tickLabelFormat === AUTO && tickCount > 1) {
+      if (axisConfig.tickLabel.format === AUTO && tickCount > 1) {
         tickLabelFormatter = axisScale.tickFormat();
       }
       else {
         const timeFormatter = 'dateUTC' in axisConfig && axisConfig.dateUTC ? utcFormat : timeFormat;
-        if (axisConfig.tickLabelFormat === AUTO) {
+        if (axisConfig.tickLabel.format === AUTO) {
           const formatter = timeFormatter(autoTickLabelFormatDate);
           tickLabelFormatter = tick => formatter(tick as Date);
         }
         else {
-          const formatter = timeFormatter(axisConfig.tickLabelFormat);
+          const formatter = timeFormatter(axisConfig.tickLabel.format);
           tickLabelFormatter = tick => formatter(tick as Date);
         }
       }
@@ -522,16 +522,16 @@ function getOrdinalScaleTickLabelFormatter(axisConfig: CategoryAxisConfig, axisS
   }
   else {
     let tickLabelFormatter: TickLabelFormatter = tick => tick;
-    if (axisConfig.tickLabelFormat !== NONE) {
+    if (axisConfig.tickLabel.format !== NONE) {
       if (axisConfig.type === TYPE_NUMBER) {
-        const formatSpecifier = axisConfig.tickLabelFormat === AUTO ? autoOrdinalTickLabelFormatNumber : axisConfig.tickLabelFormat;
+        const formatSpecifier = axisConfig.tickLabel.format === AUTO ? autoOrdinalTickLabelFormatNumber : axisConfig.tickLabel.format;
         // per value, not a linear tickFormat: its precision comes from the tick step, which rounds small categories to 0
         const formatter = format(formatSpecifier);
         tickLabelFormatter = tick => formatter(tick as number);
       }
       else if (axisConfig.type === TYPE_DATE) {
         const timeFormatter = axisConfig.dateUTC ? utcFormat : timeFormat;
-        if (axisConfig.tickLabelFormat === AUTO) {
+        if (axisConfig.tickLabel.format === AUTO) {
           // Experimental code to try to create a nice uniform tick format for ordinal date scales. needs work...
           if (enableOrdinalExperimentalMode) {
             tickLabelFormatter = (axisConfig.dateUTC ? scaleUtc() : scaleTime()).domain(getDomainForValues(values)).tickFormat();
@@ -542,7 +542,7 @@ function getOrdinalScaleTickLabelFormatter(axisConfig: CategoryAxisConfig, axisS
           }
         }
         else {
-          const formatter = timeFormatter(axisConfig.tickLabelFormat);
+          const formatter = timeFormatter(axisConfig.tickLabel.format);
           tickLabelFormatter = tick => formatter(tick as Date);
         }
       }
@@ -552,19 +552,19 @@ function getOrdinalScaleTickLabelFormatter(axisConfig: CategoryAxisConfig, axisS
 }
 
 function getTickLabelFormatterForPrefixAndSuffix(axisConfig: AxisConfigBase, tickLabelFormatter: TickLabelFormatter): TickLabelFormatter {
-  if (axisConfig.tickLabelPrefix !== NONE || axisConfig.tickLabelSuffix !== NONE) {
+  if (axisConfig.tickLabel.prefix !== NONE || axisConfig.tickLabel.suffix !== NONE) {
     const oldTickLabelFormatter = tickLabelFormatter;
-    if (axisConfig.tickLabelPrefix !== NONE && axisConfig.tickLabelSuffix !== NONE) {
-      const prefix = axisConfig.tickLabelPrefix!;
-      const suffix = axisConfig.tickLabelSuffix!;
+    if (axisConfig.tickLabel.prefix !== NONE && axisConfig.tickLabel.suffix !== NONE) {
+      const prefix = axisConfig.tickLabel.prefix!;
+      const suffix = axisConfig.tickLabel.suffix!;
       tickLabelFormatter = (tick: CategoryValue) => (prefix + oldTickLabelFormatter(tick) + suffix);
     }
-    else if (axisConfig.tickLabelPrefix !== NONE) {
-      const prefix = axisConfig.tickLabelPrefix!;
+    else if (axisConfig.tickLabel.prefix !== NONE) {
+      const prefix = axisConfig.tickLabel.prefix!;
       tickLabelFormatter = (tick: CategoryValue) => (prefix + oldTickLabelFormatter(tick));
     }
-    else if (axisConfig.tickLabelSuffix !== NONE) {
-      const suffix = axisConfig.tickLabelSuffix!;
+    else if (axisConfig.tickLabel.suffix !== NONE) {
+      const suffix = axisConfig.tickLabel.suffix!;
       tickLabelFormatter = (tick: CategoryValue) => (oldTickLabelFormatter(tick) + suffix);
     }
   }

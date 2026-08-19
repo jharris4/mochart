@@ -324,7 +324,7 @@ const missingDefaultWhitelist: Record<string, Record<string, MissingDefault>> = 
   valueAxes: {
     'thresholds[].value': 'required',
     'ticks[].value': 'required',
-    // A tick with no label falls back to the value formatted with tickLabelFormat.
+    // A tick with no label falls back to the value formatted with tickLabel.format.
     'ticks[].label': 'optional'
   }
 };

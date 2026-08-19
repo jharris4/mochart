@@ -24,7 +24,7 @@ import * as candlestickVolume from '../examples/candlestickVolume'
   are four ordinary `bar` series — an up and a down body spanning from `open`
   via [`rangeProperty`](/reference/series#series.rangeProperty), and an up
   and a down wick spanning `low`→`high`, narrowed to a sliver of the slot
-  with [`barWidthFraction`](/reference/series#series.barWidthFraction) and
+  with [`bar.widthFraction`](/reference/series#series.bar.widthFraction) and
   listed first so the bodies draw over them. Every row carries values for
   exactly one direction, and
   [`missingValues: 'connect'`](/reference/series#series.missingValues) with
@@ -32,7 +32,7 @@ import * as candlestickVolume from '../examples/candlestickVolume'
   keeps the other direction's series from rendering — the same trick as the
   [Waterfall](/recipes/waterfall).
 - A doji (open equal to close) would have a zero-height body, so filled
-  bodies set [`barMinExtent`](/reference/series#series.barMinExtent) to 2px
+  bodies set [`bar.minExtent`](/reference/series#series.bar.minExtent) to 2px
   and stay visible as a line.
 - The category axis is ordinal, so non-trading days (weekends, holidays)
   simply don't exist on the axis instead of leaving gaps — `Jun 05` sits next

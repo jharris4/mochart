@@ -54,16 +54,16 @@ describe('series label fraction guards', () => {
 
   it('hides labels below labelMinPositionFraction', () => {
     // domain 10–100, so the guard hides everything positioned below 55
-    expect(labelTexts({ labelMinPositionFraction: 0.5 })).toEqual(['100.00']);
+    expect(labelTexts({ label: { minPositionFraction: 0.5 } })).toEqual(['100.00']);
   });
 
   it('hides labels above labelMaxPositionFraction', () => {
-    expect(labelTexts({ labelMaxPositionFraction: 0.5 })).toEqual(['10.00', '50.00']);
+    expect(labelTexts({ label: { maxPositionFraction: 0.5 } })).toEqual(['10.00', '50.00']);
   });
 
   it('hides labels whose value spans less than labelMinRangeFraction', () => {
     // no axis base, so each unstacked value measures from the zero baseline: extent 90 hides 10
-    expect(labelTexts({ labelMinRangeFraction: 0.5 }, [{ base: null }])).toEqual(['50.00', '100.00']);
+    expect(labelTexts({ label: { minRangeFraction: 0.5 } }, [{ base: null }])).toEqual(['50.00', '100.00']);
   });
 
   it('measures a stacked series against the domain minimum when the axis has no base', () => {
@@ -78,7 +78,7 @@ describe('series label fraction guards', () => {
         series: [
           { property: 'floor', renderer: 'bar', stack: 'S', axis: 'VA0' },
           { property: 'sales', renderer: 'bar', stack: 'S', axis: 'VA0',
-            labelProperty: 'sales', labelMinRangeFraction: 0.5 }
+            labelProperty: 'sales', label: { minRangeFraction: 0.5 } }
         ]
       } as unknown as MochartInputConfig,
       data: rows, width: WIDTH, height: HEIGHT
@@ -98,7 +98,7 @@ describe('series label fraction guards', () => {
         seriesStacks: [{ id: 'S', axis: 'VA0' }],
         series: [
           { property: 'sales', renderer: 'bar', stack: 'S', axis: 'VA0',
-            labelProperty: 'sales', labelMinRangeFraction: 0.45 }
+            labelProperty: 'sales', label: { minRangeFraction: 0.45 } }
         ]
       } as unknown as MochartInputConfig,
       data: rows.map((row) => ({ ...row, sales: -row.sales })), width: WIDTH, height: HEIGHT
@@ -110,7 +110,7 @@ describe('series label fraction guards', () => {
   it('measures a ranged series against its own range property', () => {
     // range extents 2/40/80 against half of the 8–100 domain: only Mar survives
     expect(labelTexts(
-      { rangeProperty: 'floor', labelMinRangeFraction: 0.5 },
+      { rangeProperty: 'floor', label: { minRangeFraction: 0.5 } },
       [{ base: null }]
     )).toEqual(['100.00']);
   });
@@ -123,52 +123,52 @@ describe('series label fraction guards split at the axis base', () => {
 
   it('measures labelAboveBaseMinPositionFraction up from the base and leaves below-base labels alone', () => {
     // 0.2 × 200 = 40 above the base hides 0 (which counts as above) and 10
-    expect(basedLabelTexts({ labelAboveBaseMinPositionFraction: 0.2 }))
+    expect(basedLabelTexts({ label: { aboveBase: { minPositionFraction: 0.2 } } }))
       .toEqual(['−100.00', '−50.00', '−10.00', '50.00', '100.00']);
   });
 
   it('measures labelAboveBaseMaxPositionFraction down from the domain maximum', () => {
     // 100 − 0.3 × 200 = 40 hides 50 and 100
-    expect(basedLabelTexts({ labelAboveBaseMaxPositionFraction: 0.3 }))
+    expect(basedLabelTexts({ label: { aboveBase: { maxPositionFraction: 0.3 } } }))
       .toEqual(['−100.00', '−50.00', '−10.00', '0.00', '10.00']);
   });
 
   it('measures labelBelowBaseMinPositionFraction down from the base, keeping only the values that reach it', () => {
     // 0 − 0.2 × 200 = −40: the guard inverts below the base, so −10 hides and −50/−100 stay
-    expect(basedLabelTexts({ labelBelowBaseMinPositionFraction: 0.2 }))
+    expect(basedLabelTexts({ label: { belowBase: { minPositionFraction: 0.2 } } }))
       .toEqual(['−100.00', '−50.00', '0.00', '10.00', '50.00', '100.00']);
   });
 
   it('measures labelBelowBaseMaxPositionFraction up from the domain minimum', () => {
     // −100 + 0.3 × 200 = −40 hides −50 and −100
-    expect(basedLabelTexts({ labelBelowBaseMaxPositionFraction: 0.3 }))
+    expect(basedLabelTexts({ label: { belowBase: { maxPositionFraction: 0.3 } } }))
       .toEqual(['−10.00', '0.00', '10.00', '50.00', '100.00']);
   });
 
   it('applies labelMinPositionFraction on both sides of the base when the base fractions are auto', () => {
     // 40 units either side of the base rather than 40 above the domain minimum
-    expect(basedLabelTexts({ labelMinPositionFraction: 0.2 }))
+    expect(basedLabelTexts({ label: { minPositionFraction: 0.2 } }))
       .toEqual(['−100.00', '−50.00', '50.00', '100.00']);
   });
 
   it('applies labelMaxPositionFraction from both domain edges when the base fractions are auto', () => {
-    expect(basedLabelTexts({ labelMaxPositionFraction: 0.3 }))
+    expect(basedLabelTexts({ label: { maxPositionFraction: 0.3 } }))
       .toEqual(['−10.00', '0.00', '10.00']);
   });
 
   it('lets a null base fraction exempt one side from the inherited bound', () => {
-    expect(basedLabelTexts({ labelMinPositionFraction: 0.2, labelBelowBaseMinPositionFraction: null }))
+    expect(basedLabelTexts({ label: { minPositionFraction: 0.2, belowBase: { minPositionFraction: null } } }))
       .toEqual(['−100.00', '−50.00', '−10.00', '50.00', '100.00']);
   });
 
   it('lets an explicit base fraction override the inherited bound on its side only', () => {
     // above uses 0.2 (40), below uses 0.4 (−80)
-    expect(basedLabelTexts({ labelMinPositionFraction: 0.2, labelBelowBaseMinPositionFraction: 0.4 }))
+    expect(basedLabelTexts({ label: { minPositionFraction: 0.2, belowBase: { minPositionFraction: 0.4 } } }))
       .toEqual(['−100.00', '50.00', '100.00']);
   });
 
   it('ignores the base fractions when the axis has no base', () => {
-    expect(labelTexts({ labelAboveBaseMinPositionFraction: 0.9, labelBelowBaseMinPositionFraction: 0.9 }, [{ base: null }], basedRows))
+    expect(labelTexts({ label: { aboveBase: { minPositionFraction: 0.9 }, belowBase: { minPositionFraction: 0.9 } } }, [{ base: null }], basedRows))
       .toEqual(['−100.00', '−50.00', '−10.00', '0.00', '10.00', '50.00', '100.00']);
   });
 });

@@ -36,7 +36,7 @@ export default class AxisBaseContainer extends Renderer<AxisBaseContainerProps> 
     this.root.set({ className: mochartCssClasses['axisBaseContainer'] });
 
     this.baseLines.sync(getValueAxisFocusContexts(valueAxisConfigs, focusData)
-      .filter(({ axisConfig }) => axisConfig.baseLineFront === front)
+      .filter(({ axisConfig }) => axisConfig.baseLine.front === front)
       .map(({ axisConfig, id, key, axisFocusPercentage, seriesFocusPercentage }) => {
         const { base, adjustForFiltering } = axisConfig;
         const axisDomain = adjustForFiltering ? filteredDomains[id] : rawDomains[id];

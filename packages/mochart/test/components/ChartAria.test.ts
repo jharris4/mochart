@@ -122,7 +122,7 @@ describe('clickable title', () => {
   it('exposes button semantics and fires on Enter and Space', () => {
     const clicks: number[] = [];
     const container = mountChart(
-      makeConfig({ title: { text: 'Monthly sales', prefix: 'Q1' } }),
+      makeConfig({ title: { text: 'Monthly sales', prefix: { text: 'Q1' } } }),
       { onTitleClick: () => { clicks.push(1); } });
     const title = container.querySelector(getCssSelector('title'))!;
     expect(title.getAttribute('tabindex')).toBe('0');

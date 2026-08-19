@@ -193,7 +193,7 @@ describe('value axis hover focus', () => {
 describe('title layout variants', () => {
   it('renders a centered title with prefix and suffix', () => {
     const container = mountChart(makeConfig({
-      title: { text: 'Sales Chart', prefix: 'Q1', suffix: '(units)', verticalExpand: true }
+      title: { text: 'Sales Chart', prefix: { text: 'Q1' }, suffix: { text: '(units)' }, verticalExpand: true }
     }));
     const title = container.querySelector(getCssSelector('title'));
     expect(title).not.toBeNull();
@@ -224,7 +224,7 @@ describe('title layout variants', () => {
   it('survives a chart too narrow for the title decorations', () => {
     const container = mountContainer();
     trackHandle(createDefaultChart(container, {
-      config: makeConfig({ title: { text: 'T', prefix: 'P', suffix: 'S' } }),
+      config: makeConfig({ title: { text: 'T', prefix: { text: 'P' }, suffix: { text: 'S' } } }),
       data: rows, width: 4, height: 600
     } as DefaultChartProps));
     expect(container.querySelector(getChartRootCssSelector())).not.toBeNull();
@@ -233,7 +233,7 @@ describe('title layout variants', () => {
 
 describe('title link', () => {
   const linkConfig = (overrides: Record<string, unknown> = {}) => makeConfig({
-    title: { text: 'Sales Chart', prefix: 'Q1', suffix: '(units)', link: 'https://example.com/sales', ...overrides }
+    title: { text: 'Sales Chart', prefix: { text: 'Q1' }, suffix: { text: '(units)' }, link: 'https://example.com/sales', ...overrides }
   });
 
   function anchor(container: Element): SVGAElement {
@@ -586,7 +586,7 @@ describe('tooltip', () => {
     expect(automaticIcon.getAttribute('viewBox')).toBe('0 0 16 16');
     expect(automaticIcon.parentElement!.style.width).toBe('calc(1em + 4px)');
 
-    const fixed = mountChart(makeConfig({ tooltip: { iconSize: 20 } }));
+    const fixed = mountChart(makeConfig({ tooltip: { icon: { size: 20 } } }));
     const fixedRoot = chartRoot(fixed);
     mouse(fixedRoot, 'mouseenter', 100, 100);
     mouse(fixedRoot, 'click', 100, 100);
@@ -787,7 +787,7 @@ describe('tooltip', () => {
     expect(automaticIcon.getAttribute('transform')).toBe('translate(7,7)');
 
     const fixed = mountChart(makeConfig({
-      legend: { visible: true, iconSize: 12 },
+      legend: { visible: true, icon: { size: 12 } },
       series: seriesConfigs
     }));
     const fixedIcon = fixed.querySelector<SVGPathElement>(getCssSelector('legendItemIcon') + ' path')!;
@@ -820,7 +820,7 @@ describe('tooltip', () => {
     const container = mountChart(makeConfig({
       series: [{ property: 'sales' }, { property: 'costs' }],
       tooltip: { focusSeriesOnMouseOver: true },
-      crosshair: { showSeries: true }
+      crosshair: { seriesLine: { visible: true } }
     }));
     const root = chartRoot(container);
 
@@ -834,9 +834,9 @@ describe('tooltip', () => {
     expect(seriesLines().length).toBeGreaterThan(0);
   });
 
-  it('hides category crosshair lines when showCategory is off', () => {
+  it('hides category crosshair lines when categoryLine.visible is off', () => {
     const container = mountChart(makeConfig({
-      crosshair: { showCategory: false }
+      crosshair: { categoryLine: { visible: false } }
     }));
     const root = chartRoot(container);
     mouse(root, 'mouseenter', 100, 100);
@@ -847,7 +847,7 @@ describe('tooltip', () => {
 
   it('renders an axis focus range for the focused category', () => {
     const container = mountChart(makeConfig({
-      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', showFocusRange: true }
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', focusRange: { visible: true } }
     }));
     const root = chartRoot(container);
 
@@ -860,7 +860,7 @@ describe('tooltip', () => {
   it('renders a vertical axis focus range when the plot is inverted', () => {
     const container = mountChart(makeConfig({
       plot: { inverted: true },
-      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', showFocusRange: true }
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', focusRange: { visible: true } }
     }));
     const root = chartRoot(container);
 
@@ -966,7 +966,7 @@ describe('showFilteringOnLabels', () => {
     expect(filteredText.style.textDecoration).toBe('line-through');
   });
 
-  it('styles a filtered legend icon with iconFilteredColor', () => {
+  it('styles a filtered legend icon with icon.filteredColor', () => {
     function filteredIconFill(legend: Record<string, unknown>): string | null {
       const container = mountChart(makeConfig({ ...twoSeries, legend: { visible: true, ...legend } }));
       filter(container, 'S1');
@@ -977,7 +977,7 @@ describe('showFilteringOnLabels', () => {
 
     // the default is fully transparent, so a filtered icon reads as its border alone
     expect(filteredIconFill({})).toBe('rgba(255,255,255,0)');
-    expect(filteredIconFill({ iconFilteredColor: '#cccccc' })).toBe('#cccccc');
+    expect(filteredIconFill({ icon: { filteredColor: '#cccccc' } })).toBe('#cccccc');
   });
 
   it('decorates the hidden sizer copy of the tooltip the same way', () => {
@@ -1009,7 +1009,7 @@ describe('followSeries follower focus', () => {
   function candleConfig(): MochartInputConfig {
     return makeConfig({
       series: [
-        { id: 'wick', property: 'high', rangeProperty: 'low', renderer: 'bar', barWidthFraction: 0.2,
+        { id: 'wick', property: 'high', rangeProperty: 'low', renderer: 'bar', bar: { widthFraction: 0.2 },
           showInLegend: false, followSeries: 'body', focusOnClick: true },
         { id: 'body', property: 'close', rangeProperty: 'open', renderer: 'bar', focusOnClick: true },
         { id: 'other', property: 'x', renderer: 'bar' }
@@ -1061,7 +1061,7 @@ describe('followSeries legend filtering', () => {
     return makeConfig({
       legend: { visible: true },
       series: [
-        { id: 'wick', property: 'high', rangeProperty: 'low', renderer: 'bar', barWidthFraction: 0.2,
+        { id: 'wick', property: 'high', rangeProperty: 'low', renderer: 'bar', bar: { widthFraction: 0.2 },
           showInLegend: false, followSeries: 'body' },
         { id: 'body', property: 'close', rangeProperty: 'open', renderer: 'bar' },
         { id: 'volume', property: 'volume', renderer: 'bar', showInLegend: false, followSeries: 'body' },
@@ -1213,7 +1213,7 @@ describe('onSeriesClick', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig({
       series: [
-        { id: 'wick', property: 'high', rangeProperty: 'low', renderer: 'bar', barWidthFraction: 0.2,
+        { id: 'wick', property: 'high', rangeProperty: 'low', renderer: 'bar', bar: { widthFraction: 0.2 },
           showInLegend: false, followSeries: 'body', focusOnClick: true },
         { id: 'body', property: 'close', rangeProperty: 'open', renderer: 'bar', focusOnClick: true }
       ]

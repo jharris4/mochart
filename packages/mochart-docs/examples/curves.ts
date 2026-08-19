@@ -6,8 +6,8 @@ import type { MochartInputConfig } from '@mochart/core';
 export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'Sensor Readings' },
-  categoryAxis: { title: 'Hour', property: 'hour', type: 'number', scale: 'linear' },
-  valueAxes: [{ id: 'VA0', title: 'Temperature (°C)' }],
+  categoryAxis: { title: { text: 'Hour' }, property: 'hour', type: 'number', scale: 'linear' },
+  valueAxes: [{ id: 'VA0', title: { text: 'Temperature (°C)' } }],
   seriesDefaults: { renderer: 'line' },
   series: [
     {
@@ -19,7 +19,7 @@ export const config: MochartInputConfig = {
       property: 'reading',
       title: 'Smoothed (monotoneX)',
       curve: { type: 'monotoneX' },
-      markerShape: null
+      marker: { shape: null }
     }
   ]
 };

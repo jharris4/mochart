@@ -8,27 +8,37 @@
     "missingValueText": "N/A"
   },
   "categoryAxis": {
-    "title": "Category Axis",
-    "showGridLines": true,
+    "title": {
+      "text": "Category Axis"
+    },
+    "gridLine": {
+      "visible": true,
+      "style": {
+        "normal": {
+          "strokeWidth": 1,
+          "strokeDashArray": "5, 5"
+        }
+      }
+    },
     "min": "auto",
     "max": "auto",
     "type": "number",
     "scale": "ordinal",
     "valueLabel": "Category",
     "property": "category",
-    "gridLineStyle": {
-      "normal": {
-        "strokeWidth": 1,
-        "strokeDashArray": "5, 5"
-      }
-    },
     "side": "end"
   },
   "valueAxes": [
     {
-      "title": "Value Axis 1",
-      "showAxisLine": true,
-      "showGridLines": false,
+      "title": {
+        "text": "Value Axis 1"
+      },
+      "axisLine": {
+        "visible": true
+      },
+      "gridLine": {
+        "visible": false
+      },
       "id": "VA1",
       "base": 0,
       "softMin": 0,
@@ -44,8 +54,10 @@
   ],
   "seriesDefaults": {
     "renderer": "area",
-    "markerSize": 6,
-    "markerShape": "circle",
+    "marker": {
+      "size": 6,
+      "shape": "circle"
+    },
     "axis": "VA1",
     "stack": "SS1",
     "missingValues": "connect"

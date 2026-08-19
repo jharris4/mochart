@@ -19,8 +19,10 @@
   "valueAxes": {},
   "seriesDefaults": {
     "renderer": "none",
-    "markerMinSize": 3,
-    "markerSize": 24
+    "marker": {
+      "minSize": 3,
+      "size": 24
+    }
   },
   "series": [
     {
@@ -33,7 +35,9 @@
         }
       },
       "markerProperty": "marker1",
-      "markerShape": "circle"
+      "marker": {
+        "shape": "circle"
+      }
     },
     {
       "property": "value2",
@@ -45,7 +49,9 @@
         }
       },
       "markerProperty": "marker2",
-      "markerShape": "cross"
+      "marker": {
+        "shape": "cross"
+      }
     }
   ]
 }

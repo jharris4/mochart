@@ -1,6 +1,6 @@
-// capType draws a decorative cap on the value end of every bar in a series:
+// cap.type draws a decorative cap on the value end of every bar in a series:
 // 'round' rounds the corners, 'curve' bulges a dome, 'point' rises to a peak.
-// The shared capSize sits in seriesDefaults; each series picks its shape.
+// The shared cap.size sits in seriesDefaults; each series picks its shape.
 import type { MochartInputConfig } from '@mochart/core';
 
 export const config: MochartInputConfig = {
@@ -8,11 +8,11 @@ export const config: MochartInputConfig = {
   title: { text: 'Cap Shapes' },
   categoryAxis: { property: 'quarter', type: 'string', scale: 'ordinal' },
   valueAxes: [{ id: 'VA0', min: 0 }],
-  seriesDefaults: { renderer: 'bar', capSize: 10 },
+  seriesDefaults: { renderer: 'bar', cap: { size: 10 } },
   series: [
-    { property: 'round', title: 'round', capType: 'round' },
-    { property: 'curve', title: 'curve', capType: 'curve' },
-    { property: 'point', title: 'point', capType: 'point' }
+    { property: 'round', title: 'round', cap: { type: 'round' } },
+    { property: 'curve', title: 'curve', cap: { type: 'curve' } },
+    { property: 'point', title: 'point', cap: { type: 'point' } }
   ],
   seriesGroups: [{ id: 'caps' }]
 };

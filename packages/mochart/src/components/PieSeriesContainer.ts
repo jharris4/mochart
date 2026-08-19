@@ -86,7 +86,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     // When labels or the center total should ignore filtering, their
     // fractions/total come from the raw values (which keep filtered series).
     let rawSliceAngles: Record<string, PieSliceAngles> | null = null;
-    if (!pieConfig.adjustLabelsForFiltering || !pieConfig.adjustCenterTotalForFiltering) {
+    if (!pieConfig.label.adjustForFiltering || !pieConfig.centerTotal.adjustForFiltering) {
       rawSliceAngles = getPieSliceAngles(mochartConfig.series, seriesData.raw.values, pieConfig);
     }
 
@@ -127,7 +127,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
         seriesIndex: seriesConfigIndicesById[seriesConfig.id],
         seriesLayoutInfo, radialLayoutInfo,
         sliceAngles: sliceAngles[seriesConfig.id],
-        labelFraction: pieConfig.adjustLabelsForFiltering
+        labelFraction: pieConfig.label.adjustForFiltering
           ? sliceAngles[seriesConfig.id]?.fraction ?? 0
           : rawSliceAngles![seriesConfig.id]?.fraction ?? 0,
         focusData, gradientIdMap, patternIdMap, hideLabels: sweeping, onFocus, onSliceClick,
@@ -138,8 +138,8 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     restoreSeriesFocus(this.root.node, focusedSlice, effectiveRovingId);
 
     // The center total sums the current (possibly mid-tween) values, counting along with value
-    // changes — and with filtering, unless adjustCenterTotalForFiltering turns that off.
-    const totalAngles = pieConfig.adjustCenterTotalForFiltering ? sliceAngles : rawSliceAngles!;
+    // changes — and with filtering, unless centerTotal.adjustForFiltering turns that off.
+    const totalAngles = pieConfig.centerTotal.adjustForFiltering ? sliceAngles : rawSliceAngles!;
     let total = 0;
     for (const id of Object.keys(totalAngles)) {
       total += totalAngles[id].value;

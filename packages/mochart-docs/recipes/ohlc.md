@@ -21,7 +21,7 @@ import * as ohlc from '../examples/ohlc'
 - The helper returns `{ candles, data, categoryAxis, series }`. The bars are
   six ordinary `bar` series — an up and a down low→high line narrowed to a
   sliver of the slot with
-  [`barWidthFraction`](/reference/series#series.barWidthFraction), plus per
+  [`bar.widthFraction`](/reference/series#series.bar.widthFraction), plus per
   direction an open and a close tick. Every row carries values for exactly
   one direction, and
   [`missingValues: 'connect'`](/reference/series#series.missingValues) with
@@ -30,10 +30,10 @@ import * as ohlc from '../examples/ohlc'
 - The ticks are ranged bars whose `property` and
   [`rangeProperty`](/reference/series#series.rangeProperty) read the same
   value, so they'd have zero extent —
-  [`barMinExtent`](/reference/series#series.barMinExtent) expands them into
+  [`bar.minExtent`](/reference/series#series.bar.minExtent) expands them into
   visible marks (`tickExtent`, default 2px). Each tick is a half-width bar
   pushed to one side of the slot with
-  [`barAlignFraction`](/reference/series#series.barAlignFraction): the open
+  [`bar.alignFraction`](/reference/series#series.bar.alignFraction): the open
   tick spans slot-start→center and the close tick center→slot-end, meeting at
   the line.
 - The category axis is ordinal, so non-trading days (weekends, holidays)

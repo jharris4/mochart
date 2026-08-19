@@ -21,10 +21,10 @@ export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'Browser Market Share (fictional)' },
   chart: donut.chart,
-  // showLabels puts percent labels at the slice centroids (slices thinner
-  // than labelMinFraction hide theirs), and focusOffsetFraction explodes
+  // label.visible puts percent labels at the slice centroids (slices thinner
+  // than label.minFraction hide theirs), and focusOffsetFraction explodes
   // the hovered slice away from the center.
-  pie: { ...donut.pie, showLabels: true, labelType: 'percent', focusOffsetFraction: 0.05 },
+  pie: { ...donut.pie, label: { visible: true, type: 'percent' }, focusOffsetFraction: 0.05 },
   categoryAxis: donut.categoryAxis,
   series: donut.series
 };

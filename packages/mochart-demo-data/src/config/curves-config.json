@@ -12,10 +12,16 @@
     "focusDuration": 700
   },
   "categoryAxis": {
-    "title": "Time (in Minutes)",
-    "showAxisLine": true,
-    "axisLineMargin": 0,
-    "tickLabelFormat": "%_H:%M",
+    "title": {
+      "text": "Time (in Minutes)"
+    },
+    "axisLine": {
+      "visible": true,
+      "margin": 0
+    },
+    "tickLabel": {
+      "format": "%_H:%M"
+    },
     "type": "date",
     "scale": "linear",
     "dateUTC": true,
@@ -24,15 +30,25 @@
     "side": "end"
   },
   "valueAxes": {
-    "axisLineMargin": 0,
-    "showGridLines": true,
-    "tickLabelFormat": "$s",
-    "title": "Sales Value",
+    "axisLine": {
+      "margin": 0
+    },
+    "gridLine": {
+      "visible": true
+    },
+    "tickLabel": {
+      "format": "$s"
+    },
+    "title": {
+      "text": "Sales Value"
+    },
     "min": 0,
     "side": "start"
   },
   "seriesDefaults": {
-    "markerShape": null
+    "marker": {
+      "shape": null
+    }
   },
   "series": [
     {

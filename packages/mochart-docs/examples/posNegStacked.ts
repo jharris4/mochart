@@ -7,7 +7,7 @@ export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'Quarterly Cash Flow' },
   categoryAxis: { property: 'quarter', type: 'string', scale: 'ordinal' },
-  valueAxes: [{ id: 'VA0', title: 'Cash flow ($k)' }],
+  valueAxes: [{ id: 'VA0', title: { text: 'Cash flow ($k)' } }],
   seriesDefaults: { renderer: 'bar' },
   series: [
     { property: 'sales', title: 'Sales' },

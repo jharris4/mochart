@@ -61,7 +61,7 @@ describe('value axis explicit ticks', () => {
   it('falls back to the formatted value when a tick has no label', () => {
     const { container, chart } = renderChart({
       ticks: [{ value: 1.5 }],
-      tickLabelFormat: '.1f'
+      tickLabel: { format: '.1f' }
     });
     expect(getAxisLabels(container)).toEqual(['1.5']);
     chart.destroy();

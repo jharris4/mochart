@@ -27,12 +27,12 @@ export default class AxisTickMarks extends Renderer<AxisTickMarksProps> {
 
   sync() {
     const { axisConfig } = this.props;
-    if (axisConfig.showTickMarks) {
+    if (axisConfig.tickMark.visible) {
       const { axisLayoutInfo, axisTicks, axisFocusPercentage, seriesFocusPercentage } = this.props;
       const { vertical, tickMarkX1, tickMarkY1, tickMarkX2, tickMarkY2 } = axisLayoutInfo;
 
       const styleAttributes = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage,
-        axisConfig.useSeriesFocus ?? false, axisConfig.tickMarkStyle));
+        axisConfig.useSeriesFocus ?? false, axisConfig.tickMark.style));
 
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['axisTickMarks'] });

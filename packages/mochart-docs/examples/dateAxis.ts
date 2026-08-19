@@ -9,7 +9,7 @@ export const config: MochartInputConfig = {
     property: 'date',
     type: 'date',
     scale: 'linear',
-    tickLabelFormat: '%b %d'
+    tickLabel: { format: '%b %d' }
   },
   seriesDefaults: { renderer: 'area' },
   series: [{ property: 'users', title: 'Active users' }]

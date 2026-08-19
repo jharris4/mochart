@@ -7,7 +7,7 @@ export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'Monthly Output with 95% CI (fictional)' },
   categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
-  valueAxes: [{ title: 'units per day' }],
+  valueAxes: [{ title: { text: 'units per day' } }],
   seriesGroups: [{ id: 'plants' }],
   series: [
     { id: 'a', title: 'Plant A', property: 'a', renderer: 'bar', group: 'plants',

@@ -289,7 +289,7 @@ includes chart-specific examples for lines and adjacent pie slices.
 
 When readers must identify a series or category, provide a visible cue in
 addition to hue. Depending on the chart, that can be distinct
-[`markerShape`](/reference/series#series.markerShape) values,
+[`marker.shape`](/reference/series#series.marker.shape) values,
 [`strokeDashArray`](/reference/series#series.shapeStyle.normal.strokeDashArray)
 patterns on lines, [pattern fills](/recipes/patterns), direct labels, or an
 adjacent data table or text summary. Tooltip and screen-reader announcements
@@ -312,7 +312,7 @@ attributes from the palette, and forcing them to the system palette would
 collapse every series to one color — worse than keeping hues the mode did not
 ask about. A chart that has to stay readable there should carry a non-color
 encoding as well: distinct
-[`markerShape`](/reference/series#series.markerShape) values per series, or
+[`marker.shape`](/reference/series#series.marker.shape) values per series, or
 `strokeDashArray` on lines.
 
 ## Reduced motion

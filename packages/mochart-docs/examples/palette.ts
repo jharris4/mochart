@@ -8,7 +8,7 @@ export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'Support Requests by Channel' },
   categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
-  valueAxes: [{ title: 'requests', showGridLines: true }],
+  valueAxes: [{ title: { text: 'requests' }, gridLine: { visible: true } }],
   colorPalette: {
     series: {
       normal: {
@@ -17,7 +17,7 @@ export const config: MochartInputConfig = {
       }
     }
   },
-  seriesDefaults: { renderer: 'line', markerShape: 'circle' },
+  seriesDefaults: { renderer: 'line', marker: { shape: 'circle' } },
   series: [
     { property: 'web', title: 'Web' },
     { property: 'email', title: 'Email' },

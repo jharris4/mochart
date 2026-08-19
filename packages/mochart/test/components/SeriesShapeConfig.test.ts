@@ -57,14 +57,14 @@ describe('missing value markers', () => {
   });
 
   it('marks the missing category when missingValueMarkers is on', () => {
-    expect(markerCount(mountChart(lineSeries({ missingValueMarkers: true }), gapRows))).toBe(gapRows.length);
+    expect(markerCount(mountChart(lineSeries({ marker: { showForMissingValues: true } }), gapRows))).toBe(gapRows.length);
   });
 
   it('changes nothing when no value is missing', () => {
     const full = [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }];
 
     expect(markerCount(mountChart(lineSeries({}), full))).toBe(full.length);
-    expect(markerCount(mountChart(lineSeries({ missingValueMarkers: true }), full))).toBe(full.length);
+    expect(markerCount(mountChart(lineSeries({ marker: { showForMissingValues: true } }), full))).toBe(full.length);
   });
 });
 
@@ -75,7 +75,7 @@ describe('stack outer cap expand', () => {
     { month: 'Feb', base: 120, tip: 1 }
   ];
   const stacked = (outerCapExpand: boolean) => ({
-    seriesStacks: [{ id: 'ST', outerCapType: 'round', outerCapSize: 20, outerCapExpand }],
+    seriesStacks: [{ id: 'ST', outerCap: { type: 'round', size: 20, expand: outerCapExpand } }],
     series: [
       { id: 'BASE', property: 'base', renderer: 'bar', stack: 'ST' },
       { id: 'TIP', property: 'tip', renderer: 'bar', stack: 'ST' }

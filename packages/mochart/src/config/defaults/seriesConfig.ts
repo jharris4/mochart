@@ -36,18 +36,24 @@ export function getRegularDefaults() {
     missingValues: MISSING_VALUES_BREAK,
     partialRangeIsMissing: false,
     curve: { type: CURVE_TYPE_LINEAR },
-    barWidthFraction: 1,
-    barAlignFraction: 0.5,
-    barMinExtent: 0,
-    capSize: 5,
-    capType: NONE,
-    capExpand: true,
-    capOnlyStackOuter: false,
-    errorBarCapSize: 6,
-    errorBarStyle: {
-      normal: { strokeColor: COLOR_SERIES, strokeOpacity: 0.9, strokeWidth: 1.5, strokeDashArray: NONE },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1.5, strokeDashArray: COLOR_SAME },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.5, strokeWidth: 1.5, strokeDashArray: COLOR_SAME }
+    bar: {
+      widthFraction: 1,
+      alignFraction: 0.5,
+      minExtent: 0
+    },
+    cap: {
+      size: 5,
+      type: NONE,
+      expand: true,
+      onlyStackOuter: false
+    },
+    errorBar: {
+      capSize: 6,
+      style: {
+        normal: { strokeColor: COLOR_SERIES, strokeOpacity: 0.9, strokeWidth: 1.5, strokeDashArray: NONE },
+        focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1.5, strokeDashArray: COLOR_SAME },
+        defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.5, strokeWidth: 1.5, strokeDashArray: COLOR_SAME }
+      }
     },
     valueLabel: NONE,
     valueFormat: AUTO,
@@ -55,27 +61,23 @@ export function getRegularDefaults() {
     valueSuffix: NONE,
     useTitleForValueLabel: true,
     title: NONE,
-    labelFormat: AUTO,
-    labelPrefix: NONE,
-    labelSuffix: NONE,
-    labelTextStyle: {
-      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.8, strokeWidth: 1, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 0.8 },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 }
+    label: {
+      format: AUTO,
+      prefix: NONE,
+      suffix: NONE,
+      textStyle: {
+        normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.8, strokeWidth: 1, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 0.8 },
+        focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
+        defocused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 }
+      },
+      minPositionFraction: NONE,
+      maxPositionFraction: NONE,
+      minRangeFraction: NONE,
+      offset: 0,
+      position: LABEL_POSITION_CENTER,
+      aboveBase: { minPositionFraction: AUTO, maxPositionFraction: AUTO, offset: AUTO, position: AUTO },
+      belowBase: { minPositionFraction: AUTO, maxPositionFraction: AUTO, offset: AUTO, position: AUTO }
     },
-    labelMinPositionFraction: NONE,
-    labelMaxPositionFraction: NONE,
-    labelMinRangeFraction: NONE,
-    labelOffset: 0,
-    labelPosition: LABEL_POSITION_CENTER,
-    labelAboveBaseMinPositionFraction: AUTO,
-    labelAboveBaseMaxPositionFraction: AUTO,
-    labelBelowBaseMinPositionFraction: AUTO,
-    labelBelowBaseMaxPositionFraction: AUTO,
-    labelAboveBaseOffset: AUTO,
-    labelBelowBaseOffset: AUTO,
-    labelAboveBasePosition: AUTO,
-    labelBelowBasePosition: AUTO,
     // Only the shape's colors are regular defaults; its opacities and widths are renderer-conditional.
     shapeStyle: {
       normal: { strokeColor: COLOR_SERIES_INDEX, strokeDashArray: NONE, fillColor: COLOR_SERIES_INDEX },
@@ -95,14 +97,16 @@ export function getRegularDefaults() {
         belowMax: NONE
       }
     },
-    markerMinSize: 1,
-    missingValueMarkers: false,
-    markerSize: 6,
-    markerSizeScale: MARKER_SIZE_SCALE_SQRT,
-    markerStyle: {
-      normal: { strokeColor: COLOR_SERIES, strokeOpacity: 0.9, strokeWidth: 1, strokeDashArray: NONE, fillColor: COLOR_SERIES, fillOpacity: 0.9 },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 3, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.8, strokeWidth: 1, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 0.8 }
+    marker: {
+      minSize: 1,
+      showForMissingValues: false,
+      size: 6,
+      sizeScale: MARKER_SIZE_SCALE_SQRT,
+      style: {
+        normal: { strokeColor: COLOR_SERIES, strokeOpacity: 0.9, strokeWidth: 1, strokeDashArray: NONE, fillColor: COLOR_SERIES, fillOpacity: 0.9 },
+        focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 3, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
+        defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.8, strokeWidth: 1, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 0.8 }
+      }
     },
     showInLegend: true,
     showInTooltip: true,
@@ -245,13 +249,15 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, 
         ], configWithRegularDefaults, index)
       }
     },
-    markerShape: conditionalDefault([
-      { condition: ({ renderer }) => renderer === RENDERER_BAR, suffix: 'when renderer is ' + RENDERER_BAR, default: NONE },
-      { condition: ({ renderer }) => renderer === RENDERER_LINE, suffix: 'when renderer is ' + RENDERER_LINE, default: MARKER_SHAPE_CIRCLE },
-      { condition: ({ renderer }) => renderer === RENDERER_AREA, suffix: 'when renderer is ' + RENDERER_AREA, default: MARKER_SHAPE_CIRCLE },
-      { condition: ({ renderer }) => renderer === RENDERER_NONE, suffix: 'when renderer is ' + RENDERER_NONE, default: MARKER_SHAPE_CIRCLE },
-      { ...defaultRule, default: NONE }
-    ], configWithRegularDefaults, index),
+    marker: {
+      shape: conditionalDefault([
+        { condition: ({ renderer }) => renderer === RENDERER_BAR, suffix: 'when renderer is ' + RENDERER_BAR, default: NONE },
+        { condition: ({ renderer }) => renderer === RENDERER_LINE, suffix: 'when renderer is ' + RENDERER_LINE, default: MARKER_SHAPE_CIRCLE },
+        { condition: ({ renderer }) => renderer === RENDERER_AREA, suffix: 'when renderer is ' + RENDERER_AREA, default: MARKER_SHAPE_CIRCLE },
+        { condition: ({ renderer }) => renderer === RENDERER_NONE, suffix: 'when renderer is ' + RENDERER_NONE, default: MARKER_SHAPE_CIRCLE },
+        { ...defaultRule, default: NONE }
+      ], configWithRegularDefaults, index)
+    },
     colorScale: {
       interpolation: conditionalDefault([
         { condition: ({ colorProperty }) => colorProperty === NONE, suffix: colorPropertyNoneSuffix, default: NONE },

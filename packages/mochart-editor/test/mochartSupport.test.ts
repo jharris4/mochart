@@ -242,7 +242,7 @@ describe('Mochart support hover documentation', () => {
       expect(tooltip, key).not.toBeNull();
       return tooltip!.create().dom.textContent ?? '';
     };
-    expect(hover('{"legend":{"iconFilteredColor":"#000"}}', 'iconFilteredColor')).toMatch(/Default: "/);
+    expect(hover('{"legend":{"icon":{"filteredColor":"#000"}}}', 'filteredColor')).toMatch(/Default: "/);
     expect(hover('{"colorPalette":{"series":{"normal":{"fillColors":[]}}}}', 'fillColors')).toMatch(/Default: \["#/);
     const conditional = hover('{"categoryAxis":{"maxTickCount":3}}', 'maxTickCount');
     expect(conditional).toContain('Default when scale is linear: 10');

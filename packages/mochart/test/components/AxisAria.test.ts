@@ -93,7 +93,7 @@ describe('axis text in the accessibility tree', () => {
   });
 
   it('prefers the axis title as the group name and stops the drawn title repeating it', () => {
-    const container = mountChart(makeConfig({ categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Months' } }));
+    const container = mountChart(makeConfig({ categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: { text: 'Months' } } }));
     const categoryAxis = container.querySelector(getDescendantCssSelector('plotBack', 'categoryAxis'))!;
     expect(categoryAxis.getAttribute('aria-label')).toBe('Months');
     const axisTitle = container.querySelector(getDescendantCssSelector('categoryAxis', 'axisTitle'))!;
@@ -102,7 +102,7 @@ describe('axis text in the accessibility tree', () => {
   });
 
   it('stops the drawn title repeating the group name when it draws in the other half', () => {
-    const container = mountChart(makeConfig({ categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Months', titleFront: true } }));
+    const container = mountChart(makeConfig({ categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: { text: 'Months', front: true } } }));
     const backCategoryAxis = container.querySelector(getDescendantCssSelector('plotBack', 'categoryAxis'))!;
     expect(backCategoryAxis.getAttribute('aria-label')).toBe('Months');
     const axisTitle = container.querySelector(getDescendantCssSelector('plotFront', 'axisTitle'))!;
@@ -150,7 +150,7 @@ describe('axis text in the accessibility tree', () => {
 
   it('keeps the threshold annotations out of the reading order', () => {
     const container = mountChart(makeConfig({
-      valueAxes: [{ id: 'VA0', thresholds: [{ value: 15, title: 'Target' }] }]
+      valueAxes: [{ id: 'VA0', thresholds: [{ value: 15, title: { text: 'Target' } }] }]
     }));
     const thresholdTitle = container.querySelector(getCssSelector('axisThresholdTitle'))!;
     expect(thresholdTitle).not.toBeNull();

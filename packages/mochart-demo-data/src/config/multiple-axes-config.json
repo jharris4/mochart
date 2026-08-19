@@ -12,10 +12,16 @@
     "focusDuration": 700
   },
   "categoryAxis": {
-    "title": "Time (in Minutes)",
-    "showAxisLine": true,
-    "axisLineMargin": 0,
-    "tickLabelFormat": "%_H:%M",
+    "title": {
+      "text": "Time (in Minutes)"
+    },
+    "axisLine": {
+      "visible": true,
+      "margin": 0
+    },
+    "tickLabel": {
+      "format": "%_H:%M"
+    },
     "type": "date",
     "scale": "linear",
     "dateUTC": true,
@@ -24,36 +30,52 @@
     "side": "end"
   },
   "valueAxisDefaults": {
-    "axisLineMargin": 0,
-    "showGridLines": false,
+    "axisLine": {
+      "margin": 0
+    },
+    "gridLine": {
+      "visible": false
+    },
     "min": 0
   },
   "valueAxes": [
     {
-      "tickLabelFormat": "$s",
-      "title": "Sales Value",
+      "tickLabel": {
+        "format": "$s"
+      },
+      "title": {
+        "text": "Sales Value"
+      },
       "id": "VA1",
       "side": "start"
     },
     {
-      "tickLabelFormat": "$s",
+      "tickLabel": {
+        "format": "$s"
+      },
       "id": "VA0",
       "side": "start"
     },
     {
-      "showGridLines": true,
+      "gridLine": {
+        "visible": true
+      },
       "id": "VA2",
       "side": "end"
     },
     {
-      "title": "Sold Count",
+      "title": {
+        "text": "Sold Count"
+      },
       "id": "VA3",
       "side": "end"
     }
   ],
   "seriesDefaults": {
     "renderer": "line",
-    "markerShape": null
+    "marker": {
+      "shape": null
+    }
   },
   "series": [
     {

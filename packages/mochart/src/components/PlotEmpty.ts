@@ -55,7 +55,7 @@ export default class PlotEmpty extends Renderer<PlotEmptyProps> {
     const syncAxes = (front: boolean, categoryAxis: Slot, valueAxes: RendererList) => {
       categoryAxis.set(Axis, { front, axisClass: mochartCssClasses['categoryAxis'], axisConfig: categoryAxisConfig, axisLayoutInfo: categoryAxisLayoutInfo,
         titleClipPathUniqueId: categoryAxisTitleClipPathUniqueId, tickLabelClipPathUniqueId: categoryAxisTickLabelClipPathUniqueId,
-        accessibleLabel: getAxisAccessibleLabel(categoryAxisConfig.title, accessibilityConfig.categoryAxisLabel),
+        accessibleLabel: getAxisAccessibleLabel(categoryAxisConfig.title.text, accessibilityConfig.categoryAxisLabel),
         ...commonProps });
 
       // the same gate ValueAxis and the layout apply: an axis hidden with its filtered series has no band to draw in
@@ -66,7 +66,7 @@ export default class PlotEmpty extends Renderer<PlotEmptyProps> {
           ctor: Axis,
           props: { front, axisClass: mochartCssClasses['valueAxis'] + id, axisId: id, axisConfig,
             axisLayoutInfo: valueAxisLayoutInfos[id], titleClipPathUniqueId: valueAxisTitleClipPathUniqueIds[id],
-            accessibleLabel: getAxisAccessibleLabel(axisConfig.title, accessibilityConfig.valueAxisLabel),
+            accessibleLabel: getAxisAccessibleLabel(axisConfig.title.text, accessibilityConfig.valueAxisLabel),
             ...commonProps }
         };
       }));

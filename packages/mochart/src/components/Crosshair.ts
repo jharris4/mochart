@@ -44,8 +44,8 @@ class Crosshair extends Renderer<CrosshairProps> {
 
       const clipPath = crosshairConfig.showBehindTooltip ? null : getClipPathReference(tooltipClipPathUniqueId);
 
-      const categoryLineAttributes = styleToAttributes(crosshairConfig.categoryLineStyle);
-      const seriesLineAttributes = styleToAttributes(crosshairConfig.seriesLineStyle);
+      const categoryLineAttributes = styleToAttributes(crosshairConfig.categoryLine.style);
+      const seriesLineAttributes = styleToAttributes(crosshairConfig.seriesLine.style);
 
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['crosshair'], clipPath,
@@ -59,7 +59,7 @@ class Crosshair extends Renderer<CrosshairProps> {
         update: null
       };
 
-      this.categoryLines.sync(crosshairConfig.showCategory ? categoryPercentages : emptyPercentages, {
+      this.categoryLines.sync(crosshairConfig.categoryLine.visible ? categoryPercentages : emptyPercentages, {
         ...lineAdapter,
         update: (handle, categoryPercentage) => {
           const categoryOffset = categoryPercentage * seriesLayoutInfo.categoryExtent;
@@ -74,7 +74,7 @@ class Crosshair extends Renderer<CrosshairProps> {
         }
       });
 
-      this.seriesLines.sync(crosshairConfig.showSeries ? seriesPercentages : emptyPercentages, {
+      this.seriesLines.sync(crosshairConfig.seriesLine.visible ? seriesPercentages : emptyPercentages, {
         ...lineAdapter,
         update: (handle, seriesPercentage) => {
           const seriesOffset = seriesPercentage * seriesLayoutInfo.valueExtent;

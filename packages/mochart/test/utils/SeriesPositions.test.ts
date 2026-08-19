@@ -389,7 +389,7 @@ describe('getSeriesPositionData', () => {
       const config = enhance({
         categoryAxis: { categoryPaddingFraction: { inner: 0.2, outer: 0.1 } },
         seriesGroups: [{ id: 'G' }],
-        series: [{ property: 'a' }, { property: 'b', barWidthFraction: 0.5 }]
+        series: [{ property: 'a' }, { property: 'b', bar: { widthFraction: 0.5 } }]
       });
       const second = getSeriesPositionData(config.categoryAxis, config.series[1], categoryValueData, uprightScale,
         values([10, 20, 30, 40, 50]), upright);
@@ -426,7 +426,7 @@ describe('getSeriesPositionData', () => {
 
   describe('barWidthFraction and barAlignFraction', () => {
     const narrow = (barAlignFraction?: number) => {
-      const config = enhance({ series: [{ property: 'v', barWidthFraction: 0.5, ...(barAlignFraction === undefined ? {} : { barAlignFraction }) }] });
+      const config = enhance({ series: [{ property: 'v', bar: { widthFraction: 0.5, ...(barAlignFraction === undefined ? {} : { alignFraction: barAlignFraction }) } }] });
       return getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
         values([10, 20, 30, 40, 50]), upright);
     };
@@ -445,7 +445,7 @@ describe('getSeriesPositionData', () => {
     });
 
     it('leaves the slot untouched at the default width', () => {
-      const config = enhance({ series: [{ property: 'v', barAlignFraction: 0 }] });
+      const config = enhance({ series: [{ property: 'v', bar: { alignFraction: 0 } }] });
       const data = getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
         values([10, 20, 30, 40, 50]), upright);
       expect(data.categoryValueExtent).toBe(40);

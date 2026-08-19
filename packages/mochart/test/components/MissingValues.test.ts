@@ -54,7 +54,7 @@ describe('missingValues base', () => {
     ];
     const { container } = mountChart(makeConfig({
       renderer: 'bar', missingValues: 'base',
-      labelProperty: 'sales', markerShape: 'circle', colorProperty: 'sales',
+      labelProperty: 'sales', marker: { shape: 'circle' }, colorProperty: 'sales',
       errorLowProperty: 'low', errorHighProperty: 'high'
     }), rows);
 
@@ -103,7 +103,7 @@ describe('missingValues connect category-index remapping', () => {
 
   it('keeps markerProperty sizes raw-indexed when marker values have their own gaps', () => {
     const { container } = mountChart(makeConfig({
-      renderer: 'line', missingValues: 'connect', markerShape: 'circle', markerProperty: 'size'
+      renderer: 'line', missingValues: 'connect', marker: { shape: 'circle' }, markerProperty: 'size'
     }), [
       { month: 'Jan', sales: 10, size: 4 },
       { month: 'Feb', sales: 20 },

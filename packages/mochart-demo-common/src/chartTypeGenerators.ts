@@ -149,7 +149,7 @@ function buildHistogramSnapshot(): ChartTypeDemoSnapshot {
     config: {
       version: '1.0.0',
       title: { text: 'Response Time Distribution' },
-      categoryAxis: { ...categoryAxis, title: 'Response time (ms)' },
+      categoryAxis: { ...categoryAxis, title: { text: 'Response time (ms)' } },
       valueAxes: [{ min: 0 }],
       series: [seriesConfig]
     },
@@ -226,7 +226,7 @@ function buildWaterfallSnapshot(): ChartTypeDemoSnapshot {
       version: '1.0.0',
       title: { text: 'Income Statement (fictional, $k)' },
       categoryAxis,
-      valueAxes: [{ ...valueAxes[0], title: '$ thousands' }],
+      valueAxes: [{ ...valueAxes[0], title: { text: '$ thousands' } }],
       series
     },
     data
@@ -440,7 +440,7 @@ function buildCandlestickSnapshot(): ChartTypeDemoSnapshot {
       categoryAxis,
       // the helper's price/volume pane axes, with the demo's title on price
       valueAxes: valueAxes!.map(axisConfig =>
-        axisConfig.id === 'price' ? { ...axisConfig, title: '$ per share' } : axisConfig),
+        axisConfig.id === 'price' ? { ...axisConfig, title: { text: '$ per share' } } : axisConfig),
       series: series.map(seriesConfig =>
         ({ ...seriesConfig, valueFormat: seriesConfig.id!.includes('Volume') ? ',.0f' : ',.2f' }))
     },
@@ -468,7 +468,7 @@ function buildCandlestickHollowSnapshot(): ChartTypeDemoSnapshot {
       version: '1.0.0',
       title: { text: 'Daily Share Price (fictional, $)' },
       categoryAxis,
-      valueAxes: [{ title: '$ per share' }],
+      valueAxes: [{ title: { text: '$ per share' } }],
       series: series.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
     },
     data
@@ -495,7 +495,7 @@ function buildOhlcSnapshot(): ChartTypeDemoSnapshot {
       version: '1.0.0',
       title: { text: 'Daily Share Price (fictional, $)' },
       categoryAxis,
-      valueAxes: [{ title: '$ per share' }],
+      valueAxes: [{ title: { text: '$ per share' } }],
       series: series.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
     },
     data
@@ -580,7 +580,7 @@ function buildErrorBarsSnapshot(): ChartTypeDemoSnapshot {
       version: '1.0.0',
       title: { text: 'Monthly Output with 95% CI (fictional)' },
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
-      valueAxes: [{ title: 'units per day' }],
+      valueAxes: [{ title: { text: 'units per day' } }],
       seriesGroups: [{ id: 'plants' }],
       series: [
         { id: 'a', title: 'Plant A', property: 'a', renderer: 'bar', group: 'plants',
@@ -682,7 +682,7 @@ function buildDonutSnapshot(): ChartTypeDemoSnapshot {
       title: { text: 'Browser Market Share (fictional)' },
       chart: pie.chart,
       // focusOffsetFraction explodes the hovered slice away from the center
-      pie: { ...pie.pie, showLabels: true, labelType: 'percent', focusOffsetFraction: 0.05 },
+      pie: { ...pie.pie, label: { visible: true, type: 'percent' }, focusOffsetFraction: 0.05 },
       categoryAxis: pie.categoryAxis,
       series: pie.series
     },
@@ -718,11 +718,15 @@ function buildGaugeSnapshot(): ChartTypeDemoSnapshot {
         innerRadiusFraction: 0.55,
         padAngle: 1,
         cornerRadius: 3,
-        showLabels: true,
-        labelType: 'title',
+        label: {
+          visible: true,
+          type: 'title'
+        },
         centerLabel: 'responses',
-        showCenterTotal: true,
-        centerTotalFormat: ',.0f',
+        centerTotal: {
+          visible: true,
+          format: ',.0f'
+        },
         // lift the center content off the gauge pivot into the hole
         centerOffsetYFraction: -0.25
       },

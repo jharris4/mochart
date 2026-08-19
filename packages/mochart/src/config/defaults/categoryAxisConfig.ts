@@ -9,15 +9,16 @@ export default function getDefaults(config: DeepPartial<CategoryAxisConfig> = {}
 }
 
 export function getRegularDefaults() {
+  const axisDefaults = getAxisDefaults();
   return {
-    ...getAxisDefaults(),
+    ...axisDefaults,
 
     dateUTC: true,
 
     keyProperty: NONE,
 
-    showFocusRange: false,
-    showFocusTickMarks: true,
+    focusRange: { ...axisDefaults.focusRange, visible: false },
+    focusTickMark: { ...axisDefaults.focusTickMark, visible: true },
 
     categoryPaddingFraction: { inner: 0.1, outer: 0.1 },
     categoryCountPadding: 1,
@@ -26,9 +27,12 @@ export function getRegularDefaults() {
 
     scale: SCALE_ORDINAL,
 
-    tickLabelTruncationValue: ELLIPSIS,
-    tickLabelTruncationMinLength: 0,
-    tickLabelTruncationMaxFraction: 0.2,
+    tickLabel: {
+      ...axisDefaults.tickLabel,
+      truncationValue: ELLIPSIS,
+      truncationMinLength: 0,
+      truncationMaxFraction: 0.2
+    },
 
     type: TYPE_STRING,
 
@@ -61,10 +65,12 @@ export function getConditionalDefaults(configWithRegularDefaults: CategoryAxisCo
       { condition: ({ scale }, _inverted) => scale === SCALE_ORDINAL, suffix: "when scale is ordinal", default: 4 },
       { ...defaultRule, default: 10 }
     ], configWithRegularDefaults, inverted),
-    tickLabelTruncationEnabled: conditionalDefault([
-      { condition: ({ type }, _inverted) => type === TYPE_STRING, suffix: "when type is string", default: true },
-      { condition: ({ type }, _inverted) => type !== TYPE_STRING, suffix: "when type is not string", default: false },
-      { ...defaultRule, default: false }
-    ], configWithRegularDefaults, inverted)
+    tickLabel: {
+      truncationEnabled: conditionalDefault([
+        { condition: ({ type }, _inverted) => type === TYPE_STRING, suffix: "when type is string", default: true },
+        { condition: ({ type }, _inverted) => type !== TYPE_STRING, suffix: "when type is not string", default: false },
+        { ...defaultRule, default: false }
+      ], configWithRegularDefaults, inverted)
+    }
   };
 }

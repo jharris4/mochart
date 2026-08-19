@@ -48,7 +48,7 @@ interface PieSeriesProps {
   radialLayoutInfo: RadialLayoutInfo;
   sliceAngles: PieSliceAngles | undefined;
   /** The label/min-angle fraction: the slice's share of the unfiltered total
-   * (or of the full raw total when adjustLabelsForFiltering is off). */
+   * (or of the full raw total when label.adjustForFiltering is off). */
   labelFraction: number;
   focusData: FocusData | null;
   gradientIdMap: Record<string, string>;
@@ -72,7 +72,7 @@ interface PieSeriesState {
 
 function getPieLabelText(pieConfig: PieConfig, { valueFormat, percentFormat }: PieLabelFormats, seriesConfig: EnhancedSeriesConfig,
     sliceAngles: PieSliceAngles, labelFraction: number): string {
-  return formatPieLabelType(pieConfig.labelType, {
+  return formatPieLabelType(pieConfig.label.type, {
     title: getSeriesTitle(seriesConfig),
     value: valueFormat(sliceAngles.value),
     percent: percentFormat(labelFraction)
@@ -199,12 +199,12 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
       stroke: strokeColor, strokeWidth, strokeDasharray: strokeDashArray, strokeOpacity,
       fill: fillColor, fillOpacity });
 
-    if (pieConfig.showLabels && !hideLabels && labelFraction >= pieConfig.labelMinFraction) {
+    if (pieConfig.label.visible && !hideLabels && labelFraction >= pieConfig.label.minFraction) {
       const midAngle = (startAngle + endAngle) / 2;
-      const labelRadius = radialLayoutInfo.innerRadius + (radialLayoutInfo.outerRadius - radialLayoutInfo.innerRadius) * pieConfig.labelRadiusFraction;
+      const labelRadius = radialLayoutInfo.innerRadius + (radialLayoutInfo.outerRadius - radialLayoutInfo.innerRadius) * pieConfig.label.radiusFraction;
       const labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       const labelStrokeColor = getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
-      const { strokeWidth: labelStrokeWidth, strokeOpacity: labelStrokeOpacity, fillOpacity: labelFillOpacity } = getFocusStyle(seriesFocusPercentage, seriesConfig.labelTextStyle);
+      const { strokeWidth: labelStrokeWidth, strokeOpacity: labelStrokeOpacity, fillOpacity: labelFillOpacity } = getFocusStyle(seriesFocusPercentage, seriesConfig.label.textStyle);
 
       const labelEl = this.label.set('text', () => {
         const el = svgEl('text');

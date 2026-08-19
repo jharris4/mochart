@@ -10,7 +10,7 @@ import { getAxisFocusStyle } from '../utils/FocusValue';
 import { styleToAttributes } from '../utils/style';
 import Background from './Background';
 import type { El, TextEl } from '../render';
-import type { AxisConfigBase, CategoryAxisConfig } from '../types/config';
+import type { AxisConfigBase, AxisTickLabelConfig, CategoryAxisConfig, CategoryAxisTickLabelConfig } from '../types/config';
 import type { EnhancedValueAxisConfig } from '../types/enhanced';
 import type { AxisTick } from '../types/data';
 import type { AxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
@@ -21,9 +21,9 @@ import type { Anchor } from '../config/core/constants';
 const emptyArray: string[] = [];
 const hiddenStyle = { visibility: 'hidden' };
 
-type AxisDisplayConfig = AxisConfigBase &
+type AxisDisplayConfig = Omit<AxisConfigBase, 'tickLabel'> &
   Pick<CategoryAxisConfig, 'scale'> &
-  Partial<Pick<CategoryAxisConfig, 'tickLabelTruncationEnabled' | 'tickLabelTruncationValue' | 'tickLabelTruncationMinLength' | 'tickLabelTruncationMaxFraction'>> &
+  { tickLabel: AxisTickLabelConfig & Partial<Pick<CategoryAxisTickLabelConfig, 'truncationEnabled' | 'truncationValue' | 'truncationMinLength' | 'truncationMaxFraction'>> } &
   Partial<Pick<EnhancedValueAxisConfig, 'useSeriesFocus'>>;
 
 interface AxisTickLabelsProps {
@@ -89,11 +89,11 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
       this.tickLabelStrings = props.axisTicks.map(tick => String(tick.label));
     }
     if (prevProps === null) {
-      return this.truncation.mount(props.axisConfig.tickLabelTruncationEnabled ?? false);
+      return this.truncation.mount(props.axisConfig.tickLabel.truncationEnabled ?? false);
     }
     const { axisConfig, axisLayoutInfo, plotLayoutInfo, axisTicks, tickSpacing } = props;
 
-    const truncationEnabled = axisConfig.tickLabelTruncationEnabled ?? false;
+    const truncationEnabled = axisConfig.tickLabel.truncationEnabled ?? false;
     let truncationChanged = false;
     let integrityChanged = true;
     if (truncationEnabled) {
@@ -141,7 +141,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
     const { axisConfig, axisLayoutInfo, axisTicks, tickLabelClipPathUniqueId, axisFocusPercentage, seriesFocusPercentage, accessibility } = this.props;
     const { truncationData } = this.state;
     const { vertical, tickLabelAnchor, tickTextX, tickTextY } = axisLayoutInfo;
-    const { tickLabelRotation } = axisConfig;
+    const { rotation: tickLabelRotation } = axisConfig.tickLabel;
 
     this.updateTickTextStyles(tickLabelAnchor);
     const tickTextStyle = this.tickTextStyle!;
@@ -154,8 +154,8 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
 
     const tickRotationTransform = tickLabelRotation === 0 ? null : 'rotate(' + tickLabelRotation + ')';
 
-    const truncationEnabled = axisConfig.tickLabelTruncationEnabled ?? false;
-    const truncationValue = axisConfig.tickLabelTruncationValue ?? '';
+    const truncationEnabled = axisConfig.tickLabel.truncationEnabled ?? false;
+    const truncationValue = axisConfig.tickLabel.truncationValue ?? '';
     const useSeriesFocus = axisConfig.useSeriesFocus ?? false;
     const tickLabels = this.getTruncatedLabels(truncationEnabled, truncationValue, truncationData);
 
@@ -163,10 +163,10 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
 
     // destructured rather than spread whole: this attribute order is what the golden snapshots record
     const { stroke, strokeOpacity, strokeWidth, fill, fillOpacity } = styleToAttributes(
-      getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, axisConfig.tickLabelTextStyle));
+      getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, axisConfig.tickLabel.textStyle));
 
     this.root.set({ className: mochartCssClasses['axisTickLabels'] });
-    this.background.set(Background, { config: axisConfig, configStyleKey: 'tickLabelBackgroundStyle', classKey: 'axisTickLabelBackground', spacingRelative: false, spacingLayoutInfo: axisLayoutInfo.tickLabelLayoutInfo });
+    this.background.set(Background, { config: axisConfig.tickLabel, classKey: 'axisTickLabelBackground', spacingRelative: false, spacingLayoutInfo: axisLayoutInfo.tickLabelLayoutInfo });
 
     this.tickLabels.sync(axisTicks, {
       key: (_tick, i) => 'tick-label-' + i,
@@ -230,13 +230,13 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
 
       const { axisLayoutInfo, tickSpacing, axisConfig, plotLayoutInfo } = this.props;
       const { vertical } = axisLayoutInfo;
-      const tickLabelTruncationValue = axisConfig.tickLabelTruncationValue ?? '';
+      const tickLabelTruncationValue = axisConfig.tickLabel.truncationValue ?? '';
       // the labels only seed fresh truncation data; an existing entry set is refined in place
       const axisTickLabels = this.state.truncationData === null ? this.tickLabelStrings : emptyArray;
       let maxLength = tickSpacing ?? 0;
       if (!axisLayoutInfo.tickLabelParallel) {
-        maxLength = Math.max(axisConfig.tickLabelTruncationMinLength ?? 0,
-          (axisConfig.tickLabelTruncationMaxFraction ?? 0) * (vertical ? plotLayoutInfo.width : plotLayoutInfo.height));
+        maxLength = Math.max(axisConfig.tickLabel.truncationMinLength ?? 0,
+          (axisConfig.tickLabel.truncationMaxFraction ?? 0) * (vertical ? plotLayoutInfo.width : plotLayoutInfo.height));
       }
 
       this.truncation.update(this, tickLabelTruncationValue, axisTickLabels, maxLength, domElements);

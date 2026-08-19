@@ -21,7 +21,7 @@ export default class AxisFocusRange extends Renderer<AxisFocusRangeProps> {
 
   sync() {
     const { axisConfig } = this.props;
-    if (axisConfig.showFocusRange) {
+    if (axisConfig.focusRange.visible) {
       const { axisLayoutInfo, focusPercentages } = this.props;
       const { length } = focusPercentages;
 
@@ -30,7 +30,7 @@ export default class AxisFocusRange extends Renderer<AxisFocusRangeProps> {
 
       if (length === 1 || length === 2) {
         // destructured rather than spread whole: this attribute order is what the golden snapshots record
-        const { stroke, strokeOpacity, strokeWidth, strokeDasharray, fill, fillOpacity } = styleToAttributes(axisConfig.focusRangeStyle);
+        const { stroke, strokeOpacity, strokeWidth, strokeDasharray, fill, fillOpacity } = styleToAttributes(axisConfig.focusRange.style);
         const { vertical, focusRangeLayoutInfo } = axisLayoutInfo;
         let { x, y, width, height } = focusRangeLayoutInfo;
         if (length === 1) {

@@ -26,14 +26,16 @@
       "thresholds": [
         {
           "value": 20,
-          "title": "Title For Threshold 20",
-          "titleSide": "low",
-          "titleSnapToValue": true,
-          "titlePadding": {
-            "top": 5,
-            "right": 5,
-            "bottom": 5,
-            "left": 5
+          "title": {
+            "text": "Title For Threshold 20",
+            "side": "low",
+            "snapToValue": true,
+            "padding": {
+              "top": 5,
+              "right": 5,
+              "bottom": 5,
+              "left": 5
+            }
           }
         }
       ]
@@ -45,14 +47,16 @@
       "thresholds": [
         {
           "value": -5,
-          "title": "Title For Threshold -5",
-          "titleSide": "high",
-          "titleSnapToValue": true,
-          "titlePadding": {
-            "top": 5,
-            "right": 5,
-            "bottom": 5,
-            "left": 5
+          "title": {
+            "text": "Title For Threshold -5",
+            "side": "high",
+            "snapToValue": true,
+            "padding": {
+              "top": 5,
+              "right": 5,
+              "bottom": 5,
+              "left": 5
+            }
           }
         }
       ]

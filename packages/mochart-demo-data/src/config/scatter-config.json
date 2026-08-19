@@ -11,7 +11,9 @@
   },
   "seriesDefaults": {
     "renderer": "none",
-    "markerSize": 6
+    "marker": {
+      "size": 6
+    }
   },
   "series": [
     {
@@ -23,7 +25,9 @@
           "fillColor": "#9467bd"
         }
       },
-      "markerShape": "star"
+      "marker": {
+        "shape": "star"
+      }
     },
     {
       "axis": "VA0",
@@ -35,7 +39,9 @@
           "fillColor": "#ffbb78"
         }
       },
-      "markerShape": "cross"
+      "marker": {
+        "shape": "cross"
+      }
     },
     {
       "axis": "VA0",
@@ -47,7 +53,9 @@
           "fillColor": "#1f77b4"
         }
       },
-      "markerShape": "wye"
+      "marker": {
+        "shape": "wye"
+      }
     }
   ]
 }

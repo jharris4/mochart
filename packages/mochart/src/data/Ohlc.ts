@@ -121,7 +121,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
   };
 
   // Three bar series per direction, direction-gated as in the candlestick helper: a thin centered low→high
-  // line (the legend entry), plus zero-extent open/close range bars that barMinExtent + barAlignFraction 0/1
+  // line (the legend entry), plus zero-extent open/close range bars that bar.minExtent + bar.alignFraction 0/1
   // expand into half-slot tick marks, following their line via followSeries so the whole bar acts as one mark.
   // Tooltip rows per category: the range (low – high), then the ticks' equal-ended ranges as single values.
   const lineConfigs = DIRECTIONS.map((direction) => ({
@@ -130,7 +130,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     rangeProperty: 'low',
     ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
     renderer: 'bar',
-    barWidthFraction: lineWidthFraction,
+    bar: { widthFraction: lineWidthFraction },
     missingValues: 'connect',
     partialRangeIsMissing: true,
     group: null,
@@ -154,9 +154,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     rangeProperty: side,
     ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
     renderer: 'bar',
-    barWidthFraction: tickWidthFraction,
-    barAlignFraction: side === 'open' ? 0 : 1,
-    barMinExtent: tickExtent,
+    bar: { widthFraction: tickWidthFraction, alignFraction: side === 'open' ? 0 : 1, minExtent: tickExtent },
     missingValues: 'connect',
     partialRangeIsMissing: true,
     group: null,

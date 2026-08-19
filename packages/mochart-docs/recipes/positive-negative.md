@@ -20,9 +20,9 @@ import * as posNegStacked from '../examples/posNegStacked'
   defaults to `null` — the axis domain minimum — so mixed-sign bars would all
   grow upward from the most negative value. `base: 0` makes bars grow out of
   zero in both directions, and the divide is marked by the default base line
-  ([`showBaseLine`](/reference/valueAxes#valueAxes.showBaseLine),
+  ([`baseLine.visible`](/reference/valueAxes#valueAxes.baseLine.visible),
   styled with
-  [`baseLineStyle`](/reference/valueAxes#valueAxes.baseLineStyle)).
+  [`baseLine.style`](/reference/valueAxes#valueAxes.baseLine.style)).
 - The domain fits the data on both sides. When the values might sit all on
   one side, [`softMin`](/reference/valueAxes#valueAxes.softMin) /
   [`softMax`](/reference/valueAxes#valueAxes.softMax) `0` hold
@@ -30,14 +30,15 @@ import * as posNegStacked from '../examples/posNegStacked'
   [`min`](/reference/valueAxes#valueAxes.min)/[`max`](/reference/valueAxes#valueAxes.max),
   which clip (see [axis bounds](/recipes/axis-bounds)).
 - Labels flip with the sign: an `outside`
-  [`labelPosition`](/reference/series#series.labelPosition) sits
+  [`label.position`](/reference/series#series.label.position) sits
   above positive bars and below negative ones automatically. Each side can be
-  tuned separately with the `labelAboveBase*` / `labelBelowBase*` family —
-  [position](/reference/series#series.labelAboveBasePosition),
-  [offset](/reference/series#series.labelAboveBaseOffset), and
-  [min](/reference/series#series.labelAboveBaseMinPositionFraction)/[max](/reference/series#series.labelAboveBaseMaxPositionFraction)
+  tuned separately through [`label.aboveBase`](/reference/series#series.label.aboveBase) /
+  [`label.belowBase`](/reference/series#series.label.belowBase) —
+  [position](/reference/series#series.label.aboveBase.position),
+  [offset](/reference/series#series.label.aboveBase.offset), and
+  [min](/reference/series#series.label.aboveBase.minPositionFraction)/[max](/reference/series#series.label.aboveBase.maxPositionFraction)
   position bounds — whose `auto` defaults follow the shared settings (the
-  below-base offset mirrors `labelOffset`).
+  below-base offset mirrors `label.offset`).
 - The sign carries through the other bar features:
   [caps](/recipes/bar-caps) point downward on negative bars, and
   [`colorScale.base.value: 0`](/recipes/color-by-value#diverging-around-a-base)

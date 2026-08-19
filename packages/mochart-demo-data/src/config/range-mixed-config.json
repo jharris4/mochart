@@ -13,7 +13,9 @@
     "base": 0
   },
   "seriesDefaults": {
-    "markerShape": null
+    "marker": {
+      "shape": null
+    }
   },
   "series": [
     {

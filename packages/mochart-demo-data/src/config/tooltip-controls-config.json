@@ -9,14 +9,20 @@
     "showControls": true
   },
   "categoryAxis": {
-    "title": "Category Axis",
-    "showGridLines": true,
+    "title": {
+      "text": "Category Axis"
+    },
+    "gridLine": {
+      "visible": true
+    },
     "valueLabel": "Category",
     "property": "categorySO"
   },
   "valueAxes": [
     {
-      "title": "Value Axis 1",
+      "title": {
+        "text": "Value Axis 1"
+      },
       "base": 0
     }
   ],

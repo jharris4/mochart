@@ -86,7 +86,7 @@ describe('plot.clipOverflow', () => {
   it('defaults to a clip that is exactly the plot', () => {
     const container = mount(makeConfig({
       valueAxes: [{ min: 0, max: 10 }],
-      series: [{ property: 'v', renderer: 'line', markerShape: 'circle', markerSize: 12 }]
+      series: [{ property: 'v', renderer: 'line', marker: { shape: 'circle', size: 12 } }]
     }));
     // markers do not buy themselves room: a mark whose anchor sits on a bound is cut there
     expect(clipRect(container)).toEqual(plotRect(container));

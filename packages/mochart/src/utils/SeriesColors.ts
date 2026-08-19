@@ -14,12 +14,12 @@ import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { NumericValues, SeriesDomainObject, SeriesValueObject } from '../types/data';
 
 // 'series' hops the element axis (marker → shape), 'same' hops the focus axis (focused → normal);
-// chains are at most two hops. Each element's styleKey and paletteKey must stay in lockstep.
+// chains are at most two hops. Each element's readStyle and paletteKey must stay in lockstep.
 const elementKeys = {
-  series: { styleKey: 'shapeStyle', paletteKey: 'series' },
-  marker: { styleKey: 'markerStyle', paletteKey: 'marker' },
-  label: { styleKey: 'labelTextStyle', paletteKey: 'label' },
-  errorBar: { styleKey: 'errorBarStyle', paletteKey: 'errorBar' }
+  series: { readStyle: (seriesConfig: EnhancedSeriesConfig) => seriesConfig.shapeStyle, paletteKey: 'series' },
+  marker: { readStyle: (seriesConfig: EnhancedSeriesConfig) => seriesConfig.marker.style, paletteKey: 'marker' },
+  label: { readStyle: (seriesConfig: EnhancedSeriesConfig) => seriesConfig.label.textStyle, paletteKey: 'label' },
+  errorBar: { readStyle: (seriesConfig: EnhancedSeriesConfig) => seriesConfig.errorBar.style, paletteKey: 'errorBar' }
 } as const;
 
 const styleMemberKeys = {
@@ -41,7 +41,7 @@ interface ColorScale {
 }
 
 function readColor(seriesConfig: EnhancedSeriesConfig, mapKey: ColorMapKey, focusKey: FocusKey, member: 'strokeColor' | 'fillColor'): SeriesColor {
-  const styleStates = seriesConfig[elementKeys[mapKey].styleKey] as unknown as StyleStateRecord;
+  const styleStates = elementKeys[mapKey].readStyle(seriesConfig) as unknown as StyleStateRecord;
   return styleStates[focusKey][member] as SeriesColor;
 }
 
@@ -99,8 +99,8 @@ export function getSeriesOpacities(seriesConfig: EnhancedSeriesConfig) {
     defocusedOpacity = defocused.strokeOpacity!;
   }
   else {
-    const { markerShape } = seriesConfig;
-    const { normal, focused, defocused } = markerShape !== NONE ? seriesConfig.markerStyle : seriesConfig.labelTextStyle;
+    const { shape: markerShape } = seriesConfig.marker;
+    const { normal, focused, defocused } = markerShape !== NONE ? seriesConfig.marker.style : seriesConfig.label.textStyle;
     opacity = normal.fillOpacity!;
     focusedOpacity = focused.fillOpacity!;
     defocusedOpacity = defocused.fillOpacity!;
@@ -122,7 +122,7 @@ export function getSeriesColor(colorPaletteConfig: ColorPaletteConfig, seriesCon
     return getSeriesStrokeColor(colorPaletteConfig, seriesConfig, ...args);
   }
   else {
-    const { markerShape } = seriesConfig;
+    const { shape: markerShape } = seriesConfig.marker;
     if (markerShape !== NONE) {
       return getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, ...args);
     }

@@ -11,13 +11,17 @@
     "type": "date",
     "scale": "linear",
     "dateUTC": true,
-    "tickLabelFormat": "%b %d"
+    "tickLabel": {
+      "format": "%b %d"
+    }
   },
   "series": [
     {
       "renderer": "line",
       "title": "Value",
-      "markerShape": "circle",
+      "marker": {
+        "shape": "circle"
+      },
       "property": "value"
     }
   ],

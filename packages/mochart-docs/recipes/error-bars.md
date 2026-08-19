@@ -36,25 +36,25 @@ import * as errorBars from '../examples/errorBars'
 - The tooltip appends the bounds after the value, joined by the tooltip's
   [`rangeValueSeparator`](/reference/tooltip#tooltip.rangeValueSeparator):
   `56.5 (53.9 - 58.6)`.
-- Styling: [`errorBarCapSize`](/reference/series#series.errorBarCapSize)
+- Styling: [`errorBar.capSize`](/reference/series#series.errorBar.capSize)
   sets the cap width in pixels (default 6; `0` hides the caps; on bars the
   caps clamp to the bar slot), and
-  [`errorBarStyle`](/reference/series#series.errorBarStyle) styles the
+  [`errorBar.style`](/reference/series#series.errorBar.style) styles the
   whisker itself. Being a line, it takes a stroke-only style —
-  [`strokeColor`](/reference/series#series.errorBarStyle.normal.strokeColor),
-  [`strokeOpacity`](/reference/series#series.errorBarStyle.normal.strokeOpacity),
-  [`strokeWidth`](/reference/series#series.errorBarStyle.normal.strokeWidth)
+  [`strokeColor`](/reference/series#series.errorBar.style.normal.strokeColor),
+  [`strokeOpacity`](/reference/series#series.errorBar.style.normal.strokeOpacity),
+  [`strokeWidth`](/reference/series#series.errorBar.style.normal.strokeWidth)
   and
-  [`strokeDashArray`](/reference/series#series.errorBarStyle.normal.strokeDashArray)
+  [`strokeDashArray`](/reference/series#series.errorBar.style.normal.strokeDashArray)
   (e.g. `"5, 5"`; `null` for a solid whisker) — once per focus state. The
   default `strokeColor` is `"series"` in
-  [`normal`](/reference/series#series.errorBarStyle.normal) and `"same"` in
-  [`focused`](/reference/series#series.errorBarStyle.focused) and
-  [`defocused`](/reference/series#series.errorBarStyle.defocused), so
+  [`normal`](/reference/series#series.errorBar.style.normal) and `"same"` in
+  [`focused`](/reference/series#series.errorBar.style.focused) and
+  [`defocused`](/reference/series#series.errorBar.style.defocused), so
   whiskers follow their series' color through focus, while the opacities
   (`0.9` normally, `1` focused, `0.5` defocused) dim them alongside it. Only
   the members you name are overridden, so thickening just the focused whisker
-  is `errorBarStyle: { focused: { strokeWidth: 3 } }`.
+  is `errorBar.style: { focused: { strokeWidth: 3 } }`.
 - Whiskers animate with their series: value transitions share one duration
   across the point and its bounds, so the whisker stays glued to a moving
   bar, and entering categories grow their whisker out of the axis base with

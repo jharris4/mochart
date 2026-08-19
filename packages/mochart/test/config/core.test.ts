@@ -91,10 +91,10 @@ describe('getConfigWithDefaults', () => {
   // valueAxes is the one list section with an implicit entry, so its *Defaults section has to reach the defaults list when the user declares nothing
   it('merges the all-config into the defaults list when the section is not declared', () => {
     const result = getConfigWithDefaults(
-      { valueAxisDefaults: { visible: false, title: 'T' } },
-      { valueAxes: [{ id: 'VA0', visible: true, title: null }] }
+      { valueAxisDefaults: { visible: false, title: { text: 'T' } } },
+      { valueAxes: [{ id: 'VA0', visible: true, title: { text: null } }] }
     );
-    expect(result.valueAxes).toEqual([{ id: 'VA0', visible: false, title: 'T' }]);
+    expect(result.valueAxes).toEqual([{ id: 'VA0', visible: false, title: { text: 'T' } }]);
   });
 
   it('merges the all-config into the defaults list when every entry is ignored', () => {

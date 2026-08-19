@@ -565,6 +565,95 @@ export interface ClipIndicatorConfig {
   showInFront: boolean;
 }
 
+/** The labels drawn on the pie slices. */
+export interface PieLabelConfig {
+  /**
+   * Whether labels should be shown on the slices.
+   *
+   * @default false
+   */
+  visible: boolean;
+  /**
+   * The content of the slice labels: the slice value (value), the slice
+   * percentage of the total (percent), the series title (title), or a
+   * combination of two of them (valuePercent for "value (percent)",
+   * percentValue for "percent (value)", titleValue for "title: value",
+   * titlePercent for "title: percent").
+   *
+   * @default "percent"
+   */
+  type: PieLabelType;
+  /**
+   * The d3 format specifier used to format the value part of the slice labels
+   * (use auto to derive a format).
+   *
+   * @default "auto"
+   */
+  valueFormat: string | Auto;
+  /**
+   * The d3 format specifier used to format the percent part of the slice labels
+   * (use auto to derive a format).
+   *
+   * @default "auto"
+   */
+  percentFormat: string | Auto;
+  /**
+   * The radial position of the slice labels as a fraction (0 to 1) between the
+   * inner radius and the outer radius.
+   *
+   * @default 0.5
+   */
+  radiusFraction: number;
+  /**
+   * Hide the label of any slice whose value is smaller than this fraction (0 to
+   * 1) of the slice total.
+   *
+   * @default 0.05
+   */
+  minFraction: number;
+  /**
+   * Whether percent slice labels (and the minFraction threshold) renormalize
+   * against the unfiltered slices (true) or always use every slice's share of
+   * the full total (false).
+   *
+   * @default true
+   */
+  adjustForFiltering: boolean;
+}
+
+/** The total of the slice values shown at the center of the pie. */
+export interface PieCenterTotalConfig {
+  /**
+   * Whether the total of the slice values should be shown at the center of the
+   * pie.
+   *
+   * @default false
+   */
+  visible: boolean;
+  /**
+   * The d3 format specifier used to format the center total (use auto to derive
+   * a format).
+   *
+   * @default "auto"
+   */
+  format: string | Auto;
+  /**
+   * The styles to apply to the center total text (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
+   * to follow the host page's css color and theme).
+   *
+   * @default { strokeColor: null, strokeOpacity: null, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
+   */
+  textStyle: Style;
+  /**
+   * Whether the center total counts only the unfiltered slices (true) or always
+   * shows the full total (false).
+   *
+   * @default true
+   */
+  adjustForFiltering: boolean;
+}
+
 export interface PieConfig {
   /**
    * The inner radius of the slices as a fraction (0 to 1) of the outer radius
@@ -615,57 +704,11 @@ export interface PieConfig {
    */
   focusOffsetFraction: number;
   /**
-   * Whether labels should be shown on the slices.
+   * The labels drawn on the slices.
    *
-   * @default false
+   * @default { visible: false, type: "percent", valueFormat: "auto", percentFormat: "auto", radiusFraction: 0.5, minFraction: 0.05, adjustForFiltering: true }
    */
-  showLabels: boolean;
-  /**
-   * The content of the slice labels: the slice value (value), the slice
-   * percentage of the total (percent), the series title (title), or a
-   * combination of two of them (valuePercent for "value (percent)",
-   * percentValue for "percent (value)", titleValue for "title: value",
-   * titlePercent for "title: percent").
-   *
-   * @default "percent"
-   */
-  labelType: PieLabelType;
-  /**
-   * The d3 format specifier used to format the value part of the slice labels
-   * (use auto to derive a format).
-   *
-   * @default "auto"
-   */
-  labelValueFormat: string | Auto;
-  /**
-   * The d3 format specifier used to format the percent part of the slice labels
-   * (use auto to derive a format).
-   *
-   * @default "auto"
-   */
-  labelPercentFormat: string | Auto;
-  /**
-   * The radial position of the slice labels as a fraction (0 to 1) between the
-   * inner radius and the outer radius.
-   *
-   * @default 0.5
-   */
-  labelRadiusFraction: number;
-  /**
-   * Hide the label of any slice whose value is smaller than this fraction (0 to
-   * 1) of the slice total.
-   *
-   * @default 0.05
-   */
-  labelMinFraction: number;
-  /**
-   * Whether percent slice labels (and the labelMinFraction threshold)
-   * renormalize against the unfiltered slices (true) or always use every
-   * slice's share of the full total (false).
-   *
-   * @default true
-   */
-  adjustLabelsForFiltering: boolean;
+  label: PieLabelConfig;
   /**
    * The content of the tooltip value for each slice: the slice value (value),
    * the slice percentage of the total (percent) or a combination of both
@@ -700,34 +743,11 @@ export interface PieConfig {
    */
   centerLabelTextStyle: Style;
   /**
-   * Whether the total of the slice values should be shown at the center of the
-   * pie.
+   * The total of the slice values shown at the center of the pie.
    *
-   * @default false
+   * @default { visible: false, textStyle: { … }, format: "auto", adjustForFiltering: true }
    */
-  showCenterTotal: boolean;
-  /**
-   * The styles to apply to the center total text (strokeColor, strokeOpacity,
-   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
-   * to follow the host page's css color and theme).
-   *
-   * @default { strokeColor: null, strokeOpacity: null, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
-   */
-  centerTotalTextStyle: Style;
-  /**
-   * The d3 format specifier used to format the center total (use auto to derive
-   * a format).
-   *
-   * @default "auto"
-   */
-  centerTotalFormat: string | Auto;
-  /**
-   * Whether the center total counts only the unfiltered slices (true) or always
-   * shows the full total (false).
-   *
-   * @default true
-   */
-  adjustCenterTotalForFiltering: boolean;
+  centerTotal: PieCenterTotalConfig;
   /**
    * Offset the center label and total horizontally by this fraction (-1 to 1)
    * of the outer radius (positive moves right).
@@ -810,6 +830,22 @@ export interface ColorPaletteConfig {
   errorBar: ColorPaletteStates;
 }
 
+/** One kind of crosshair line: the lines drawn for the focused category, or for the focused series. */
+export interface CrosshairLineConfig {
+  /**
+   * Whether or not these crosshair lines should be shown.
+   *
+   * @default true
+   */
+  visible: boolean;
+  /**
+   * The style of these crosshair lines.
+   *
+   * @default { strokeColor: "currentColor", strokeOpacity: 0.3, strokeWidth: 3, strokeDashArray: "10, 5" }
+   */
+  style: StrokeStyle;
+}
+
 export interface CrosshairConfig {
   /**
    * Whether or not crosshairs should be shown when a category or series is
@@ -826,29 +862,17 @@ export interface CrosshairConfig {
    */
   applyFocus: boolean;
   /**
-   * Whether or not crosshair lines for focused categories should be shown.
+   * The crosshair lines shown for the focused category.
    *
-   * @default true
+   * @default { visible: true, style: { … } }
    */
-  showCategory: boolean;
+  categoryLine: CrosshairLineConfig;
   /**
-   * Whether or not crosshair lines for focused series should be shown.
+   * The crosshair lines shown for the focused series.
    *
-   * @default true
+   * @default { visible: true, style: { … } }
    */
-  showSeries: boolean;
-  /**
-   * The style of the crosshair lines shown for the focused category.
-   *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0.3, strokeWidth: 3, strokeDashArray: "10, 5" }
-   */
-  categoryLineStyle: StrokeStyle;
-  /**
-   * The style of the crosshair lines shown for the focused series.
-   *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0.3, strokeWidth: 3, strokeDashArray: "10, 5" }
-   */
-  seriesLineStyle: StrokeStyle;
+  seriesLine: CrosshairLineConfig;
   /**
    * Whether to show the crosshair lines for sections where they are overlapped
    * by the tooltip.
@@ -856,6 +880,33 @@ export interface CrosshairConfig {
    * @default false
    */
   showBehindTooltip: boolean;
+}
+
+/** A prefix or suffix box beside the title text: its text, spacing and styles. */
+export interface TitleAffixConfig {
+  /** The text to display in the box (use null for none). */
+  text: string | null;
+  /**
+   * The margin (in pixels) for the top, right, bottom and left sides of the
+   * box.
+   */
+  margin: MarginPadding;
+  /**
+   * The padding (in pixels) for the top, right, bottom and left sides of the
+   * box.
+   */
+  padding: MarginPadding;
+  /**
+   * The styles to apply to the box background (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none)).
+   */
+  backgroundStyle: Style;
+  /**
+   * The styles to apply to the box text (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
+   * to follow the host page's css color and theme).
+   */
+  textStyle: Style;
 }
 
 export interface TitleConfig {
@@ -872,17 +923,17 @@ export interface TitleConfig {
    */
   position: Position;
   /**
-   * The text to display at the start of the title (use null for none).
+   * The prefix box shown at the start of the title.
    *
-   * @default null
+   * @default { text: null, margin: { … }, padding: { … }, backgroundStyle: { … }, textStyle: { … } }
    */
-  prefix: string | null;
+  prefix: TitleAffixConfig;
   /**
-   * The text to display at the end of the title (use null for none).
+   * The suffix box shown at the end of the title.
    *
-   * @default null
+   * @default { text: null, margin: { … }, padding: { … }, backgroundStyle: { … }, textStyle: { … } }
    */
-  suffix: string | null;
+  suffix: TitleAffixConfig;
   /**
    * The link to create for the title (use null for none).
    *
@@ -965,34 +1016,6 @@ export interface TitleConfig {
    */
   textPadding: MarginPadding;
   /**
-   * The margin (in pixels) for the top, right, bottom and left sides of the
-   * title prefix.
-   *
-   * @default { top: 0, right: 5, bottom: 0, left: 0 }
-   */
-  prefixMargin: MarginPadding;
-  /**
-   * The padding (in pixels) for the top, right, bottom and left sides of the
-   * title prefix.
-   *
-   * @default { top: 0, right: 5, bottom: 0, left: 0 }
-   */
-  prefixPadding: MarginPadding;
-  /**
-   * The margin (in pixels) for the top, right, bottom and left sides of the
-   * title suffix.
-   *
-   * @default { top: 0, right: 0, bottom: 0, left: 5 }
-   */
-  suffixMargin: MarginPadding;
-  /**
-   * The padding (in pixels) for the top, right, bottom and left sides of the
-   * title suffix.
-   *
-   * @default { top: 0, right: 0, bottom: 0, left: 5 }
-   */
-  suffixPadding: MarginPadding;
-  /**
    * The styles to apply to the title background (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
@@ -1014,47 +1037,17 @@ export interface TitleConfig {
    * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
    */
   textStyle: Style;
-  /**
-   * The styles to apply to the title prefix background (strokeColor,
-   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
-   *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
-   */
-  prefixBackgroundStyle: Style;
-  /**
-   * The styles to apply to the title prefix text (strokeColor, strokeOpacity,
-   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
-   * to follow the host page's css color and theme).
-   *
-   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
-   */
-  prefixTextStyle: Style;
-  /**
-   * The styles to apply to the title suffix background (strokeColor,
-   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
-   *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
-   */
-  suffixBackgroundStyle: Style;
-  /**
-   * The styles to apply to the title suffix text (strokeColor, strokeOpacity,
-   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
-   * to follow the host page's css color and theme).
-   *
-   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
-   */
-  suffixTextStyle: Style;
 }
 
 /**
- * The series icons shown beside series titles, configured identically by the
- * legend and by the tooltip.
+ * The series icons shown beside series titles, the `icon` group of both the
+ * legend and the tooltip.
  *
  * Both sections show the same icons and take the same values for them, so the
- * properties are declared once here and extended by each: the two surfaces
- * cannot drift apart. Only the prose differs between them (a legend icon sizes
- * itself against the measured legend text, a tooltip icon against the
- * inherited font size), so each section keeps its own descriptions.
+ * shape is declared once here and used by each: the two surfaces cannot drift
+ * apart. Only the prose differs between them (a legend icon sizes itself
+ * against the measured legend text, a tooltip icon against the inherited font
+ * size), so each section keeps its own descriptions.
  */
 export interface SeriesIconConfig {
   /**
@@ -1065,7 +1058,7 @@ export interface SeriesIconConfig {
    *
    * @default true
    */
-  showIconColors: boolean;
+  showColors: boolean;
   /**
    * Whether to show the series marker shape next to series titles in the
    * legend.
@@ -1075,7 +1068,7 @@ export interface SeriesIconConfig {
    *
    * @default true
    */
-  showIconShapes: boolean;
+  showShapes: boolean;
   /**
    * Whether to show placeholder icons next to the series titles in the legend.
    *
@@ -1084,7 +1077,7 @@ export interface SeriesIconConfig {
    *
    * @default true
    */
-  showIconPlaceholders: boolean;
+  showPlaceholders: boolean;
   /**
    * The width and height (in pixels) of the series icons, or "auto" to match
    * the legend text font size.
@@ -1094,48 +1087,81 @@ export interface SeriesIconConfig {
    *
    * @default "auto"
    */
-  iconSize: number | Auto;
+  size: number | Auto;
   /**
    * The horizontal space (in pixels) to show between series icons and titles.
    *
    * @default 4
    */
-  iconSpacerSize: number;
+  spacerSize: number;
   /**
    * The width (in pixels) of the border drawn around series icons.
    *
    * @default 1
    */
-  iconBorderSize: number;
+  borderSize: number;
   /**
    * The color of the border drawn around series icons.
    *
    * @default "currentColor"
    */
-  iconBorderColor: string;
+  borderColor: string;
   /**
    * The opacity (0 - 1) of the border drawn around series icons.
    *
    * @default 0.65
    */
-  iconBorderOpacity: number;
+  borderOpacity: number;
   /**
    * The color to use for the series icon when the corresponding series is
    * filtered.
    *
    * @default 'rgba(255,255,255,0)'
    */
-  iconFilteredColor: string;
+  filteredColor: string;
   /**
    * The color to use for the placeholder series icons when the corresponding
    * series is not filtered.
    *
    * @default 'rgba(0,0,0,0.5)'
    */
-  iconUnfilteredColor: string;
+  unfilteredColor: string;
 }
 
-export interface LegendConfig extends SeriesIconConfig {
+/** One legend item: the box around a series icon and title. */
+export interface LegendItemConfig {
+  /**
+   * The margin (in pixels) for the top, right, bottom and left sides of the
+   * legend items.
+   *
+   * @default { top: 1, right: 1, bottom: 1, left: 1 }
+   */
+  margin: MarginPadding;
+  /**
+   * The padding (in pixels) for the top, right, bottom and left sides of the
+   * legend items.
+   *
+   * @default { top: 1, right: 1, bottom: 1, left: 1 }
+   */
+  padding: MarginPadding;
+  /**
+   * The styles to apply to the legend item backgrounds (strokeColor,
+   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
+   *
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
+   */
+  backgroundStyle: Style;
+  /**
+   * The styles to apply to the legend item text (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
+   * to follow the host page's css color and theme).
+   *
+   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
+   */
+  textStyle: Style;
+}
+
+export interface LegendConfig {
   /**
    * Whether the legend should be visible.
    *
@@ -1199,34 +1225,17 @@ export interface LegendConfig extends SeriesIconConfig {
    */
   backgroundStyle: Style;
   /**
-   * The margin (in pixels) for the top, right, bottom and left sides of the
-   * legend items.
+   * The series icons shown next to the series titles in the legend.
    *
-   * @default { top: 1, right: 1, bottom: 1, left: 1 }
+   * @default { showColors: true, showShapes: true, showPlaceholders: true, size: "auto", spacerSize: 4, borderSize: 1, borderColor: "currentColor", borderOpacity: 0.65, filteredColor: "rgba(255,255,255,0)", unfilteredColor: "rgba(0,0,0,0.5)" }
    */
-  itemMargin: MarginPadding;
+  icon: SeriesIconConfig;
   /**
-   * The padding (in pixels) for the top, right, bottom and left sides of the
-   * legend items.
+   * The legend items, each a series icon and title in its own box.
    *
-   * @default { top: 1, right: 1, bottom: 1, left: 1 }
+   * @default { margin: { … }, padding: { … }, backgroundStyle: { … }, textStyle: { … } }
    */
-  itemPadding: MarginPadding;
-  /**
-   * The styles to apply to the legend item backgrounds (strokeColor,
-   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
-   *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
-   */
-  itemBackgroundStyle: Style;
-  /**
-   * The styles to apply to the legend item text (strokeColor, strokeOpacity,
-   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
-   * to follow the host page's css color and theme).
-   *
-   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
-   */
-  itemTextStyle: Style;
+  item: LegendItemConfig;
   /**
    * Whether to strike through the item text of filtered series.
    *
@@ -1272,7 +1281,35 @@ export interface LegendConfig extends SeriesIconConfig {
   filterOnClick: boolean;
 }
 
-export interface TooltipConfig extends SeriesIconConfig {
+/** The css drop shadow cast by the tooltip box. */
+export interface TooltipDropShadowConfig {
+  /**
+   * The color of the drop shadow effect used for the tooltip.
+   *
+   * @default 'rgba(0,0,0,0.3)'
+   */
+  color: string;
+  /**
+   * The x offset (in pixels) of the drop shadow effect used for the tooltip.
+   *
+   * @default 0
+   */
+  offsetX: number;
+  /**
+   * The y offset (in pixels) of the drop shadow effect used for the tooltip.
+   *
+   * @default 5
+   */
+  offsetY: number;
+  /**
+   * The blur radius (in pixels) of the drop shadow effect used for the tooltip.
+   *
+   * @default 10
+   */
+  blurRadius: number;
+}
+
+export interface TooltipConfig {
   /**
    * Whether or not to show the tooltip.
    *
@@ -1435,29 +1472,17 @@ export interface TooltipConfig extends SeriesIconConfig {
    */
   borderRadius: number;
   /**
-   * The color of the drop shadow effect used for the tooltip.
+   * The series icons shown next to the series titles in the tooltip.
    *
-   * @default 'rgba(0,0,0,0.3)'
+   * @default { showColors: true, showShapes: true, showPlaceholders: true, size: "auto", spacerSize: 4, borderSize: 1, borderColor: "currentColor", borderOpacity: 0.65, filteredColor: "rgba(255,255,255,0)", unfilteredColor: "rgba(0,0,0,0.5)" }
    */
-  dropShadowColor: string;
+  icon: SeriesIconConfig;
   /**
-   * The x offset (in pixels) of the drop shadow effect used for the tooltip.
+   * The drop shadow effect cast by the tooltip.
    *
-   * @default 0
+   * @default { color: "rgba(0,0,0,0.3)", offsetX: 0, offsetY: 5, blurRadius: 10 }
    */
-  dropShadowOffsetX: number;
-  /**
-   * The y offset (in pixels) of the drop shadow effect used for the tooltip.
-   *
-   * @default 5
-   */
-  dropShadowOffsetY: number;
-  /**
-   * The blur radius (in pixels) of the drop shadow effect used for the tooltip.
-   *
-   * @default 10
-   */
-  dropShadowBlurRadius: number;
+  dropShadow: TooltipDropShadowConfig;
   /**
    * Whether to strike through the label text of filtered series.
    *
@@ -1524,6 +1549,58 @@ export interface TooltipConfig extends SeriesIconConfig {
 }
 
 /**
+ * The title label beside a threshold line. Members left out fall back to the
+ * documented defaults.
+ */
+export interface ThresholdTitleConfig {
+  /**
+   * The title text shown beside the line (use null for none).
+   *
+   * @default null
+   */
+  text?: string | null;
+  /**
+   * Which value side of the line the title sits on ("low" for smaller values,
+   * "high" for larger).
+   *
+   * @default "high"
+   */
+  side?: ThresholdTitleSide;
+  /**
+   * Whether the title flips to the other side of the line when its own side has
+   * no room, instead of being clamped inside the plot over the line.
+   *
+   * @default true
+   */
+  snapToValue?: boolean;
+  /**
+   * The margin (in pixels) of the threshold title, relative to its orientation.
+   *
+   * @default { top: 0, right: 0, bottom: 0, left: 0 }
+   */
+  margin?: MarginPadding;
+  /**
+   * The padding (in pixels) of the threshold title, relative to its
+   * orientation.
+   *
+   * @default { top: 0, right: 0, bottom: 0, left: 0 }
+   */
+  padding?: MarginPadding;
+  /**
+   * The style of the threshold title text.
+   *
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
+   */
+  textStyle?: DeepPartial<StyleStates>;
+  /**
+   * The styles to apply to the threshold title background.
+   *
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
+   */
+  backgroundStyle?: Partial<Style>;
+}
+
+/**
  * One threshold line on an axis: a reference value drawn as a line across the
  * plot, with an optional title label beside it. Entries are whole objects (the
  * `thresholds` array replaces its default wholesale); members left out fall
@@ -1550,81 +1627,421 @@ export interface ThresholdConfig {
    */
   style?: DeepPartial<StrokeStyleStates>;
   /**
-   * The title text shown beside the line (use null for none).
+   * The title label shown beside the threshold line.
    *
-   * @default null
+   * @default { text: null, side: "high", snapToValue: true, margin: { … }, padding: { … }, textStyle: { … }, backgroundStyle: { … } }
    */
-  title?: string | null;
-  /**
-   * Which value side of the line the title sits on ("low" for smaller values,
-   * "high" for larger).
-   *
-   * @default "high"
-   */
-  titleSide?: ThresholdTitleSide;
-  /**
-   * Whether the title flips to the other side of the line when its own side has
-   * no room, instead of being clamped inside the plot over the line.
-   *
-   * @default true
-   */
-  titleSnapToValue?: boolean;
-  /**
-   * The margin (in pixels) of the threshold title, relative to its orientation.
-   *
-   * @default { top: 0, right: 0, bottom: 0, left: 0 }
-   */
-  titleMargin?: MarginPadding;
-  /**
-   * The padding (in pixels) of the threshold title, relative to its
-   * orientation.
-   *
-   * @default { top: 0, right: 0, bottom: 0, left: 0 }
-   */
-  titlePadding?: MarginPadding;
-  /**
-   * The style of the threshold title text.
-   *
-   * @default { normal: { … }, focused: { … }, defocused: { … } }
-   */
-  titleTextStyle?: DeepPartial<StyleStates>;
-  /**
-   * The styles to apply to the threshold title background.
-   *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
-   */
-  titleBackgroundStyle?: Partial<Style>;
+  title?: ThresholdTitleConfig;
 }
 
-/** Shared properties of the category axis and value axes (config/defaults/axisConfig.ts). */
-export interface AxisConfigBase {
+/** The line drawn along the length of an axis. */
+export interface AxisLineConfig {
   /**
    * Whether to show a line along the length of the axis.
    *
    * @default true
    */
-  showAxisLine: boolean;
+  visible: boolean;
   /**
    * Whether the axis line should be shown in front (true) or behind (false) the
    * series shapes.
    *
    * @default false
    */
-  axisLineFront: boolean;
+  front: boolean;
   /**
    * The margin (in pixels) between the line shown along the axis and the inner
    * boundary of the axis.
    *
    * @default 0
    */
-  axisLineMargin: number;
+  margin: number;
   /**
    * The style of the line shown along the axis.
    *
    * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  axisLineStyle: StrokeStyleStates;
+  style: StrokeStyleStates;
+}
 
+/** The band an axis draws over its focused series domain or category value. */
+export interface AxisFocusRangeConfig {
+  /**
+   * Whether to show the focus range on the axis when it has a focused series
+   * domain or category value.
+   *
+   * Category axis default: `false`.
+   * Value axis default: `true`.
+   */
+  visible: boolean;
+  /**
+   * Whether the focus range should be shown in front (true) or behind (false)
+   * the series shapes.
+   *
+   * @default false
+   */
+  front: boolean;
+  /**
+   * Whether to show the focus range only over tick labels (false) or over both
+   * tick labels and title (true).
+   *
+   * @default false
+   */
+  applyToTitle: boolean;
+  /**
+   * The style of the focus range.
+   *
+   * @default { strokeColor: "currentColor", strokeOpacity: 0.2, strokeWidth: 1, strokeDashArray: null, fillColor: "currentColor", fillOpacity: 0.12 }
+   */
+  style: StyleState;
+}
+
+/** The tick marks an axis draws at its focused series domain or category value. */
+export interface AxisFocusTickMarkConfig {
+  /**
+   * Whether to show lines perpendicular to the axis showing the focused series
+   * domain or category value.
+   *
+   * Category axis default: `true`.
+   * Value axis default: `false`.
+   */
+  visible: boolean;
+  /**
+   * Whether the focus tick marks should be shown in front (true) or behind
+   * (false) the series shapes.
+   *
+   * @default false
+   */
+  front: boolean;
+  /**
+   * The length (in pixels) of the focus tick mark line(s).
+   *
+   * @default 9
+   */
+  size: number;
+  /**
+   * The margin (in pixels) to show between the inside of the axis and the focus
+   * tick mark line(s).
+   *
+   * @default 3
+   */
+  margin: number;
+  /**
+   * The style of the focus tick mark line(s).
+   *
+   * @default { strokeColor: "currentColor", strokeOpacity: 1, strokeWidth: 3, strokeDashArray: null }
+   */
+  style: StrokeStyleState;
+}
+
+/** The grid lines an axis draws across the plot at each tick. */
+export interface AxisGridLineConfig {
+  /**
+   * Whether to show grid lines perpendicular to each tick on the axis.
+   *
+   * @default false
+   */
+  visible: boolean;
+  /**
+   * Whether the axis grid lines should be shown in front (true) or behind
+   * (false) the series shapes.
+   *
+   * @default false
+   */
+  front: boolean;
+  /**
+   * The style of the axis grid lines.
+   *
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
+   */
+  style: StrokeStyleStates;
+}
+
+/** The tick marks an axis draws at each tick value. */
+export interface AxisTickMarkConfig {
+  /**
+   * Whether to show lines perpendicular to each tick value along the axis.
+   *
+   * @default true
+   */
+  visible: boolean;
+  /**
+   * Whether the axis tick marks should be shown in front (true) or behind
+   * (false) the series shapes.
+   *
+   * @default false
+   */
+  front: boolean;
+  /**
+   * The length (in pixels) of the axis tick mark lines.
+   *
+   * @default 3
+   */
+  size: number;
+  /**
+   * The margin (in pixels) to show between the inside of the axis and the axis
+   * tick mark lines.
+   *
+   * @default 0
+   */
+  margin: number;
+  /**
+   * The style of the axis tick mark lines.
+   *
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
+   */
+  style: StrokeStyleStates;
+}
+
+/** The tick labels of an axis, shared by the category axis and the value axes. */
+export interface AxisTickLabelConfig {
+  /**
+   * Whether the axis tick labels should be shown in front (true) or behind
+   * (false) the series shapes.
+   *
+   * @default false
+   */
+  front: boolean;
+  /**
+   * The anchor to use for all axis tick labels (start, end, middle) (use "auto"
+   * to determine automatically).
+   *
+   * @default "auto"
+   */
+  anchor: Anchor | Auto;
+  /**
+   * The styles to apply to the axis tick label background (strokeColor,
+   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
+   *
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
+   */
+  backgroundStyle: Style;
+  /**
+   * The space (in pixels) perpendicular to the axis direction to allocate for
+   * the tick labels (use "auto" to derive from the font size).
+   *
+   * @default "auto"
+   */
+  size: number | Auto;
+  /**
+   * The margin (in pixels) to show between the tick labels and the inside of
+   * the axis.
+   *
+   * @default 2
+   */
+  marginInner: number;
+  /**
+   * The margin (in pixels) to show between the tick labels and the outside of
+   * the axis.
+   *
+   * @default 1
+   */
+  marginOuter: number;
+  /**
+   * The padding (in pixels) to show between the tick labels and the inside of
+   * the axis.
+   *
+   * @default 5
+   */
+  paddingInner: number;
+  /**
+   * The padding (in pixels) to show between the tick labels and the outside of
+   * the axis.
+   *
+   * @default 5
+   */
+  paddingOuter: number;
+  /**
+   * The d3 format string (d3-format for number, d3-time-format for date) to be
+   * applied to the category values when displayed in axis tick labels (use null
+   * for none, use "auto" to derive from data).
+   *
+   * @default "auto"
+   */
+  format: string | Auto | null;
+  /**
+   * The string to prefix to the text of each axis tick label (use null for
+   * none).
+   *
+   * @default null
+   */
+  prefix: string | null;
+  /**
+   * The string to append to the text of each axis tick label (use null for
+   * none).
+   *
+   * @default null
+   */
+  suffix: string | null;
+  /**
+   * The rotation (in degrees, -90 to 90) to apply to each axis tick label.
+   *
+   * @default 0
+   */
+  rotation: number;
+  /**
+   * The style of the axis tick label text.
+   *
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
+   */
+  textStyle: StyleStates;
+}
+
+/** The category axis tick labels, adding the truncation applied when they would overlap. */
+export interface CategoryAxisTickLabelConfig extends AxisTickLabelConfig {
+  /**
+   * Whether or not to use text truncation (true) when the axis tick labels
+   * would overlap each other instead of skipping ticks (false).
+   *
+   * Default:
+   * - `true` — when type is string
+   * - `false` — when type is not string
+   */
+  truncationEnabled: boolean;
+  /**
+   * The truncation text to append to the axis tick label text when its content
+   * is truncated.
+   *
+   * @default "…"
+   */
+  truncationValue: string;
+  /**
+   * The minimum length (in pixels) to allow tick label text perpendicular to
+   * the axis, applied when truncationMaxFraction would allow less.
+   *
+   * @default 0
+   */
+  truncationMinLength: number;
+  /**
+   * The maximum fraction (0 - 1) of the chart bounds to allow any tick label
+   * text to occupy when they are perpendicular to the axis.
+   *
+   * @default 0.2
+   */
+  truncationMaxFraction: number;
+}
+
+/** The value axis tick labels, adding the filtering adjustment of their bounds. */
+export interface ValueAxisTickLabelConfig extends AxisTickLabelConfig {
+  /**
+   * Whether to adjust the size of the axis tick label bounds as series
+   * belonging to it are filtered.
+   *
+   * @default false
+   */
+  adjustSizeForFiltering: boolean;
+}
+
+/** The title shown alongside an axis. */
+export interface AxisTitleConfig {
+  /**
+   * The title text to be shown alongside the axis (use null for no title).
+   *
+   * @default null
+   */
+  text: string | null;
+  /**
+   * Whether the axis title should be shown in front (true) or behind (false)
+   * the series shapes.
+   *
+   * @default false
+   */
+  front: boolean;
+  /**
+   * The styles to apply to the axis title background (strokeColor,
+   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
+   *
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
+   */
+  backgroundStyle: Style;
+  /**
+   * Whether to apply text truncation to the contents of the axis title when it
+   * would overflow the axis bounds.
+   *
+   * @default true
+   */
+  truncationEnabled: boolean;
+  /**
+   * The truncation text to append to the axis title when its length exceeds the
+   * bounds of the axis.
+   *
+   * @default "…"
+   */
+  truncationValue: string;
+  /**
+   * The space (in pixels) perpendicular to the axis direction to allocate for
+   * the axis title (use "auto" to derive from the font size).
+   *
+   * @default "auto"
+   */
+  size: number | Auto;
+  /**
+   * The margin (in pixels) to show between the axis title and the inside of the
+   * axis.
+   *
+   * @default 2
+   */
+  marginInner: number;
+  /**
+   * The margin (in pixels) to show between the axis title and the outside of
+   * the axis.
+   *
+   * @default 2
+   */
+  marginOuter: number;
+  /**
+   * The padding (in pixels) to show between the axis title and the inside of
+   * the axis.
+   *
+   * @default 3
+   */
+  paddingInner: number;
+  /**
+   * The padding (in pixels) to show between the axis title and the outside of
+   * the axis.
+   *
+   * @default 3
+   */
+  paddingOuter: number;
+  /**
+   * The style of the axis title text.
+   *
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
+   */
+  textStyle: StyleStates;
+}
+
+/** The line a value axis draws along its base value. */
+export interface AxisBaseLineConfig {
+  /**
+   * Whether to show a line along the base of the axis.
+   *
+   * @default true
+   */
+  visible: boolean;
+  /**
+   * Whether the base line should be shown in front (true) or behind (false) the
+   * series shapes.
+   *
+   * @default false
+   */
+  front: boolean;
+  /**
+   * The style of the line shown along the base of the axis.
+   *
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
+   */
+  style: StrokeStyleStates;
+}
+
+/** Shared properties of the category axis and value axes (config/defaults/axisConfig.ts). */
+export interface AxisConfigBase {
+  /**
+   * The line drawn along the length of the axis.
+   *
+   * @default { visible: true, front: false, margin: 0, style: { … } }
+   */
+  axisLine: AxisLineConfig;
   /**
    * The styles to apply to the axis background (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none)).
@@ -1639,7 +2056,6 @@ export interface AxisConfigBase {
    * @default false
    */
   backgroundFront: boolean;
-
   /**
    * Whether the axis is placed at the start (top/left) or end (bottom/right) of
    * the chart.
@@ -1658,98 +2074,38 @@ export interface AxisConfigBase {
    * @default false
    */
   reversed: boolean;
-
   /**
    * Whether the axis should consume space in the layout (false) or not (true).
    *
    * @default false
    */
   collapsed: boolean;
-
   /**
-   * Whether to show the focus range on the axis when it has a focused series
-   * domain or category value.
+   * The band drawn over the axis at its focused series domain or category
+   * value.
    *
-   * Category axis default: `false`.
-   * Value axis default: `true`.
+   * Category axis default: `{ visible: false, front: false, applyToTitle:
+   * false, style: { … } }`.
+   * Value axis default: `{ visible: true, front: false, applyToTitle: false,
+   * style: { … } }`.
    */
-  showFocusRange: boolean;
+  focusRange: AxisFocusRangeConfig;
   /**
-   * Whether the focus range should be shown in front (true) or behind (false)
-   * the series shapes.
+   * The tick marks drawn perpendicular to the axis at its focused series domain
+   * or category value.
    *
-   * @default false
+   * Category axis default: `{ visible: true, front: false, size: 9, margin: 3,
+   * style: { … } }`.
+   * Value axis default: `{ visible: false, front: false, size: 9, margin: 3,
+   * style: { … } }`.
    */
-  focusRangeFront: boolean;
+  focusTickMark: AxisFocusTickMarkConfig;
   /**
-   * Whether to show the focus range only over tick labels (false) or over both
-   * tick labels and title (true).
+   * The grid lines drawn across the plot at each tick on the axis.
    *
-   * @default false
+   * @default { visible: false, front: false, style: { … } }
    */
-  focusRangeApplyToTitle: boolean;
-  /**
-   * The style of the focus range.
-   *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0.2, strokeWidth: 1, strokeDashArray: null, fillColor: "currentColor", fillOpacity: 0.12 }
-   */
-  focusRangeStyle: StyleState;
-
-  /**
-   * Whether to show lines perpendicular to the axis showing the focused series
-   * domain or category value.
-   *
-   * Category axis default: `true`.
-   * Value axis default: `false`.
-   */
-  showFocusTickMarks: boolean;
-  /**
-   * Whether the focus tick marks should be shown in front (true) or behind
-   * (false) the series shapes.
-   *
-   * @default false
-   */
-  focusTickMarkFront: boolean;
-  /**
-   * The length (in pixels) of the focus tick mark line(s).
-   *
-   * @default 9
-   */
-  focusTickMarkSize: number;
-  /**
-   * The margin (in pixels) to show between the inside of the axis and the focus
-   * tick mark line(s).
-   *
-   * @default 3
-   */
-  focusTickMarkMargin: number;
-  /**
-   * The style of the focus tick mark line(s).
-   *
-   * @default { strokeColor: "currentColor", strokeOpacity: 1, strokeWidth: 3, strokeDashArray: null }
-   */
-  focusTickMarkStyle: StrokeStyleState;
-
-  /**
-   * Whether to show grid lines perpendicular to each tick on the axis.
-   *
-   * @default false
-   */
-  showGridLines: boolean;
-  /**
-   * Whether the axis grid lines should be shown in front (true) or behind
-   * (false) the series shapes.
-   *
-   * @default false
-   */
-  gridLineFront: boolean;
-  /**
-   * The style of the axis grid lines.
-   *
-   * @default { normal: { … }, focused: { … }, defocused: { … } }
-   */
-  gridLineStyle: StrokeStyleStates;
-
+  gridLine: AxisGridLineConfig;
   /**
    * The inner (closest to chart) margin (in pixels) of the axis.
    *
@@ -1762,7 +2118,6 @@ export interface AxisConfigBase {
    * @default 1
    */
   marginOuter: number;
-
   /**
    * The forced maximum value for the axis: a number, or a date on a date
    * category axis (use "auto" to compute from the values); must be >= min
@@ -1793,7 +2148,6 @@ export interface AxisConfigBase {
    * Value axis default: `10`.
    */
   maxTickCount: number;
-
   /**
    * The forced minimum value for the axis: a number, or a date on a date
    * category axis (use "auto" to compute from the values); must be <= max
@@ -1814,7 +2168,6 @@ export interface AxisConfigBase {
    * @default 0
    */
   minOffset: number;
-
   /**
    * The minimum space (in pixels) to allow between the bounds of any tick label
    * text.
@@ -1832,7 +2185,6 @@ export interface AxisConfigBase {
    * @default 0
    */
   minTickInterval: number;
-
   /**
    * The inner (closest to chart) padding (in pixels) of the axis.
    *
@@ -1845,7 +2197,6 @@ export interface AxisConfigBase {
    * @default 1
    */
   paddingOuter: number;
-
   /**
    * The minimum value for the axis to cover while no data value is less than
    * it, taking the same forms as min (use null to disable).
@@ -1868,8 +2219,6 @@ export interface AxisConfigBase {
    * @default null
    */
   softMax: number | string | null;
-
-
   /**
    * The threshold lines to draw on the axis, each an object drawing a reference
    * line across the plot at an axis value (the array replaces the default
@@ -1884,7 +2233,6 @@ export interface AxisConfigBase {
    * @default []
    */
   thresholds: ThresholdConfig[];
-
   /**
    * The number of ticks to show along the length of the axis (use "auto" to
    * derive the tick count from the data).
@@ -1892,206 +2240,32 @@ export interface AxisConfigBase {
    * @default "auto"
    */
   tickCount: number | Auto;
-
   /**
-   * Whether the axis tick labels should be shown in front (true) or behind
-   * (false) the series shapes.
+   * The labels shown at each tick along the axis.
    *
-   * @default false
+   * Category axis default: `{ front: false, anchor: "auto", backgroundStyle: {
+   * … }, size: "auto", marginInner: 2, marginOuter: 1, paddingInner: 5,
+   * paddingOuter: 5, format: "auto", prefix: null, suffix: null, rotation: 0,
+   * textStyle: { … }, truncationValue: "…", truncationMinLength: 0,
+   * truncationMaxFraction: 0.2 }`.
+   * Value axis default: `{ front: false, anchor: "auto", backgroundStyle: { …
+   * }, size: "auto", marginInner: 2, marginOuter: 1, paddingInner: 5,
+   * paddingOuter: 5, format: "auto", prefix: null, suffix: null, rotation: 0,
+   * textStyle: { … }, adjustSizeForFiltering: false }`.
    */
-  tickLabelFront: boolean;
+  tickLabel: AxisTickLabelConfig;
   /**
-   * The anchor to use for all axis tick labels (start, end, middle) (use "auto"
-   * to determine automatically).
+   * The tick marks drawn perpendicular to the axis at each tick value.
    *
-   * @default "auto"
+   * @default { visible: true, front: false, size: 3, margin: 0, style: { … } }
    */
-  tickLabelAnchor: Anchor | Auto;
+  tickMark: AxisTickMarkConfig;
   /**
-   * The styles to apply to the axis tick label background (strokeColor,
-   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
+   * The title shown alongside the axis.
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
+   * @default { text: null, front: false, backgroundStyle: { … }, truncationEnabled: true, truncationValue: "…", size: "auto", marginInner: 2, marginOuter: 2, paddingInner: 3, paddingOuter: 3, textStyle: { … } }
    */
-  tickLabelBackgroundStyle: Style;
-  /**
-   * The space (in pixels) perpendicular to the axis direction to allocate for
-   * the tick labels (use "auto" to derive from the font size).
-   *
-   * @default "auto"
-   */
-  tickLabelSize: number | Auto;
-  /**
-   * The margin (in pixels) to show between the tick labels and the inside of
-   * the axis.
-   *
-   * @default 2
-   */
-  tickLabelMarginInner: number;
-  /**
-   * The margin (in pixels) to show between the tick labels and the outside of
-   * the axis.
-   *
-   * @default 1
-   */
-  tickLabelMarginOuter: number;
-  /**
-   * The padding (in pixels) to show between the tick labels and the inside of
-   * the axis.
-   *
-   * @default 5
-   */
-  tickLabelPaddingInner: number;
-  /**
-   * The padding (in pixels) to show between the tick labels and the outside of
-   * the axis.
-   *
-   * @default 5
-   */
-  tickLabelPaddingOuter: number;
-  /**
-   * The d3 format string (d3-format for number, d3-time-format for date) to be
-   * applied to the category values when displayed in axis tick labels (use null
-   * for none, use "auto" to derive from data).
-   *
-   * @default "auto"
-   */
-  tickLabelFormat: string | Auto | null;
-  /**
-   * The string to prefix to the text of each axis tick label (use null for
-   * none).
-   *
-   * @default null
-   */
-  tickLabelPrefix: string | null;
-  /**
-   * The string to append to the text of each axis tick label (use null for
-   * none).
-   *
-   * @default null
-   */
-  tickLabelSuffix: string | null;
-  /**
-   * The rotation (in degrees, -90 to 90) to apply to each axis tick label.
-   *
-   * @default 0
-   */
-  tickLabelRotation: number;
-  /**
-   * The style of the axis tick label text.
-   *
-   * @default { normal: { … }, focused: { … }, defocused: { … } }
-   */
-  tickLabelTextStyle: StyleStates;
-
-  /**
-   * Whether to show lines perpendicular to each tick value along the axis.
-   *
-   * @default true
-   */
-  showTickMarks: boolean;
-  /**
-   * Whether the axis tick marks should be shown in front (true) or behind
-   * (false) the series shapes.
-   *
-   * @default false
-   */
-  tickMarkFront: boolean;
-  /**
-   * The length (in pixels) of the axis tick mark lines.
-   *
-   * @default 3
-   */
-  tickMarkSize: number;
-  /**
-   * The margin (in pixels) to show between the inside of the axis and the axis
-   * tick mark lines.
-   *
-   * @default 0
-   */
-  tickMarkMargin: number;
-  /**
-   * The style of the axis tick mark lines.
-   *
-   * @default { normal: { … }, focused: { … }, defocused: { … } }
-   */
-  tickMarkStyle: StrokeStyleStates;
-
-  /**
-   * The title text to be shown alongside the axis (use null for no title).
-   *
-   * @default null
-   */
-  title: string | null;
-  /**
-   * Whether the axis title should be shown in front (true) or behind (false)
-   * the series shapes.
-   *
-   * @default false
-   */
-  titleFront: boolean;
-  /**
-   * The styles to apply to the axis title background (strokeColor,
-   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
-   *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
-   */
-  titleBackgroundStyle: Style;
-  /**
-   * Whether to apply text truncation to the contents of the axis title when it
-   * would overflow the axis bounds.
-   *
-   * @default true
-   */
-  titleTruncationEnabled: boolean;
-  /**
-   * The truncation text to append to the axis title when its length exceeds the
-   * bounds of the axis.
-   *
-   * @default "…"
-   */
-  titleTruncationValue: string;
-  /**
-   * The space (in pixels) perpendicular to the axis direction to allocate for
-   * the axis title (use "auto" to derive from the font size).
-   *
-   * @default "auto"
-   */
-  titleSize: number | Auto;
-  /**
-   * The margin (in pixels) to show between the axis title and the inside of the
-   * axis.
-   *
-   * @default 2
-   */
-  titleMarginInner: number;
-  /**
-   * The margin (in pixels) to show between the axis title and the outside of
-   * the axis.
-   *
-   * @default 2
-   */
-  titleMarginOuter: number;
-  /**
-   * The padding (in pixels) to show between the axis title and the inside of
-   * the axis.
-   *
-   * @default 3
-   */
-  titlePaddingInner: number;
-  /**
-   * The padding (in pixels) to show between the axis title and the outside of
-   * the axis.
-   *
-   * @default 3
-   */
-  titlePaddingOuter: number;
-  /**
-   * The style of the axis title text.
-   *
-   * @default { normal: { … }, focused: { … }, defocused: { … } }
-   */
-  titleTextStyle: StyleStates;
+  title: AxisTitleConfig;
   /**
    * Whether the axis should be visible.
    *
@@ -2169,35 +2343,11 @@ export interface CategoryAxisConfig extends AxisConfigBase {
    */
   scale: Scale;
   /**
-   * Whether or not to use text truncation (true) when the axis tick labels
-   * would overlap each other instead of skipping ticks (false).
+   * The labels shown at each tick along the axis.
    *
-   * Default:
-   * - `true` — when type is string
-   * - `false` — when type is not string
+   * @default { front: false, anchor: "auto", backgroundStyle: { … }, size: "auto", marginInner: 2, marginOuter: 1, paddingInner: 5, paddingOuter: 5, format: "auto", prefix: null, suffix: null, rotation: 0, textStyle: { … }, truncationValue: "…", truncationMinLength: 0, truncationMaxFraction: 0.2 }
    */
-  tickLabelTruncationEnabled: boolean;
-  /**
-   * The truncation text to append to the axis tick label text when its content
-   * is truncated.
-   *
-   * @default "…"
-   */
-  tickLabelTruncationValue: string;
-  /**
-   * The minimum length (in pixels) to allow tick label text perpendicular to
-   * the axis, applied when tickLabelTruncationMaxFraction would allow less.
-   *
-   * @default 0
-   */
-  tickLabelTruncationMinLength: number;
-  /**
-   * The maximum fraction (0 - 1) of the chart bounds to allow any tick label
-   * text to occupy when they are perpendicular to the axis.
-   *
-   * @default 0.2
-   */
-  tickLabelTruncationMaxFraction: number;
+  tickLabel: CategoryAxisTickLabelConfig;
   /**
    * The type of the category values (number, date, string).
    *
@@ -2245,7 +2395,7 @@ export interface ValueAxisTick {
   value: number;
   /**
    * The text of the tick label (leave it out to format the value with
-   * tickLabelFormat).
+   * tickLabel.format).
    */
   label?: string;
 }
@@ -2285,12 +2435,11 @@ export interface ValueAxisConfig extends AxisConfigBase {
    */
   adjustForFiltering: boolean;
   /**
-   * Whether to adjust the size of the axis tick label bounds as series
-   * belonging to it are filtered.
+   * The labels shown at each tick along the axis.
    *
-   * @default false
+   * @default { front: false, anchor: "auto", backgroundStyle: { … }, size: "auto", marginInner: 2, marginOuter: 1, paddingInner: 5, paddingOuter: 5, format: "auto", prefix: null, suffix: null, rotation: 0, textStyle: { … }, adjustSizeForFiltering: false }
    */
-  adjustTickLabelSizeForFiltering: boolean;
+  tickLabel: ValueAxisTickLabelConfig;
   /**
    * Whether the axis should be visible when all series belonging to it are
    * filtered.
@@ -2313,24 +2462,11 @@ export interface ValueAxisConfig extends AxisConfigBase {
    */
   base: number | null;
   /**
-   * Whether to show a line along the base of the axis.
+   * The line drawn along the base value of the axis.
    *
-   * @default true
+   * @default { visible: true, front: false, style: { … } }
    */
-  showBaseLine: boolean;
-  /**
-   * Whether the base line should be shown in front (true) or behind (false) the
-   * series shapes.
-   *
-   * @default false
-   */
-  baseLineFront: boolean;
-  /**
-   * The style of the line shown along the base of the axis.
-   *
-   * @default { normal: { … }, focused: { … }, defocused: { … } }
-   */
-  baseLineStyle: StrokeStyleStates;
+  baseLine: AxisBaseLineConfig;
   /**
    * Whether the value axis should be focused whenever the user mouses over a
    * part of it in the chart.
@@ -2498,6 +2634,7 @@ export interface SeriesColorScaleBase {
   belowMax: string | null;
 }
 
+
 /**
  * The color ramp a series' `colorProperty` values are mapped through: the color
  * space to interpolate in, and either a single `min`/`max` ramp or, when
@@ -2532,6 +2669,269 @@ export interface SeriesColorScale {
    * either side of it.
    */
   base: SeriesColorScaleBase;
+}
+
+/** The bars a `bar` renderer series draws: their width and placement within the layout slot, and their minimum extent. */
+export interface SeriesBarConfig {
+  /**
+   * The fraction (0 - 1) of the bar layout slot width to use when drawing bars
+   * in the series.
+   *
+   * Only affects the `bar` renderer. Narrows each bar within its layout slot
+   * (the full category slot, or the series’ sub-slot when grouped), so a narrow
+   * bar can overlay a full-width one from another series — e.g. a candlestick
+   * wick behind its body, or a bullet-chart measure over its backing range. The
+   * narrowed bar is centered by default; `barAlignFraction` moves it within the
+   * slot.
+   *
+   * @default 1
+   */
+  widthFraction: number;
+  /**
+   * The fraction (0 - 1) of the slot width freed by widthFraction placed before
+   * each bar in the series (0 aligns with the slot start, 0.5 centers, 1 aligns
+   * with the slot end).
+   *
+   * Only affects the `bar` renderer, and only when `widthFraction` is less than
+   * 1. Lets narrowed bars from different series share one slot side by side —
+   * e.g. the left open tick and right close tick of an OHLC bar.
+   *
+   * @default 0.5
+   */
+  alignFraction: number;
+  /**
+   * The minimum extent (in pixels) of each bar in the series along the value
+   * direction.
+   *
+   * Only affects the `bar` renderer. A bar whose two ends resolve to (nearly)
+   * the same position — e.g. a ranged bar whose `property` and `rangeProperty`
+   * values are equal — is expanded to this extent, centered on its position, so
+   * it stays visible as a tick mark: e.g. the open/close ticks of an OHLC bar,
+   * or a candlestick doji body.
+   *
+   * @default 0
+   */
+  minExtent: number;
+}
+
+/** The decorative cap drawn on the value end of a bar series' bars. */
+export interface SeriesCapConfig {
+  /**
+   * The size of the cap (in pixels) to use when drawing caps on a bar series.
+   *
+   * @default 5
+   */
+  size: number;
+  /**
+   * The type (point, curve, round, use null for none) of cap to use when
+   * drawing caps on a bar series.
+   *
+   * Draws a decorative cap on the value end of each bar in the series; `size`
+   * controls its extent. To cap only the outside of a stacked bar, see
+   * `onlyStackOuter` and `seriesStacks[].outerCap.type`.
+   *
+   * @default null
+   */
+  type: CapType | null;
+  /**
+   * Whether to expand the base of caps on a bar series when the size of the cap
+   * is greater than the extent of the bar.
+   *
+   * @default true
+   */
+  expand: boolean;
+  /**
+   * Whether to only show the cap on bars in the series when they are an outer
+   * series of a stack.
+   *
+   * @default false
+   */
+  onlyStackOuter: boolean;
+}
+
+/** The error bars (whiskers) a series draws from its `errorLowProperty` / `errorHighProperty` bounds. */
+export interface SeriesErrorBarConfig {
+  /**
+   * The full width (in pixels) of the horizontal caps drawn at the ends of the
+   * series error bars (use 0 to hide the caps).
+   *
+   * The caps are the horizontal ticks at the whisker ends. On a `bar` renderer
+   * series the cap width is clamped to the bar layout slot so caps never
+   * overlap a neighbouring bar; use `0` to draw plain whiskers without caps.
+   *
+   * @default 6
+   */
+  capSize: number;
+  /**
+   * The style of the series error bars.
+   *
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
+   */
+  style: StrokeStyleStates<SeriesColor>;
+}
+
+/** The label placement applied only to series values on one side of the axis base; "auto" falls back to the plain label setting. */
+export interface SeriesLabelBaseSideConfig {
+  /**
+   * The position (inside, center, outside) applied only to series values on
+   * this side of the base value (use "auto" to inherit position).
+   *
+   * @default "auto"
+   */
+  position: LabelPosition | Auto;
+  /**
+   * The series position offset (in pixels) to apply to all series label
+   * positions on this side of the base value (use "auto" to derive from the
+   * label offset: as it is above the base, negated below it).
+   *
+   * @default "auto"
+   */
+  offset: number | Auto;
+  /**
+   * The minPositionFraction bound applied only to series values on this side of
+   * the base value (use "auto" to inherit minPositionFraction, null for none).
+   *
+   * @default "auto"
+   */
+  minPositionFraction: number | Auto | null;
+  /**
+   * The maxPositionFraction bound applied only to series values on this side of
+   * the base value (use "auto" to inherit maxPositionFraction, null for none).
+   *
+   * @default "auto"
+   */
+  maxPositionFraction: number | Auto | null;
+}
+
+/** The labels a series draws next to its shapes from `labelProperty`. */
+export interface SeriesLabelConfig {
+  /**
+   * The d3 format string to be applied to the series label values (use null for
+   * none, use "auto" to derive from data).
+   *
+   * @default "auto"
+   */
+  format: string | Auto | null;
+  /**
+   * The text to prefix series label values with when drawing them on the plot
+   * (use null for none).
+   *
+   * @default null
+   */
+  prefix: string | null;
+  /**
+   * The text to append series label values with when drawing them on the plot
+   * (use null for none).
+   *
+   * @default null
+   */
+  suffix: string | null;
+  /**
+   * The style of the series label values.
+   *
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
+   */
+  textStyle: StyleStates<SeriesColor>;
+  /**
+   * Where to place the series labels relative to the value end of the series
+   * shape (inside, center, outside).
+   *
+   * @default "center"
+   */
+  position: LabelPosition;
+  /**
+   * The series position offset (in pixels) to apply to all series label
+   * positions.
+   *
+   * @default 0
+   */
+  offset: number;
+  /**
+   * The minimum position fraction (0 - 1) from the domain minimum for which
+   * series labels should be shown (use null for none).
+   *
+   * @default null
+   */
+  minPositionFraction: number | null;
+  /**
+   * The maximum position fraction (0 - 1) from the domain maximum for which
+   * series labels should be shown (use null for none).
+   *
+   * @default null
+   */
+  maxPositionFraction: number | null;
+  /**
+   * Hide the label of any value whose shape spans less than this fraction (0 -
+   * 1) of the axis domain (use null for none).
+   *
+   * @default null
+   */
+  minRangeFraction: number | null;
+  /**
+   * The label placement applied only to series values above the base value
+   * ("auto" falls back to the plain label setting).
+   *
+   * @default { minPositionFraction: "auto", maxPositionFraction: "auto", offset: "auto", position: "auto" }
+   */
+  aboveBase: SeriesLabelBaseSideConfig;
+  /**
+   * The label placement applied only to series values below the base value
+   * ("auto" falls back to the plain label setting).
+   *
+   * @default { minPositionFraction: "auto", maxPositionFraction: "auto", offset: "auto", position: "auto" }
+   */
+  belowBase: SeriesLabelBaseSideConfig;
+}
+
+/** The markers a series draws at each value. */
+export interface SeriesMarkerConfig {
+  /**
+   * The shape to use when drawing the series marker (circle, cross, diamond,
+   * square, star, triangle, wye) (use null for none).
+   *
+   * Default:
+   * - `null` — when renderer is bar
+   * - `"circle"` — when renderer is line
+   * - `"circle"` — when renderer is area
+   * - `"circle"` — when renderer is none
+   */
+  shape: MarkerShape | null;
+  /**
+   * The maximum marker size (in pixels) to use when interpolating the marker
+   * size based on a marker property value, or the marker size when no marker
+   * property is used.
+   *
+   * @default 6
+   */
+  size: number;
+  /**
+   * The minimum marker size (in pixels) to use when interpolating the marker
+   * size based on a marker property value.
+   *
+   * @default 1
+   */
+  minSize: number;
+  /**
+   * The scale used to interpolate marker sizes from marker property values
+   * ("sqrt" scales the marker area with the value, "linear" scales its
+   * diameter).
+   *
+   * @default "sqrt"
+   */
+  sizeScale: MarkerSizeScale;
+  /**
+   * The style of the series marker.
+   *
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
+   */
+  style: StyleStates<SeriesColor>;
+  /**
+   * Whether to still show a marker at missing values (most useful with
+   * missingValues "base", which gives the marker a position).
+   *
+   * @default false
+   */
+  showForMissingValues: boolean;
 }
 
 export interface SeriesConfig {
@@ -2751,13 +3151,6 @@ export interface SeriesConfig {
    * @default "break"
    */
   missingValues: MissingValues;
-  /**
-   * Whether to still show a marker at missing values (most useful with
-   * missingValues "base", which gives the marker a position).
-   *
-   * @default false
-   */
-  missingValueMarkers: boolean;
 
   /**
    * Whether to animate leading/trailing series position values from their
@@ -2782,92 +3175,25 @@ export interface SeriesConfig {
    */
   curve: SeriesCurve;
   /**
-   * The fraction (0 - 1) of the bar layout slot width to use when drawing bars
-   * in the series.
+   * The bars drawn by a bar renderer series: their width and placement within
+   * the layout slot, and their minimum extent.
    *
-   * Only affects the `bar` renderer. Narrows each bar within its layout slot
-   * (the full category slot, or the series’ sub-slot when grouped), so a narrow
-   * bar can overlay a full-width one from another series — e.g. a candlestick
-   * wick behind its body, or a bullet-chart measure over its backing range. The
-   * narrowed bar is centered by default; `barAlignFraction` moves it within the
-   * slot.
-   *
-   * @default 1
+   * @default { widthFraction: 1, alignFraction: 0.5, minExtent: 0 }
    */
-  barWidthFraction: number;
+  bar: SeriesBarConfig;
   /**
-   * The fraction (0 - 1) of the slot width freed by barWidthFraction placed
-   * before each bar in the series (0 aligns with the slot start, 0.5 centers, 1
-   * aligns with the slot end).
+   * The decorative cap drawn on the value end of each bar in a bar series.
    *
-   * Only affects the `bar` renderer, and only when `barWidthFraction` is less
-   * than 1. Lets narrowed bars from different series share one slot side by
-   * side — e.g. the left open tick and right close tick of an OHLC bar.
-   *
-   * @default 0.5
+   * @default { size: 5, type: null, expand: true, onlyStackOuter: false }
    */
-  barAlignFraction: number;
+  cap: SeriesCapConfig;
   /**
-   * The minimum extent (in pixels) of each bar in the series along the value
-   * direction.
+   * The error bars drawn from the series errorLowProperty and errorHighProperty
+   * bounds.
    *
-   * Only affects the `bar` renderer. A bar whose two ends resolve to (nearly)
-   * the same position — e.g. a ranged bar whose `property` and `rangeProperty`
-   * values are equal — is expanded to this extent, centered on its position, so
-   * it stays visible as a tick mark: e.g. the open/close ticks of an OHLC bar,
-   * or a candlestick doji body.
-   *
-   * @default 0
+   * @default { capSize: 6, style: { … } }
    */
-  barMinExtent: number;
-  /**
-   * The size of the cap (in pixels) to use when drawing caps on a bar series.
-   *
-   * @default 5
-   */
-  capSize: number;
-  /**
-   * The type (point, curve, round, use null for none) of cap to use when
-   * drawing caps on a bar series.
-   *
-   * Draws a decorative cap on the value end of each bar in the series;
-   * `capSize` controls its extent. To cap only the outside of a stacked bar,
-   * see `capOnlyStackOuter` and `seriesStacks[].outerCapType`.
-   *
-   * @default null
-   */
-  capType: CapType | null;
-  /**
-   * Whether to expand the base of caps on a bar series when the size of the cap
-   * is greater than the extent of the bar.
-   *
-   * @default true
-   */
-  capExpand: boolean;
-  /**
-   * Whether to only show the cap on bars in the series when they are an outer
-   * series of a stack.
-   *
-   * @default false
-   */
-  capOnlyStackOuter: boolean;
-  /**
-   * The full width (in pixels) of the horizontal caps drawn at the ends of the
-   * series error bars (use 0 to hide the caps).
-   *
-   * The caps are the horizontal ticks at the whisker ends. On a `bar` renderer
-   * series the cap width is clamped to the bar layout slot so caps never
-   * overlap a neighbouring bar; use `0` to draw plain whiskers without caps.
-   *
-   * @default 6
-   */
-  errorBarCapSize: number;
-  /**
-   * The style of the series error bars.
-   *
-   * @default { normal: { … }, focused: { … }, defocused: { … } }
-   */
-  errorBarStyle: StrokeStyleStates<SeriesColor>;
+  errorBar: SeriesErrorBarConfig;
   /**
    * The label to show before a series value in the tooltip (null falls back to
    * useTitleForValueLabel, it does not mean no label).
@@ -2882,7 +3208,7 @@ export interface SeriesConfig {
    *
    * A d3-format specifier applied to the value shown in the tooltip, e.g.
    * `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring
-   * the value axis `tickLabelFormat` when that is set.
+   * the value axis `tickLabel.format` when that is set.
    *
    * @default "auto"
    */
@@ -2915,125 +3241,11 @@ export interface SeriesConfig {
    */
   title: string | null;
   /**
-   * The d3 format string to be applied to the series label values (use null for
-   * none, use "auto" to derive from data).
+   * The labels drawn next to the series shapes from the labelProperty values.
    *
-   * @default "auto"
+   * @default { format: "auto", prefix: null, suffix: null, textStyle: { … }, minPositionFraction: null, maxPositionFraction: null, minRangeFraction: null, offset: 0, position: "center", aboveBase: { … }, belowBase: { … } }
    */
-  labelFormat: string | Auto | null;
-  /**
-   * The text to prefix series label values with when drawing them on the plot
-   * (use null for none).
-   *
-   * @default null
-   */
-  labelPrefix: string | null;
-  /**
-   * The text to append series label values with when drawing them on the plot
-   * (use null for none).
-   *
-   * @default null
-   */
-  labelSuffix: string | null;
-  /**
-   * The style of the series label values.
-   *
-   * @default { normal: { … }, focused: { … }, defocused: { … } }
-   */
-  labelTextStyle: StyleStates<SeriesColor>;
-  /**
-   * The minimum position fraction (0 - 1) from the domain minimum for which
-   * series labels should be shown (use null for none).
-   *
-   * @default null
-   */
-  labelMinPositionFraction: number | null;
-  /**
-   * The maximum position fraction (0 - 1) from the domain maximum for which
-   * series labels should be shown (use null for none).
-   *
-   * @default null
-   */
-  labelMaxPositionFraction: number | null;
-  /**
-   * Hide the label of any value whose shape spans less than this fraction (0 -
-   * 1) of the axis domain (use null for none).
-   *
-   * @default null
-   */
-  labelMinRangeFraction: number | null;
-  /**
-   * The series position offset (in pixels) to apply to all series label
-   * positions.
-   *
-   * @default 0
-   */
-  labelOffset: number;
-  /**
-   * Where to place the series labels relative to the value end of the series
-   * shape (inside, center, outside).
-   *
-   * @default "center"
-   */
-  labelPosition: LabelPosition;
-  /**
-   * The labelMinPositionFraction bound applied only to series values above the
-   * base value (use "auto" to inherit labelMinPositionFraction, null for none).
-   *
-   * @default "auto"
-   */
-  labelAboveBaseMinPositionFraction: number | Auto | null;
-  /**
-   * The labelMaxPositionFraction bound applied only to series values above the
-   * base value (use "auto" to inherit labelMaxPositionFraction, null for none).
-   *
-   * @default "auto"
-   */
-  labelAboveBaseMaxPositionFraction: number | Auto | null;
-  /**
-   * The labelMinPositionFraction bound applied only to series values below the
-   * base value (use "auto" to inherit labelMinPositionFraction, null for none).
-   *
-   * @default "auto"
-   */
-  labelBelowBaseMinPositionFraction: number | Auto | null;
-  /**
-   * The labelMaxPositionFraction bound applied only to series values below the
-   * base value (use "auto" to inherit labelMaxPositionFraction, null for none).
-   *
-   * @default "auto"
-   */
-  labelBelowBaseMaxPositionFraction: number | Auto | null;
-  /**
-   * The series position offset (in pixels) to apply to all series label
-   * positions that are above the base value (use "auto" to derive from the
-   * labelOffset).
-   *
-   * @default "auto"
-   */
-  labelAboveBaseOffset: number | Auto;
-  /**
-   * The series position offset (in pixels) to apply to all series label
-   * positions that are below the base value (use "auto" for the negated
-   * labelOffset).
-   *
-   * @default "auto"
-   */
-  labelBelowBaseOffset: number | Auto;
-  /**
-   * The labelPosition (inside, center, outside) applied only to series values
-   * above the base value (use "auto" to inherit labelPosition).
-   *
-   * @default "auto"
-   */
-  labelAboveBasePosition: LabelPosition | Auto;
-  /**
-   * The labelPosition (inside, center, outside) applied only to series values
-   * below the base value (use "auto" to inherit labelPosition).
-   *
-   * @default "auto"
-   */
-  labelBelowBasePosition: LabelPosition | Auto;
+  label: SeriesLabelConfig;
   /**
    * The style of the series shape.
    *
@@ -3041,45 +3253,11 @@ export interface SeriesConfig {
    */
   shapeStyle: StyleStates<Exclude<SeriesColor, 'series'>>;
   /**
-   * The minimum marker size (in pixels) to use when interpolating the marker
-   * size based on a marker property value.
+   * The markers drawn at each series value.
    *
-   * @default 1
+   * @default { minSize: 1, showForMissingValues: false, size: 6, sizeScale: "sqrt", style: { … } }
    */
-  markerMinSize: number;
-  /**
-   * The maximum marker size (in pixels) to use when interpolating the marker
-   * size based on a marker property value, or the marker size when no marker
-   * property is used.
-   *
-   * @default 6
-   */
-  markerSize: number;
-  /**
-   * The scale used to interpolate marker sizes from marker property values
-   * ("sqrt" scales the marker area with the value, "linear" scales its
-   * diameter).
-   *
-   * @default "sqrt"
-   */
-  markerSizeScale: MarkerSizeScale;
-  /**
-   * The shape to use when drawing the series marker (circle, cross, diamond,
-   * square, star, triangle, wye) (use null for none).
-   *
-   * Default:
-   * - `null` — when renderer is bar
-   * - `"circle"` — when renderer is line
-   * - `"circle"` — when renderer is area
-   * - `"circle"` — when renderer is none
-   */
-  markerShape: MarkerShape | null;
-  /**
-   * The style of the series marker.
-   *
-   * @default { normal: { … }, focused: { … }, defocused: { … } }
-   */
-  markerStyle: StyleStates<SeriesColor>;
+  marker: SeriesMarkerConfig;
   /**
    * Whether to show the series in the legend.
    *
@@ -3186,6 +3364,34 @@ export interface SeriesConfig {
   useAxisFocus: boolean;
 }
 
+/** The cap drawn on the outer end of a stack, on the series that are its outer series. */
+export interface SeriesStackOuterCapConfig {
+  /**
+   * The size of the cap (in pixels) for series that are an outer series of the
+   * stack.
+   *
+   * @default 5
+   */
+  size: number;
+  /**
+   * The type (point, curve, round, use null for none) of cap for series that
+   * are an outer series of the stack.
+   *
+   * Caps only the outer end of the whole stack rather than every segment; pairs
+   * with `series[].cap.onlyStackOuter`.
+   *
+   * @default null
+   */
+  type: CapType | null;
+  /**
+   * Whether to expand the base of caps for series that are an outer series of
+   * the stack when the size of the cap is greater than the extent of the bar.
+   *
+   * @default true
+   */
+  expand: boolean;
+}
+
 export interface SeriesStackConfig {
   /**
    * Whether to ignore this series stack and treat it as though it were not
@@ -3215,29 +3421,12 @@ export interface SeriesStackConfig {
    */
   axis?: string;
   /**
-   * The size of the cap (in pixels) for series that are an outer series of the
-   * stack.
+   * The cap drawn on the outer end of the stack, on the series that are its
+   * outer series.
    *
-   * @default 5
+   * @default { size: 5, type: null, expand: true }
    */
-  outerCapSize: number;
-  /**
-   * The type (point, curve, round, use null for none) of cap for series that
-   * are an outer series of the stack.
-   *
-   * Caps only the outer end of the whole stack rather than every segment; pairs
-   * with `series[].capOnlyStackOuter`.
-   *
-   * @default null
-   */
-  outerCapType: CapType | null;
-  /**
-   * Whether to expand the base of caps for series that are an outer series of
-   * the stack when the size of the cap is greater than the extent of the bar.
-   *
-   * @default true
-   */
-  outerCapExpand: boolean;
+  outerCap: SeriesStackOuterCapConfig;
 }
 
 export interface SeriesGroupConfig {

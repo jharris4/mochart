@@ -84,8 +84,8 @@ describe('no-data state', () => {
   // the empty plot runs both axis passes, so parts flagged *Front still draw
   it('draws front-flagged axis parts while there is no data', () => {
     const config = makeConfig({
-      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Cat', titleFront: true },
-      valueAxes: [{ title: 'Val', titleFront: true, axisLineFront: true }]
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: { text: 'Cat', front: true } },
+      valueAxes: [{ title: { text: 'Val', front: true }, axisLine: { front: true } }]
     });
     const empty = mountChart({}, config, []);
     const populated = mountChart({}, config, rows);
@@ -99,7 +99,7 @@ describe('no-data state', () => {
   // the layout gives an axis hidden with its filtered series no band while loading, so the empty plot must not draw it there
   it('leaves an axis hidden when all its series are filtered out of the loading plot', () => {
     const config = makeConfig({
-      valueAxes: [{ id: 'A', title: 'Hidden', visibleWhenAllFiltered: false }, { id: 'B', title: 'Shown' }],
+      valueAxes: [{ id: 'A', title: { text: 'Hidden' }, visibleWhenAllFiltered: false }, { id: 'B', title: { text: 'Shown' } }],
       series: [{ property: 'sales', axis: 'B' }]
     });
     const loading = mountChart({ loading: true }, config, []);

@@ -8,32 +8,44 @@
     "missingValueText": "N/A"
   },
   "categoryAxis": {
-    "title": "Category Axis",
-    "showGridLines": true,
+    "title": {
+      "text": "Category Axis"
+    },
+    "gridLine": {
+      "visible": true
+    },
     "valueLabel": "Category",
     "property": "category"
   },
   "valueAxes": [
     {
-      "title": "Value Axis 1",
+      "title": {
+        "text": "Value Axis 1"
+      },
       "base": 0
     }
   ],
   "series": [
     {
       "title": "Missing",
-      "markerShape": "circle",
+      "marker": {
+        "shape": "circle"
+      },
       "property": "value1"
     },
     {
       "title": "Base Missing",
-      "markerShape": "square",
+      "marker": {
+        "shape": "square"
+      },
       "property": "value2",
       "missingValues": "base"
     },
     {
       "title": "Skip Missing",
-      "markerShape": "triangle",
+      "marker": {
+        "shape": "triangle"
+      },
       "property": "value3",
       "missingValues": "connect"
     }

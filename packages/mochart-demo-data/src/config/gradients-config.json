@@ -12,8 +12,10 @@
     "focusDuration": 700
   },
   "categoryAxis": {
-    "showAxisLine": true,
-    "axisLineMargin": 0,
+    "axisLine": {
+      "visible": true,
+      "margin": 0
+    },
     "type": "number",
     "scale": "ordinal",
     "valueLabel": "Category",
@@ -21,8 +23,12 @@
     "side": "end"
   },
   "valueAxes": {
-    "axisLineMargin": 0,
-    "showGridLines": true,
+    "axisLine": {
+      "margin": 0
+    },
+    "gridLine": {
+      "visible": true
+    },
     "min": 0,
     "side": "start"
   },
@@ -53,12 +59,12 @@
       "rotation": 45,
       "stops": [
         {
-          "offset": 0.0,
+          "offset": 0,
           "color": "#0000ff",
           "opacity": 0.8
         },
         {
-          "offset": 1.0,
+          "offset": 1,
           "color": "#00ff00",
           "opacity": 0.8
         }
@@ -94,12 +100,12 @@
       "fy": 0.75,
       "stops": [
         {
-          "offset": 0.0,
+          "offset": 0,
           "color": "#0000ff",
           "opacity": 0.8
         },
         {
-          "offset": 1.0,
+          "offset": 1,
           "color": "#00ff00",
           "opacity": 0.8
         }
@@ -107,7 +113,9 @@
     }
   ],
   "seriesDefaults": {
-    "markerShape": null
+    "marker": {
+      "shape": null
+    }
   },
   "series": [
     {

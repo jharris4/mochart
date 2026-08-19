@@ -286,30 +286,30 @@ describe('axis focus-state styles', () => {
   it('keeps the sibling members and states of a partially overridden style', () => {
     const config = enhanceConfig({
       version: V,
-      categoryAxis: { property: 'p', tickLabelTextStyle: { focused: { fillColor: '#ff0000' } } },
+      categoryAxis: { property: 'p', tickLabel: { textStyle: { focused: { fillColor: '#ff0000' } } } },
       series: [{ property: 'a' }]
     });
     expect(config.validation.valid).toBe(true);
-    expect(config.categoryAxis.tickLabelTextStyle.focused)
+    expect(config.categoryAxis.tickLabel.textStyle.focused)
       .toEqual({ strokeColor: 'same', strokeOpacity: 1, strokeWidth: 0, strokeDashArray: 'same', fillColor: '#ff0000', fillOpacity: 1 });
-    expect(config.categoryAxis.tickLabelTextStyle.normal.fillColor).toBe('currentColor');
+    expect(config.categoryAxis.tickLabel.textStyle.normal.fillColor).toBe('currentColor');
   });
 
   it('accepts "same" on a focused or defocused color but not on the normal one', () => {
     expect(detailedFor({
       version: V,
-      categoryAxis: { property: 'p', axisLineStyle: { defocused: { strokeColor: 'same' } } },
+      categoryAxis: { property: 'p', axisLine: { style: { defocused: { strokeColor: 'same' } } } },
       series: [{ property: 'a' }]
     }).valid).toBe(true);
 
     const detailed = detailedFor({
       version: V,
-      categoryAxis: { property: 'p', axisLineStyle: { normal: { strokeColor: 'same' } } },
+      categoryAxis: { property: 'p', axisLine: { style: { normal: { strokeColor: 'same' } } } },
       series: [{ property: 'a' }]
     });
     expect(detailed.valid).toBe(false);
     expect(detailed.diagnostics.some(diagnostic =>
       diagnostic.severity === 'error' &&
-      diagnostic.path.join('.') === 'categoryAxis.axisLineStyle.normal.strokeColor')).toBe(true);
+      diagnostic.path.join('.') === 'categoryAxis.axisLine.style.normal.strokeColor')).toBe(true);
   });
 });

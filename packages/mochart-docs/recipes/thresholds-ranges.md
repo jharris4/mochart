@@ -16,10 +16,10 @@ import * as thresholdRange from '../examples/thresholdRange'
 
 - [`thresholds`](/reference/valueAxes#valueAxes.thresholds) on
   a value axis draws one reference line per entry. Each entry has a `value`,
-  an optional `title` beside the line, and a `style` for the line — color,
-  width and dash array in `normal`, `focused` and `defocused` states. The
-  `titleSide`, `titleTextStyle` and other `title*` members place and style the
-  label; `front` puts the line in front of or behind the series. A linear
+  an optional `title` beside the line (its `text`, and `side`, `textStyle`
+  and the other members that place and style the label), and a `style` for
+  the line — color, width and dash array in `normal`, `focused` and
+  `defocused` states; `front` puts the line in front of or behind the series. A linear
   category axis takes the same `thresholds` for vertical reference lines (a
   date axis value is an ISO string or timestamp); an ordinal one has no value
   scale to place them on.

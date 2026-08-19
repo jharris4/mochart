@@ -35,12 +35,12 @@ describe('createOhlc', () => {
   it('spans lines from low to high and ticks across zero-extent open/close ranges, split by direction', () => {
     const { series: seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const [up, down, upOpen, downOpen, upClose, downClose] = seriesConfigs;
-    expect(up).toMatchObject({ property: 'upHigh', rangeProperty: 'low', barWidthFraction: 0.15, title: 'Up', valueLabel: 'Range' });
-    expect(down).toMatchObject({ property: 'downHigh', rangeProperty: 'low', barWidthFraction: 0.15, title: 'Down', valueLabel: 'Range' });
-    expect(upOpen).toMatchObject({ property: 'upOpen', rangeProperty: 'open', barWidthFraction: 0.5, barAlignFraction: 0, barMinExtent: 2, showInLegend: false, followSeries: 'up', valueLabel: 'Open' });
-    expect(downOpen).toMatchObject({ property: 'downOpen', rangeProperty: 'open', barWidthFraction: 0.5, barAlignFraction: 0, barMinExtent: 2, showInLegend: false, followSeries: 'down', valueLabel: 'Open' });
-    expect(upClose).toMatchObject({ property: 'up', rangeProperty: 'close', barWidthFraction: 0.5, barAlignFraction: 1, barMinExtent: 2, showInLegend: false, followSeries: 'up', valueLabel: 'Close' });
-    expect(downClose).toMatchObject({ property: 'down', rangeProperty: 'close', barWidthFraction: 0.5, barAlignFraction: 1, barMinExtent: 2, showInLegend: false, followSeries: 'down', valueLabel: 'Close' });
+    expect(up).toMatchObject({ property: 'upHigh', rangeProperty: 'low', bar: { widthFraction: 0.15 }, title: 'Up', valueLabel: 'Range' });
+    expect(down).toMatchObject({ property: 'downHigh', rangeProperty: 'low', bar: { widthFraction: 0.15 }, title: 'Down', valueLabel: 'Range' });
+    expect(upOpen).toMatchObject({ property: 'upOpen', rangeProperty: 'open', bar: { widthFraction: 0.5, alignFraction: 0, minExtent: 2 }, showInLegend: false, followSeries: 'up', valueLabel: 'Open' });
+    expect(downOpen).toMatchObject({ property: 'downOpen', rangeProperty: 'open', bar: { widthFraction: 0.5, alignFraction: 0, minExtent: 2 }, showInLegend: false, followSeries: 'down', valueLabel: 'Open' });
+    expect(upClose).toMatchObject({ property: 'up', rangeProperty: 'close', bar: { widthFraction: 0.5, alignFraction: 1, minExtent: 2 }, showInLegend: false, followSeries: 'up', valueLabel: 'Close' });
+    expect(downClose).toMatchObject({ property: 'down', rangeProperty: 'close', bar: { widthFraction: 0.5, alignFraction: 1, minExtent: 2 }, showInLegend: false, followSeries: 'down', valueLabel: 'Close' });
   });
 
   it('colors each tick to match its line, with strokes matching the fills', () => {
@@ -72,9 +72,9 @@ describe('createOhlc', () => {
     expect(up.title).toBe('Gain');
     expect(down.title).toBe('Down');
     expect(down.shapeStyle!.normal!.fillColor).toBe('#123456');
-    expect(up.barWidthFraction).toBe(0.1);
-    expect(upOpen.barWidthFraction).toBe(0.4);
-    expect(upOpen.barMinExtent).toBe(3);
+    expect(up.bar!.widthFraction).toBe(0.1);
+    expect(upOpen.bar!.widthFraction).toBe(0.4);
+    expect(upOpen.bar!.minExtent).toBe(3);
     expect(up.valueLabel).toBe('Low – High');
     expect(upOpen.valueLabel).toBe('O');
     expect(upClose.valueLabel).toBe('C');

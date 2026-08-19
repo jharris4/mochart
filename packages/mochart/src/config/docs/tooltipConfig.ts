@@ -37,11 +37,19 @@ export default function getDescriptions() {
     rightAlignValues: 'whether to right-align the values shown in the tooltip',
     backgroundStyle,
     borderRadius: 'the radius (in pixels) of the corners of the tooltip',
-    dropShadowColor: 'the color of the drop shadow effect used for the tooltip',
-    dropShadowOffsetX: 'the x offset (in pixels) of the drop shadow effect used for the tooltip',
-    dropShadowOffsetY: 'the y offset (in pixels) of the drop shadow effect used for the tooltip',
-    dropShadowBlurRadius: 'the blur radius (in pixels) of the drop shadow effect used for the tooltip',
-    ...getSeriesIconDescriptions('tooltip', 'the inherited font size'),
+    dropShadow: {
+      description: 'the drop shadow effect cast by the tooltip',
+      properties: {
+        color: 'the color of the drop shadow effect used for the tooltip',
+        offsetX: 'the x offset (in pixels) of the drop shadow effect used for the tooltip',
+        offsetY: 'the y offset (in pixels) of the drop shadow effect used for the tooltip',
+        blurRadius: 'the blur radius (in pixels) of the drop shadow effect used for the tooltip'
+      }
+    },
+    icon: {
+      description: 'the series icons shown next to the series titles in the tooltip',
+      properties: getSeriesIconDescriptions('tooltip', 'the inherited font size')
+    },
     showFilteringOnLabels: 'whether to strike through the label text of filtered series',
     adjustForFiltering: 'whether to adjust the series values when series filtering changes',
     adjustSizeForFiltering: 'whether to adjust the width of the tooltip when the series values change due to filtering changes',

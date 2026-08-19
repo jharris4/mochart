@@ -52,7 +52,7 @@ export default class AxisThreshold extends Renderer<AxisThresholdProps> {
           return;
         }
         const line = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, threshold.style));
-        const title = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, threshold.titleTextStyle));
+        const title = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, threshold.title.textStyle));
         items.push({
           key: 'threshold-' + thresholdIndex,
           ctor: AxisThresholdLine,

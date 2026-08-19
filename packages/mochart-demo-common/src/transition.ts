@@ -49,7 +49,7 @@ export const defaultTransitionConfig: TransitionConfig = {
         "property": "count",
         "title": "Count",
         "renderer": "bar",
-        "markerShape": null,
+        "marker": { "shape": null },
         "valueFormat": ",d"
       }
     ]

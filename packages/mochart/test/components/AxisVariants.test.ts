@@ -57,7 +57,7 @@ beforeAll(() => {
 describe('date category axes', () => {
   it('formats linear time axis ticks with an explicit format', () => {
     const container = mountChart(makeConfig({
-      property: 'time', type: 'date', scale: 'linear', dateUTC: true, tickLabelFormat: '%H:%M'
+      property: 'time', type: 'date', scale: 'linear', dateUTC: true, tickLabel: { format: '%H:%M' }
     }), dateRows);
     const labels = tickLabels(container);
     expect(labels.length).toBeGreaterThan(0);
@@ -89,7 +89,7 @@ describe('date category axes', () => {
 
   it('formats ordinal date axis ticks with an explicit format', () => {
     const container = mountChart(makeConfig({
-      property: 'time', type: 'date', scale: 'ordinal', dateUTC: true, tickLabelFormat: '%Y-%m-%d'
+      property: 'time', type: 'date', scale: 'ordinal', dateUTC: true, tickLabel: { format: '%Y-%m-%d' }
     }), dateRows);
     const labels = tickLabels(container).filter(label => label !== '');
     expect(labels.length).toBeGreaterThan(0);
@@ -98,7 +98,7 @@ describe('date category axes', () => {
 
   it('renders a local-time linear axis when dateUTC is off', () => {
     const container = mountChart(makeConfig({
-      property: 'time', type: 'date', scale: 'linear', dateUTC: false, tickLabelFormat: '%H:%M'
+      property: 'time', type: 'date', scale: 'linear', dateUTC: false, tickLabel: { format: '%H:%M' }
     }), dateRows);
     expect(tickLabels(container).length).toBeGreaterThan(0);
   });
@@ -107,7 +107,7 @@ describe('date category axes', () => {
 describe('number category axes', () => {
   it('formats ordinal number axis ticks with an explicit format', () => {
     const container = mountChart(makeConfig({
-      property: 'level', type: 'number', scale: 'ordinal', tickLabelFormat: '.1f'
+      property: 'level', type: 'number', scale: 'ordinal', tickLabel: { format: '.1f' }
     }), numberRows);
     const labels = tickLabels(container).filter(label => label !== '');
     expect(labels).toContain('0.0');
@@ -158,7 +158,7 @@ describe('number category axes', () => {
 
   it('renders rotated (non-parallel) tick labels on a linear axis', () => {
     const container = mountChart(makeConfig({
-      property: 'level', type: 'number', scale: 'linear', tickLabelRotation: 45
+      property: 'level', type: 'number', scale: 'linear', tickLabel: { rotation: 45 }
     }), numberRows);
     expect(tickLabels(container).length).toBeGreaterThan(0);
   });
@@ -167,7 +167,7 @@ describe('number category axes', () => {
 describe('tick label prefix and suffix', () => {
   it('applies a prefix', () => {
     const container = mountChart(makeConfig({
-      property: 'level', type: 'number', scale: 'linear', tickLabelPrefix: '$'
+      property: 'level', type: 'number', scale: 'linear', tickLabel: { prefix: '$' }
     }), numberRows);
     const labels = tickLabels(container).filter(label => label !== '');
     expect(labels.length).toBeGreaterThan(0);
@@ -176,7 +176,7 @@ describe('tick label prefix and suffix', () => {
 
   it('applies a suffix', () => {
     const container = mountChart(makeConfig({
-      property: 'level', type: 'number', scale: 'linear', tickLabelSuffix: '%'
+      property: 'level', type: 'number', scale: 'linear', tickLabel: { suffix: '%' }
     }), numberRows);
     const labels = tickLabels(container).filter(label => label !== '');
     expect(labels.length).toBeGreaterThan(0);
@@ -185,7 +185,10 @@ describe('tick label prefix and suffix', () => {
 
   it('applies both prefix and suffix', () => {
     const container = mountChart(makeConfig({
-      property: 'level', type: 'number', scale: 'linear', tickLabelPrefix: '$', tickLabelSuffix: ' USD'
+      property: 'level', type: 'number', scale: 'linear', tickLabel: {
+        prefix: '$',
+        suffix: ' USD'
+      }
     }), numberRows);
     const labels = tickLabels(container).filter(label => label !== '');
     expect(labels.length).toBeGreaterThan(0);

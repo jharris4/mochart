@@ -2,7 +2,7 @@ import validators from './validators';
 
 import { AUTO, NONE, SCALE_ORDINAL, SCALE_LINEAR, TYPE_STRING, TYPE_NUMBER, TYPE_DATE } from '../core/constants';
 
-import getAxisValidators from './axisConfig';
+import getAxisValidators, { getTickLabelValidators } from './axisConfig';
 import { getPropertyMessage, isConfigObject } from './messages';
 import type { CategoryAxisConfig } from '../../types/config';
 import type { ConfigObject, LocatedValidationMessage } from './messages';
@@ -31,7 +31,22 @@ export default function getValidators(config: Partial<CategoryAxisConfig>) {
     ...getAxisValidators(validators.conditional([
       { ...typeDateRule, validator: validators.datePrimitive() },
       { ...defaultRule, validator: validators.number() }
-    ], config)),
+    ], config), {
+      ...getTickLabelValidators(),
+      format: validators.conditional([
+        { ...typeStringRule, validator: validators.oneOf([NONE, AUTO]) },
+        { ...typeDateRule, validator: validators.dateFormat().orOneOf([NONE, AUTO]) },
+        { ...typeNumberRule, validator: validators.numberFormat().orOneOf([NONE, AUTO]) },
+        { ...defaultRule, validator: validators.any() }
+      ], config),
+      truncationEnabled: validators.conditional([
+        { ...scaleLinearRule, validator: validators.equal(false) },
+        { ...defaultRule, validator: validators.boolean() }
+      ], config),
+      truncationMaxFraction: validators.numberMinMax(0, 1),
+      truncationMinLength: validators.numberMin(0),
+      truncationValue: validators.string()
+    }),
 
     dateUTC: validators.boolean(),
 
@@ -84,20 +99,6 @@ export default function getValidators(config: Partial<CategoryAxisConfig>) {
       { ...scaleOrdinalRule, validator: validators.equal(NONE) },
       { ...defaultRule, validator: validators.any() }
     ], config),
-    tickLabelFormat: validators.conditional([
-      { ...typeStringRule, validator: validators.oneOf([NONE, AUTO]) },
-      { ...typeDateRule, validator: validators.dateFormat().orOneOf([NONE, AUTO]) },
-      { ...typeNumberRule, validator: validators.numberFormat().orOneOf([NONE, AUTO]) },
-      { ...defaultRule, validator: validators.any() }
-    ], config),
-    tickLabelTruncationEnabled: validators.conditional([
-      { ...scaleLinearRule, validator: validators.equal(false) },
-      { ...defaultRule, validator: validators.boolean() }
-    ], config),
-    tickLabelTruncationMaxFraction: validators.numberMinMax(0, 1),
-    tickLabelTruncationMinLength: validators.numberMin(0),
-    tickLabelTruncationValue: validators.string(),
-
     type: validators.oneOf([TYPE_NUMBER, TYPE_DATE, TYPE_STRING]),
 
     valueFormat: validators.conditional([

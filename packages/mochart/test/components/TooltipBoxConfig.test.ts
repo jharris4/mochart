@@ -98,7 +98,7 @@ describe('tooltip size for filtering', () => {
 describe('tooltip box style', () => {
   it('writes the border radius, drop shadow colour and row padding it is given', () => {
     const container = mountChart({
-      tooltip: { borderRadius: 17, dropShadowColor: 'rgb(1, 2, 3)', dropShadowOffsetX: 4, dropShadowOffsetY: 5, dropShadowBlurRadius: 6, linePadding: 19 }
+      tooltip: { borderRadius: 17, dropShadow: { color: 'rgb(1, 2, 3)', offsetX: 4, offsetY: 5, blurRadius: 6 }, linePadding: 19 }
     });
     openTooltip(container);
     const style = tooltipStyle(container);

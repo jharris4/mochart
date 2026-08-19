@@ -116,7 +116,7 @@ describe('truncation narrower than the ellipsis', () => {
       config: {
         version: '1.0.0',
         animation: { animate: false },
-        title: { text: 'A long chart title', prefix: 'Prefix', suffix: 'Suffix' },
+        title: { text: 'A long chart title', prefix: { text: 'Prefix' }, suffix: { text: 'Suffix' } },
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         series: [{ property: 'sales' }]
       } as unknown as MochartInputConfig,

@@ -32,7 +32,7 @@
       "id": "tick-prune",
       "title": "Long Tick Label Pruning",
       "description": "A date axis with long formatted tick labels, pruned as space runs out instead of overlapping.",
-      "notes": "The category axis is type date on an ordinal scale with tickLabelFormat \"%B %e, %Y\", so each of the 26 daily category values wants a label as long as \"March 18, 2016\" over a single area series. Date axes leave tickLabelTruncationEnabled at its false default, so rather than shortening the text the axis fits a tick count to the available width and then shows only every nth label, also hiding any label that would overhang the plot edge and always keeping one. Narrowing the chart drops the surviving labels in steps instead of letting them collide.",
+      "notes": "The category axis is type date on an ordinal scale with tickLabel.format \"%B %e, %Y\", so each of the 26 daily category values wants a label as long as \"March 18, 2016\" over a single area series. Date axes leave tickLabel.truncationEnabled at its false default, so rather than shortening the text the axis fits a tick count to the available width and then shows only every nth label, also hiding any label that would overhang the plot edge and always keeping one. Narrowing the chart drops the surviving labels in steps instead of letting them collide.",
       "config": "long-tick-label-config.json",
       "data": "mixed-categories-positive-values-data.json",
       "random": "positive-random.json"
@@ -41,7 +41,7 @@
       "id": "threshold-category-line",
       "title": "Threshold Category Line",
       "description": "A titled threshold line at a fixed date on the category axis, over a linear date scale.",
-      "notes": "categoryAxis sets a thresholds entry at a timestamp on March 12 2017 with a title, titlePadding of 5px all round and the default titleSide \"high\", which places the title on the later side of the line. The scale is linear rather than ordinal, so the quarter-hour samples sit at their real spacing along the axis. The data is a daylight-saving transition: the raw date values change offset from -04:00 to -03:00 partway through, so the wall-clock times repeat; the category values (\"display\") are the plain climbing 01:00 to 03:45 times used on the axis and in the tooltip, and keyProperty (\"date\") keys each row by its real instant.",
+      "notes": "categoryAxis sets a thresholds entry at a timestamp on March 12 2017 with a title whose padding is 5px all round and whose side is the default \"high\", which places the title on the later side of the line. The scale is linear rather than ordinal, so the quarter-hour samples sit at their real spacing along the axis. The data is a daylight-saving transition: the raw date values change offset from -04:00 to -03:00 partway through, so the wall-clock times repeat; the category values (\"display\") are the plain climbing 01:00 to 03:45 times used on the axis and in the tooltip, and keyProperty (\"date\") keys each row by its real instant.",
       "config": "threshold-category-line-config.json",
       "data": "dst-data.json",
       "random": "default-random.json"
@@ -50,7 +50,7 @@
       "id": "ordinal",
       "title": "Category Ordinal",
       "description": "String category values placed in even slots by an ordinal category scale.",
-      "notes": "The category axis is type string with scale ordinal, so the 26 three-letter categories (AAA through ZZZ) each get an equal slot in data order, with a line series over value1 and an area series over value2 sharing one value axis. Because the type is string, tickLabelTruncationEnabled defaults to true, so crowded labels are shortened with an ellipsis instead of being skipped the way the date axes in the other tick demos are.",
+      "notes": "The category axis is type string with scale ordinal, so the 26 three-letter categories (AAA through ZZZ) each get an equal slot in data order, with a line series over value1 and an area series over value2 sharing one value axis. Because the type is string, tickLabel.truncationEnabled defaults to true, so crowded labels are shortened with an ellipsis instead of being skipped the way the date axes in the other tick demos are.",
       "config": "category-ordinal-config.json",
       "data": "mixed-categories-mixed-values-data.json",
       "random": "default-random.json"
@@ -59,7 +59,7 @@
       "id": "ordinal-dates",
       "title": "Ordinal Dates",
       "description": "Date category values kept on an ordinal scale, with month-formatted tick labels.",
-      "notes": "The category axis is type date but scale ordinal, so every month gets the same slot width regardless of how many days it has, and tickLabelFormat \"%B %Y\" (matched by valueFormat for the tooltip) spells the months out in full. tickLabelTruncationEnabled is explicitly false, so those wide labels are dropped rather than shortened, and the value axis fixes min at 0 with a currency tickLabelFormat of \"$.0f\". The data is 25 consecutive months in which many have no total at all, so the single stacked bar series leaves visible gaps.",
+      "notes": "The category axis is type date but scale ordinal, so every month gets the same slot width regardless of how many days it has, and tickLabel.format \"%B %Y\" (matched by valueFormat for the tooltip) spells the months out in full. tickLabel.truncationEnabled is explicitly false, so those wide labels are dropped rather than shortened, and the value axis fixes min at 0 with a currency tickLabel.format of \"$.0f\". The data is 25 consecutive months in which many have no total at all, so the single stacked bar series leaves visible gaps.",
       "config": "ordinal-dates-config.json",
       "data": "ordinal-dates-data.json",
       "random": "default-random.json"
@@ -77,7 +77,7 @@
       "id": "monthly",
       "title": "Monthly",
       "description": "A year of monthly data on an ordinal date axis with rotated, abbreviated month tick labels.",
-      "notes": "The category axis is a UTC date axis on an ordinal scale with tickCount 12, tick labels formatted '%b' and rotated 45 degrees, while the tooltip spells the month out in full (valueFormat '%B', valueLabel 'Category'). Both bar series share one stack (SS0) on a single value axis pinned to min 0 with SI currency ticks ('$s'), and markerShape null keeps the segments plain. The bundled data is the twelve months of 2015 with amounts in the tens to hundreds of thousands; its value3 column is unused by the config, so it only shows up under the data tab's Unused toggle. Animation durations sit at 300ms across the board, with a 500ms focus.",
+      "notes": "The category axis is a UTC date axis on an ordinal scale with tickCount 12, tick labels formatted '%b' and rotated 45 degrees, while the tooltip spells the month out in full (valueFormat '%B', valueLabel 'Category'). Both bar series share one stack (SS0) on a single value axis pinned to min 0 with SI currency ticks ('$s'), and marker.shape null keeps the segments plain. The bundled data is the twelve months of 2015 with amounts in the tens to hundreds of thousands; its value3 column is unused by the config, so it only shows up under the data tab's Unused toggle. Animation durations sit at 300ms across the board, with a 500ms focus.",
       "config": "monthly-config.json",
       "data": "monthly-data.json",
       "random": "default-random.json"
@@ -86,7 +86,7 @@
       "id": "capped",
       "title": "Capped",
       "description": "Bar series comparing round, curve and point caps, with and without cap expansion.",
-      "notes": "Seven bar series draw four value columns with capType 'round', 'curve', 'point' and null at capSize 15, each shape appearing twice — once with capExpand false and once true — so you can see what happens when a cap is larger than the bar it sits on. The value axis is pinned to min -5000 and max 5000 while the bundled data is only plus or minus 100 and plus or minus 1000 across ten weekly dates, with several columns omitted per row, which keeps most bars shorter than their caps and leaves visible gaps. Category ticks are rotated 45 degrees with tickCount 12 on an ordinal UTC date axis, and the animation durations are deliberately slow — 8s initial and value-change, 1.5s expansion and contraction, 800ms focus — so the caps can be watched stretching and shrinking.",
+      "notes": "Seven bar series draw four value columns with cap.type 'round', 'curve', 'point' and null at cap.size 15, each shape appearing twice — once with cap.expand false and once true — so you can see what happens when a cap is larger than the bar it sits on. The value axis is pinned to min -5000 and max 5000 while the bundled data is only plus or minus 100 and plus or minus 1000 across ten weekly dates, with several columns omitted per row, which keeps most bars shorter than their caps and leaves visible gaps. Category ticks are rotated 45 degrees with tickCount 12 on an ordinal UTC date axis, and the animation durations are deliberately slow — 8s initial and value-change, 1.5s expansion and contraction, 800ms focus — so the caps can be watched stretching and shrinking.",
       "config": "cap-bars-config.json",
       "data": "cap-data.json",
       "random": "positive-random.json"
@@ -95,7 +95,7 @@
       "id": "capped-inverted",
       "title": "Capped Inverted",
       "description": "The capped bars demo with the plot inverted so the bars run horizontally.",
-      "notes": "plot.inverted true is the substantive change: the category axis runs top-to-bottom and the seven capped bar series grow sideways, so the caps are drawn on the left and right ends rather than the top and bottom. The category axis also gains a tick label format ('%b') and a full-month tooltip format ('%B') and is retitled 'Month' instead of 'Date', all of which the upright version leaves off. Series order is regrouped as well — Round, Curve and Point first, then the three Expand variants — so the legend and the grouped bar slots pair the cap types differently; capSize 15, the -5000 to 5000 value axis, the slow 8s value-change animation and the same cap-data.json are all shared with the upright demo.",
+      "notes": "plot.inverted true is the substantive change: the category axis runs top-to-bottom and the seven capped bar series grow sideways, so the caps are drawn on the left and right ends rather than the top and bottom. The category axis also gains a tick label format ('%b') and a full-month tooltip format ('%B') and is retitled 'Month' instead of 'Date', all of which the upright version leaves off. Series order is regrouped as well — Round, Curve and Point first, then the three Expand variants — so the legend and the grouped bar slots pair the cap types differently; cap.size 15, the -5000 to 5000 value axis, the slow 8s value-change animation and the same cap-data.json are all shared with the upright demo.",
       "config": "cap-bars-inverted-config.json",
       "data": "cap-data.json",
       "random": "positive-random.json"
@@ -113,7 +113,7 @@
       "id": "cluttered",
       "title": "Cluttered",
       "description": "Nine series across two axes — lines, bars, grouped bars and stacked areas — crowded onto one plot.",
-      "notes": "Axis VA0 carries a marker line, a black-filled bar with a light stroke and an area, while VA1 carries another line, two bars grouped through seriesGroups (SG0) and three areas stacked through seriesStacks (SS1), all at markerSize 6. Both value axes take axisLineMargin 3 from valueAxisDefaults and sit on opposite sides (VA0 before, VA1 after), and the tooltip is restyled to padding 1 with a translucent grey background and a 3px black border so the overlapping hit targets are easy to see. The bundled data is 26 rows of small values (0-35) on a numeric ordinal category axis whose categoryNO column is deliberately out of order for the first six rows.",
+      "notes": "Axis VA0 carries a marker line, a black-filled bar with a light stroke and an area, while VA1 carries another line, two bars grouped through seriesGroups (SG0) and three areas stacked through seriesStacks (SS1), all at marker.size 6. Both value axes take axisLine.margin 3 from valueAxisDefaults and sit on opposite sides (VA0 before, VA1 after), and the tooltip is restyled to padding 1 with a translucent grey background and a 3px black border so the overlapping hit targets are easy to see. The bundled data is 26 rows of small values (0-35) on a numeric ordinal category axis whose categoryNO column is deliberately out of order for the first six rows.",
       "config": "cluttered-config.json",
       "data": "mixed-categories-positive-values-data.json",
       "random": "default-random.json"
@@ -122,7 +122,7 @@
       "id": "cluttered-inverted",
       "title": "Cluttered Inverted",
       "description": "The cluttered demo with the plot inverted so every series runs horizontally.",
-      "notes": "plot.inverted true and the title are the only differences from the cluttered config, so the category axis runs top-to-bottom, all nine series grow left to right, and the two value axes end up above and below the plot instead of to its left and right. Inverting also changes what crowds: the 26 numeric category labels stack down the side one per row rather than colliding horizontally, while the grouped bars and three-deep area stack compete for horizontal space. Everything else is shared — axisLineMargin 3, the restyled tooltip, markerSize 6, the 1s animation durations and the same mixed-categories-positive-values-data.json.",
+      "notes": "plot.inverted true and the title are the only differences from the cluttered config, so the category axis runs top-to-bottom, all nine series grow left to right, and the two value axes end up above and below the plot instead of to its left and right. Inverting also changes what crowds: the 26 numeric category labels stack down the side one per row rather than colliding horizontally, while the grouped bars and three-deep area stack compete for horizontal space. Everything else is shared — axisLine.margin 3, the restyled tooltip, marker.size 6, the 1s animation durations and the same mixed-categories-positive-values-data.json.",
       "config": "cluttered-inverted-config.json",
       "data": "mixed-categories-positive-values-data.json",
       "random": "default-random.json"
@@ -212,7 +212,7 @@
       "id": "range-line",
       "title": "Range Line",
       "description": "A ranged series drawn by the line renderer: its two bounds render as a pair of lines.",
-      "notes": "The Range series reads range-max as its property and range-min as its rangeProperty like the range demo, but renders with the line renderer instead of area, so each bound draws as its own line sharing the series' style, focus, and legend filtering. Markers stay off (markerShape null) — with markers on they would mark only the property bound. The Middle line rides between the pair, and the tooltip prints both ends joined by rangeValueSeparator.",
+      "notes": "The Range series reads range-max as its property and range-min as its rangeProperty like the range demo, but renders with the line renderer instead of area, so each bound draws as its own line sharing the series' style, focus, and legend filtering. Markers stay off (marker.shape null) — with markers on they would mark only the property bound. The Middle line rides between the pair, and the tooltip prints both ends joined by rangeValueSeparator.",
       "config": "range-line-config.json",
       "data": "range-data.json",
       "random": "positive-random.json"
@@ -286,7 +286,7 @@
       "id": "axis-multiple",
       "title": "Multiple Axes",
       "description": "Eight line series over a linear date axis, spread across four separate value axes.",
-      "notes": "Four valueAxes entries sit two before the plot and two after (before), pairing each raw series with its running total on its own scale — the two currency axes format ticks as $s, and the count pair sits on the right. Grid lines are off in valueAxisDefaults and re-enabled on VA2 only, so four axes' worth of lines do not pile up, and seriesDefaults.markerShape null leaves bare lines. The data is one UTC day of sales sampled every few minutes (182 rows) on a linear date category axis labelled %_H:%M, where per-sample sales peak near 8k against a running total near 78k — hence the split axes.",
+      "notes": "Four valueAxes entries sit two before the plot and two after (before), pairing each raw series with its running total on its own scale — the two currency axes format ticks as $s, and the count pair sits on the right. Grid lines are off in valueAxisDefaults and re-enabled on VA2 only, so four axes' worth of lines do not pile up, and seriesDefaults marker.shape null leaves bare lines. The data is one UTC day of sales sampled every few minutes (182 rows) on a linear date category axis labelled %_H:%M, where per-sample sales peak near 8k against a running total near 78k — hence the split axes.",
       "config": "multiple-axes-config.json",
       "data": "sales-data.json",
       "random": "default-random.json"
@@ -304,7 +304,7 @@
       "id": "truncated-text",
       "title": "Truncated Text",
       "description": "Over-long title, axis, legend and tick label text fitted by the truncation settings.",
-      "notes": "The chart title is deliberately too long and carries a titlePrefix and titleSuffix in their own boxes, with truncationEnabled/truncationValue trimming it to \"...\" instead of overflowing; both axis titles do the same through titleTruncationEnabled. The category axis truncates tick labels to their slot (tickLabelTruncationEnabled) rather than dropping ticks, with tickLabelTruncationMaxFraction capping how much of the chart a label may occupy when it runs perpendicular to the axis. The category values are the \"categoryDisplay\" phrases (up to \"Supercalifragilisticexpialidocious is long\"), keyed by the numeric \"category\" property through keyProperty, and every box in the chart is stroked grey so the bounds the text is being fitted into are visible. The third and fourth series exist only to give the legend more long titles to truncate — their properties are absent from the data, which allowAbsentDataProperties permits.",
+      "notes": "The chart title is deliberately too long and carries a prefix and suffix in their own boxes, with truncationEnabled/truncationValue trimming it to \"...\" instead of overflowing; both axis titles do the same through title.truncationEnabled. The category axis truncates tick labels to their slot (tickLabel.truncationEnabled) rather than dropping ticks, with tickLabel.truncationMaxFraction capping how much of the chart a label may occupy when it runs perpendicular to the axis. The category values are the \"categoryDisplay\" phrases (up to \"Supercalifragilisticexpialidocious is long\"), keyed by the numeric \"category\" property through keyProperty, and every box in the chart is stroked grey so the bounds the text is being fitted into are visible. The third and fourth series exist only to give the legend more long titles to truncate — their properties are absent from the data, which allowAbsentDataProperties permits.",
       "config": "truncated-text-config.json",
       "data": "long-category-string-values-data.json",
       "random": "default-random.json"
@@ -313,7 +313,7 @@
       "id": "label-property-pos-neg",
       "title": "Positive Negative Labels",
       "description": "An inverted (horizontal) bar chart with labelProperty value labels inside bars running either side of zero.",
-      "notes": "plot.inverted turns the category axis vertical, so the single bar series grows left and right from a zero base (valueAxes base 0, with softMin/softMax 0 holding zero in view even when the values sit on one side). labelProperty reads the same value7 column the bars are drawn from and draws it white inside the value end of each bar (labelPosition 'inside', labelOffset -2), while labelMinPositionFraction and labelMinRangeFraction — both 0.05 — drop the label from any bar too short to hold it. The bundled data pairs string category names with small mixed-sign values, so several bars fall under that threshold.",
+      "notes": "plot.inverted turns the category axis vertical, so the single bar series grows left and right from a zero base (valueAxes base 0, with softMin/softMax 0 holding zero in view even when the values sit on one side). labelProperty reads the same value7 column the bars are drawn from and draws it white inside the value end of each bar (label.position 'inside', label.offset -2), while label.minPositionFraction and label.minRangeFraction — both 0.05 — drop the label from any bar too short to hold it. The bundled data pairs string category names with small mixed-sign values, so several bars fall under that threshold.",
       "config": "series-label-property-pos-neg-config.json",
       "data": "mixed-categories-mixed-values-data.json",
       "random": "default-random.json"
@@ -322,7 +322,7 @@
       "id": "label-property-stacked",
       "title": "Stacked Labels",
       "description": "Stacked areas over a linear numeric category axis with value labels on every segment.",
-      "notes": "An empty seriesStacks entry declares a single stack, so all three area series join it and animate as one unit, and each series points labelProperty at its own value property so every segment is labelled rather than just the total. Labels sit at the outer edge of each band (seriesDefaults labelPosition 'outside') and labelMinRangeFraction 0.05 hides them on segments spanning less than a twentieth of the axis. The category axis is numeric with a linear scale (categoryNL), so the categories sit at their real numeric positions and the spacing between stacks is uneven.",
+      "notes": "An empty seriesStacks entry declares a single stack, so all three area series join it and animate as one unit, and each series points labelProperty at its own value property so every segment is labelled rather than just the total. Labels sit at the outer edge of each band (seriesDefaults label.position 'outside') and label.minRangeFraction 0.05 hides them on segments spanning less than a twentieth of the axis. The category axis is numeric with a linear scale (categoryNL), so the categories sit at their real numeric positions and the spacing between stacks is uneven.",
       "config": "series-label-property-stacked-config.json",
       "data": "mixed-categories-mixed-values-data.json",
       "random": "positive-random.json"
@@ -349,7 +349,7 @@
       "id": "ticks-rotated",
       "title": "Rotated Ticks",
       "description": "A dense date category axis with tick labels rotated 90 degrees, and value axis labels at 45.",
-      "notes": "tickLabelRotation is 90 on the category axis and 45 on the value axis, which keeps 26 date labels and a set of wide three-digit value labels from colliding. The dates are rendered by tickLabelFormat (\"%Y-%m-%d\") and the ordinal scale gives every date an equal slot regardless of the real gaps between them.",
+      "notes": "tickLabel.rotation is 90 on the category axis and 45 on the value axis, which keeps 26 date labels and a set of wide three-digit value labels from colliding. The dates are rendered by tickLabel.format (\"%Y-%m-%d\") and the ordinal scale gives every date an equal slot regardless of the real gaps between them.",
       "config": "rotated-ticks-config.json",
       "data": "mixed-categories-mixed-values-data.json",
       "random": "default-random.json"
@@ -358,7 +358,7 @@
       "id": "range",
       "title": "Range",
       "description": "A low/high band drawn from rangeProperty behind a line with markers.",
-      "notes": "The band series reads range-max as its property and range-min as its rangeProperty, so the area spans between the two values instead of growing from the axis base, and turns markers off with markerShape null. The overlaid Middle line rides inside the band with star markers at markerSize 8. Category values are plain integers on an ordinal number axis.",
+      "notes": "The band series reads range-max as its property and range-min as its rangeProperty, so the area spans between the two values instead of growing from the axis base, and turns markers off with marker.shape null. The overlaid Middle line rides inside the band with star markers at marker.size 8. Category values are plain integers on an ordinal number axis.",
       "config": "range-config.json",
       "data": "range-data.json",
       "random": "positive-random.json"
@@ -367,7 +367,7 @@
       "id": "range-pos-neg",
       "title": "Positive Negative Range",
       "description": "Range areas and floating bars whose two ends straddle zero, via rangeProperty.",
-      "notes": "Three series pair value1/value2, value3/value4 and value5/value6 through rangeProperty — two areas and one bar renderer — so every shape floats between its two ends rather than starting at the axis. The value axis sets base 0, which separates the positive and negative directions and gives entering and leaving shapes their resting position; seriesDefaults turns markers off for all three (markerShape null).",
+      "notes": "Three series pair value1/value2, value3/value4 and value5/value6 through rangeProperty — two areas and one bar renderer — so every shape floats between its two ends rather than starting at the axis. The value axis sets base 0, which separates the positive and negative directions and gives entering and leaving shapes their resting position; seriesDefaults turns markers off for all three (marker.shape null).",
       "config": "range-mixed-config.json",
       "data": "range-mixed-data.json",
       "random": "default-random.json"
@@ -376,7 +376,7 @@
       "id": "bubble",
       "title": "Bubble Chart",
       "description": "A bubble chart: renderer 'none' with markers sized per value through markerProperty.",
-      "notes": "Both series set renderer 'none' in seriesDefaults, so only the markers are drawn, and each takes its radius from a separate data column (markerProperty marker1 and marker2) interpolated between markerMinSize 3 and markerSize 24 — the second series uses cross markers to show that the scaling is not circle-only. Every animation duration is raised to 1000ms so growth and shrink are easy to follow.",
+      "notes": "Both series set renderer 'none' in seriesDefaults, so only the markers are drawn, and each takes its radius from a separate data column (markerProperty marker1 and marker2) interpolated between marker.minSize 3 and marker.size 24 — the second series uses cross markers to show that the scaling is not circle-only. Every animation duration is raised to 1000ms so growth and shrink are easy to follow.",
       "config": "bubble-config.json",
       "data": "bubble-data.json",
       "random": "default-random.json"
@@ -385,7 +385,7 @@
       "id": "scatter",
       "title": "Scatter",
       "description": "A scatter chart: marker-only series (renderer none) on a linear category axis.",
-      "notes": "Points are positioned by irregular measured x values rather than evenly spaced categories: the category axis is a number property on scale 'linear', so the gaps in the data (0.4, 1.1, 1.5, 2.8, ...) are preserved as real distances. All three series share renderer 'none' and markerSize 6 from seriesDefaults and are told apart by markerShape alone — star, cross and wye.",
+      "notes": "Points are positioned by irregular measured x values rather than evenly spaced categories: the category axis is a number property on scale 'linear', so the gaps in the data (0.4, 1.1, 1.5, 2.8, ...) are preserved as real distances. All three series share renderer 'none' and marker.size 6 from seriesDefaults and are told apart by marker.shape alone — star, cross and wye.",
       "config": "scatter-config.json",
       "data": "scatter-data.json",
       "random": "scatter-random.json"
@@ -394,7 +394,7 @@
       "id": "picket",
       "title": "Picket Fence Bars",
       "description": "Stacked bars whose segments carry round, curve and point caps, over rotated month tick labels.",
-      "notes": "An empty seriesStacks entry puts all three bar series in one stack, and each sets its own capType — 'round', 'curve' and 'point' — at capSize 15, so every segment ends in a different shape (markerShape null keeps the bars otherwise plain). The month axis formats ticks as '%b' rotated 45 degrees with tickCount 12 and shows full month names in the tooltip (valueFormat '%B'), while the value axis pins min to 0 and uses an SI currency tick format ('$s'). The bundled data is the twelve months of 2015 with amounts in the tens to hundreds of thousands. Animation is deliberately slow — 3s initial and value-change against 1.5s expansion and contraction — so the caps can be watched stretching and sliding as the values change.",
+      "notes": "An empty seriesStacks entry puts all three bar series in one stack, and each sets its own cap.type — 'round', 'curve' and 'point' — at cap.size 15, so every segment ends in a different shape (marker.shape null keeps the bars otherwise plain). The month axis formats ticks as '%b' rotated 45 degrees with tickCount 12 and shows full month names in the tooltip (valueFormat '%B'), while the value axis pins min to 0 and uses an SI currency tick format ('$s'). The bundled data is the twelve months of 2015 with amounts in the tens to hundreds of thousands. Animation is deliberately slow — 3s initial and value-change against 1.5s expansion and contraction — so the caps can be watched stretching and sliding as the values change.",
       "config": "picket-fence-bars-config.json",
       "data": "monthly-data.json",
       "random": "positive-random.json"
@@ -403,7 +403,7 @@
       "id": "picket-pos-neg",
       "title": "Pos/Neg Picket Fence Bars",
       "description": "Capped bars crossing zero, with a small-dollar and a large-dollar series on their own value axes.",
-      "notes": "Both bar series carry caps at capSize 15 — capType 'point' on the small-dollar series, 'curve' on the large one — drawn at the value end of each bar, so they point downward on negative values. The series sit on separate axes (VA0 before, VA1 after) because their magnitudes differ by two orders of magnitude in the bundled data; valueAxisDefaults gives both base 0, softMin/softMax 0 and '$.2f' tick labels so each keeps zero on screen. The category axis is ordinal over dates, so bars keep equal slots regardless of date gaps. The animation durations are lopsided — 3s for a value change against 300ms enter and exit — so bars sweep through the base slowly while the caps track their moving ends.",
+      "notes": "Both bar series carry caps at cap.size 15 — cap.type 'point' on the small-dollar series, 'curve' on the large one — drawn at the value end of each bar, so they point downward on negative values. The series sit on separate axes (VA0 before, VA1 after) because their magnitudes differ by two orders of magnitude in the bundled data; valueAxisDefaults gives both base 0, softMin/softMax 0 and '$.2f' tick labels so each keeps zero on screen. The category axis is ordinal over dates, so bars keep equal slots regardless of date gaps. The animation durations are lopsided — 3s for a value change against 300ms enter and exit — so bars sweep through the base slowly while the caps track their moving ends.",
       "config": "positive-negative-picket-fence-bars-config.json",
       "data": "mixed-categories-mixed-values-data.json",
       "random": "default-random.json"
@@ -421,7 +421,7 @@
       "id": "gradients",
       "title": "Gradients",
       "description": "Areas and bars filled with linear and radial gradients referenced by id.",
-      "notes": "Four gradients are defined once and referenced by id from each series' gradient property: LG0 and LG1 are linear (linearGradientDefaults makes both run top to bottom, LG1 adding rotation 45), RG0 and RG1 are radial off a shared cx/cy/r of 0.5, with RG1 shifting its focal point to fx/fy 0.75. All four are two-stop ramps at 0.8 opacity — red to blue, or blue to green — and they are split across two area and two bar series so the same fills show against both shape types (markerShape null keeps the areas unmarked). The bundled data is small positive values over an ordinal numeric category axis. All four animation durations are 500ms with a 700ms focus, so the gradient fills stay smooth as the shapes resize.",
+      "notes": "Four gradients are defined once and referenced by id from each series' gradient property: LG0 and LG1 are linear (linearGradientDefaults makes both run top to bottom, LG1 adding rotation 45), RG0 and RG1 are radial off a shared cx/cy/r of 0.5, with RG1 shifting its focal point to fx/fy 0.75. All four are two-stop ramps at 0.8 opacity — red to blue, or blue to green — and they are split across two area and two bar series so the same fills show against both shape types (marker.shape null keeps the areas unmarked). The bundled data is small positive values over an ordinal numeric category axis. All four animation durations are 500ms with a 700ms focus, so the gradient fills stay smooth as the shapes resize.",
       "config": "gradients-config.json",
       "data": "mixed-categories-positive-values-data.json",
       "random": "positive-random.json"
@@ -448,7 +448,7 @@
       "id": "missing-stacked",
       "title": "Missing Pos/Neg Stacked Values",
       "description": "A bar stack with missing positive and negative values — segments stay coherent while the stack animates.",
-      "notes": "All three series share one stack (seriesStacks plus seriesDefaults), so positives pile up from the base while negatives pile down and a category's stack can straddle 0; softMin/softMax of 0 keep the base in the domain whichever way the data leans. A missing value contributes nothing to the running total, so its segment simply drops out and the segments after it close down onto the ones below — and a few categories have no values at all, leaving an empty slot. Each series sets capType \"round\" with capOnlyStackOuter, so the rounded cap only draws on whichever segment ends up on the outside of the stack, and the tooltip reports missing series as \"N/A\" (showMissingValues, missingValueText).",
+      "notes": "All three series share one stack (seriesStacks plus seriesDefaults), so positives pile up from the base while negatives pile down and a category's stack can straddle 0; softMin/softMax of 0 keep the base in the domain whichever way the data leans. A missing value contributes nothing to the running total, so its segment simply drops out and the segments after it close down onto the ones below — and a few categories have no values at all, leaving an empty slot. Each series sets cap.type \"round\" with cap.onlyStackOuter, so the rounded cap only draws on whichever segment ends up on the outside of the stack, and the tooltip reports missing series as \"N/A\" (showMissingValues, missingValueText).",
       "config": "missing-stacked-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
@@ -497,7 +497,7 @@
       "id": "candlestick-hollow",
       "title": "Hollow Candlestick",
       "description": "The candlestick's hollow variant (createCandlestick with hollow: true).",
-      "notes": "Up bodies are outlined and down bodies filled, and wicks are split into segments so nothing shows through the hollow interior. hollow: true is the only option passed, so the bodies still take the full slot and the wicks the default 0.15 of it, and the up body's shapeStyle goes to fillOpacity 0 in its normal state with the focused and defocused states pinning fillOpacity there too, plus a normal strokeWidth of 2 thickening to 3 in the focused state — hovering an up candle thickens its outline instead of filling it. Those two states name nothing else, so their stroke color stays \"same\" and follows the normal state's. The original low/high wick series drops to renderer 'none' (markerShape null, with a labelTextStyle.normal.fillColor for its tooltip chip) and survives only as the single Range row, while four segment series above and below the bodies do the actual drawing with showInTooltip false. That split is also why the rows carry an extra upOpen column: an up candle's lower segment spans low to open, and the shared open column is defined on every row, so it cannot gate the segment by direction on its own.",
+      "notes": "Up bodies are outlined and down bodies filled, and wicks are split into segments so nothing shows through the hollow interior. hollow: true is the only option passed, so the bodies still take the full slot and the wicks the default 0.15 of it, and the up body's shapeStyle goes to fillOpacity 0 in its normal state with the focused and defocused states pinning fillOpacity there too, plus a normal strokeWidth of 2 thickening to 3 in the focused state — hovering an up candle thickens its outline instead of filling it. Those two states name nothing else, so their stroke color stays \"same\" and follows the normal state's. The original low/high wick series drops to renderer 'none' (marker.shape null, with a label.textStyle.normal.fillColor for its tooltip chip) and survives only as the single Range row, while four segment series above and below the bodies do the actual drawing with showInTooltip false. That split is also why the rows carry an extra upOpen column: an up candle's lower segment spans low to open, and the shared open column is defined on every row, so it cannot gate the segment by direction on its own.",
       "config": "candlestick-hollow-config.json",
       "data": "candlestick-hollow-data.json",
       "random": "candlestick-random.json",
@@ -507,7 +507,7 @@
       "id": "ohlc",
       "title": "OHLC Bars",
       "description": "OHLC tick bars from the createOhlc helper: a thin low/high line per trading day.",
-      "notes": "Each bar carries a left open tick and a right close tick, direction-colored, on an ordinal axis that skips non-trading days. createOhlc is called with no options at all, so the vertical low/high line takes the default lineWidthFraction of 0.15 and each tick the default tickWidthFraction of 0.5, reaching from the slot edge in to the center line. The ticks are zero-extent range bars — property and rangeProperty read the same open or close value — that barMinExtent inflates into 2px marks, with barAlignFraction 0 pinning the open tick to the left half of the slot and 1 the close tick to the right; the lines carry the legend entries while the ticks sit out of it (showInLegend false) and followSeries their line, so filtering or focusing a direction moves the whole bar. Twenty June trading days are bundled, without the volume column the candlestick demo has, and each bar's tooltip lists Range, Open and Close (valueLabel), the equal-ended tick ranges collapsing to single values.",
+      "notes": "Each bar carries a left open tick and a right close tick, direction-colored, on an ordinal axis that skips non-trading days. createOhlc is called with no options at all, so the vertical low/high line takes the default lineWidthFraction of 0.15 and each tick the default tickWidthFraction of 0.5, reaching from the slot edge in to the center line. The ticks are zero-extent range bars — property and rangeProperty read the same open or close value — that bar.minExtent inflates into 2px marks, with bar.alignFraction 0 pinning the open tick to the left half of the slot and 1 the close tick to the right; the lines carry the legend entries while the ticks sit out of it (showInLegend false) and followSeries their line, so filtering or focusing a direction moves the whole bar. Twenty June trading days are bundled, without the volume column the candlestick demo has, and each bar's tooltip lists Range, Open and Close (valueLabel), the equal-ended tick ranges collapsing to single values.",
       "config": "ohlc-config.json",
       "data": "ohlc-data.json",
       "random": "candlestick-random.json",
@@ -517,7 +517,7 @@
       "id": "error-bars",
       "title": "Error Bars",
       "description": "Native error bars from the errorLowProperty/errorHighProperty series config.",
-      "notes": "Two grouped bar series and a line series each carry absolute confidence bounds, drawn as capped whiskers centered on every bar sub-slot and line point. errorLowProperty and errorHighProperty name absolute values in value axis units rather than deltas from the plotted value, and the bounds join the axis domain, so a whisker is never clipped by the top of the plot. Plant A and Plant B share the sole seriesGroups entry (plants) so their whiskers track their sub-slots, while the Target line opts out with group: null; no whisker styling is set, so the defaults apply — errorBarCapSize 6 clamped to the bar slot, and an errorBarStyle whose normal state draws at strokeWidth 1.5 and strokeOpacity 0.9, rising to 1 on the focused series and dropping to 0.5 on defocused ones, with a strokeColor of \"series\" in the normal state and \"same\" in the other two so a whisker always tracks its series' color. The twelve bundled months follow a seasonal curve with deliberately asymmetric margins above and below each value, and the Target line's interval is far tighter than either plant's.",
+      "notes": "Two grouped bar series and a line series each carry absolute confidence bounds, drawn as capped whiskers centered on every bar sub-slot and line point. errorLowProperty and errorHighProperty name absolute values in value axis units rather than deltas from the plotted value, and the bounds join the axis domain, so a whisker is never clipped by the top of the plot. Plant A and Plant B share the sole seriesGroups entry (plants) so their whiskers track their sub-slots, while the Target line opts out with group: null; no whisker styling is set, so the defaults apply — errorBar.capSize 6 clamped to the bar slot, and an errorBar.style whose normal state draws at strokeWidth 1.5 and strokeOpacity 0.9, rising to 1 on the focused series and dropping to 0.5 on defocused ones, with a strokeColor of \"series\" in the normal state and \"same\" in the other two so a whisker always tracks its series' color. The twelve bundled months follow a seasonal curve with deliberately asymmetric margins above and below each value, and the Target line's interval is far tighter than either plant's.",
       "config": "error-bars-config.json",
       "data": "error-bars-data.json",
       "random": "error-bars-random.json",
@@ -537,7 +537,7 @@
       "id": "donut",
       "title": "Donut",
       "description": "The pie chart with an inner radius (pie.innerRadiusFraction) and percent labels.",
-      "notes": "The labels sit at the slice centroids (pie.showLabels); labels on slices thinner than labelMinFraction hide themselves. The tooltip shows each slice's share too (pie.tooltipValues 'percent'), and both renormalize against the remaining slices as you filter one.",
+      "notes": "The labels sit at the slice centroids (pie.label.visible); labels on slices thinner than label.minFraction hide themselves. The tooltip shows each slice's share too (pie.tooltipValues 'percent'), and both renormalize against the remaining slices as you filter one.",
       "config": "donut-config.json",
       "data": "donut-data.json",
       "random": "donut-random.json",
@@ -547,7 +547,7 @@
       "id": "gauge",
       "title": "Gauge",
       "description": "A half-donut gauge via pie.startAngle/endAngle (-90 to 90).",
-      "notes": "Three sentiment segments with rounded, padded slices, title labels at the centroids, and a live center total (pie.showCenterTotal) that counts along with value changes and filtering. Its tooltip pairs each segment's share with its response count (pie.tooltipValues 'percentValue'). Hovering a legend entry explodes nothing here — compare the donut demo's focusOffsetFraction.",
+      "notes": "Three sentiment segments with rounded, padded slices, title labels at the centroids, and a live center total (pie.centerTotal.visible) that counts along with value changes and filtering. Its tooltip pairs each segment's share with its response count (pie.tooltipValues 'percentValue'). Hovering a legend entry explodes nothing here — compare the donut demo's focusOffsetFraction.",
       "config": "gauge-config.json",
       "data": "gauge-data.json",
       "random": "gauge-random.json",

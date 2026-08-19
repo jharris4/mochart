@@ -139,11 +139,11 @@ export default class Title extends Renderer<TitleProps, TitleState> {
     const { title: titleConfig } = mochartConfig;
 
     if (titleConfig.text !== NONE) {
-      const { text: title, prefix: titlePrefix, suffix: titleSuffix, truncationEnabled, truncationValue, link, linkDisabled,
-        textBackgroundStyle: titleBackgroundStyle, textStyle: titleTextStyle,
-        prefixBackgroundStyle, prefixTextStyle,
-        suffixBackgroundStyle, suffixTextStyle
+      const { text: title, prefix, suffix, truncationEnabled, truncationValue, link, linkDisabled,
+        textBackgroundStyle: titleBackgroundStyle, textStyle: titleTextStyle
       } = titleConfig;
+      const { text: titlePrefix, backgroundStyle: prefixBackgroundStyle, textStyle: prefixTextStyle } = prefix;
+      const { text: titleSuffix, backgroundStyle: suffixBackgroundStyle, textStyle: suffixTextStyle } = suffix;
 
       const { truncationData } = this.state;
       const titleText = getTruncatedText(truncationEnabled, truncationValue, title, truncationData);

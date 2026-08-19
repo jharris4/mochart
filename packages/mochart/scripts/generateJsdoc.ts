@@ -71,34 +71,73 @@ interface SharedInterfaceSource {
 const sharedInterfaceSources: SharedInterfaceSource[] = [
   { interfaceName: 'StrokeStyle', sectionId: 'chart', propertyKey: 'backgroundStyle', members: ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'] },
   { interfaceName: 'Style', sectionId: 'chart', propertyKey: 'backgroundStyle', members: ['fillColor', 'fillOpacity'] },
-  { interfaceName: 'StrokeStyleState', sectionId: 'categoryAxis', propertyKey: 'axisLineStyle.normal', members: ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'] },
-  { interfaceName: 'StyleState', sectionId: 'categoryAxis', propertyKey: 'tickLabelTextStyle.normal', members: ['fillColor', 'fillOpacity'] },
+  { interfaceName: 'StrokeStyleState', sectionId: 'categoryAxis', propertyKey: 'axisLine.style.normal', members: ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'] },
+  { interfaceName: 'StyleState', sectionId: 'categoryAxis', propertyKey: 'tickLabel.textStyle.normal', members: ['fillColor', 'fillOpacity'] },
   { interfaceName: 'ColorPaletteStates', sectionId: 'colorPalette', propertyKey: 'series' },
   { interfaceName: 'ColorPalette', sectionId: 'colorPalette', propertyKey: 'series.normal' },
   { interfaceName: 'SeriesCurve', sectionId: 'series', propertyKey: 'curve' },
   { interfaceName: 'SeriesColorScale', sectionId: 'series', propertyKey: 'colorScale' },
   { interfaceName: 'SeriesColorScaleBase', sectionId: 'series', propertyKey: 'colorScale.base' },
+  { interfaceName: 'SeriesBarConfig', sectionId: 'series', propertyKey: 'bar', includeDefaults: true },
+  { interfaceName: 'SeriesCapConfig', sectionId: 'series', propertyKey: 'cap', includeDefaults: true },
+  { interfaceName: 'SeriesErrorBarConfig', sectionId: 'series', propertyKey: 'errorBar', includeDefaults: true },
+  { interfaceName: 'SeriesLabelConfig', sectionId: 'series', propertyKey: 'label', includeDefaults: true },
+  { interfaceName: 'SeriesLabelBaseSideConfig', sectionId: 'series', propertyKey: 'label.aboveBase', includeDefaults: true },
+  { interfaceName: 'SeriesMarkerConfig', sectionId: 'series', propertyKey: 'marker', includeDefaults: true },
+  { interfaceName: 'SeriesStackOuterCapConfig', sectionId: 'seriesStacks', propertyKey: 'outerCap', includeDefaults: true },
   { interfaceName: 'ClipIndicatorHatchConfig', sectionId: 'clipIndicator', propertyKey: 'hatch' },
+  { interfaceName: 'LegendItemConfig', sectionId: 'legend', propertyKey: 'item', includeDefaults: true },
+  { interfaceName: 'TitleAffixConfig', sectionId: 'title', propertyKey: 'prefix' },
+  { interfaceName: 'PieLabelConfig', sectionId: 'pie', propertyKey: 'label', includeDefaults: true },
+  { interfaceName: 'CrosshairLineConfig', sectionId: 'crosshair', propertyKey: 'categoryLine', includeDefaults: true },
+  { interfaceName: 'PieCenterTotalConfig', sectionId: 'pie', propertyKey: 'centerTotal', includeDefaults: true },
+  { interfaceName: 'TooltipDropShadowConfig', sectionId: 'tooltip', propertyKey: 'dropShadow', includeDefaults: true },
   { interfaceName: 'ThresholdConfig', sectionId: 'valueAxes', propertyKey: 'thresholds', includeDefaults: true },
+  { interfaceName: 'ThresholdTitleConfig', sectionId: 'valueAxes', propertyKey: 'thresholds.title', includeDefaults: true },
+  { interfaceName: 'AxisBaseLineConfig', sectionId: 'valueAxes', propertyKey: 'baseLine', includeDefaults: true },
   { interfaceName: 'ValueAxisTick', sectionId: 'valueAxes', propertyKey: 'ticks', includeDefaults: true },
   { interfaceName: 'GradientStop', sectionId: 'linearGradients', propertyKey: 'stops', includeDefaults: true }
 ];
 
-/** Interfaces several config sections extend, documented from those sections: the first supplies
- * the prose, and any section wording it differently has its wording documented alongside. */
+/** Nested axis groups shared by the category axis and the value axes: members both axes have are
+ * documented on the shared interface (with both defaults where they differ, like AxisConfigBase);
+ * members only one axis has go on that axis's own extension of it. */
+interface SharedAxisInterface {
+  interfaceName: string;
+  propertyKey: string;
+  categoryInterfaceName?: string;
+  valueInterfaceName?: string;
+}
+
+const sharedAxisInterfaces: SharedAxisInterface[] = [
+  { interfaceName: 'AxisLineConfig', propertyKey: 'axisLine' },
+  { interfaceName: 'AxisFocusRangeConfig', propertyKey: 'focusRange' },
+  { interfaceName: 'AxisFocusTickMarkConfig', propertyKey: 'focusTickMark' },
+  { interfaceName: 'AxisGridLineConfig', propertyKey: 'gridLine' },
+  { interfaceName: 'AxisTickMarkConfig', propertyKey: 'tickMark' },
+  { interfaceName: 'AxisTickLabelConfig', propertyKey: 'tickLabel', categoryInterfaceName: 'CategoryAxisTickLabelConfig', valueInterfaceName: 'ValueAxisTickLabelConfig' },
+  { interfaceName: 'AxisTitleConfig', propertyKey: 'title' }
+];
+
+/** Interfaces several config sections share — extended by them, or (with propertyKey) held under one of
+ * their nested properties — documented from those sections: the first supplies the prose, and any
+ * section wording it differently has its wording documented alongside. */
 interface SharedSectionInterface {
   interfaceName: string;
-  /** The sections that extend it, in the order their prose is documented. */
+  /** The sections that share it, in the order their prose is documented. */
   sections: { id: string; name: string }[];
   members: string[];
+  /** Dotted path to the nested property holding the shape; omit when the sections extend the interface. */
+  propertyKey?: string;
 }
 
 const sharedSectionInterfaces: SharedSectionInterface[] = [
   {
     interfaceName: 'SeriesIconConfig',
     sections: [{ id: 'legend', name: 'legend' }, { id: 'tooltip', name: 'tooltip' }],
-    members: ['showIconColors', 'showIconShapes', 'showIconPlaceholders', 'iconSize', 'iconSpacerSize',
-      'iconBorderSize', 'iconBorderColor', 'iconBorderOpacity', 'iconFilteredColor', 'iconUnfilteredColor']
+    propertyKey: 'icon',
+    members: ['showColors', 'showShapes', 'showPlaceholders', 'size', 'spacerSize',
+      'borderSize', 'borderColor', 'borderOpacity', 'filteredColor', 'unfilteredColor']
   }
 ];
 
@@ -284,6 +323,42 @@ function buildInterfaceDocs(sections: SectionDoc[], warnings: string[]): Map<str
       }
     }
     interfaceDocs.set('AxisConfigBase', memberDocs);
+
+    for (const shared of sharedAxisInterfaces) {
+      const categoryMembers = findPropertyDoc(categoryProperties, shared.propertyKey)?.properties ?? [];
+      const valueMembers = findPropertyDoc(seriesProperties, shared.propertyKey)?.properties ?? [];
+      const valueByKey = new Map(valueMembers.map(member => [member.key, member]));
+      const sharedDocs = new Map<string, MemberDoc>();
+      const categoryDocs = new Map<string, MemberDoc>();
+      for (const categoryMember of categoryMembers) {
+        const valueMember = valueByKey.get(categoryMember.key);
+        if (valueMember) {
+          sharedDocs.set(categoryMember.key, mergedAxisMemberDoc(categoryMember, valueMember));
+        }
+        else {
+          categoryDocs.set(categoryMember.key, toMemberDoc(categoryMember));
+        }
+      }
+      const valueDocs = new Map<string, MemberDoc>();
+      for (const valueMember of valueMembers) {
+        if (!categoryMembers.some(member => member.key === valueMember.key)) {
+          valueDocs.set(valueMember.key, toMemberDoc(valueMember));
+        }
+      }
+      interfaceDocs.set(shared.interfaceName, sharedDocs);
+      if (shared.categoryInterfaceName !== undefined) {
+        interfaceDocs.set(shared.categoryInterfaceName, categoryDocs);
+      }
+      else if (categoryDocs.size > 0) {
+        warnings.push(shared.interfaceName + ': ' + [...categoryDocs.keys()].join(', ') + ' documented only at categoryAxis.' + shared.propertyKey);
+      }
+      if (shared.valueInterfaceName !== undefined) {
+        interfaceDocs.set(shared.valueInterfaceName, valueDocs);
+      }
+      else if (valueDocs.size > 0) {
+        warnings.push(shared.interfaceName + ': ' + [...valueDocs.keys()].join(', ') + ' documented only at valueAxes.' + shared.propertyKey);
+      }
+    }
   }
 
   for (const shared of sharedSectionInterfaces) {
@@ -291,7 +366,9 @@ function buildInterfaceDocs(sections: SectionDoc[], warnings: string[]): Map<str
     for (const member of shared.members) {
       const entries: { name: string; property: PropertyDoc }[] = [];
       for (const section of shared.sections) {
-        const property = bySection.get(section.id)?.get(member);
+        const property = shared.propertyKey === undefined
+          ? bySection.get(section.id)?.get(member)
+          : findPropertyDoc(bySection.get(section.id), shared.propertyKey + '.' + member);
         if (property) {
           entries.push({ name: section.name, property });
         }
@@ -465,6 +542,9 @@ export function buildDocumentedTypesSource(source: string): { output: string; wa
   // the same holds for members a section declares on a shared interface it extends
   const sharedInherited = new Map<string, Set<string>>();
   for (const shared of sharedSectionInterfaces) {
+    if (shared.propertyKey !== undefined) {
+      continue;
+    }
     for (const section of shared.sections) {
       const interfaceName = sectionInterfaceMap[section.id];
       if (interfaceName === undefined) {

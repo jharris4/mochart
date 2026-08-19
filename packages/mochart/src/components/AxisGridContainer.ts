@@ -32,7 +32,7 @@ export default class AxisGridContainer extends Renderer<AxisGridContainerProps> 
     const { front, mochartConfig, seriesLayoutInfo, seriesData, focusData, axisData } = this.props;
     const { category: categoryAxisData, value: valueAxisData } = axisData;
     const { plot: plotConfig, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
-    const { gridLineFront } = categoryAxisConfig;
+    const gridLineFront = categoryAxisConfig.gridLine.front;
 
     this.root.set({ className: mochartCssClasses['axisGridContainer'] });
 
@@ -44,7 +44,7 @@ export default class AxisGridContainer extends Renderer<AxisGridContainerProps> 
     }
 
     this.seriesGrids.sync(getValueAxisFocusContexts(valueAxisConfigs, focusData)
-      .filter(({ axisConfig }) => axisConfig.gridLineFront === front)
+      .filter(({ axisConfig }) => axisConfig.gridLine.front === front)
       .map(({ axisConfig, id, key, axisFocusPercentage, seriesFocusPercentage }) => ({
         key,
         ctor: ValueAxisGrid,

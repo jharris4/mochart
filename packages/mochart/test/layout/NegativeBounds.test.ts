@@ -42,10 +42,10 @@ describe('charts smaller than their own spacing', () => {
     expect(negativeRects(config({ title: { text: 'T' }, legend: { visible: true } }), 20, 20)).toEqual([]);
   });
 
-  // legend.iconSize and legend.iconBorderSize validate independently, so a border wider than the icon put a negative width on the icon rect and the browser dropped it
+  // legend.icon.size and legend.icon.borderSize validate independently, so a border wider than the icon put a negative width on the icon rect and the browser dropped it
   it('emits no negative rect when the legend icon border exceeds the icon size', () => {
     expect(negativeRects(config({
-      legend: { visible: true, iconSize: 4, iconBorderSize: 10, showIconShapes: false }
+      legend: { visible: true, icon: { size: 4, borderSize: 10, showShapes: false } }
     }), 640, 420)).toEqual([]);
   });
 

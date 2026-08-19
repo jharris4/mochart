@@ -43,20 +43,20 @@ describe('createCandlestick', () => {
   it('gives filled bodies a minimum height so a doji still draws', () => {
     const { series } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const bodies = series.filter((seriesConfig) => seriesConfig.id === 'up' || seriesConfig.id === 'down');
-    expect(bodies.map((seriesConfig) => seriesConfig.barMinExtent)).toEqual([2, 2]);
+    expect(bodies.map((seriesConfig) => seriesConfig.bar!.minExtent)).toEqual([2, 2]);
 
     // the wicks are bars too, but a zero-length wick genuinely means no range there
     const wicks = series.filter((seriesConfig) => seriesConfig.id!.endsWith('Wick'));
-    expect(wicks.every((seriesConfig) => seriesConfig.barMinExtent === undefined)).toBe(true);
+    expect(wicks.every((seriesConfig) => seriesConfig.bar!.minExtent === undefined)).toBe(true);
   });
 
   it('leaves the hollow up body alone, which already draws its outline', () => {
     const { series } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }], { hollow: true });
     const up = series.find((seriesConfig) => seriesConfig.id === 'up')!;
     const down = series.find((seriesConfig) => seriesConfig.id === 'down')!;
-    expect(up.barMinExtent).toBeUndefined();
+    expect(up.bar!.minExtent).toBeUndefined();
     expect(up.shapeStyle!.normal!.strokeWidth).toBe(2);
-    expect(down.barMinExtent).toBe(2);
+    expect(down.bar!.minExtent).toBe(2);
   });
 
   it('emits config fragments for ordinal wick and body bars', () => {
@@ -77,10 +77,10 @@ describe('createCandlestick', () => {
   it('spans wicks from low to high and bodies from open to close, split by direction', () => {
     const { series: seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const [upWick, downWick, up, down] = seriesConfigs;
-    expect(upWick).toMatchObject({ property: 'upHigh', rangeProperty: 'low', barWidthFraction: 0.15, showInLegend: false, followSeries: 'up', valueLabel: 'Range' });
-    expect(downWick).toMatchObject({ property: 'downHigh', rangeProperty: 'low', barWidthFraction: 0.15, showInLegend: false, followSeries: 'down', valueLabel: 'Range' });
-    expect(up).toMatchObject({ property: 'up', rangeProperty: 'open', barWidthFraction: 1, title: 'Up' });
-    expect(down).toMatchObject({ property: 'down', rangeProperty: 'open', barWidthFraction: 1, title: 'Down' });
+    expect(upWick).toMatchObject({ property: 'upHigh', rangeProperty: 'low', bar: { widthFraction: 0.15 }, showInLegend: false, followSeries: 'up', valueLabel: 'Range' });
+    expect(downWick).toMatchObject({ property: 'downHigh', rangeProperty: 'low', bar: { widthFraction: 0.15 }, showInLegend: false, followSeries: 'down', valueLabel: 'Range' });
+    expect(up).toMatchObject({ property: 'up', rangeProperty: 'open', bar: { widthFraction: 1 }, title: 'Up' });
+    expect(down).toMatchObject({ property: 'down', rangeProperty: 'open', bar: { widthFraction: 1 }, title: 'Down' });
   });
 
   it('colors each wick to match its body, with strokes matching the fills', () => {
@@ -108,8 +108,8 @@ describe('createCandlestick', () => {
     expect(down.title).toBe('Down');
     expect(downWick.shapeStyle!.normal!.fillColor).toBe('#123456');
     expect(down.shapeStyle!.normal!.fillColor).toBe('#123456');
-    expect(upWick.barWidthFraction).toBe(0.1);
-    expect(up.barWidthFraction).toBe(0.7);
+    expect(upWick.bar!.widthFraction).toBe(0.1);
+    expect(up.bar!.widthFraction).toBe(0.7);
     expect(upWick.valueLabel).toBe('Low – High');
     expect(downWick.valueLabel).toBe('Low – High');
   });
@@ -215,10 +215,10 @@ describe('createCandlestick', () => {
     it('keeps the range tooltip row on a shapeless wick series with a matching icon color', () => {
       const { series: seriesConfigs } = createCandlestick(items, { hollow: true });
       const [upWick, downWick] = seriesConfigs;
-      expect(upWick).toMatchObject({ renderer: 'none', markerShape: null, valueLabel: 'Range', followSeries: 'up' });
-      expect(downWick).toMatchObject({ renderer: 'none', markerShape: null, valueLabel: 'Range', followSeries: 'down' });
-      expect(upWick.labelTextStyle!.normal!.fillColor).toBe(upWick.shapeStyle!.normal!.fillColor);
-      expect(upWick.labelTextStyle!.normal!.fillOpacity).toBe(1);
+      expect(upWick).toMatchObject({ renderer: 'none', marker: { shape: null }, valueLabel: 'Range', followSeries: 'up' });
+      expect(downWick).toMatchObject({ renderer: 'none', marker: { shape: null }, valueLabel: 'Range', followSeries: 'down' });
+      expect(upWick.label!.textStyle!.normal!.fillColor).toBe(upWick.shapeStyle!.normal!.fillColor);
+      expect(upWick.label!.textStyle!.normal!.fillOpacity).toBe(1);
     });
 
     it('outlines the up body and keeps the down body filled', () => {

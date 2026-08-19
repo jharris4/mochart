@@ -14,9 +14,8 @@ const seriesConfig = (id: string) => ({ id }) as EnhancedSeriesConfig;
 const pieConfig = (overrides: Partial<PieConfig> = {}) => ({
   innerRadiusFraction: 0, outerRadiusFraction: 1, startAngle: 0,
   endAngle: (overrides.startAngle ?? 0) + 360, padAngle: 0, cornerRadius: 0,
-  focusOffsetFraction: 0, showLabels: false, labelType: 'percent', labelFormat: 'auto',
-  labelRadiusFraction: 0.5, labelMinFraction: 0.05,
-  centerLabel: null, showCenterTotal: false, centerTotalFormat: 'auto',
+  focusOffsetFraction: 0, label: { visible: false, type: 'percent', valueFormat: 'auto', radiusFraction: 0.5, minFraction: 0.05 },
+  centerLabel: null, centerTotal: { visible: false, format: 'auto' },
   ...overrides
 }) as PieConfig;
 const values = (plain: (number | undefined)[] | null) => ({ plain }) as SeriesValueObject;

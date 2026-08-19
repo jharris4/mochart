@@ -32,7 +32,7 @@ shows gaps mid-transition (see
   its series must share one [`group`](/reference/series#series.group) (or all
   be ungrouped), otherwise its members would land in different sub-slots.
 - Cap only the outer end of the whole stack with
-  [`outerCapType`](/reference/seriesStacks#seriesStacks.outerCapType)
+  [`outerCap.type`](/reference/seriesStacks#seriesStacks.outerCap.type)
   — see the [bar caps recipe](/recipes/bar-caps#capping-a-stack).
 - Side-by-side (grouped) bars instead of stacked: declare a
   [`seriesGroups`](/reference/seriesGroups) entry rather than a

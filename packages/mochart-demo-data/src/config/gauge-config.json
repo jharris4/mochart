@@ -13,11 +13,15 @@
     "innerRadiusFraction": 0.55,
     "padAngle": 1,
     "cornerRadius": 3,
-    "showLabels": true,
-    "labelType": "title",
+    "label": {
+      "visible": true,
+      "type": "title"
+    },
     "centerLabel": "responses",
-    "showCenterTotal": true,
-    "centerTotalFormat": ",.0f",
+    "centerTotal": {
+      "visible": true,
+      "format": ",.0f"
+    },
     "centerOffsetYFraction": -0.25
   },
   "categoryAxis": {

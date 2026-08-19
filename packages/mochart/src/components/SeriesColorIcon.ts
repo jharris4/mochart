@@ -44,7 +44,7 @@ interface SeriesColorIconProps {
 const autoIconViewBoxSize = 16;
 
 function getIconGeometrySize(seriesContextConfig: LegendConfig | TooltipConfig, resolvedIconSize?: number): number {
-  return resolvedIconSize ?? (seriesContextConfig.iconSize === AUTO ? autoIconViewBoxSize : seriesContextConfig.iconSize);
+  return resolvedIconSize ?? (seriesContextConfig.icon.size === AUTO ? autoIconViewBoxSize : seriesContextConfig.icon.size);
 }
 
 export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
@@ -84,11 +84,11 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
 
   syncHTML() {
     const { seriesContextConfig, seriesShowColorProperty, seriesConfig, svgUniqueId, iconClassName } = this.props;
-    const { showIconColors, showIconPlaceholders } = seriesContextConfig;
+    const { showColors: showIconColors, showPlaceholders: showIconPlaceholders } = seriesContextConfig.icon;
     const showSeriesColor = showIconColors && seriesConfig[seriesShowColorProperty];
 
     if (showSeriesColor || showIconPlaceholders) {
-      const { iconSize, iconSpacerSize } = seriesContextConfig;
+      const { size: iconSize, spacerSize: iconSpacerSize } = seriesContextConfig.icon;
       const geometrySize = getIconGeometrySize(seriesContextConfig);
       const displaySize = iconSize === AUTO ? '1em' : iconSize;
       const colorStyle = {
@@ -123,7 +123,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
 
   syncSVG() {
     const { seriesContextConfig, seriesShowColorProperty, seriesConfig, uniqueIds, iconClassName } = this.props;
-    const { showIconColors, showIconPlaceholders } = seriesContextConfig;
+    const { showColors: showIconColors, showPlaceholders: showIconPlaceholders } = seriesContextConfig.icon;
     const showSeriesColor = showIconColors && seriesConfig[seriesShowColorProperty];
 
     if (showSeriesColor || showIconPlaceholders) {
@@ -196,9 +196,10 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
       return;
     }
 
-    const { iconBorderSize, iconBorderColor, iconBorderOpacity, iconFilteredColor, iconUnfilteredColor, showIconShapes } = seriesContextConfig;
+    const { borderSize: iconBorderSize, borderColor: iconBorderColor, borderOpacity: iconBorderOpacity, filteredColor: iconFilteredColor, unfilteredColor: iconUnfilteredColor, showShapes: showIconShapes } = seriesContextConfig.icon;
     const iconSize = getIconGeometrySize(seriesContextConfig, this.props.resolvedIconSize);
-    const { gradient, pattern, markerShape } = seriesConfig;
+    const { gradient, pattern } = seriesConfig;
+    const markerShape = seriesConfig.marker.shape;
 
     const { opacity, focusedOpacity, defocusedOpacity } = getSeriesOpacities(seriesConfig);
     const hasFillDefinition = pattern !== NONE || gradient !== NONE || getSeriesGradientColors(seriesConfig);

@@ -7,7 +7,7 @@ export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'Latency under Load' },
   categoryAxis: {
-    title: 'Requests per second',
+    title: { text: 'Requests per second' },
     property: 'load',
     type: 'number',
     scale: 'linear'
@@ -15,22 +15,26 @@ export const config: MochartInputConfig = {
   chart: {
     margin: { right: 5 }
   },
-  valueAxes: [{ id: 'VA0', title: 'Latency (ms)' }],
+  valueAxes: [{ id: 'VA0', title: { text: 'Latency (ms)' } }],
   seriesDefaults: { renderer: 'none' },
   series: [
     {
       property: 'v1',
       title: 'v1',
-      markerShape: 'circle',
-      markerSize: 6
+      marker: {
+        shape: 'circle',
+        size: 6
+      }
     },
     {
       property: 'v2',
       title: 'v2',
-      markerShape: 'diamond',
-      markerProperty: 'v2Errors',
-      markerMinSize: 4,
-      markerSize: 16
+      marker: {
+        shape: 'diamond',
+        minSize: 4,
+        size: 16
+      },
+      markerProperty: 'v2Errors'
     }
   ]
 };

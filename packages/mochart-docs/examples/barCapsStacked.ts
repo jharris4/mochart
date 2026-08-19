@@ -1,6 +1,6 @@
-// On a stack, capping every segment looks broken — the stack's outerCapType
+// On a stack, capping every segment looks broken — the stack's outerCap.type
 // caps only its outer end instead. No per-series cap config needed: any
-// series without its own capType wears the stack cap when it is the outer
+// series without its own cap.type wears the stack cap when it is the outer
 // segment, so the cap follows legend filtering.
 import type { MochartInputConfig } from '@mochart/core';
 
@@ -14,7 +14,7 @@ export const config: MochartInputConfig = {
     { property: 'pro', title: 'Pro' },
     { property: 'enterprise', title: 'Enterprise' }
   ],
-  seriesStacks: [{ id: 'revenue', outerCapType: 'round', outerCapSize: 8 }]
+  seriesStacks: [{ id: 'revenue', outerCap: { type: 'round', size: 8 } }]
 };
 
 export const data = [

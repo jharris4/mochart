@@ -16,7 +16,7 @@ const cfg = (over: Record<string, unknown>) => ({
   minMarginFraction: 0,
   maxMarginFraction: 0,
   minTickInterval: 0,
-  tickLabelFormat: 'auto',
+  tickLabel: { format: 'auto' },
   ...over
 }) as never;
 
@@ -175,11 +175,11 @@ describe('getRenderAxisDomain', () => {
   it('derives the date half-width from the finest tickLabelFormat directive', () => {
     const t = Date.UTC(2020, 0, 1);
     const minute = 60 * 1000;
-    expect(getRenderAxisDomain(cfg({ type: 'date', tickLabelFormat: '%H:%M' }), [new Date(t), new Date(t)]))
+    expect(getRenderAxisDomain(cfg({ type: 'date', tickLabel: { format: '%H:%M' } }), [new Date(t), new Date(t)]))
       .toEqual([new Date(t - minute), new Date(t + minute)]);
-    expect(getRenderAxisDomain(cfg({ type: 'date', tickLabelFormat: '%Y-%m-%d' }), [new Date(t), new Date(t)]))
+    expect(getRenderAxisDomain(cfg({ type: 'date', tickLabel: { format: '%Y-%m-%d' } }), [new Date(t), new Date(t)]))
       .toEqual([new Date(t - DAY), new Date(t + DAY)]);
-    expect(getRenderAxisDomain(cfg({ type: 'date', tickLabelFormat: '%Y' }), [new Date(t), new Date(t)]))
+    expect(getRenderAxisDomain(cfg({ type: 'date', tickLabel: { format: '%Y' } }), [new Date(t), new Date(t)]))
       .toEqual([new Date(t - 365 * DAY), new Date(t + 365 * DAY)]);
   });
 });

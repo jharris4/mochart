@@ -7,8 +7,8 @@ import type { SeriesPositionData, StackData } from '../../src/types/data';
 
 function seriesConfig(overrides: object = {}): EnhancedSeriesConfig {
   return {
-    id: 'S', stack: null, capType: null, capSize: 10, capExpand: true, capOnlyStackOuter: false,
-    seriesStackConfig: undefined, barMinExtent: 0, curve: { type: 'linear' }, ...overrides
+    id: 'S', stack: null, cap: { type: null, size: 10, expand: true, onlyStackOuter: false },
+    seriesStackConfig: undefined, bar: { minExtent: 0 }, curve: { type: 'linear' }, ...overrides
   } as unknown as EnhancedSeriesConfig;
 }
 
@@ -70,7 +70,7 @@ describe('getColumnGenerator', () => {
   });
 
   describe('point cap', () => {
-    const point = (extra: object = {}) => seriesConfig({ capType: 'point', capSize: 10, capExpand: false, ...extra });
+    const point = (cap: object = {}) => seriesConfig({ cap: { type: 'point', size: 10, expand: false, ...cap } });
 
     it('draws a pentagon whose tip is the value end, cap base capSize inward', () => {
       expect(column(point(), upBar)).toBe(pathOf(p => {
@@ -98,7 +98,7 @@ describe('getColumnGenerator', () => {
     });
 
     it('keeps the full slot width for a short bar with capExpand', () => {
-      expect(column(point({ capExpand: true }), shortBar)).toBe(pathOf(p => {
+      expect(column(point({ expand: true }), shortBar)).toBe(pathOf(p => {
         p.moveTo(10, 100); p.lineTo(20, 94); p.lineTo(30, 100); p.closePath();
       }));
     });
@@ -120,7 +120,7 @@ describe('getColumnGenerator', () => {
   });
 
   describe('curve cap', () => {
-    const curve = (extra: object = {}) => seriesConfig({ capType: 'curve', capSize: 10, capExpand: false, ...extra });
+    const curve = (cap: object = {}) => seriesConfig({ cap: { type: 'curve', size: 10, expand: false, ...cap } });
 
     it('draws a quadratic cap whose control point mirrors the cap base across the value end', () => {
       expect(column(curve(), upBar)).toBe(pathOf(p => {
@@ -145,7 +145,7 @@ describe('getColumnGenerator', () => {
   });
 
   describe('round cap', () => {
-    const round = (extra: object = {}) => seriesConfig({ capType: 'round', capSize: 10, capExpand: false, ...extra });
+    const round = (cap: object = {}) => seriesConfig({ cap: { type: 'round', size: 10, expand: false, ...cap } });
 
     it('rounds the value-end corners with a radius bounded by the slot width', () => {
       // radius = min(capSize 10, (20 - 4) / 2 = 8, extent 60) = 8
@@ -165,7 +165,7 @@ describe('getColumnGenerator', () => {
     it('bounds the radius by the bar extent', () => {
       const stub = barPositions({ current: 96, prior: 100 });
       // radius = min(10, 8, 4) = 4; shorter than the cap, so like point/curve it closes straight across the base
-      expect(column(round({ capExpand: true }), stub)).toBe(pathOf(p => {
+      expect(column(round({ expand: true }), stub)).toBe(pathOf(p => {
         p.moveTo(10, 100); p.arcTo(10, 96, 14, 96, 4); p.lineTo(26, 96); p.arcTo(30, 96, 30, 100, 4); p.closePath();
       }));
     });
@@ -206,25 +206,25 @@ describe('getColumnGenerator', () => {
   describe('barMinExtent', () => {
     it('widens a zero-extent bar to the minimum, centred on its position', () => {
       const tick = barPositions({ current: 100, prior: 100 });
-      expect(column(seriesConfig({ barMinExtent: 6 }), tick)).toBe(pathOf(p => p.rect(10, 97, 20, 6)));
-      expect(column(seriesConfig({ barMinExtent: 6 }), tick, true)).toBe(pathOf(p => p.rect(97, 10, 6, 20)));
+      expect(column(seriesConfig({ bar: { minExtent: 6 } }), tick)).toBe(pathOf(p => p.rect(10, 97, 20, 6)));
+      expect(column(seriesConfig({ bar: { minExtent: 6 } }), tick, true)).toBe(pathOf(p => p.rect(97, 10, 6, 20)));
     });
 
     it('widens a bar shorter than the minimum around its centre', () => {
       const thin = barPositions({ current: 99, prior: 101 });
-      expect(column(seriesConfig({ barMinExtent: 6 }), thin)).toBe(pathOf(p => p.rect(10, 97, 20, 6)));
+      expect(column(seriesConfig({ bar: { minExtent: 6 } }), thin)).toBe(pathOf(p => p.rect(10, 97, 20, 6)));
     });
 
     it('leaves bars at or above the minimum alone', () => {
       const tall = barPositions({ current: 90, prior: 100 });
-      expect(column(seriesConfig({ barMinExtent: 6 }), tall)).toBe(pathOf(p => p.rect(10, 90, 20, 10)));
-      expect(column(seriesConfig({ barMinExtent: 0 }), barPositions({ current: 100, prior: 100 })))
+      expect(column(seriesConfig({ bar: { minExtent: 6 } }), tall)).toBe(pathOf(p => p.rect(10, 90, 20, 10)));
+      expect(column(seriesConfig({ bar: { minExtent: 0 } }), barPositions({ current: 100, prior: 100 })))
         .toBe(pathOf(p => p.rect(10, 100, 20, 0)));
     });
 
     it('feeds the widened extent to the cap so a thin bar still gets its full cap', () => {
       const thin = barPositions({ current: 99, prior: 101 });
-      const config = seriesConfig({ barMinExtent: 10, capType: 'point', capSize: 10, capExpand: false });
+      const config = seriesConfig({ bar: { minExtent: 10 }, cap: { type: 'point', size: 10, expand: false } });
       // 10px tall now equals the cap size: full pentagon, cap pointing up from 105 to 95
       expect(column(config, thin)).toBe(pathOf(p => {
         p.moveTo(10, 105); p.lineTo(20, 95); p.lineTo(30, 105); p.lineTo(30, 105); p.lineTo(10, 105); p.closePath();
@@ -238,7 +238,7 @@ describe('getColumnGenerator', () => {
 
     it('widens a zero-extent bar in the positive direction with its cap pointing outward', () => {
       const tick = barPositions({ current: 100, prior: 100 });
-      const config = seriesConfig({ barMinExtent: 10, capType: 'point', capSize: 10, capExpand: false });
+      const config = seriesConfig({ bar: { minExtent: 10 }, cap: { type: 'point', size: 10, expand: false } });
       expect(column(config, tick)).toBe(pathOf(p => {
         p.moveTo(10, 105); p.lineTo(20, 95); p.lineTo(30, 105); p.lineTo(30, 105); p.lineTo(10, 105); p.closePath();
       }));
@@ -257,7 +257,7 @@ describe('getColumnGenerator', () => {
     const rect = pathOf(p => p.rect(10, 40, 20, 60));
 
     it('uses the stack outerCap settings when the series has no cap of its own', () => {
-      const config = seriesConfig({ stack: 'st', seriesStackConfig: { outerCapType: 'point', outerCapSize: 10, outerCapExpand: false } });
+      const config = seriesConfig({ stack: 'st', seriesStackConfig: { outerCap: { type: 'point', size: 10, expand: false } } });
       const generator = getColumnGenerator(config, three(upBar), false, stackData);
       expect(generator(0)).toBe(pathOf(p => {
         p.moveTo(10, 50); p.lineTo(20, 40); p.lineTo(30, 50); p.lineTo(30, 100); p.lineTo(10, 100); p.closePath();
@@ -268,9 +268,9 @@ describe('getColumnGenerator', () => {
       expect(generator(2)).toBe(rect);
     });
 
-    it('lets the series cap override the stack outer cap and, without capOnlyStackOuter, caps every segment', () => {
-      const config = seriesConfig({ stack: 'st', capType: 'curve', capSize: 10, capExpand: false, capOnlyStackOuter: false,
-        seriesStackConfig: { outerCapType: 'point', outerCapSize: 4, outerCapExpand: true } });
+    it('lets the series cap override the stack outer cap and, without cap.onlyStackOuter, caps every segment', () => {
+      const config = seriesConfig({ stack: 'st', cap: { type: 'curve', size: 10, expand: false, onlyStackOuter: false },
+        seriesStackConfig: { outerCap: { type: 'point', size: 4, expand: true } } });
       const generator = getColumnGenerator(config, three(upBar), false, stackData);
       const curveCap = pathOf(p => {
         p.moveTo(10, 50); p.quadraticCurveTo(20, 30, 30, 50); p.lineTo(30, 100); p.lineTo(10, 100); p.closePath();
@@ -280,14 +280,14 @@ describe('getColumnGenerator', () => {
     });
 
     it('caps only outer segments with capOnlyStackOuter', () => {
-      const config = seriesConfig({ stack: 'st', capType: 'point', capSize: 10, capExpand: false, capOnlyStackOuter: true });
+      const config = seriesConfig({ stack: 'st', cap: { type: 'point', size: 10, expand: false, onlyStackOuter: true } });
       const generator = getColumnGenerator(config, three(upBar), false, stackData);
       expect(generator(0)).not.toBe(rect);
       expect(generator(2)).toBe(rect);
     });
 
     it('draws plain rects for a stacked series without caps anywhere', () => {
-      const config = seriesConfig({ stack: 'st', seriesStackConfig: { outerCapType: null, outerCapSize: 5, outerCapExpand: true } });
+      const config = seriesConfig({ stack: 'st', seriesStackConfig: { outerCap: { type: null, size: 5, expand: true } } });
       expect(getColumnGenerator(config, three(upBar), false, stackData)(0)).toBe(rect);
     });
   });
@@ -297,8 +297,8 @@ describe('getColumnGenerator', () => {
 // compacted position index, so once a category was skipped ('connect') caps landed on the wrong segments.
 describe('stacked bar outer caps with skipped categories', () => {
   const config = {
-    id: 'B', stack: 'st', capType: 'point', capSize: 4, capExpand: false,
-    capOnlyStackOuter: true, seriesStackConfig: null, barMinExtent: 0
+    id: 'B', stack: 'st', cap: { type: 'point', size: 4, expand: false, onlyStackOuter: true },
+    seriesStackConfig: null, bar: { minExtent: 0 }
   } as unknown as EnhancedSeriesConfig;
 
   // three raw categories with the middle one skipped: compacted 0 → raw 0, compacted 1 → raw 2

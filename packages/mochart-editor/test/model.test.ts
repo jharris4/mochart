@@ -32,7 +32,7 @@ describe('Mochart config editor model', () => {
   it('describes automatic tooltip and legend icon sizing', () => {
     for (const sectionId of ['tooltip', 'legend']) {
       const section = mochartConfigEditorModel.sections.find(candidate => candidate.id === sectionId);
-      const iconSize = section?.properties.find(property => property.key === 'iconSize');
+      const iconSize = section?.properties.find(property => property.key === 'icon')?.properties?.find(property => property.key === 'size');
 
       expect(iconSize?.editor.types).toEqual(expect.arrayContaining(['number', 'string']));
       expect(iconSize?.editor.enum).toContain('auto');

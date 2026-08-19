@@ -20,7 +20,7 @@ export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'Daily Share Price (fictional, $)' },
   categoryAxis: ohlc.categoryAxis,
-  valueAxes: [{ title: '$ per share' }],
+  valueAxes: [{ title: { text: '$ per share' } }],
   series: ohlc.series
 };
 

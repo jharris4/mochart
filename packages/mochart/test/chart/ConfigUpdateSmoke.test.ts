@@ -172,7 +172,7 @@ const ordinalDateTextEndpoint = () => endpoint(config({
 });
 
 const linearDateEndpoint = () => endpoint(config({
-  categoryAxis: { property: 'when', type: 'date', scale: 'linear', dateUTC: true, tickLabelFormat: '%Y-%m' }
+  categoryAxis: { property: 'when', type: 'date', scale: 'linear', dateUTC: true, tickLabel: { format: '%Y-%m' } }
 }), {
   seriesIds: ['primary'], valueAxisIds: ['value'], pie: false
 });
@@ -279,19 +279,19 @@ const titleVisibleEndpoint = () => endpoint(config({ title: { text: 'Smoke Title
 });
 
 const categoryAxisHiddenEndpoint = () => endpoint(config({
-  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Months', visible: false }
+  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: { text: 'Months' }, visible: false }
 }), { seriesIds: ['primary'], valueAxisIds: ['value'], pie: false });
 
 const categoryAxisVisibleEndpoint = () => endpoint(config({
-  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Months', visible: true }
+  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: { text: 'Months' }, visible: true }
 }), { categoryLabels: ['Jan', 'Feb', 'Mar'], seriesIds: ['primary'], valueAxisIds: ['value'], pie: false });
 
 const valueAxisHiddenEndpoint = () => endpoint(config({
-  valueAxes: [{ id: 'value', title: 'Sales', visible: false }]
+  valueAxes: [{ id: 'value', title: { text: 'Sales' }, visible: false }]
 }), { categoryLabels: ['Jan', 'Feb', 'Mar'], seriesIds: ['primary'], pie: false });
 
 const valueAxisVisibleEndpoint = () => endpoint(config({
-  valueAxes: [{ id: 'value', title: 'Sales', visible: true }]
+  valueAxes: [{ id: 'value', title: { text: 'Sales' }, visible: true }]
 }), { categoryLabels: ['Jan', 'Feb', 'Mar'], seriesIds: ['primary'], valueAxisIds: ['value'], pie: false });
 
 const scenarios: TransitionScenario[] = [

@@ -143,7 +143,7 @@ describe('value axis reversed series labels', () => {
 
   it('keeps outside labels outside the bar and inside labels inside', () => {
     for (const labelPosition of ['outside', 'inside'] as const) {
-      const container = mount({ valueAxes: [{ min: -5, max: 10, base: 0, reversed: true }], series: series({ labelPosition }) }, mixed);
+      const container = mount({ valueAxes: [{ min: -5, max: 10, base: 0, reversed: true }], series: series({ label: { position: labelPosition } }) }, mixed);
       const [below, above] = labels(container);
       // reversed: the positive bar grows downward, so an outside label hangs below its end and an inside one sits above it
       expect(above.dy).toBe(labelPosition === 'outside' ? '1.35em' : '-0.65em');
@@ -152,7 +152,7 @@ describe('value axis reversed series labels', () => {
   });
 
   it('mirrors the text anchor when inverted', () => {
-    const container = mount({ plot: { inverted: true }, valueAxes: [{ min: -5, max: 10, base: 0, reversed: true }], series: series({ labelPosition: 'outside' }) }, mixed);
+    const container = mount({ plot: { inverted: true }, valueAxes: [{ min: -5, max: 10, base: 0, reversed: true }], series: series({ label: { position: 'outside' } }) }, mixed);
     const [below, above] = labels(container);
     // reversed + inverted: the positive bar grows leftward, so its outside label ends at the bar end
     expect(above.anchor).toBe('end');
@@ -161,7 +161,7 @@ describe('value axis reversed series labels', () => {
 
   it('flips the label offset with the pixel direction', () => {
     const plain = labels(mount({ valueAxes: [{ min: -5, max: 10, base: 0, reversed: true }], series: series({}) }, mixed));
-    const offset = labels(mount({ valueAxes: [{ min: -5, max: 10, base: 0, reversed: true }], series: series({ labelOffset: 5 }) }, mixed));
+    const offset = labels(mount({ valueAxes: [{ min: -5, max: 10, base: 0, reversed: true }], series: series({ label: { offset: 5 } }) }, mixed));
     // a positive offset moves labels toward the base: upward for the positive bar once reversed
     expect(offset[1].y - plain[1].y).toBe(-5);
     expect(offset[0].y - plain[0].y).toBe(5);

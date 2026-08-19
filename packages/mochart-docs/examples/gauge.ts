@@ -27,14 +27,18 @@ export const config: MochartInputConfig = {
     // a small gap and rounded corners separate the segments
     padAngle: 1,
     cornerRadius: 3,
-    showLabels: true,
-    labelType: 'title',
+    label: {
+      visible: true,
+      type: 'title'
+    },
     // the center total tracks the unfiltered slices, so clicking a legend
     // entry counts it down; the negative Y offset lifts it off the gauge
     // pivot into the hole
     centerLabel: 'responses',
-    showCenterTotal: true,
-    centerTotalFormat: ',.0f',
+    centerTotal: {
+      visible: true,
+      format: ',.0f'
+    },
     centerOffsetYFraction: -0.25
   },
   categoryAxis: gauge.categoryAxis,

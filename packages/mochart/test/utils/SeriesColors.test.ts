@@ -42,12 +42,12 @@ describe('getSeriesOpacities', () => {
   });
 
   it('returns marker opacities when there is no shape renderer but a marker', () => {
-    const o = getSeriesOpacities(series({ renderer: 'none', markerShape: 'circle', markerStyle: { normal: { fillOpacity: 0.7 }, focused: { fillOpacity: 1 }, defocused: { fillOpacity: 0.3 } } }));
+    const o = getSeriesOpacities(series({ renderer: 'none', marker: { shape: 'circle', style: { normal: { fillOpacity: 0.7 }, focused: { fillOpacity: 1 }, defocused: { fillOpacity: 0.3 } } } }));
     expect(o).toEqual({ opacity: 0.7, focusedOpacity: 1, defocusedOpacity: 0.3 });
   });
 
   it('falls back to label opacities when there is no renderer and no marker', () => {
-    const o = getSeriesOpacities(series({ renderer: 'none', markerShape: null, labelTextStyle: { normal: { fillOpacity: 0.8 }, focused: { fillOpacity: 1 }, defocused: { fillOpacity: 0.4 } } }));
+    const o = getSeriesOpacities(series({ renderer: 'none', marker: { shape: null }, label: { textStyle: { normal: { fillOpacity: 0.8 }, focused: { fillOpacity: 1 }, defocused: { fillOpacity: 0.4 } } } }));
     expect(o).toEqual({ opacity: 0.8, focusedOpacity: 1, defocusedOpacity: 0.4 });
   });
 });
@@ -64,11 +64,11 @@ describe('getSeriesColor dispatch', () => {
   });
 
   it('uses the marker fill color when there is a marker and no shape', () => {
-    expect(getSeriesColor(colorPaletteConfig, series({ renderer: 'none', markerShape: 'circle', markerStyle: { normal: { fillColor: '#123' } } }))).toBe('#123');
+    expect(getSeriesColor(colorPaletteConfig, series({ renderer: 'none', marker: { shape: 'circle', style: { normal: { fillColor: '#123' } } } }))).toBe('#123');
   });
 
   it('uses the label fill color when there is no shape and no marker', () => {
-    expect(getSeriesColor(colorPaletteConfig, series({ renderer: 'none', markerShape: null, labelTextStyle: { normal: { fillColor: '#456' } } }))).toBe('#456');
+    expect(getSeriesColor(colorPaletteConfig, series({ renderer: 'none', marker: { shape: null }, label: { textStyle: { normal: { fillColor: '#456' } } } }))).toBe('#456');
   });
 });
 
@@ -102,7 +102,7 @@ describe('getColor palette + keyword resolution', () => {
   });
 
   it('resolves "series" on a marker color across to the series shape color', () => {
-    // markerStyle.normal.strokeColor defaults to "series"
+    // marker.style.normal.strokeColor defaults to "series"
     const color = getSeriesMarkerStrokeColor(colorPaletteConfig, series({ shapeStyle: { normal: { strokeColor: '#shape' } } }));
     expect(color).toBe('#shape');
   });
@@ -122,7 +122,7 @@ describe('getColor palette + keyword resolution', () => {
 
   it('takes an error bar palette color from the errorBar palette', () => {
     const palette = colorPaletteConfig.errorBar.normal.strokeColors;
-    const color = getSeriesErrorBarStrokeColor(colorPaletteConfig, series({ errorBarStyle: { normal: { strokeColor: 'seriesIndex' } } }), 2);
+    const color = getSeriesErrorBarStrokeColor(colorPaletteConfig, series({ errorBar: { style: { normal: { strokeColor: 'seriesIndex' } } } }), 2);
     expect(color).toBe(palette[2]);
   });
 });
@@ -131,12 +131,12 @@ describe('series style overrides', () => {
   const { series } = setup();
 
   it('keeps the sibling members and states of a partially overridden style', () => {
-    const seriesConfig = series({ markerStyle: { focused: { strokeWidth: 6 } } });
-    expect(seriesConfig.markerStyle.focused).toEqual({
+    const seriesConfig = series({ marker: { style: { focused: { strokeWidth: 6 } } } });
+    expect(seriesConfig.marker.style.focused).toEqual({
       strokeColor: 'same', strokeOpacity: 1, strokeWidth: 6, strokeDashArray: 'same', fillColor: 'same', fillOpacity: 1
     });
-    expect(seriesConfig.markerStyle.normal.strokeWidth).toBe(1);
-    expect(seriesConfig.markerStyle.defocused.strokeWidth).toBe(1);
+    expect(seriesConfig.marker.style.normal.strokeWidth).toBe(1);
+    expect(seriesConfig.marker.style.defocused.strokeWidth).toBe(1);
   });
 });
 

@@ -92,18 +92,18 @@ describe('threshold lines', () => {
 
   // the axis need not be drawn for its thresholds to be
   it('draws a threshold on a hidden axis', () => {
-    const container = valueThreshold({ value: 50, title: 'T' }, { visible: false });
+    const container = valueThreshold({ value: 50, title: { text: 'T' } }, { visible: false });
     expect(container.querySelector(getCssSelector('valueAxis'))).toBeNull();
     expect(container.textContent).toContain('T');
   });
 
   // the title is measured and laid out whether or not the axis is drawn
   it('places a titled threshold on a hidden axis like one on a visible axis', () => {
-    const hidden = titlePosition(valueThreshold({ value: 50, title: 'T' }, { visible: false }));
-    const shown = titlePosition(valueThreshold({ value: 50, title: 'T' }));
+    const hidden = titlePosition(valueThreshold({ value: 50, title: { text: 'T' } }, { visible: false }));
+    const shown = titlePosition(valueThreshold({ value: 50, title: { text: 'T' } }));
     expect(hidden.y).toEqual(shown.y);
     expect(hidden.x).toBeLessThan(shown.x);
-    const hiddenLine = linePosition(valueThreshold({ value: 50, title: 'T' }, { visible: false }));
+    const hiddenLine = linePosition(valueThreshold({ value: 50, title: { text: 'T' } }, { visible: false }));
     expect(hidden).not.toEqual(hiddenLine);
   });
 
@@ -111,7 +111,7 @@ describe('threshold lines', () => {
     const container = mount({
       categoryAxis: {
         property: 'when', type: 'date', scale: 'linear',
-        thresholds: [{ value: '2024-02-01T00:00:00.000Z', title: 'Launch' }]
+        thresholds: [{ value: '2024-02-01T00:00:00.000Z', title: { text: 'Launch' } }]
       },
       series: [{ property: 'sales', renderer: 'line' }]
     }, [
@@ -124,14 +124,14 @@ describe('threshold lines', () => {
   // a threshold is a position on a continuous scale, so an ordinal axis has nowhere to put it
   it('draws no line for a threshold on an ordinal axis', () => {
     const container = mount({
-      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', thresholds: [{ value: 1, title: 'Cut' }] }
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', thresholds: [{ value: 1, title: { text: 'Cut' } }] }
     });
     expect(container.querySelector(getDescendantCssSelector('categoryAxisThreshold', 'axisThreshold'))).toBeNull();
     expect(container.textContent).not.toContain('Cut');
   });
 
   it('draws no line for a threshold outside the domain', () => {
-    const container = valueThreshold({ value: 500, title: 'Far' });
+    const container = valueThreshold({ value: 500, title: { text: 'Far' } });
     expect(container.querySelector(getCssSelector('axisThreshold'))).toBeNull();
     expect(container.textContent).not.toContain('Far');
   });
@@ -139,26 +139,26 @@ describe('threshold lines', () => {
 
 describe('threshold title placement', () => {
   it('puts a vertical title at the axis side', () => {
-    const start = titlePosition(valueThreshold({ value: 50, title: 'T' }, { side: 'start' }));
-    const end = titlePosition(valueThreshold({ value: 50, title: 'T' }, { side: 'end' }));
+    const start = titlePosition(valueThreshold({ value: 50, title: { text: 'T' } }, { side: 'start' }));
+    const end = titlePosition(valueThreshold({ value: 50, title: { text: 'T' } }, { side: 'end' }));
     expect(end.x).toBeGreaterThan(start.x);
   });
 
   it('puts a horizontal title at the axis side', () => {
-    const start = titlePosition(categoryThreshold({ value: 50, title: 'T' }, { side: 'start' }));
-    const end = titlePosition(categoryThreshold({ value: 50, title: 'T' }, { side: 'end' }));
+    const start = titlePosition(categoryThreshold({ value: 50, title: { text: 'T' } }, { side: 'start' }));
+    const end = titlePosition(categoryThreshold({ value: 50, title: { text: 'T' } }, { side: 'end' }));
     expect(end.y).toBeGreaterThan(start.y);
   });
 
   it('puts a vertical low title below the line and a high title above it', () => {
-    const low = titlePosition(valueThreshold({ value: 50, title: 'T', titleSide: 'low' }));
-    const high = titlePosition(valueThreshold({ value: 50, title: 'T', titleSide: 'high' }));
+    const low = titlePosition(valueThreshold({ value: 50, title: { text: 'T', side: 'low' } }));
+    const high = titlePosition(valueThreshold({ value: 50, title: { text: 'T', side: 'high' } }));
     expect(low.y).toBeGreaterThan(high.y);
   });
 
   it('puts a horizontal low title left of the line and a high title right of it', () => {
-    const low = titlePosition(categoryThreshold({ value: 50, title: 'T', titleSide: 'low', titleSnapToValue: false }));
-    const high = titlePosition(categoryThreshold({ value: 50, title: 'T', titleSide: 'high', titleSnapToValue: false }));
+    const low = titlePosition(categoryThreshold({ value: 50, title: { text: 'T', side: 'low', snapToValue: false } }));
+    const high = titlePosition(categoryThreshold({ value: 50, title: { text: 'T', side: 'high', snapToValue: false } }));
     expect(high.x).toBeGreaterThan(low.x);
   });
 });
@@ -167,40 +167,40 @@ describe('titleSnapToValue', () => {
   // without snapping the title clamps flat against the plot edge; snapping
   // flips it to the other side of the line so it stays attached to it
   it('flips a vertical low title above a line near the plot floor', () => {
-    const snapped = titlePosition(valueThreshold({ value: 2, title: 'T', titleSide: 'low', titleSnapToValue: true }));
-    const clamped = titlePosition(valueThreshold({ value: 2, title: 'T', titleSide: 'low', titleSnapToValue: false }));
+    const snapped = titlePosition(valueThreshold({ value: 2, title: { text: 'T', side: 'low', snapToValue: true } }));
+    const clamped = titlePosition(valueThreshold({ value: 2, title: { text: 'T', side: 'low', snapToValue: false } }));
     expect(snapped.y).toBeLessThan(clamped.y);
   });
 
   it('flips a vertical high title below a line near the plot ceiling', () => {
-    const snapped = titlePosition(valueThreshold({ value: 98, title: 'T', titleSide: 'high', titleSnapToValue: true }));
-    const clamped = titlePosition(valueThreshold({ value: 98, title: 'T', titleSide: 'high', titleSnapToValue: false }));
+    const snapped = titlePosition(valueThreshold({ value: 98, title: { text: 'T', side: 'high', snapToValue: true } }));
+    const clamped = titlePosition(valueThreshold({ value: 98, title: { text: 'T', side: 'high', snapToValue: false } }));
     expect(snapped.y).toBeGreaterThan(clamped.y);
   });
 
   it('flips a horizontal low title right of a line near the plot start', () => {
-    const snapped = titlePosition(categoryThreshold({ value: 2, title: 'T', titleSide: 'low', titleSnapToValue: true }));
-    const clamped = titlePosition(categoryThreshold({ value: 2, title: 'T', titleSide: 'low', titleSnapToValue: false }));
+    const snapped = titlePosition(categoryThreshold({ value: 2, title: { text: 'T', side: 'low', snapToValue: true } }));
+    const clamped = titlePosition(categoryThreshold({ value: 2, title: { text: 'T', side: 'low', snapToValue: false } }));
     expect(snapped.x).toBeGreaterThan(clamped.x);
   });
 
   it('flips a horizontal high title left of a line near the plot end', () => {
-    const snapped = titlePosition(categoryThreshold({ value: 95, title: 'T', titleSide: 'high', titleSnapToValue: true }));
-    const clamped = titlePosition(categoryThreshold({ value: 95, title: 'T', titleSide: 'high', titleSnapToValue: false }));
+    const snapped = titlePosition(categoryThreshold({ value: 95, title: { text: 'T', side: 'high', snapToValue: true } }));
+    const clamped = titlePosition(categoryThreshold({ value: 95, title: { text: 'T', side: 'high', snapToValue: false } }));
     expect(snapped.x).toBeLessThan(clamped.x);
   });
 
   it('leaves a mid-domain vertical title where it is', () => {
     for (const titleSide of ['low', 'high'] as const) {
-      const snapped = titlePosition(valueThreshold({ value: 50, title: 'T', titleSide, titleSnapToValue: true }));
-      const unsnapped = titlePosition(valueThreshold({ value: 50, title: 'T', titleSide, titleSnapToValue: false }));
+      const snapped = titlePosition(valueThreshold({ value: 50, title: { text: 'T', side: titleSide, snapToValue: true } }));
+      const unsnapped = titlePosition(valueThreshold({ value: 50, title: { text: 'T', side: titleSide, snapToValue: false } }));
       expect(snapped).toEqual(unsnapped);
     }
   });
 
   it('leaves a mid-domain horizontal low title where it is', () => {
-    const snapped = titlePosition(categoryThreshold({ value: 50, title: 'T', titleSide: 'low', titleSnapToValue: true }));
-    const unsnapped = titlePosition(categoryThreshold({ value: 50, title: 'T', titleSide: 'low', titleSnapToValue: false }));
+    const snapped = titlePosition(categoryThreshold({ value: 50, title: { text: 'T', side: 'low', snapToValue: true } }));
+    const unsnapped = titlePosition(categoryThreshold({ value: 50, title: { text: 'T', side: 'low', snapToValue: false } }));
     expect(snapped).toEqual(unsnapped);
   });
 });
@@ -208,12 +208,14 @@ describe('titleSnapToValue', () => {
 describe('threshold styling', () => {
   it('applies an explicit line and title style', () => {
     const container = valueThreshold({
-      value: 50, title: 'T',
-      style: { normal: { strokeColor: '#ff0000', strokeOpacity: 0.5, strokeWidth: 3, strokeDashArray: '4 2' } },
-      titleTextStyle: {
-        normal: { strokeColor: '#0000ff', strokeOpacity: 0.9, strokeWidth: 2, strokeDashArray: '1 1',
-          fillColor: '#008000', fillOpacity: 0.8 }
-      }
+      value: 50, title: {
+        text: 'T',
+        textStyle: {
+          normal: { strokeColor: '#0000ff', strokeOpacity: 0.9, strokeWidth: 2, strokeDashArray: '1 1',
+            fillColor: '#008000', fillOpacity: 0.8 }
+        }
+      },
+      style: { normal: { strokeColor: '#ff0000', strokeOpacity: 0.5, strokeWidth: 3, strokeDashArray: '4 2' } }
     });
     const line = container.querySelector(getCssSelector('axisThreshold') + ' line')!;
     expect(line.getAttribute('stroke')).toBe('#ff0000');
@@ -226,8 +228,11 @@ describe('threshold styling', () => {
   it('draws the title background from titleBackgroundStyle behind the title text', () => {
     for (const [mountThreshold, vertical] of [[valueThreshold, true], [categoryThreshold, false]] as const) {
       const container = mountThreshold({
-        value: 50, title: 'Target', titlePadding: { top: 1, right: 2, bottom: 3, left: 4 },
-        titleBackgroundStyle: { fillColor: '#ffff00', fillOpacity: 1, strokeColor: '#ff00ff', strokeOpacity: 1, strokeWidth: 1 }
+        value: 50, title: {
+          text: 'Target',
+          padding: { top: 1, right: 2, bottom: 3, left: 4 },
+          backgroundStyle: { fillColor: '#ffff00', fillOpacity: 1, strokeColor: '#ff00ff', strokeOpacity: 1, strokeWidth: 1 }
+        }
       });
       const title = container.querySelector(getCssSelector('axisThresholdTitle'))!;
       const background = title.querySelector(getCssSelector('axisThresholdTitleBackground'))!;
@@ -254,7 +259,7 @@ describe('threshold styling', () => {
           animation: { animate: false },
           categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
           valueAxes: [{ id: 'VA0', min: 0, max: 100, useSeriesFocus,
-            thresholds: [{ value: 50, title: 'T' }] }],
+            thresholds: [{ value: 50, title: { text: 'T' } }] }],
           series: [
             { id: 'sales', property: 'sales', renderer: 'bar', axis: 'VA0' },
             { id: 'other', property: 'sales', renderer: 'line', axis: 'VA0' }
@@ -275,7 +280,7 @@ describe('threshold styling', () => {
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         valueAxes: [
           { id: 'VA0' },
-          { id: 'VA1', min: 0, max: 100, visibleWhenAllFiltered, thresholds: [{ value: 50, title: 'Orphan' }] }
+          { id: 'VA1', min: 0, max: 100, visibleWhenAllFiltered, thresholds: [{ value: 50, title: { text: 'Orphan' } }] }
         ],
         series: [{ property: 'sales', renderer: 'bar', axis: 'VA0' }]
       } as unknown as MochartInputConfig,
@@ -305,7 +310,7 @@ describe('threshold styling', () => {
         animation: { animate: false },
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         valueAxes: [{ id: 'VA0', min: 0, max: 100, visibleWhenAllFiltered, adjustForFiltering: false,
-          thresholds: [{ value: 50, title: 'Target' }] }],
+          thresholds: [{ value: 50, title: { text: 'Target' } }] }],
         series: [{ id: 'sales', property: 'sales', renderer: 'bar', axis: 'VA0' }]
       } as unknown as MochartInputConfig,
       data: rows, width: WIDTH, height: HEIGHT, filteredSeriesIds: { sales: true }
@@ -332,7 +337,7 @@ describe('threshold styling', () => {
 describe('degenerate thresholds', () => {
   // datePrimitive lets an iso string through on a numeric axis, where it is not a number
   it('draws no line for a date-string threshold on a numeric axis', () => {
-    const container = valueThreshold({ value: '2024-01-01T00:00:00.000Z', title: 'Wrong' });
+    const container = valueThreshold({ value: '2024-01-01T00:00:00.000Z', title: { text: 'Wrong' } });
     expect(container.querySelector(getCssSelector('axisThreshold'))).toBeNull();
     expect(container.textContent).not.toContain('Wrong');
   });
@@ -343,21 +348,21 @@ describe('degenerate thresholds', () => {
 
   it('leaves a vertical title clamped when neither side of the line has room', () => {
     for (const titleSide of ['low', 'high'] as const) {
-      const threshold = { value: 50, title: 'T', titleSide, titlePadding: oversizedPadding };
-      const snapped = titlePosition(valueThreshold({ ...threshold, titleSnapToValue: true }));
-      const clamped = titlePosition(valueThreshold({ ...threshold, titleSnapToValue: false }));
+      const threshold = { value: 50, title: { text: 'T', side: titleSide, padding: oversizedPadding } };
+      const snapped = titlePosition(valueThreshold({ ...threshold, title: { ...threshold.title, snapToValue: true } }));
+      const clamped = titlePosition(valueThreshold({ ...threshold, title: { ...threshold.title, snapToValue: false } }));
       // guard: the oversized padding must actually move the title, or these mounts test nothing
-      expect(clamped).not.toEqual(titlePosition(valueThreshold({ value: 50, title: 'T', titleSide, titleSnapToValue: false })));
+      expect(clamped).not.toEqual(titlePosition(valueThreshold({ value: 50, title: { text: 'T', side: titleSide, snapToValue: false } })));
       expect(snapped).toEqual(clamped);
     }
   });
 
   it('leaves a horizontal title clamped when neither side of the line has room', () => {
     for (const titleSide of ['low', 'high'] as const) {
-      const threshold = { value: 50, title: 'T', titleSide, titlePadding: oversizedPadding };
-      const snapped = titlePosition(categoryThreshold({ ...threshold, titleSnapToValue: true }));
-      const clamped = titlePosition(categoryThreshold({ ...threshold, titleSnapToValue: false }));
-      expect(clamped).not.toEqual(titlePosition(categoryThreshold({ value: 50, title: 'T', titleSide, titleSnapToValue: false })));
+      const threshold = { value: 50, title: { text: 'T', side: titleSide, padding: oversizedPadding } };
+      const snapped = titlePosition(categoryThreshold({ ...threshold, title: { ...threshold.title, snapToValue: true } }));
+      const clamped = titlePosition(categoryThreshold({ ...threshold, title: { ...threshold.title, snapToValue: false } }));
+      expect(clamped).not.toEqual(titlePosition(categoryThreshold({ value: 50, title: { text: 'T', side: titleSide, snapToValue: false } })));
       expect(snapped).toEqual(clamped);
     }
   });
@@ -369,7 +374,7 @@ describe('inverted plots', () => {
   it('places a value axis title on an inverted plot', () => {
     const container = mount({
       plot: { inverted: true },
-      valueAxes: [{ min: 0, max: 100, thresholds: [{ value: 50, title: 'T' }] }]
+      valueAxes: [{ min: 0, max: 100, thresholds: [{ value: 50, title: { text: 'T' } }] }]
     });
     expect(container.textContent).toContain('T');
   });
@@ -378,7 +383,7 @@ describe('inverted plots', () => {
     const container = mount({
       plot: { inverted: true },
       categoryAxis: { property: 'x', type: 'number', scale: 'linear', min: 0, max: 100,
-        thresholds: [{ value: 50, title: 'T' }] },
+        thresholds: [{ value: 50, title: { text: 'T' } }] },
       series: [{ property: 'sales', renderer: 'line' }]
     }, linearRows);
     expect(container.textContent).toContain('T');
@@ -467,8 +472,8 @@ describe('reversed axes', () => {
   // snapping follows the pixel edge, not the value: a low value on a reversed axis is near the ceiling
   // on a reversed value axis the low side is above the line; a low-value line sits by the ceiling with no room there
   it('snaps a low title below a low-value line on a reversed value axis', () => {
-    const snapped = titlePosition(valueThreshold({ value: 2, title: 'T', titleSide: 'low', titleSnapToValue: true }, { reversed: true }));
-    const clamped = titlePosition(valueThreshold({ value: 2, title: 'T', titleSide: 'low', titleSnapToValue: false }, { reversed: true }));
+    const snapped = titlePosition(valueThreshold({ value: 2, title: { text: 'T', side: 'low', snapToValue: true } }, { reversed: true }));
+    const clamped = titlePosition(valueThreshold({ value: 2, title: { text: 'T', side: 'low', snapToValue: false } }, { reversed: true }));
     expect(snapped.y).toBeGreaterThan(clamped.y);
   });
 });
@@ -477,23 +482,23 @@ describe('reversed axes', () => {
 // inverted category axis both sides landed toward the wrong values, the default 'high' included
 describe('titleSide follows the value direction', () => {
   it('puts a low title toward the smaller values on a reversed value axis', () => {
-    const low = titlePosition(valueThreshold({ value: 50, title: 'T', titleSide: 'low', titleSnapToValue: false }, { reversed: true }));
-    const high = titlePosition(valueThreshold({ value: 50, title: 'T', titleSide: 'high', titleSnapToValue: false }, { reversed: true }));
+    const low = titlePosition(valueThreshold({ value: 50, title: { text: 'T', side: 'low', snapToValue: false } }, { reversed: true }));
+    const high = titlePosition(valueThreshold({ value: 50, title: { text: 'T', side: 'high', snapToValue: false } }, { reversed: true }));
     expect(low.y).toBeLessThan(high.y); // reversed: smaller values are up
   });
 
   it('puts a low title toward the smaller values on an inverted category axis', () => {
     const inverted = (titleSide: string) => titlePosition(mount({
       plot: { inverted: true },
-      categoryAxis: { property: 'x', type: 'number', scale: 'linear', min: 0, max: 100, thresholds: [{ value: 50, title: 'T', titleSide, titleSnapToValue: false }] },
+      categoryAxis: { property: 'x', type: 'number', scale: 'linear', min: 0, max: 100, thresholds: [{ value: 50, title: { text: 'T', side: titleSide, snapToValue: false } }] },
       series: [{ property: 'sales', renderer: 'line' }]
     }, linearRows));
     expect(inverted('low').y).toBeLessThan(inverted('high').y); // inverted: categories ascend downward
   });
 
   it('puts a low title toward the smaller values on a reversed category axis', () => {
-    const low = titlePosition(categoryThreshold({ value: 50, title: 'T', titleSide: 'low', titleSnapToValue: false }, { reversed: true }));
-    const high = titlePosition(categoryThreshold({ value: 50, title: 'T', titleSide: 'high', titleSnapToValue: false }, { reversed: true }));
+    const low = titlePosition(categoryThreshold({ value: 50, title: { text: 'T', side: 'low', snapToValue: false } }, { reversed: true }));
+    const high = titlePosition(categoryThreshold({ value: 50, title: { text: 'T', side: 'high', snapToValue: false } }, { reversed: true }));
     expect(low.x).toBeGreaterThan(high.x); // reversed: smaller values are right
   });
 });

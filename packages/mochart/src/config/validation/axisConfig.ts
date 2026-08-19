@@ -6,6 +6,7 @@ import { createStyleValidators, lineMembers, styleMembers } from './styleStateVa
 import { AUTO, NONE, ANCHORS, COLOR_SAME, SIDES, THRESHOLD_TITLE_SIDES, TYPE_DATE } from '../core/constants';
 
 import type { ConfigObject, LocatedValidationMessage } from './messages';
+import type { Validator } from '@mochart/movalid';
 
 // Never null: an axis writes stroke="none" so a host-css stroke cannot inherit onto its text.
 const { styleShape, styleStates } = createStyleValidators(allowSame =>
@@ -14,13 +15,36 @@ const { styleShape, styleStates } = createStyleValidators(allowSame =>
 
 export const axisStyleValidators = { styleShape, styleStates, lineMembers, styleMembers };
 
-// a threshold sits on the axis's value scale, so its value takes the axis's own primitive: number by default, date on a date category axis
-export default function getValidators(thresholdValue = validators.number()) {
+// A nested config group: partial like every nested config (deep-merged over its default); extras pass for the unknown-key walk.
+const group = (shape: Record<string, Validator>) => validators.partialObjectWithShape(shape, true);
+
+/** The tick label members shared by both axes; each axis adds its own (format rules, truncation, filtering). */
+export function getTickLabelValidators(): Record<string, Validator> {
   return {
-    showAxisLine: validators.boolean(),
-    axisLineFront: validators.boolean(),
-    axisLineMargin: validators.numberMin(0),
-    axisLineStyle: styleStates(lineMembers),
+    front: validators.boolean(),
+    backgroundStyle: validators.style(),
+    size: validators.numberMin(0).orEqual(AUTO),
+    marginInner: validators.numberMin(0),
+    marginOuter: validators.numberMin(0),
+    paddingInner: validators.numberMin(0),
+    paddingOuter: validators.numberMin(0),
+    prefix: validators.string().orEqual(NONE),
+    suffix: validators.string().orEqual(NONE),
+    rotation: validators.numberMinMax(-90, 90),
+    anchor: validators.oneOf(ANCHORS.concat([AUTO])),
+    textStyle: styleStates(styleMembers)
+  };
+}
+
+// a threshold sits on the axis's value scale, so its value takes the axis's own primitive: number by default, date on a date category axis
+export default function getValidators(thresholdValue = validators.number(), tickLabelValidators: Record<string, Validator> = getTickLabelValidators()) {
+  return {
+    axisLine: group({
+      visible: validators.boolean(),
+      front: validators.boolean(),
+      margin: validators.numberMin(0),
+      style: styleStates(lineMembers)
+    }),
 
     backgroundStyle: validators.style(),
     backgroundFront: validators.boolean(),
@@ -31,20 +55,26 @@ export default function getValidators(thresholdValue = validators.number()) {
 
     collapsed: validators.boolean(),
 
-    showFocusRange: validators.boolean(),
-    focusRangeFront: validators.boolean(),
-    focusRangeApplyToTitle: validators.boolean(),
-    focusRangeStyle: styleShape(styleMembers, false),
+    focusRange: group({
+      visible: validators.boolean(),
+      front: validators.boolean(),
+      applyToTitle: validators.boolean(),
+      style: styleShape(styleMembers, false)
+    }),
 
-    showFocusTickMarks: validators.boolean(),
-    focusTickMarkFront: validators.boolean(),
-    focusTickMarkSize: validators.numberMin(0),
-    focusTickMarkMargin: validators.numberMin(0),
-    focusTickMarkStyle: styleShape(['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'], false),
+    focusTickMark: group({
+      visible: validators.boolean(),
+      front: validators.boolean(),
+      size: validators.numberMin(0),
+      margin: validators.numberMin(0),
+      style: styleShape(['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'], false)
+    }),
 
-    showGridLines: validators.boolean(),
-    gridLineFront: validators.boolean(),
-    gridLineStyle: styleStates(lineMembers),
+    gridLine: group({
+      visible: validators.boolean(),
+      front: validators.boolean(),
+      style: styleStates(lineMembers)
+    }),
 
     marginInner: validators.numberMin(0),
     marginOuter: validators.numberMin(0),
@@ -61,47 +91,42 @@ export default function getValidators(thresholdValue = validators.number()) {
       value: thresholdValue,
       front: validators.boolean().orEqual(undefined),
       style: styleStates(lineMembers).orEqual(undefined),
-      title: validators.string().orOneOf([NONE, undefined]),
-      titleSide: validators.oneOf(THRESHOLD_TITLE_SIDES).orEqual(undefined),
-      titleSnapToValue: validators.boolean().orEqual(undefined),
-      titleMargin: validators.margin().orEqual(undefined),
-      titlePadding: validators.padding().orEqual(undefined),
-      titleTextStyle: styleStates(styleMembers).orEqual(undefined),
-      titleBackgroundStyle: validators.style().orEqual(undefined)
+      title: validators.partialObjectWithShape({
+        text: validators.string().orOneOf([NONE, undefined]),
+        side: validators.oneOf(THRESHOLD_TITLE_SIDES).orEqual(undefined),
+        snapToValue: validators.boolean().orEqual(undefined),
+        margin: validators.margin().orEqual(undefined),
+        padding: validators.padding().orEqual(undefined),
+        textStyle: styleStates(styleMembers).orEqual(undefined),
+        backgroundStyle: validators.style().orEqual(undefined)
+      }, true).orEqual(undefined)
     }), true),
 
     tickCount: validators.integerMin(0).orEqual(AUTO),
 
-    tickLabelFront: validators.boolean(),
-    tickLabelBackgroundStyle: validators.style(),
-    tickLabelSize: validators.numberMin(0).orEqual(AUTO),
-    tickLabelMarginInner: validators.numberMin(0),
-    tickLabelMarginOuter: validators.numberMin(0),
-    tickLabelPaddingInner: validators.numberMin(0),
-    tickLabelPaddingOuter: validators.numberMin(0),
-    tickLabelPrefix: validators.string().orEqual(NONE),
-    tickLabelSuffix: validators.string().orEqual(NONE),
-    tickLabelRotation: validators.numberMinMax(-90, 90),
-    tickLabelAnchor: validators.oneOf(ANCHORS.concat([AUTO])),
-    tickLabelTextStyle: styleStates(styleMembers),
+    tickLabel: group(tickLabelValidators),
 
-    showTickMarks: validators.boolean(),
-    tickMarkFront: validators.boolean(),
-    tickMarkSize: validators.numberMin(0),
-    tickMarkMargin: validators.numberMin(0),
-    tickMarkStyle: styleStates(lineMembers),
+    tickMark: group({
+      visible: validators.boolean(),
+      front: validators.boolean(),
+      size: validators.numberMin(0),
+      margin: validators.numberMin(0),
+      style: styleStates(lineMembers)
+    }),
 
-    title: validators.string().orEqual(NONE),
-    titleFront: validators.boolean(),
-    titleBackgroundStyle: validators.style(),
-    titleTruncationEnabled: validators.boolean(),
-    titleTruncationValue: validators.string(),
-    titleSize: validators.numberMin(0).orEqual(AUTO),
-    titleMarginInner: validators.numberMin(0),
-    titleMarginOuter: validators.numberMin(0),
-    titlePaddingInner: validators.numberMin(0),
-    titlePaddingOuter: validators.numberMin(0),
-    titleTextStyle: styleStates(styleMembers),
+    title: group({
+      text: validators.string().orEqual(NONE),
+      front: validators.boolean(),
+      backgroundStyle: validators.style(),
+      truncationEnabled: validators.boolean(),
+      truncationValue: validators.string(),
+      size: validators.numberMin(0).orEqual(AUTO),
+      marginInner: validators.numberMin(0),
+      marginOuter: validators.numberMin(0),
+      paddingInner: validators.numberMin(0),
+      paddingOuter: validators.numberMin(0),
+      textStyle: styleStates(styleMembers)
+    }),
 
     visible: validators.boolean()
   };

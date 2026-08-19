@@ -12,11 +12,19 @@ export default function getDescriptions() {
     margin: spacing('the margin (in pixels) for the top, right, bottom and left sides of the legend'),
     padding: spacing('the padding (in pixels) for the top, right, bottom and left sides of the legend'),
     backgroundStyle: style('the styles to apply to the legend background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
-    itemMargin: spacing('the margin (in pixels) for the top, right, bottom and left sides of the legend items'),
-    itemPadding: spacing('the padding (in pixels) for the top, right, bottom and left sides of the legend items'),
-    itemBackgroundStyle: style('the styles to apply to the legend item backgrounds (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
-    itemTextStyle: style('the styles to apply to the legend item text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)'),
-    ...getSeriesIconDescriptions('legend', 'the legend text font size'),
+    item: {
+      description: 'the legend items, each a series icon and title in its own box',
+      properties: {
+        margin: spacing('the margin (in pixels) for the top, right, bottom and left sides of the legend items'),
+        padding: spacing('the padding (in pixels) for the top, right, bottom and left sides of the legend items'),
+        backgroundStyle: style('the styles to apply to the legend item backgrounds (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
+        textStyle: style('the styles to apply to the legend item text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)')
+      }
+    },
+    icon: {
+      description: 'the series icons shown next to the series titles in the legend',
+      properties: getSeriesIconDescriptions('legend', 'the legend text font size')
+    },
     showFilteringOnLabels: 'whether to strike through the item text of filtered series',
     focusOnMouseOver: 'whether to focus a series when the mouse is moved over the series icon or title',
     focusOnClick: 'whether to focus a series when the series icon or title is clicked',

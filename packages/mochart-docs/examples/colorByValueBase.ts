@@ -9,7 +9,7 @@ export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'Revenue Shaded by Growth' },
   categoryAxis: { property: 'region', type: 'string', scale: 'ordinal' },
-  valueAxes: [{ id: 'VA0', title: 'Revenue ($k)' }],
+  valueAxes: [{ id: 'VA0', title: { text: 'Revenue ($k)' } }],
   series: [
     {
       property: 'revenue',

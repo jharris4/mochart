@@ -14,12 +14,18 @@
   "categoryAxis": {
     "property": "month_bought",
     "type": "date",
-    "showAxisLine": true,
-    "axisLineMargin": 0,
-    "showGridLines": true,
+    "axisLine": {
+      "visible": true,
+      "margin": 0
+    },
+    "gridLine": {
+      "visible": true
+    },
     "scale": "ordinal",
-    "tickLabelFormat": "%B %Y",
-    "tickLabelTruncationEnabled": false,
+    "tickLabel": {
+      "format": "%B %Y",
+      "truncationEnabled": false
+    },
     "valueFormat": "%B %Y",
     "valueLabel": "Category",
     "side": "end"
@@ -28,9 +34,15 @@
     {
       "id": "VA0",
       "visible": true,
-      "axisLineMargin": 0,
-      "showGridLines": true,
-      "tickLabelFormat": "$.0f",
+      "axisLine": {
+        "margin": 0
+      },
+      "gridLine": {
+        "visible": true
+      },
+      "tickLabel": {
+        "format": "$.0f"
+      },
       "min": 0,
       "side": "start"
     }

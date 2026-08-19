@@ -309,7 +309,9 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
   sync() {
     const { legendConfig, seriesConfig, legendItemLayoutInfo, legendItemTextLayoutInfo, uniqueIds, clipPath, colorPaletteConfig,
       seriesIndex, seriesIsFiltered, seriesIsFocused, seriesIsDefocused, seriesFocusPercentage } = this.props;
-    const { iconSpacerSize, truncationEnabled, truncationValue, itemTextStyle, showFilteringOnLabels } = legendConfig;
+    const { truncationEnabled, truncationValue, showFilteringOnLabels } = legendConfig;
+    const { spacerSize: iconSpacerSize } = legendConfig.icon;
+    const { textStyle: itemTextStyle } = legendConfig.item;
     const itemTextAttributes = styleToAttributes(itemTextStyle);
     // a camelCase prop, not a style: the dom layer kebab-cases it into the svg attribute, and null leaves it off
     const textDecoration = showFilteringOnLabels && seriesIsFiltered ? 'line-through' : null;
@@ -342,7 +344,7 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
       onKeyDown: interactive ? this.onKeyDown : null,
       onFocusIn: interactive ? this.onFocusIn : null,
       onFocusOut: interactive ? this.onFocusOut : null });
-    this.background.set(Background, { config: legendConfig, configStyleKey: 'itemBackgroundStyle', classKey: 'legendItemBackground', spacingRelative: true, spacingLayoutInfo: legendItemLayoutInfo });
+    this.background.set(Background, { config: legendConfig.item, classKey: 'legendItemBackground', spacingRelative: true, spacingLayoutInfo: legendItemLayoutInfo });
     this.iconGroup.set({ className: mochartCssClasses['legendItemIcon'], transform: iconTransform });
     this.icon.set(SeriesColorIcon, { seriesContextConfig: legendConfig, seriesConfig, focused: seriesIsFocused, defocused: seriesIsDefocused,
       focusPercentage: seriesFocusPercentage, colorPaletteConfig, seriesIndex,

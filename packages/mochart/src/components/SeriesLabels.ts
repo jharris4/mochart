@@ -17,9 +17,9 @@ import { CategoryShapeCache } from '../utils/CategoryShapes';
 import type { CategoryShape } from '../utils/CategoryShapes';
 
 const getLabelPosition = (isAboveBase: boolean, hasBase: boolean, seriesConfig: EnhancedSeriesConfig): LabelPosition => {
-  let { labelPosition } = seriesConfig;
+  let { position: labelPosition } = seriesConfig.label;
   if (hasBase) {
-    const { labelAboveBasePosition, labelBelowBasePosition } = seriesConfig;
+    const labelAboveBasePosition = seriesConfig.label.aboveBase.position, labelBelowBasePosition = seriesConfig.label.belowBase.position;
     if (isAboveBase && labelAboveBasePosition !== AUTO) {
       labelPosition = labelAboveBasePosition;
     }
@@ -104,7 +104,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
           return true;
         };
 
-        const { labelOffset } = seriesConfig;
+        const { offset: labelOffset } = seriesConfig.label;
 
         // a reversed value axis flips the pixel direction, so the offset and the label side flip with it
         const { reversed } = valueAxisConfig;
@@ -115,17 +115,17 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
         };
 
         if (hasBase) {
-          const aboveBaseLabelOffset = seriesConfig.labelAboveBaseOffset === AUTO ? labelOffset : seriesConfig.labelAboveBaseOffset;
-          const belowBaseLabelOffset = seriesConfig.labelBelowBaseOffset === AUTO ? -1 * labelOffset : seriesConfig.labelBelowBaseOffset;
+          const aboveBaseLabelOffset = seriesConfig.label.aboveBase.offset === AUTO ? labelOffset : seriesConfig.label.aboveBase.offset;
+          const belowBaseLabelOffset = seriesConfig.label.belowBase.offset === AUTO ? -1 * labelOffset : seriesConfig.label.belowBase.offset;
 
           getOffset = (aboveBase: boolean) => {
             return offsetSign * (aboveBase ? aboveBaseLabelOffset : belowBaseLabelOffset);
           };
         }
 
-        const {
-          labelMinPositionFraction, labelMaxPositionFraction, labelAboveBaseMinPositionFraction,
-          labelAboveBaseMaxPositionFraction, labelBelowBaseMinPositionFraction, labelBelowBaseMaxPositionFraction } = seriesConfig;
+        const { minPositionFraction: labelMinPositionFraction, maxPositionFraction: labelMaxPositionFraction, aboveBase: aboveBaseLabel, belowBase: belowBaseLabel } = seriesConfig.label;
+        const { minPositionFraction: labelAboveBaseMinPositionFraction, maxPositionFraction: labelAboveBaseMaxPositionFraction } = aboveBaseLabel;
+        const { minPositionFraction: labelBelowBaseMinPositionFraction, maxPositionFraction: labelBelowBaseMaxPositionFraction } = belowBaseLabel;
 
         if ((labelMinPositionFraction !== NONE || labelMaxPositionFraction !== NONE) || (hasBase &&
             (labelAboveBaseMinPositionFraction !== NONE || labelAboveBaseMaxPositionFraction !== NONE ||
@@ -178,10 +178,10 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             };
           }
         }
-        if (seriesConfig.labelMinRangeFraction !== NONE) {
+        if (seriesConfig.label.minRangeFraction !== NONE) {
           const oldWithinPercentages = withinPercentages;
           const hasStack = seriesConfig.stack !== NONE;
-          const minAbsoluteValue = domainExtent === 0 ? domainMin + 1 : seriesConfig.labelMinRangeFraction * domainExtent;
+          const minAbsoluteValue = domainExtent === 0 ? domainMin + 1 : seriesConfig.label.minRangeFraction * domainExtent;
 
           if (hasStack) {
             if (hasBase) {
@@ -248,7 +248,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
             labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
             labelStrokeColor = getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
-            const { strokeWidth: labelStrokeWidth, strokeOpacity: labelStrokeOpacity, fillOpacity: labelFillOpacity } = getFocusStyle(focusPercentage, seriesConfig.labelTextStyle);
+            const { strokeWidth: labelStrokeWidth, strokeOpacity: labelStrokeOpacity, fillOpacity: labelFillOpacity } = getFocusStyle(focusPercentage, seriesConfig.label.textStyle);
             seriesPosition = getSeriesPosition(null, i)! + getOffset(aboveBase);
             const categoryPosition = isBar ? getOffsetCategoryPosition(null, i)! + categoryValueExtent / 2 : getCategoryPosition(null, i)!;
             x = inverted ? seriesPosition : categoryPosition;

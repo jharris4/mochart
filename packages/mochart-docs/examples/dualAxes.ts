@@ -7,8 +7,8 @@ export const config: MochartInputConfig = {
   title: { text: 'Revenue vs Conversion' },
   categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
   valueAxes: [
-    { id: 'money', title: 'Revenue' },
-    { id: 'rate', title: 'Conversion', side: 'end', tickLabelFormat: '.0%' }
+    { id: 'money', title: { text: 'Revenue' } },
+    { id: 'rate', title: { text: 'Conversion' }, side: 'end', tickLabel: { format: '.0%' } }
   ],
   series: [
     { property: 'revenue', title: 'Revenue', renderer: 'bar', axis: 'money' },

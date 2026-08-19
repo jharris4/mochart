@@ -32,7 +32,7 @@ function makeConfig(seriesOverrides: Record<string, unknown> = {}): MochartInput
     version: '1.0.0',
     animation: { animate: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
-    series: [{ id: 'sales', property: 'sales', renderer: 'bar', markerShape: 'circle', labelProperty: 'sales', ...seriesOverrides }]
+    series: [{ id: 'sales', property: 'sales', renderer: 'bar', marker: { shape: 'circle' }, labelProperty: 'sales', ...seriesOverrides }]
   } as unknown as MochartInputConfig;
 }
 

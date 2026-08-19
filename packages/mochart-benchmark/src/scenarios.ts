@@ -39,10 +39,10 @@ export function makeConfig(type: ScenarioType, seriesCount: number, options: Sce
   const renderer = type === 'bar' ? 'bar' : type === 'area' ? 'area' : 'line';
   const seriesDefaults: any = { axis: 'VA0', renderer };
   if (type === 'line-markers') {
-    seriesDefaults.markerShape = 'circle';
+    seriesDefaults.marker = { shape: 'circle' };
   }
   else if (renderer === 'line') {
-    seriesDefaults.markerShape = null;
+    seriesDefaults.marker = { shape: null };
   }
   const series: any[] = [];
   for (let i = 0; i < seriesCount; i++) {

@@ -32,14 +32,18 @@ const baseConfig = {
     "keyProperty": "c",
     "type": "string",
     "scale": "ordinal",
-    "title": "Category Axis Title",
-    "tickLabelTruncationEnabled": true,
-    "tickLabelTruncationValue": "...",
-    "tickLabelTruncationMaxFraction": 0.20,
-    "titleTruncationEnabled": true,
-    "titleTruncationValue": "...",
-    "tickLabelAnchor": "auto",
-    "tickLabelRotation": 0,
+    "title": {
+      "text": "Category Axis Title",
+      "truncationEnabled": true,
+      "truncationValue": "..."
+    },
+    "tickLabel": {
+      "truncationEnabled": true,
+      "truncationValue": "...",
+      "truncationMaxFraction": 0.20,
+      "anchor": "auto",
+      "rotation": 0
+    },
     "side": "start",
     "collapsed": false
   },
@@ -72,8 +76,10 @@ function addConfig(title: string, inverted: boolean, start: boolean, collapsed: 
     "categoryAxis": {
       "side": start ? "start" : "end",
       "collapsed": collapsed,
-      "tickLabelRotation": rotation,
-      "tickLabelAnchor": anchor
+      "tickLabel": {
+        "rotation": rotation,
+        "anchor": anchor
+      }
     }
   };
   rotationConfigs.push(merge({}, baseConfig, configOverride));

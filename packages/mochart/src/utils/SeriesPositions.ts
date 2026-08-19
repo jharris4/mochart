@@ -33,7 +33,8 @@ function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorP
 }
 
 export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, seriesConfig: EnhancedSeriesConfig, categoryValueData: CategoryAxisData['valueData'], valueAxisScale: AxisScale, valueObject: SeriesValueObject, seriesLayoutInfo: LayoutInfo): SeriesPositionData {
-  const { valueAxisConfig, seriesGroupConfig, missingValues, partialRangeIsMissing, group, stack, rangeProperty, barWidthFraction, barAlignFraction, renderer } = seriesConfig;
+  const { valueAxisConfig, seriesGroupConfig, missingValues, partialRangeIsMissing, group, stack, rangeProperty, renderer } = seriesConfig;
+  const { widthFraction: barWidthFraction, alignFraction: barAlignFraction } = seriesConfig.bar;
   const { spacingInfo, positions: categoryPositions } = categoryValueData;
   const { base } = valueAxisConfig;
   const { min } = valueObject;

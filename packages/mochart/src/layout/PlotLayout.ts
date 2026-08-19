@@ -13,8 +13,8 @@ import type { EnhancedMochartConfig, EnhancedValueAxisConfig } from '../types/en
 import type { AxisLayoutInfo, AxisTickInfo, AxisTickInfos, BeforeAfter, ChartDataForLayout, ChartTextBoundsData, PlotLayoutResult } from '../types/layout';
 
 export function getRotatedTickBounds(axisConfig: AxisConfigBase, tickBounds: TextBounds, axisTickInfo: AxisTickInfo): Bounds {
-  const rotatedTickBounds = axisConfig.tickLabelRotation !== 0
-    ? getRotatedBounds(tickBounds, axisConfig.tickLabelRotation, axisTickInfo.tickLabelAnchor)
+  const rotatedTickBounds = axisConfig.tickLabel.rotation !== 0
+    ? getRotatedBounds(tickBounds, axisConfig.tickLabel.rotation, axisTickInfo.tickLabelAnchor)
     : getRotatedZeroBounds(tickBounds, axisTickInfo.tickLabelAnchor);
   rotatedTickBounds.x = Math.floor(rotatedTickBounds.x);
   rotatedTickBounds.y = Math.floor(rotatedTickBounds.y);
@@ -46,7 +46,7 @@ function getAxisTickInfos(plotConfig: PlotConfig, categoryAxisConfig: CategoryAx
 }
 
 function getAxisTickInfo(axisConfig: AxisConfigBase, vertical: boolean): AxisTickInfo {
-  const tickLabelRotation = Math.abs(axisConfig.tickLabelRotation);
+  const tickLabelRotation = Math.abs(axisConfig.tickLabel.rotation);
   const tickLabelParallel = vertical ? tickLabelRotation > 70 : tickLabelRotation < 20;
   const tickLabelAnchor = getTickLabelAnchor(axisConfig, vertical, tickLabelParallel);
   return {
@@ -56,24 +56,24 @@ function getAxisTickInfo(axisConfig: AxisConfigBase, vertical: boolean): AxisTic
 }
 
 function getAxisTotalTickLabelSize(axisConfig: AxisConfigBase, rotatedTickBounds: Size, vertical: boolean): number {
-  const tickLabelSize = axisConfig.tickLabelSize === AUTO
+  const tickLabelSize = axisConfig.tickLabel.size === AUTO
     ? (vertical ? rotatedTickBounds.width : rotatedTickBounds.height)
-    : axisConfig.tickLabelSize;
-  return axisConfig.tickLabelMarginInner + axisConfig.tickLabelPaddingInner + tickLabelSize + axisConfig.tickLabelMarginOuter + axisConfig.tickLabelPaddingOuter;
+    : axisConfig.tickLabel.size;
+  return axisConfig.tickLabel.marginInner + axisConfig.tickLabel.paddingInner + tickLabelSize + axisConfig.tickLabel.marginOuter + axisConfig.tickLabel.paddingOuter;
 }
 
 function getAxisTitleSize(axisConfig: AxisConfigBase, titleBounds: Size): number {
   let titleSize = 0;
-  if (axisConfig.title !== NONE) {
-    titleSize = axisConfig.titleSize === AUTO ? titleBounds.height : axisConfig.titleSize;
+  if (axisConfig.title.text !== NONE) {
+    titleSize = axisConfig.title.size === AUTO ? titleBounds.height : axisConfig.title.size;
   }
   return titleSize;
 }
 
 function getAxisTotalTitleSize(axisConfig: AxisConfigBase, titleBounds: Size): number {
   let titleSize = 0;
-  if (axisConfig.title !== NONE) {
-    titleSize = axisConfig.titleMarginInner + axisConfig.titlePaddingInner + getAxisTitleSize(axisConfig, titleBounds) + axisConfig.titleMarginOuter + axisConfig.titlePaddingOuter;
+  if (axisConfig.title.text !== NONE) {
+    titleSize = axisConfig.title.marginInner + axisConfig.title.paddingInner + getAxisTitleSize(axisConfig, titleBounds) + axisConfig.title.marginOuter + axisConfig.title.paddingOuter;
   }
   return titleSize;
 }
@@ -94,8 +94,9 @@ export function getPlotHeight(innerHeight: number, titleHeight: number, legendHe
 }
 
 export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: AxisConfigBase, axisTickInfo: AxisTickInfo, tickBounds: TextBounds, rotatedTickBounds: Bounds, titleBounds: TextBounds, thresholdTitleBounds: Record<number, TextBounds>, vertical: boolean, inverted: boolean): void {
-  const { side, collapsed, titleMarginInner, titleMarginOuter, titlePaddingInner, titlePaddingOuter, tickLabelMarginInner, tickLabelMarginOuter, tickLabelPaddingInner, tickLabelPaddingOuter,
-    title } = axisConfig;
+  const { side, collapsed, focusRange } = axisConfig;
+  const { marginInner: titleMarginInner, marginOuter: titleMarginOuter, paddingInner: titlePaddingInner, paddingOuter: titlePaddingOuter, text: title } = axisConfig.title;
+  const { marginInner: tickLabelMarginInner, marginOuter: tickLabelMarginOuter, paddingInner: tickLabelPaddingInner, paddingOuter: tickLabelPaddingOuter } = axisConfig.tickLabel;
   const before = side === SIDE_START;
   const notAfter = (before && !collapsed) || (!before && collapsed);
 
@@ -109,7 +110,7 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   axisLayoutInfo.vertical = vertical;
   axisLayoutInfo.tickLabelAnchor = axisTickInfo.tickLabelAnchor;
 
-  let { tickLabelSize } = axisConfig;
+  let { size: tickLabelSize } = axisConfig.tickLabel;
   if (tickLabelSize === AUTO) {
     tickLabelSize = axisLayoutInfo.tickLabelSize;
   }
@@ -155,13 +156,13 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
     height: vertical ? height : totalTickLabelSize,
   }, vertical, inverted, notAfter, tickLabelMarginInner, tickLabelMarginOuter, tickLabelPaddingInner, tickLabelPaddingOuter);
 
-  const { focusRangeApplyToTitle } = axisConfig;
+  const { applyToTitle: focusRangeApplyToTitle } = focusRange;
   const focusRangeTitle = focusRangeApplyToTitle && title !== NONE;
   const focusMarginInner = tickLabelMarginInner;
   const focusMarginOuter = focusRangeApplyToTitle ? titleMarginOuter : tickLabelMarginOuter;
   const focusPaddingInner = tickLabelPaddingInner;
   const focusPaddingOuter = focusRangeApplyToTitle ? titlePaddingOuter : tickLabelPaddingOuter;
-  axisLayoutInfo.focusRangeLayoutInfo = axisConfig.showFocusRange === false ? emptyLayoutInfo : createInnerOuterSpacingLayoutInfo({
+  axisLayoutInfo.focusRangeLayoutInfo = axisConfig.focusRange.visible === false ? emptyLayoutInfo : createInnerOuterSpacingLayoutInfo({
     x: focusRangeTitle ? Math.min(titleLayoutInfo.x, tickLabelLayoutInfo.x) : tickLabelLayoutInfo.x,
     y: focusRangeTitle ? Math.min(titleLayoutInfo.y, tickLabelLayoutInfo.y) : tickLabelLayoutInfo.y,
     width: vertical ? (focusRangeApplyToTitle ? titleLayoutInfo.width + tickLabelLayoutInfo.width : tickLabelLayoutInfo.width) : width,
@@ -176,9 +177,9 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   }
   axisLayoutInfo.thresholdTitleLayoutInfos = resolveThresholds(axisConfig.thresholds).map((threshold, thresholdIndex) => {
     const bounds = thresholdTitleBounds[thresholdIndex];
-    return !(threshold.title !== NONE && bounds !== undefined)
+    return !(threshold.title.text !== NONE && bounds !== undefined)
       ? emptyLayoutInfo
-      : createSpacingLayoutInfo({ x: 0, y: 0, ...bounds }, threshold.titleMargin, threshold.titlePadding, false);
+      : createSpacingLayoutInfo({ x: 0, y: 0, ...bounds }, threshold.title.margin, threshold.title.padding, false);
   });
 
   axisLayoutInfo.titleTextX = titleTextX;
@@ -189,8 +190,8 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   let tickMarkY1 = 0;
   let tickMarkX2 = 0;
   let tickMarkY2 = 0;
-  if (axisConfig.showTickMarks) {
-    const { tickMarkMargin, tickMarkSize } = axisConfig;
+  if (axisConfig.tickMark.visible) {
+    const { margin: tickMarkMargin, size: tickMarkSize } = axisConfig.tickMark;
     const tickMarkOffset = notAfter ? (vertical ? width : height) - tickMarkMargin : tickMarkMargin;
     tickMarkX1 = vertical ? tickMarkOffset : 0;
     tickMarkX2 = vertical ? (notAfter ? tickMarkX1 - tickMarkSize : tickMarkX1 + tickMarkSize) : 0;
@@ -206,8 +207,8 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   let focusTickMarkY1 = 0;
   let focusTickMarkX2 = 0;
   let focusTickMarkY2 = 0;
-  if (axisConfig.showFocusTickMarks) {
-    const { focusTickMarkMargin, focusTickMarkSize } = axisConfig;
+  if (axisConfig.focusTickMark.visible) {
+    const { margin: focusTickMarkMargin, size: focusTickMarkSize } = axisConfig.focusTickMark;
     const focusTickMarkOffset = notAfter ? (vertical ? width : height) - focusTickMarkMargin : focusTickMarkMargin;
     focusTickMarkX1 = vertical ? focusTickMarkOffset : 0;
     focusTickMarkX2 = vertical ? (notAfter ? focusTickMarkX1 - focusTickMarkSize : focusTickMarkX1 + focusTickMarkSize) : 0;
@@ -223,8 +224,8 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   let axisLineY1 = 0;
   let axisLineX2 = 0;
   let axisLineY2 = 0;
-  if (axisConfig.showAxisLine === true) {
-    const { axisLineMargin } = axisConfig;
+  if (axisConfig.axisLine.visible === true) {
+    const { margin: axisLineMargin } = axisConfig.axisLine;
     const axisLineOffset = notAfter ? (vertical ? width : height) - axisLineMargin : axisLineMargin;
     axisLineX1 = vertical ? axisLineOffset : 0;
     axisLineY1 = vertical ? 0 : axisLineOffset;
@@ -242,13 +243,13 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   let titleBoundsWidth = 0;
   let titleBoundsHeight = 0;
   // TODO - check axisConfig.visible higher up...
-  if (axisConfig.visible && axisConfig.title !== NONE && axisConfig.titleTruncationEnabled) {
-    let { tickLabelSize } = axisConfig;
+  if (axisConfig.visible && axisConfig.title.text !== NONE && axisConfig.title.truncationEnabled) {
+    let { size: tickLabelSize } = axisConfig.tickLabel;
     if (tickLabelSize === AUTO) {
       tickLabelSize = axisLayoutInfo.tickLabelSize;
     }
 
-    const titleOffset = notAfter ? axisConfig.titleMarginOuter + axisConfig.titlePaddingOuter : totalTickLabelSize + axisConfig.titleMarginInner + axisConfig.titlePaddingInner;
+    const titleOffset = notAfter ? axisConfig.title.marginOuter + axisConfig.title.paddingOuter : totalTickLabelSize + axisConfig.title.marginInner + axisConfig.title.paddingInner;
 
     titleBoundsX = vertical ? titleOffset : 0;
     titleBoundsY = vertical ? 0 : titleOffset;
@@ -263,9 +264,10 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
 }
 
 function getTickLabelAnchor(axisConfig: AxisConfigBase, vertical: boolean, tickLabelParallel: boolean): Anchor {
-  if (axisConfig.tickLabelAnchor === AUTO) {
+  if (axisConfig.tickLabel.anchor === AUTO) {
     if (!tickLabelParallel) {
-      const { side, collapsed, tickLabelRotation } = axisConfig;
+      const { side, collapsed } = axisConfig;
+      const { rotation: tickLabelRotation } = axisConfig.tickLabel;
       const before = side === SIDE_START;
       const notAfter = (before && !collapsed) || (!before && collapsed);
       if (vertical) {
@@ -280,7 +282,7 @@ function getTickLabelAnchor(axisConfig: AxisConfigBase, vertical: boolean, tickL
     }
   }
   else {
-    return axisConfig.tickLabelAnchor;
+    return axisConfig.tickLabel.anchor;
   }
 }
 

@@ -10,7 +10,9 @@
     {
       "renderer": "line",
       "title": "Value 0",
-      "markerShape": "circle",
+      "marker": {
+        "shape": "circle"
+      },
       "property": "value"
     }
   ],

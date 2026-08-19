@@ -107,7 +107,7 @@ describe('built-in SVG patterns', () => {
   it('uses patterns for areas but leaves plot markers solid', () => {
     const area = mount(base({
       patterns: [{ type: 'lines' }],
-      series: [{ id: 'A', property: 'a', renderer: 'area', markerShape: 'circle' }]
+      series: [{ id: 'A', property: 'a', renderer: 'area', marker: { shape: 'circle' } }]
     }));
     expect(area.querySelector(getCssSelector('seriesArea'))!.getAttribute('fill')).toMatch(/^url\(#series__pattern__/);
     expect(area.querySelector(getCssSelector('seriesMarker'))!.getAttribute('fill')).not.toMatch(/^url\(/);
@@ -213,7 +213,7 @@ describe('built-in SVG patterns', () => {
     const container = mount(base({
       patterns: [{ type: 'dots' }],
       legend: { visible: true },
-      series: [{ id: 'A', property: 'a', renderer: 'area', markerShape: 'circle' }]
+      series: [{ id: 'A', property: 'a', renderer: 'area', marker: { shape: 'circle' } }]
     }));
 
     const legendIcon = container.querySelector(getCssSelector('legendItemIcon') + ' > rect');

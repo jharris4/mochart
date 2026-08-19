@@ -25,12 +25,12 @@ export default class CategoryAxisTickLabelClip extends Renderer<CategoryAxisTick
     const { mochartConfig, categoryAxisLayoutInfo, chartContentLayoutInfo, categoryAxisTickLabelClipPathUniqueId } = this.props;
     let { maxTickLabelLength } = this.props;
     const { categoryAxis: categoryAxisConfig, plot: plotConfig } = mochartConfig;
-    if (categoryAxisConfig.visible && categoryAxisConfig.tickLabelTruncationEnabled) {
+    if (categoryAxisConfig.visible && categoryAxisConfig.tickLabel.truncationEnabled) {
       const { tickLabelParallel, tickHeight, tickLabelAnchor } = categoryAxisLayoutInfo;
       const { inverted } = plotConfig;
-      const { tickLabelTruncationMaxFraction, tickLabelRotation } = categoryAxisConfig;
+      const { truncationMaxFraction: tickLabelTruncationMaxFraction, rotation: tickLabelRotation } = categoryAxisConfig.tickLabel;
       if (!tickLabelParallel) {
-        maxTickLabelLength = Math.max(categoryAxisConfig.tickLabelTruncationMinLength,
+        maxTickLabelLength = Math.max(categoryAxisConfig.tickLabel.truncationMinLength,
           tickLabelTruncationMaxFraction * (inverted ? chartContentLayoutInfo.width : chartContentLayoutInfo.height));
       }
       const tickRotationTransform = tickLabelRotation === 0 ? null : 'rotate(' + tickLabelRotation + ')';

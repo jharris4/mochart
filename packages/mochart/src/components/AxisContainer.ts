@@ -53,7 +53,7 @@ export default class AxisContainer extends Renderer<AxisContainerProps> {
       titleClipPathUniqueId: categoryAxisTitleClipPathUniqueId,
       tickLabelClipPathUniqueId: categoryAxisTickLabelClipPathUniqueId,
       plotLayoutInfo, accessibility,
-      accessibleLabel: getAxisAccessibleLabel(categoryAxisConfig.title, accessibilityConfig.categoryAxisLabel) });
+      accessibleLabel: getAxisAccessibleLabel(categoryAxisConfig.title.text, accessibilityConfig.categoryAxisLabel) });
 
     this.valueAxes.sync(getValueAxisFocusContexts(valueAxisConfigs, focusData).map(({ axisConfig, id, key, axisFocusPercentage, seriesFocusPercentage }) => {
       return {
@@ -66,7 +66,7 @@ export default class AxisContainer extends Renderer<AxisContainerProps> {
           titleClipPathUniqueId: valueAxisTitleClipPathUniqueIds[id],
           focusedValueAxisId: focusData.focusedValueAxisId,
           plotLayoutInfo, onFocus, accessibility,
-          accessibleLabel: getAxisAccessibleLabel(axisConfig.title, accessibilityConfig.valueAxisLabel) }
+          accessibleLabel: getAxisAccessibleLabel(axisConfig.title.text, accessibilityConfig.valueAxisLabel) }
       };
     }));
   }

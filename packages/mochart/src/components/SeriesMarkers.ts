@@ -51,11 +51,11 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
   sync() {
     const { colorPaletteConfig, seriesConfig, seriesIndex, seriesPositionData, filteredValues, rawDomains, inverted, focusData } = this.props;
 
-    if (seriesConfig.markerShape !== NONE) {
+    if (seriesConfig.marker.shape !== NONE) {
       const { categoryFocusPercentages, valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
       let markerFillColor, markerStrokeColor;
-      const { markerShape, missingValueMarkers, markerSize, markerMinSize, markerSizeScale } = seriesConfig;
+      const { shape: markerShape, showForMissingValues: missingValueMarkers, size: markerSize, minSize: markerMinSize, sizeScale: markerSizeScale } = seriesConfig.marker;
       const markers: CategoryShape[] = [];
       let markerSizes: Array<number | undefined> | null = null;
       if (seriesConfig.markerProperty !== NONE) {
@@ -92,7 +92,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
           focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
           markerFillColor = getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
           markerStrokeColor = getSeriesMarkerStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
-          const { strokeWidth: markerStrokeWidth, strokeDashArray: markerStrokeDashArray, strokeOpacity: markerStrokeOpacity, fillOpacity: markerFillOpacity } = getFocusStyle(focusPercentage, seriesConfig.markerStyle);
+          const { strokeWidth: markerStrokeWidth, strokeDashArray: markerStrokeDashArray, strokeOpacity: markerStrokeOpacity, fillOpacity: markerFillOpacity } = getFocusStyle(focusPercentage, seriesConfig.marker.style);
           const categoryPosition = isBar ? getOffsetCategoryPosition(null, i)! + categoryValueExtent / 2 : getCategoryPosition(null, i)!;
           let cx, cy;
           if (inverted) {

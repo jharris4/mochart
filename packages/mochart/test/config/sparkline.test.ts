@@ -29,14 +29,14 @@ describe('createSparklineConfig', () => {
     const config = baseConfig();
     config.valueAxes = [{ id: 'va', base: 0 }];
     const mochartConfig = enhanceConfig(createSparklineConfig(config));
-    expect(mochartConfig.valueAxes[0].showBaseLine).toBe(false);
-    const explicit = enhanceConfig(createSparklineConfig({ ...config, valueAxisDefaults: { showBaseLine: true } }));
-    expect(explicit.valueAxes[0].showBaseLine).toBe(true);
+    expect(mochartConfig.valueAxes[0].baseLine.visible).toBe(false);
+    const explicit = enhanceConfig(createSparklineConfig({ ...config, valueAxisDefaults: { baseLine: { visible: true } } }));
+    expect(explicit.valueAxes[0].baseLine.visible).toBe(true);
   });
 
   it('hides the per-point markers line series default to', () => {
     const mochartConfig = enhanceConfig(createSparklineConfig(baseConfig()));
-    expect(mochartConfig.series[0].markerShape).toBeNull();
+    expect(mochartConfig.series[0].marker.shape).toBeNull();
   });
 
   // Regression: with no declared valueAxisConfigs the all-config never

@@ -20,14 +20,14 @@ import * as sparkline from '../examples/sparkline'
   preset untouched. The value axes are hidden through
   [`valueAxisDefaults`](/reference/valueAxes), so it works whether or not
   the config declares any; their
-  [base line](/reference/valueAxes#valueAxes.showBaseLine), which draws in the
+  [base line](/reference/valueAxes#valueAxes.baseLine), which draws in the
   plot rather than the axis band, is switched off there too.
 - `interactive: true` keeps the tooltip and crosshair enabled for sparklines
   large enough to host them; `padding` (default 2px) is set as the chart
   [`padding`](/reference/chart#chart.padding) and keeps strokes at the data
   extremes from clipping against the chart edges.
 - Point markers are hidden by nulling
-  [`markerShape`](/reference/series#series.markerShape) through
+  [`marker.shape`](/reference/series#series.marker.shape) through
   `seriesDefaults`, so line series render as a bare stroke.
 - The sparkline is still a regular chart — size it by mounting it small (this
   page uses a 56px-tall host; table cells around 150×32 work well) and it
