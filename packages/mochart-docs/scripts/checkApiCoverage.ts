@@ -6,13 +6,14 @@
 //   JSDoc or its interface has no page group, so this is the backstop for a
 //   member quietly moving to an undocumented interface);
 // - public exports from core's index.ts — values and named types alike, in
-//   any export syntax, resolved through the TypeScript checker — must be
-//   mentioned in a docs page. Exports declared under src/types/ are the
+//   any export syntax, resolved through the TypeScript checker — must appear
+//   in a docs page's code (a span or fenced block, so a word in prose is not
+//   mistaken for a reference). Exports declared under src/types/ are the
 //   exception: that surface is the generated config reference / the .d.ts;
 // - `ChartHandle` methods must appear in a docs page as a call —
 //   `` `name(` `` — so renaming a method breaks the check;
 // - @mochart/export's and @mochart/editor's exports (checker-resolved, like
-//   core's) must be mentioned in a docs page (the binding packages are
+//   core's) must appear in a docs page's code too (the binding packages are
 //   covered by the framework-props generator). The editor's model.ts types
 //   are the exception: that surface is the shipped .d.ts;
 // - the non-JS surface — core's and the editor's subpath exports (the
@@ -125,51 +126,68 @@ function moduleExports(entryPath: string): { name: string; declarationFiles: str
   return exports.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-function interfaceMemberNames(source: string, interfaceName: string, sourceLabel: string): string[] {
-  const start = source.search(new RegExp(`interface ${interfaceName}\\b`));
-  if (start === -1) {
-    console.error(`✗ interface ${interfaceName} not found in ${sourceLabel}`);
-    process.exit(1);
+const memberPrograms = new Map<string, ts.SourceFile>();
+const memberCheckers = new Map<string, ts.TypeChecker>();
+
+/** Every member an interface offers, inherited ones included, read from the AST so formatting cannot hide one. */
+function interfaceMemberNames(filePath: string, interfaceName: string): string[] {
+  let sourceFile = memberPrograms.get(filePath);
+  if (sourceFile === undefined) {
+    const program = ts.createProgram([filePath], {
+      target: ts.ScriptTarget.ES2020,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      customConditions: ['development'],
+      skipLibCheck: true
+    });
+    sourceFile = program.getSourceFile(filePath);
+    if (sourceFile === undefined) {
+      console.error(`✗ could not read ${filePath}`);
+      process.exit(1);
+    }
+    memberCheckers.set(filePath, program.getTypeChecker());
+    memberPrograms.set(filePath, sourceFile);
   }
-  const open = source.indexOf('{', start);
-  let depth = 0;
-  let end = open;
-  for (let index = open; index < source.length; index++) {
-    if (source[index] === '{') depth++;
-    else if (source[index] === '}') {
-      depth--;
-      if (depth === 0) {
-        end = index;
-        break;
-      }
+  const checker = memberCheckers.get(filePath)!;
+  for (const statement of sourceFile.statements) {
+    if (ts.isInterfaceDeclaration(statement) && statement.name.text === interfaceName) {
+      return checker.getPropertiesOfType(checker.getTypeAtLocation(statement)).map(member => member.name);
     }
   }
-  const body = source.slice(open + 1, end);
-  // Two-space indentation = a top-level member; anything deeper is nested.
-  return [...body.matchAll(/^ {2}(\w+)\??[?:(]/gm)].flatMap(match => match[1] ?? []);
+  console.error(`✗ interface ${interfaceName} not found in ${path.basename(filePath)}`);
+  process.exit(1);
+}
+
+/** Code spans and fenced blocks only: an api name mentioned in prose is not a reference to it. */
+function readDocsCode(text: string): string {
+  return [...text.matchAll(/```[\s\S]*?```/g), ...text.matchAll(/`[^`\n]+`/g)].map(match => match[0]).join('\n');
 }
 
 const docsText = readDocsText();
+const docsCode = readDocsCode(docsText);
+const documentedInCode = (name: string) => new RegExp(`\\b${name}\\b`).test(docsCode);
 const { propInterfaces, propKeys: documentedPropKeys, enumerationNames } = readApiReference();
-const chartTypesSource = fs.readFileSync(path.join(coreSrcDir, 'types', 'chart.ts'), 'utf8');
-const createChartSource = fs.readFileSync(path.join(coreSrcDir, 'createChart.ts'), 'utf8');
+const chartTypesPath = path.join(coreSrcDir, 'types', 'chart.ts');
+const createChartPath = path.join(coreSrcDir, 'createChart.ts');
 
 const missing: { kind: string; name: string; where: string }[] = [];
+// keyed by owner as well as name, so a shared name cannot let one kind's laxer rule stand in for another's
 const seen = new Set<string>();
+const seenNames = new Set<string>();
 
 function check(kind: string, name: string, documented: boolean, where: string) {
-  if (seen.has(name)) return;
-  seen.add(name);
+  if (seen.has(kind + ' ' + name)) return;
+  seen.add(kind + ' ' + name);
+  seenNames.add(name);
   if (name in undocumented || documented) return;
   missing.push({ kind, name, where });
 }
 
 for (const interfaceName of propInterfaces) {
-  for (const member of interfaceMemberNames(chartTypesSource, interfaceName, 'types/chart.ts')) {
+  for (const member of interfaceMemberNames(chartTypesPath, interfaceName)) {
     check(interfaceName, member, documentedPropKeys.has(member), 'the api-reference model');
   }
 }
-for (const member of interfaceMemberNames(createChartSource, 'ChartHandle', 'createChart.ts')) {
+for (const member of interfaceMemberNames(createChartPath, 'ChartHandle')) {
   check('ChartHandle', member, docsText.includes('`' + member + '('), 'any docs page as a `' + member + '(…)` call');
 }
 // Types declared under src/types are the `export type *` wildcard surface —
@@ -177,10 +195,10 @@ for (const member of interfaceMemberNames(createChartSource, 'ChartHandle', 'cre
 const coreTypesDir = path.join(coreSrcDir, 'types') + path.sep;
 for (const { name, declarationFiles } of moduleExports(path.join(coreSrcDir, 'index.ts'))) {
   if (declarationFiles.length > 0 && declarationFiles.every(file => file.startsWith(coreTypesDir))) continue;
-  check('export', name, enumerationNames.has(name) || new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page or the enumerations page');
+  check('export', name, enumerationNames.has(name) || documentedInCode(name), 'any docs page or the enumerations page');
 }
 for (const { name } of moduleExports(path.join(docsDir, '..', 'mochart-export', 'src', 'index.ts'))) {
-  check('@mochart/export', name, new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page');
+  check('@mochart/export', name, documentedInCode(name), 'any docs page');
 }
 // The editor's model.ts types are the generated-model surface — the shipped
 // .d.ts, not docs-page material.
@@ -188,7 +206,7 @@ const editorPackageDir = path.join(docsDir, '..', 'mochart-editor');
 const editorModelPath = path.join(editorPackageDir, 'src', 'model.ts');
 for (const { name, declarationFiles } of moduleExports(path.join(editorPackageDir, 'src', 'index.ts'))) {
   if (declarationFiles.length > 0 && declarationFiles.every(file => file === editorModelPath)) continue;
-  check('@mochart/editor', name, new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page');
+  check('@mochart/editor', name, documentedInCode(name), 'any docs page');
 }
 
 // Non-JS surface: subpath exports (the optional stylesheet) and the IIFE
@@ -213,7 +231,7 @@ if (iifeArtifact === undefined) {
 }
 check('script-tag artifact', iifeArtifact, docsText.includes(iifeArtifact), 'any docs page');
 
-const stale = Object.keys(undocumented).filter(name => !seen.has(name));
+const stale = Object.keys(undocumented).filter(name => !seenNames.has(name));
 
 if (missing.length > 0) {
   console.error('✗ undocumented public API — document it, or add it to `undocumented` with a reason:\n');
@@ -231,4 +249,4 @@ if (missing.length > 0 || stale.length > 0) {
   process.exit(1);
 }
 
-console.log(`✓ all ${seen.size} public exports and chart props are documented`);
+console.log(`✓ all ${seenNames.size} public exports and chart props are documented`);
