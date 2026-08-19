@@ -17,7 +17,7 @@ function mount(overrides: Record<string, unknown>, data: readonly unknown[] = ro
   trackHandle(createDefaultChart(container, {
     config: {
       version: '1.0.0',
-      animation: { animate: false },
+      animation: { enabled: false },
       categoryAxis: { property: 'c', type: 'string', scale: 'ordinal' },
       series: [{ property: 'v', renderer: 'bar' }],
       ...overrides

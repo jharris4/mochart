@@ -28,7 +28,7 @@ import * as gauge from '../examples/gauge'
   clicking one filters it — the remaining slices grow to fill the circle,
   animated with the usual [`animation`](/reference/animation) timing. To
   focus from the slice itself, set the series'
-  [`focusOnMouseOver`](/reference/series#series.focusOnMouseOver) or
+  [`focusOnHover`](/reference/series#series.focusOnHover) or
   [`focusOnClick`](/reference/series#series.focusOnClick); an `onSliceClick`
   callback reports slice clicks (see
   [Interaction](/guide/interaction#callbacks)). Slice colors come from the
@@ -135,7 +135,7 @@ setting it explicitly confines the slices to a partial span. With
   it by fractions of the outer radius — the example's `-0.25` lifts it into
   the hole.
 - The center text is styled by
-  [`centerLabelTextStyle`](/reference/pie#pie.centerLabelTextStyle) and
+  [`centerLabel.textStyle`](/reference/pie#pie.centerLabel.textStyle) and
   [`centerTotal.textStyle`](/reference/pie#pie.centerTotal.textStyle), both
   defaulting to `fillColor: 'currentColor'` so the text follows the host
   page's CSS `color`. It can also be restyled directly: CSS wins over the

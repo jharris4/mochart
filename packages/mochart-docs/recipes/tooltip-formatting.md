@@ -35,7 +35,7 @@ import * as tooltipFormat from '../examples/tooltipFormat'
   [`markerProperty`](/reference/series#series.markerProperty) value follows
   the series value in parentheses.
 - Chart-wide behavior lives in [`tooltip`](/reference/tooltip):
-  [`rightAlignValues`](/reference/tooltip#tooltip.rightAlignValues) (on by
+  [`valueAlign`](/reference/tooltip#tooltip.valueAlign) (`'right'` by
   default) lines the values up in a column,
   [`showMissingValues`](/reference/tooltip#tooltip.showMissingValues) /
   [`missingValueText`](/reference/tooltip#tooltip.missingValueText) control

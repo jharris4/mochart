@@ -38,7 +38,7 @@ const MAX_FRAMES = 400;
 function makeConfig(animation: Durations = {}, categoryProperty = 'month') {
   return mochart.enhanceConfig({
     version: '1.0.0',
-    animation: { animate: true, ...baseDurations, ...animation },
+    animation: { enabled: true, ...baseDurations, ...animation },
     categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
     valueAxes: [{ id: 'value', min: 0, max: 100 }],
     series: [{ id: 'sales', property: 'sales', axis: 'value', renderer: 'bar' }]

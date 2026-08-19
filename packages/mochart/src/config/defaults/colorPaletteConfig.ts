@@ -14,7 +14,7 @@ const defaultPalette = () => ({
 
 export default function getDefaults() {
   return {
-    series: defaultPalette(),
+    shape: defaultPalette(),
     marker: defaultPalette(),
     label: defaultPalette(),
     errorBar: defaultPalette()

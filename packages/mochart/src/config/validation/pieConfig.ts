@@ -23,8 +23,10 @@ export default function getValidators() {
       valueType: validators.oneOf(PIE_TOOLTIP_VALUE_TYPES),
       percentFormat: validators.numberFormat().orEqual(AUTO)
     }, true),
-    centerLabel: validators.string().orEqual(NONE),
-    centerLabelTextStyle: validators.style(),
+    centerLabel: validators.partialObjectWithShape({
+      text: validators.string().orEqual(NONE),
+      textStyle: validators.style()
+    }, true),
     centerTotal: validators.partialObjectWithShape({
       visible: validators.boolean(),
       textStyle: validators.style(),

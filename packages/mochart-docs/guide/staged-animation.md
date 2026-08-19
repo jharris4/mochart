@@ -159,7 +159,7 @@ Nearly all knobs live in [`animation`](/reference/animation):
 
 | Property | Controls |
 | --- | --- |
-| [`animate`](/reference/animation#animation.animate) | master switch — `false` applies every update instantly |
+| [`enabled`](/reference/animation#animation.enabled) | master switch — `false` applies every update instantly |
 | [`valueDomainChange`](/reference/animation#animation.valueDomainChange) | staged vs combined value-axis domain changes (see [Combining phases](#combining-phases)) |
 | [`categoryDomainChange`](/reference/animation#animation.categoryDomainChange) | staged vs combined category-axis domain changes |
 | [`initialDuration`](/reference/animation#animation.initialDuration) | the first render when the chart mounts or after a structural config change |

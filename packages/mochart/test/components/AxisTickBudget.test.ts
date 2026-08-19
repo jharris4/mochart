@@ -18,7 +18,7 @@ function mountChart(categoryOverrides: Record<string, unknown>, valueOverrides: 
   const container = mountContainer();
   const config = {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', ...categoryOverrides },
     valueAxes: [{ id: 'VA0', min: 0, max: 100, ...valueOverrides }],
     series: [{ axis: 'VA0', property: 'sales', renderer: 'bar' }]

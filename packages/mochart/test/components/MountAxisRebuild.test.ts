@@ -21,7 +21,7 @@ const rows = [{ c: 'a', v: 5 }, { c: 'b', v: 25 }];
 // no category axis, title or legend: the value extent is fixed by the chart height alone
 const config = {
   version: '1.0.0',
-  animation: { animate: false },
+  animation: { enabled: false },
   categoryAxis: { property: 'c', type: 'string', scale: 'ordinal', visible: false },
   valueAxes: [{ min: 0, max: 30 }],
   series: [{ property: 'v', renderer: 'bar' }],
@@ -60,7 +60,7 @@ describe('mount-time remeasure after tick label truncation', () => {
       const rows = Array.from({ length: 12 }, (_, i) => ({ c: 'Month number ' + (i + 1), v: 10 + i }));
       const rotated = {
         version: '1.0.0',
-        animation: { animate: false },
+        animation: { enabled: false },
         categoryAxis: { property: 'c', type: 'string', scale: 'ordinal', tickLabel: { rotation: 45 } },
         series: [{ property: 'v', renderer: 'bar' }]
       } as unknown as MochartInputConfig;

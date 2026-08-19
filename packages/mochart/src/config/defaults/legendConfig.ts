@@ -11,7 +11,7 @@ export function getRegularDefaults() {
   return {
     position: POSITION_BOTTOM,
     truncationEnabled: true,
-    truncationValue: ELLIPSIS,
+    truncationText: ELLIPSIS,
     alignedToAxes: true,
     align: ALIGN_CENTER,
     margin: { top: 5, right: 0, bottom: 0, left: 0 },
@@ -25,8 +25,8 @@ export function getRegularDefaults() {
       textStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE }
     },
     icon: getSeriesIconRegularDefaults(),
-    showFilteringOnLabels: false,
-    focusOnMouseOver: true,
+    strikeThroughFiltered: false,
+    focusOnHover: true,
     focusOnClick: false,
     filterOnClick: true
   };

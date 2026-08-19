@@ -28,8 +28,10 @@ export function getRegularDefaults() {
       valueType: PIE_TOOLTIP_VALUE_TYPE_VALUE,
       percentFormat: AUTO
     },
-    centerLabel: NONE,
-    centerLabelTextStyle: { strokeColor: NONE, strokeOpacity: NONE, strokeWidth: NONE, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },
+    centerLabel: {
+      text: NONE,
+      textStyle: { strokeColor: NONE, strokeOpacity: NONE, strokeWidth: NONE, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE }
+    },
     centerTotal: {
       visible: false,
       textStyle: { strokeColor: NONE, strokeOpacity: NONE, strokeWidth: NONE, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },

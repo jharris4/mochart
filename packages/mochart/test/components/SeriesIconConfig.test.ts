@@ -20,7 +20,7 @@ function mountChart(overrides: Record<string, unknown> = {}): Element {
   const container = mountContainer();
   const config = {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ id: 'S0', property: 'sales', renderer: 'bar' }, { id: 'S1', property: 'costs', renderer: 'bar' }],
     legend: { visible: true, filterOnClick: true },
@@ -109,7 +109,7 @@ describe('legend icon switches', () => {
 
   it('writes the icon border color, opacity and size onto the shape', () => {
     const icons = legendIcons(mountChart({
-      legend: { visible: true, icon: { borderColor: 'rgb(9,9,9)', borderOpacity: 0.11, borderSize: 2 } }
+      legend: { visible: true, icon: { borderStyle: { strokeColor: 'rgb(9,9,9)', strokeOpacity: 0.11, strokeWidth: 2 } } }
     }));
 
     expect(icons[0].getAttribute('stroke')).toBe('rgb(9,9,9)');
@@ -123,8 +123,8 @@ describe('legend icon switches', () => {
       const transform = container.querySelector(getDescendantCssSelector('legendItemText') + ' text')!.getAttribute('transform') ?? '';
       return Number(/translate\(\s*([-\d.]+)/.exec(transform)![1]);
     };
-    const narrow = mountChart({ legend: { visible: true, icon: { size: 10, spacerSize: 2 } } });
-    const wide = mountChart({ legend: { visible: true, icon: { size: 10, spacerSize: 22 } } });
+    const narrow = mountChart({ legend: { visible: true, icon: { size: 10, spacing: 2 } } });
+    const wide = mountChart({ legend: { visible: true, icon: { size: 10, spacing: 22 } } });
 
     // the item text starts after the icon plus its spacer, so 20 more spacer is 20 more offset
     expect(textX(wide) - textX(narrow)).toBeCloseTo(20);
@@ -200,7 +200,7 @@ describe('legend icon color-scale gradients', () => {
     const before = chartGradients(container)[0];
 
     lastHandle().update({ config: {
-      version: VERSION, animation: { animate: false },
+      version: VERSION, animation: { enabled: false },
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
       series: [{ ...rampSeries, colorScale: { min: '#111', max: '#999' } }],
       legend: { visible: true }
@@ -219,7 +219,7 @@ describe('legend icon color-scale gradients', () => {
     const gradient = chartGradients(container)[0];
 
     lastHandle().update({ config: {
-      version: VERSION, animation: { animate: false },
+      version: VERSION, animation: { enabled: false },
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
       series: [splitSeries],
       legend: { visible: true }
@@ -229,7 +229,7 @@ describe('legend icon color-scale gradients', () => {
     expect(stopsOf(gradient)).toEqual([['0%', '#a00'], ['50%', '#f00'], ['50%', '#0f0'], ['100%', '#0a0']]);
 
     lastHandle().update({ config: {
-      version: VERSION, animation: { animate: false },
+      version: VERSION, animation: { enabled: false },
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
       series: [rampSeries],
       legend: { visible: true }
@@ -244,7 +244,7 @@ describe('legend icon color-scale gradients', () => {
     expect(chartGradients(container)).toHaveLength(1);
 
     lastHandle().update({ config: {
-      version: VERSION, animation: { animate: false },
+      version: VERSION, animation: { enabled: false },
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
       series: [{ id: 'S0', property: 'sales', renderer: 'bar' }],
       legend: { visible: true }

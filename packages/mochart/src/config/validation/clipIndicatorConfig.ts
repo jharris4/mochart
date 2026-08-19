@@ -5,11 +5,11 @@ export default function getValidators() {
   return {
     visible: validators.boolean(),
     size: validators.numberMin(0).orEqual(AUTO),
-    padding: validators.numberMin(0),
+    labelPadding: validators.numberMin(0),
     label: validators.string().orEqual(NONE),
     textStyle: validators.style(),
     style: validators.style(),
-    hatch: validators.partialObjectWith(['spacing', 'width'], validators.numberMin(0)).orEqual(NONE),
-    showInFront: validators.boolean()
+    hatch: validators.partialObjectWith(['spacing', 'lineWidth'], validators.numberMin(0)).orEqual(NONE),
+    front: validators.boolean()
   };
 }

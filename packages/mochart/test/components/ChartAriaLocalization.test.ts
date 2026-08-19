@@ -27,7 +27,7 @@ function mountChart(overrides: Record<string, unknown> = {}): Element {
   const container = mountContainer();
   const config = {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales', renderer: 'bar' }],
     // filterOnClick is what makes the legend a keyboard group with a label of its own

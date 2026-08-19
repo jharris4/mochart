@@ -54,6 +54,7 @@ const descriptions: Record<string, string> = {
   ThresholdTitleSide: 'Which side of a threshold line its title sits on.',
   Position: 'Whether the title or legend sits above or below the plot.',
   Align: 'Horizontal alignment.',
+  TooltipValueAlign: 'Which edge of the tooltip its values are aligned to: left puts the label and value in one run of text, right floats the values to the far edge.',
   VerticalAlign: 'Vertical alignment.',
   RendererType: 'How a series draws its values.',
   CurveType: 'The interpolation curve for line and area series.',

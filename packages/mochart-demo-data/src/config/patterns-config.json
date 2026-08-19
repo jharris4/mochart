@@ -4,7 +4,7 @@
     "text": "Patterns"
   },
   "animation": {
-    "animate": true,
+    "enabled": true,
     "expansionDuration": 500,
     "initialDuration": 500,
     "valueChangeDuration": 500,
@@ -40,13 +40,13 @@
     {
       "id": "diagonal",
       "type": "lines",
-      "angle": 45,
+      "rotation": 45,
       "lineWidth": 2.5
     },
     {
       "id": "crosshatch",
       "type": "crosshatch",
-      "angle": 45,
+      "rotation": 45,
       "lineWidth": 1.5
     },
     {

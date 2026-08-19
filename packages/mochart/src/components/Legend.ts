@@ -102,14 +102,14 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
 
   legendItemPointerEnter = (seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
-    if (mochartConfig.legend.focusOnMouseOver) {
+    if (mochartConfig.legend.focusOnHover) {
       onFocus({ seriesId });
     }
   }
 
   legendItemPointerLeave = (_seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
-    if (mochartConfig.legend.focusOnMouseOver) {
+    if (mochartConfig.legend.focusOnHover) {
       onFocus({ seriesId: null });
     }
   }
@@ -309,20 +309,20 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
   sync() {
     const { legendConfig, seriesConfig, legendItemLayoutInfo, legendItemTextLayoutInfo, uniqueIds, clipPath, colorPaletteConfig,
       seriesIndex, seriesIsFiltered, seriesIsFocused, seriesIsDefocused, seriesFocusPercentage } = this.props;
-    const { truncationEnabled, truncationValue, showFilteringOnLabels } = legendConfig;
-    const { spacerSize: iconSpacerSize } = legendConfig.icon;
+    const { truncationEnabled, truncationText, strikeThroughFiltered } = legendConfig;
+    const { spacing: iconSpacing } = legendConfig.icon;
     const { textStyle: itemTextStyle } = legendConfig.item;
     const itemTextAttributes = styleToAttributes(itemTextStyle);
     // a camelCase prop, not a style: the dom layer kebab-cases it into the svg attribute, and null leaves it off
-    const textDecoration = showFilteringOnLabels && seriesIsFiltered ? 'line-through' : null;
+    const textDecoration = strikeThroughFiltered && seriesIsFiltered ? 'line-through' : null;
     const iconSize = resolveLegendIconSize(legendConfig, legendItemTextLayoutInfo);
     const { truncationData } = this.state;
     const seriesLabel = getSeriesTitle(seriesConfig);
-    const seriesLabelText = getTruncatedText(truncationEnabled, truncationValue, seriesLabel, truncationData);
+    const seriesLabelText = getTruncatedText(truncationEnabled, truncationText, seriesLabel, truncationData);
     const { paddingRelativeBounds } = legendItemLayoutInfo;
     const { x, y } = paddingRelativeBounds;
     const itemInnerHeight = paddingRelativeBounds.height;
-    const iconWidth = iconSize + iconSpacerSize;
+    const iconWidth = iconSize + iconSpacing;
     const iconHeight = iconSize;
     const halfIconOffset = iconHeight < itemInnerHeight ? (itemInnerHeight - iconHeight) / 2.0 : 0;
 
@@ -368,10 +368,10 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
       const domElement = this.root.node.querySelector<SVGTextContentElement>(getLegendItemTextCssSelector());
       const { legendConfig, seriesConfig, legendItemTextLayoutInfo } = this.props;
       const { width } = legendItemTextLayoutInfo;
-      const { truncationValue } = legendConfig;
+      const { truncationText } = legendConfig;
       const title = getSeriesTitle(seriesConfig);
       const maxLength = Math.max(width, 0);
-      this.truncation.update(this, truncationValue, title, maxLength, domElement);
+      this.truncation.update(this, truncationText, title, maxLength, domElement);
     }
   }
 }

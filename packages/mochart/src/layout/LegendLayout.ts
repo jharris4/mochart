@@ -13,12 +13,12 @@ export function legendItemClickable(legendConfig: LegendConfig, seriesConfig: En
   return (legendConfig.filterOnClick && seriesConfig.filterable) || legendConfig.focusOnClick;
 }
 
-// accessibility.targetMinSize is the floor for the item boxes, and only while clicking one does
+// accessibility.minTargetSize is the floor for the item boxes, and only while clicking one does
 // something; a legend nothing responds to is not a target and stays at its content size
 function getLegendItemMinSize(mochartConfig: EnhancedMochartConfig): number {
   const { legend: legendConfig, series: seriesConfigs, accessibility: accessibilityConfig } = mochartConfig;
   const clickable = seriesConfigs.some(seriesConfig => seriesConfig.showInLegend && legendItemClickable(legendConfig, seriesConfig));
-  return clickable ? accessibilityConfig.targetMinSize : 0;
+  return clickable ? accessibilityConfig.minTargetSize : 0;
 }
 
 // 'auto' tracks the label's font size (like the tooltip's 1em icon), falling back to the measured em box
@@ -60,7 +60,7 @@ function placeLegendItems(mochartConfig: EnhancedMochartConfig, chartTextBoundsD
   if (legendConfig.visible !== true || seriesConfigs.length === 0) return null;
   const { margin, padding, alignedToAxes } = legendConfig;
   const { margin: itemMargin, padding: itemPadding } = legendConfig.item;
-  const { spacerSize: iconSpacerSize } = legendConfig.icon;
+  const { spacing: iconSpacing } = legendConfig.icon;
   const { legendItemMaxTextBounds } = chartTextBoundsData;
   const legendItemTextRawBounds = getLegendItemBoundsList(mochartConfig, chartTextBoundsData.legendItemTextRawBounds);
   const { x: contentX, width } = contentBounds;
@@ -80,7 +80,7 @@ function placeLegendItems(mochartConfig: EnhancedMochartConfig, chartTextBoundsD
   const itemMinWidth = itemMinSize + getSpacingWidth(itemMargin);
   const itemMinHeight = itemMinSize + getSpacingHeight(itemMargin);
 
-  const iconWidth = iconSize + iconSpacerSize;
+  const iconWidth = iconSize + iconSpacing;
   const iconHeight = iconSize;
 
   // the content frame is offset by the chart margin/padding, like the title's

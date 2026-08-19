@@ -29,7 +29,7 @@ export function getRegularDefaults() {
 
     tickLabel: {
       ...axisDefaults.tickLabel,
-      truncationValue: ELLIPSIS,
+      truncationText: ELLIPSIS,
       truncationMinLength: 0,
       truncationMaxFraction: 0.2
     },

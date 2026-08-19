@@ -26,7 +26,7 @@ function pieConfigAndData(options: CreatePieOptions, configOverrides: Record<str
   const pie = createPie(ITEMS, options);
   const config = {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     chart: pie.chart,
     pie: pie.pie,
     categoryAxis: pie.categoryAxis,
@@ -98,7 +98,7 @@ describe('pie tooltip announcement', () => {
   });
 
   it('renormalizes the announced percentages against the unfiltered slices', () => {
-    const { config, data } = pieConfigAndData({ tooltipValueType: 'percent' }, { tooltip: { hideFiltered: true } });
+    const { config, data } = pieConfigAndData({ tooltipValueType: 'percent' }, { tooltip: { showFiltered: false } });
     const container = mountChart(config, data);
     filterSeries(container, 'slice0');
     expect(container.querySelectorAll(getIdCssSelector('series', 'slice0'))).toHaveLength(0);
@@ -111,7 +111,7 @@ describe('pie tooltip announcement', () => {
 
   it('speaks the full-total shares when adjustForFiltering is off', () => {
     const { config, data } = pieConfigAndData({ tooltipValueType: 'percent' },
-      { tooltip: { hideFiltered: true, adjustForFiltering: false } });
+      { tooltip: { showFiltered: false, adjustForFiltering: false } });
     const container = mountChart(config, data);
     filterSeries(container, 'slice0');
 

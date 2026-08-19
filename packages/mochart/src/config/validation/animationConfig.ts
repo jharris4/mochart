@@ -3,7 +3,7 @@ import { DOMAIN_CHANGES } from '../core/constants';
 
 export default function getValidators() {
   return {
-    animate: validators.boolean(),
+    enabled: validators.boolean(),
     valueDomainChange: validators.oneOf(DOMAIN_CHANGES),
     categoryDomainChange: validators.oneOf(DOMAIN_CHANGES),
     initialDuration: validators.numberMin(0),

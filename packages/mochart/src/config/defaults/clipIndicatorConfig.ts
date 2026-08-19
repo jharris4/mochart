@@ -10,11 +10,11 @@ export function getRegularDefaults() {
   return {
     visible: true,
     size: AUTO,
-    padding: 2,
+    labelPadding: 2,
     label: 'Clipped',
     textStyle: { strokeColor: NONE, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 0.7 },
-    hatch: { spacing: 6, width: 2 },
-    showInFront: true
+    hatch: { spacing: 6, lineWidth: 2 },
+    front: true
   };
 }
 

@@ -4,7 +4,7 @@
     "text": "Monthly Data"
   },
   "animation": {
-    "animate": true,
+    "enabled": true,
     "expansionDuration": 300,
     "initialDuration": 300,
     "valueChangeDuration": 300,
@@ -17,7 +17,7 @@
     },
     "axisLine": {
       "visible": true,
-      "margin": 0
+      "marginInner": 0
     },
     "gridLine": {
       "visible": true
@@ -39,7 +39,7 @@
     {
       "visible": true,
       "axisLine": {
-        "margin": 0
+        "marginInner": 0
       },
       "gridLine": {
         "visible": true

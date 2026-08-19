@@ -16,7 +16,7 @@ import type { NumericValues, SeriesDomainObject, SeriesValueObject } from '../ty
 // 'series' hops the element axis (marker → shape), 'same' hops the focus axis (focused → normal);
 // chains are at most two hops. Each element's readStyle and paletteKey must stay in lockstep.
 const elementKeys = {
-  series: { readStyle: (seriesConfig: EnhancedSeriesConfig) => seriesConfig.shapeStyle, paletteKey: 'series' },
+  series: { readStyle: (seriesConfig: EnhancedSeriesConfig) => seriesConfig.shapeStyle, paletteKey: 'shape' },
   marker: { readStyle: (seriesConfig: EnhancedSeriesConfig) => seriesConfig.marker.style, paletteKey: 'marker' },
   label: { readStyle: (seriesConfig: EnhancedSeriesConfig) => seriesConfig.label.textStyle, paletteKey: 'label' },
   errorBar: { readStyle: (seriesConfig: EnhancedSeriesConfig) => seriesConfig.errorBar.style, paletteKey: 'errorBar' }

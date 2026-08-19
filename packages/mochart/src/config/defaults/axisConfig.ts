@@ -9,7 +9,7 @@ export default function getDefaults() {
     axisLine: {
       visible: true,
       front: false,
-      margin: 0,
+      marginInner: 0,
       style: {
         normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: NONE },
         focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
@@ -38,7 +38,7 @@ export default function getDefaults() {
       visible: false,
       front: false,
       size: 9,
-      margin: 3,
+      marginInner: 3,
       style: { strokeColor: COLOR_CURRENT, strokeOpacity: 1, strokeWidth: 3, strokeDashArray: NONE }
     },
 
@@ -101,7 +101,7 @@ export default function getDefaults() {
       visible: true,
       front: false,
       size: 3,
-      margin: 0,
+      marginInner: 0,
       style: {
         normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: NONE },
         focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
@@ -114,7 +114,7 @@ export default function getDefaults() {
       front: false,
       backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
       truncationEnabled: true,
-      truncationValue: ELLIPSIS,
+      truncationText: ELLIPSIS,
       size: AUTO,
       marginInner: 2,
       marginOuter: 2,

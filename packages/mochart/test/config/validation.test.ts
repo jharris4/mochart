@@ -654,7 +654,7 @@ describe('partial spacing validation', () => {
   it('accepts a palette entry with only one color list', () => {
     const errors = errorsFor({
       ...base,
-      colorPalette: { series: { normal: { strokeColors: ['#336699'] } } }
+      colorPalette: { shape: { normal: { strokeColors: ['#336699'] } } }
     });
     expect(errors).toEqual([]);
   });

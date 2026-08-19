@@ -174,7 +174,7 @@ describe('DeepPartial', () => {
     // the runtime merge replaces an array wholesale, so its entries can never be filled in from a default
     expectType<Equal<DeepPartial<{ stops: GradientStop[] }>['stops'], GradientStop[] | undefined>>();
     expectType<Equal<DeepPartial<readonly string[]>, readonly string[]>>();
-    expectType<Equal<Defined<Defined<DeepPartial<ColorPaletteConfig>['series']>['normal']>['strokeColors'], string[] | undefined>>();
+    expectType<Equal<Defined<Defined<DeepPartial<ColorPaletteConfig>['shape']>['normal']>['strokeColors'], string[] | undefined>>();
     expectType<Equal<DeepPartial<ValueAxisConfig>['ticks'], ValueAxisTick[] | null | undefined>>();
     const config: MochartInputConfig = {
       version: V,
@@ -259,7 +259,7 @@ const stringProbes = ['2020-01-01', 'zzzz'];
 // section.key -> why its optionality does not follow from having a default.
 const optionalityExceptions: Record<string, string> = {
   'patterns.type': 'the pattern type is the required discriminator for each entry',
-  'patterns.angle': 'the default only applies to line and crosshatch patterns; dots do not have an angle',
+  'patterns.rotation': 'the default only applies to line and crosshatch patterns; dots do not have a rotation',
   'patterns.lineWidth': 'the default only applies to line and crosshatch patterns; dots do not have a line width',
   'patterns.radius': 'the default only applies to dot patterns; line and crosshatch patterns do not have a radius',
   'series.axis': 'the default only applies when there is exactly one value axis; with several, nothing is filled in',

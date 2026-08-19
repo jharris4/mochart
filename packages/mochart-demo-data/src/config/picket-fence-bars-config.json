@@ -4,7 +4,7 @@
     "text": "Picket Fence Bars"
   },
   "animation": {
-    "animate": true,
+    "enabled": true,
     "expansionDuration": 1500,
     "initialDuration": 3000,
     "valueChangeDuration": 3000,
@@ -17,7 +17,7 @@
     },
     "axisLine": {
       "visible": true,
-      "margin": 0
+      "marginInner": 0
     },
     "gridLine": {
       "visible": true
@@ -38,7 +38,7 @@
   "valueAxes": {
     "visible": true,
     "axisLine": {
-      "margin": 0
+      "marginInner": 0
     },
     "gridLine": {
       "visible": true

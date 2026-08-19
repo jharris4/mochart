@@ -23,7 +23,7 @@ const rows = [
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: VERSION,
-    animation: { animate: true },
+    animation: { enabled: true },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales' }],
     ...overrides

@@ -73,8 +73,8 @@ const sharedInterfaceSources: SharedInterfaceSource[] = [
   { interfaceName: 'Style', sectionId: 'chart', propertyKey: 'backgroundStyle', members: ['fillColor', 'fillOpacity'] },
   { interfaceName: 'StrokeStyleState', sectionId: 'categoryAxis', propertyKey: 'axisLine.style.normal', members: ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'] },
   { interfaceName: 'StyleState', sectionId: 'categoryAxis', propertyKey: 'tickLabel.textStyle.normal', members: ['fillColor', 'fillOpacity'] },
-  { interfaceName: 'ColorPaletteStates', sectionId: 'colorPalette', propertyKey: 'series' },
-  { interfaceName: 'ColorPalette', sectionId: 'colorPalette', propertyKey: 'series.normal' },
+  { interfaceName: 'ColorPaletteStates', sectionId: 'colorPalette', propertyKey: 'shape' },
+  { interfaceName: 'ColorPalette', sectionId: 'colorPalette', propertyKey: 'shape.normal' },
   { interfaceName: 'SeriesCurve', sectionId: 'series', propertyKey: 'curve' },
   { interfaceName: 'SeriesColorScale', sectionId: 'series', propertyKey: 'colorScale' },
   { interfaceName: 'SeriesColorScaleBase', sectionId: 'series', propertyKey: 'colorScale.base' },
@@ -87,10 +87,12 @@ const sharedInterfaceSources: SharedInterfaceSource[] = [
   { interfaceName: 'SeriesStackOuterCapConfig', sectionId: 'seriesStacks', propertyKey: 'outerCap', includeDefaults: true },
   { interfaceName: 'ClipIndicatorHatchConfig', sectionId: 'clipIndicator', propertyKey: 'hatch' },
   { interfaceName: 'LegendItemConfig', sectionId: 'legend', propertyKey: 'item', includeDefaults: true },
+  { interfaceName: 'SeriesIconBorderStyle', sectionId: 'legend', propertyKey: 'icon.borderStyle', includeDefaults: true },
   { interfaceName: 'TitleAffixConfig', sectionId: 'title', propertyKey: 'prefix' },
   { interfaceName: 'PieLabelConfig', sectionId: 'pie', propertyKey: 'label', includeDefaults: true },
   { interfaceName: 'PieTooltipConfig', sectionId: 'pie', propertyKey: 'tooltip', includeDefaults: true },
   { interfaceName: 'CrosshairLineConfig', sectionId: 'crosshair', propertyKey: 'categoryLine', includeDefaults: true },
+  { interfaceName: 'PieCenterLabelConfig', sectionId: 'pie', propertyKey: 'centerLabel', includeDefaults: true },
   { interfaceName: 'PieCenterTotalConfig', sectionId: 'pie', propertyKey: 'centerTotal', includeDefaults: true },
   { interfaceName: 'TooltipDropShadowConfig', sectionId: 'tooltip', propertyKey: 'dropShadow', includeDefaults: true },
   { interfaceName: 'ThresholdConfig', sectionId: 'valueAxes', propertyKey: 'thresholds', includeDefaults: true },
@@ -137,8 +139,8 @@ const sharedSectionInterfaces: SharedSectionInterface[] = [
     interfaceName: 'SeriesIconConfig',
     sections: [{ id: 'legend', name: 'legend' }, { id: 'tooltip', name: 'tooltip' }],
     propertyKey: 'icon',
-    members: ['showColors', 'showShapes', 'showPlaceholders', 'size', 'spacerSize',
-      'borderSize', 'borderColor', 'borderOpacity', 'filteredColor', 'unfilteredColor']
+    members: ['showColors', 'showShapes', 'showPlaceholders', 'size', 'spacing',
+      'borderStyle', 'filteredColor', 'unfilteredColor']
   }
 ];
 

@@ -49,7 +49,7 @@ export default class Pattern extends Renderer<PatternProps> {
       width: spacing,
       height: spacing,
       patternUnits: 'userSpaceOnUse',
-      patternTransform: linePattern ? 'rotate(' + patternConfig.angle + ')' : null
+      patternTransform: linePattern ? 'rotate(' + patternConfig.rotation + ')' : null
     });
 
     setChildPresent(this.root, this.background, backgroundColor !== null);

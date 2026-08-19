@@ -16,7 +16,7 @@ const VERSION = '1.0.0';
 function makeConfig(overrides: Record<string, unknown> = {}) {
   return enhanceConfig({
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales' }],
     ...overrides

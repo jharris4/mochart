@@ -21,7 +21,7 @@ function mountChart(legendOverrides: Record<string, unknown>, titleOverrides: Re
   const container = mountContainer();
   const config = {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales' }, { property: 'costs' }],
     title: { text: 'Trading', ...titleOverrides },
@@ -76,7 +76,7 @@ describe('legend horizontal frame when not aligned to axes', () => {
       const container = mountContainer();
       const config = {
         version: VERSION, chart,
-        animation: { animate: false },
+        animation: { enabled: false },
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         series: [{ property: 'sales' }, { property: 'costs' }],
         title: { text: 'Trading', alignedToAxes: false, align },

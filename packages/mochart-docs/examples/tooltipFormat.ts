@@ -29,7 +29,7 @@ export const config: MochartInputConfig = {
     }
   ],
   tooltip: {
-    rightAlignValues: true
+    valueAlign: 'right'
   }
 };
 

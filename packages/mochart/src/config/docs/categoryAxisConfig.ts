@@ -27,7 +27,7 @@ export default function getDescriptions() {
         ...getTickLabelDescriptions(),
         format: 'the d3 format string (d3-format for number, d3-time-format for date) to be applied to the category values when displayed in axis tick labels (use null for none, use "auto" to derive from data)',
         truncationEnabled: 'whether or not to use text truncation (true) when the axis tick labels would overlap each other instead of skipping ticks (false)',
-        truncationValue: 'the truncation text to append to the axis tick label text when its content is truncated',
+        truncationText: 'the truncation text to append to the axis tick label text when its content is truncated',
         truncationMinLength: 'the minimum length (in pixels) to allow tick label text perpendicular to the axis, applied when truncationMaxFraction would allow less',
         truncationMaxFraction: 'the maximum fraction (0 - 1) of the chart bounds to allow any tick label text to occupy when they are perpendicular to the axis'
       }

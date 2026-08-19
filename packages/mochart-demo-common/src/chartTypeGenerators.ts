@@ -722,7 +722,7 @@ function buildGaugeSnapshot(): ChartTypeDemoSnapshot {
           visible: true,
           type: 'title'
         },
-        centerLabel: 'responses',
+        centerLabel: { text: 'responses' },
         centerTotal: {
           visible: true,
           format: ',.0f'

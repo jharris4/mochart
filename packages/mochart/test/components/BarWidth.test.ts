@@ -33,7 +33,7 @@ beforeAll(() => {
 function makeConfig(series: Record<string, unknown>[], overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'label', type: 'string', scale: 'ordinal' },
     series,
     ...overrides

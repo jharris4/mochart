@@ -15,7 +15,7 @@ const rows = [{ c: 'a', v: 5 }, { c: 'b', v: 50 }];
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'c', type: 'string', scale: 'ordinal' },
     series: [{ property: 'v', renderer: 'bar' }],
     ...overrides

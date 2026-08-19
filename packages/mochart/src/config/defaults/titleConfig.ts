@@ -7,7 +7,7 @@ export default function getDefaults() {
     link: NONE,
     linkDisabled: false,
     truncationEnabled: true,
-    truncationValue: ELLIPSIS,
+    truncationText: ELLIPSIS,
     alignedToAxes: true,
     align: ALIGN_CENTER,
     verticalAlign: VERTICAL_ALIGN_MIDDLE,

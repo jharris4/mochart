@@ -10,7 +10,7 @@ import { accessibilityActive, focusRestored, isHoverPointer, isKeyboardFocus } f
 import { moveRovingFocus } from '../utils/RovingFocus';
 import { getPieSliceFractionMap } from '../data/PieData';
 import { getPieTooltipPercentFormat, pieLabelTypeUsesPercent } from '../data/PieLabel';
-import { NONE, CHART_TYPE_PIE } from '../config/core/constants';
+import { NONE, CHART_TYPE_PIE, ALIGN_RIGHT } from '../config/core/constants';
 
 import TooltipControls, { MODE_FOCUS, MODE_FILTER } from './TooltipControls';
 import SeriesColorIcon from './SeriesColorIcon';
@@ -25,7 +25,7 @@ import type { CategorySeriesValueObject } from '../data/ChartData';
 type LineStyle = Record<string, string | number>;
 
 interface LineStyles {
-  minWidth: number | null; linePadding: number; targetMinSize: number;
+  minWidth: number | null; lineSpacing: number; minTargetSize: number;
   lineStyle: LineStyle; targetLineStyle: LineStyle; lastLineStyle: LineStyle; lastTargetLineStyle: LineStyle;
 }
 
@@ -182,7 +182,7 @@ export class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
     this.props.onClick(event, this.props.focusSeriesId);
   }
 
-  // the icon sits in a different host per layout, so the slot is rebuilt when rightAlignValues
+  // the icon sits in a different host per layout, so the slot is rebuilt when valueAlign
   // flips; the outgoing one still holds a mounted SeriesColorIcon and has to be destroyed
   private replaceIconSlot(host: El): void {
     if (this.iconSlot !== null) {
@@ -264,7 +264,7 @@ export class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
       onFocusOut: interactive ? this.onFocusOut : null });
 
     // html, so this has to be a style: a top-level prop would be written as an attribute, which means nothing here
-    const labelStyle = { textDecoration: tooltipConfig.showFilteringOnLabels && seriesIsFiltered ? 'line-through' : null };
+    const labelStyle = { textDecoration: tooltipConfig.strikeThroughFiltered && seriesIsFiltered ? 'line-through' : null };
 
     const iconProps = {
       seriesContextConfig: tooltipConfig, seriesConfig, focused: seriesIsFocused, defocused: seriesIsDefocused,
@@ -274,7 +274,7 @@ export class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
       visible, renderHTML: true
     };
 
-    if (tooltipConfig.rightAlignValues) {
+    if (tooltipConfig.valueAlign === ALIGN_RIGHT) {
       const container = this.line.set('aligned', () => this.buildAlignedLine()) as AlignedLineEl;
       container.set({ style: alignedLineStyle });
       container.leftHandle.set({ style: { float: 'left' } });
@@ -332,7 +332,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     }
   }
 
-  /** filtering with hideFiltered unmounts the acted-on row synchronously; keep focus inside the tooltip */
+  /** filtering with showFiltered off unmounts the acted-on row synchronously; keep focus inside the tooltip */
   private restoreRowFocus(activeElement: Element | null): void {
     if (activeElement !== null && activeElement !== document.body && !activeElement.isConnected) {
       const fallback = this.interactiveRowNodes()[0] ?? this.controlsContainer.node.querySelector('button');
@@ -351,14 +351,14 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     this.setState({ mode });
   }
 
-  // the category row's hover-focus stays opt-in (focusCategoryOnMouseOver): its pointerleave
+  // the category row's hover-focus stays opt-in (focusCategoryOnHover): its pointerleave
   // clears the category focus, which would break the applyFocus pin as the pointer crosses the tooltip
   onCategoryPointerEnter = (_event: Event) => {
     const { mochartConfig, tooltipCategoryIndex, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltip: tooltipConfig } = mochartConfig;
-    const { showControls, focusCategoryOnMouseOver } = tooltipConfig;
-    const shouldFocus = focusCategoryOnMouseOver && (showControls ? mode === MODE_FILTER : true);
+    const { showControls, focusCategoryOnHover } = tooltipConfig;
+    const shouldFocus = focusCategoryOnHover && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
       this.categoryHoverActive = true;
       onFocus({ categoryIndex: tooltipCategoryIndex });
@@ -392,8 +392,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mochartConfig, tooltipValueObject, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltip: tooltipConfig } = mochartConfig;
-    const { showControls, focusSeriesOnMouseOver } = tooltipConfig;
-    const shouldFocus = showControls ? mode === MODE_FILTER : focusSeriesOnMouseOver;
+    const { showControls, focusSeriesOnHover } = tooltipConfig;
+    const shouldFocus = showControls ? mode === MODE_FILTER : focusSeriesOnHover;
     // a filtered series has nothing visible to highlight, like the legend
     if (shouldFocus && tooltipValueObject.series.filteredFlags[seriesId] !== true) {
       this.hoverActive = true;
@@ -446,15 +446,15 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
   // row styles keep their identity across syncs unless their inputs change, so unchanged rows can skip
   private lineStyles: LineStyles | null = null;
 
-  private getLineStyles(minWidth: number | null, linePadding: number, targetMinSize: number): LineStyles {
+  private getLineStyles(minWidth: number | null, lineSpacing: number, minTargetSize: number): LineStyles {
     const styles = this.lineStyles;
-    if (styles !== null && styles.minWidth === minWidth && styles.linePadding === linePadding && styles.targetMinSize === targetMinSize) {
+    if (styles !== null && styles.minWidth === minWidth && styles.lineSpacing === lineSpacing && styles.minTargetSize === minTargetSize) {
       return styles;
     }
-    const targetStyle: LineStyle = targetMinSize > 0 ? { minHeight: targetMinSize } : {};
+    const targetStyle: LineStyle = minTargetSize > 0 ? { minHeight: minTargetSize } : {};
     const lastLineStyle: LineStyle = minWidth !== null ? { ...baseLineStyle, minWidth } : baseLineStyle;
-    const lineStyle: LineStyle = { ...lastLineStyle, paddingBottom: linePadding };
-    return this.lineStyles = { minWidth, linePadding, targetMinSize, lineStyle, lastLineStyle,
+    const lineStyle: LineStyle = { ...lastLineStyle, paddingBottom: lineSpacing };
+    return this.lineStyles = { minWidth, lineSpacing, minTargetSize, lineStyle, lastLineStyle,
       targetLineStyle: { ...lineStyle, ...targetStyle }, lastTargetLineStyle: { ...lastLineStyle, ...targetStyle } };
   }
 
@@ -529,11 +529,11 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       onFocus, mode, toggleMode: this.toggleMode, minWidth });
 
     // the click-target floor for a row, keyed off what a click does rather than off the current mode, copy, or the row's own interactivity
-    const { targetMinSize } = mochartConfig.accessibility;
+    const { minTargetSize } = mochartConfig.accessibility;
     const categoryRowClickable = tooltipConfig.showControls || tooltipConfig.focusCategoryOnClick;
     const seriesRowClickable = (leaderSeriesId: string): boolean => tooltipConfig.showControls ||
       tooltipConfig.focusSeriesOnClick || (tooltipConfig.filterSeriesOnClick && mochartConfig.seriesById[leaderSeriesId].filterable);
-    const { lineStyle, targetLineStyle, lastLineStyle, lastTargetLineStyle } = this.getLineStyles(minWidth, tooltipConfig.linePadding, targetMinSize);
+    const { lineStyle, targetLineStyle, lastLineStyle, lastTargetLineStyle } = this.getLineStyles(minWidth, tooltipConfig.lineSpacing, minTargetSize);
 
     const tooltipLines: RendererItem[] = [];
 
@@ -570,7 +570,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       const seriesIsFocused = focusSeriesId === focusedSeriesId;
       const seriesIsDefocused = !seriesIsFocused && focusedSeriesId !== null;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
-      if (!adjustForFiltering || !(seriesIsFiltered && tooltipConfig.hideFiltered)) {
+      if (!adjustForFiltering || !(seriesIsFiltered && !tooltipConfig.showFiltered)) {
         const valueFormat = valueFormats[seriesId];
         const pieValues: PieTooltipValues | undefined = piePercentFormat === null ? undefined : {
           valueType: pieTooltipValueType, percentFormat: piePercentFormat,

@@ -29,7 +29,7 @@ export function getRegularDefaults() {
       }
     },
 
-    focusOnMouseOver: true,
+    focusOnHover: true,
     focusOnClick: false,
 
     maxMarginFraction: 0.05,

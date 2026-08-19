@@ -148,7 +148,7 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
     validator: arrayOfObjectsOrEmpty,
     validators: (configSection: ConfigRecord) => patternValidators(configSection),
     uniqueKeys: ['id'],
-    allExcludedKeys: ['ignore', 'type', 'angle', 'lineWidth', 'radius']
+    allExcludedKeys: ['ignore', 'type', 'rotation', 'lineWidth', 'radius']
   },
   pie: {
     validator: objectValidator,

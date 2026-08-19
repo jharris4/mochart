@@ -116,20 +116,20 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#accessibility.legendLabel">legendLabel</a></td><td>the screen-reader label for the legend<br/><br/>The accessible name of the legend group that contains the keyboard-reachable legend items. Replace to localize it.</td><td>should be a string</td><td><div>"Legend"</div>
 </td>
 </tr>
+<tr id="accessibility.minTargetSize">
+<td><a href="#accessibility.minTargetSize">minTargetSize</a></td><td>the minimum size (in pixels) of the click targets the chart lays out itself<br/><br/>The floor for the chart chrome a pointer can click: legend item boxes, the tooltip controls’ buttons, and interactive tooltip rows are laid out at least this many pixels in each direction the chart controls. The default of `24` is the WCAG 2.5.8 minimum, which these targets otherwise miss at ordinary font sizes — a legend item is about 22px tall at a 16px host font, and they sit one pixel apart, so a mis-hit filters the series next to it. The floor applies to a target only while clicking it does something (`legend.filterOnClick` / `focusOnClick`, the tooltip controls, the tooltip’s click config), so a legend nothing responds to stays compact, and it is not gated by `enabled` or `hidden`: it is about pointers and touch, not assistive tech. Series shapes — bars, markers, pie slices — are deliberately not padded: their size is the data, and growing their hit area would change which value the pointer lands on. Set to `0` to lay every target out at its content size.</td><td>should be a number >= to 0</td><td><div>24</div>
+</td>
+</tr>
 <tr id="accessibility.plotLabel">
 <td><a href="#accessibility.plotLabel">plotLabel</a></td><td>the screen-reader label for the keyboard-focusable plot area<br/><br/>The accessible name of the plot-area tab stop that keyboard users activate to open and step the tooltip. Replace to localize it.</td><td>should be a string</td><td><div>"Chart values"</div>
 </td>
 </tr>
 <tr id="accessibility.respectReducedMotion">
-<td><a href="#accessibility.respectReducedMotion">respectReducedMotion</a></td><td>whether to respect the user’s reduced-motion system preference<br/><br/>When `true` and the user’s system requests reduced motion (the `prefers-reduced-motion: reduce` accessibility setting, for users sensitive to movement), the chart behaves as if `animation.animate` were `false`: config, data, and focus changes apply instantly. The preference is watched live, so changing the system setting takes effect without re-creating the chart. Set to `false` to animate regardless of the preference. Independent of `enabled`.</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#accessibility.respectReducedMotion">respectReducedMotion</a></td><td>whether to respect the user’s reduced-motion system preference<br/><br/>When `true` and the user’s system requests reduced motion (the `prefers-reduced-motion: reduce` accessibility setting, for users sensitive to movement), the chart behaves as if `animation.enabled` were `false`: config, data, and focus changes apply instantly. The preference is watched live, so changing the system setting takes effect without re-creating the chart. Set to `false` to animate regardless of the preference. Independent of `enabled`.</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="accessibility.seriesLabel">
 <td><a href="#accessibility.seriesLabel">seriesLabel</a></td><td>the screen-reader label for the group of keyboard-reachable series or pie slices<br/><br/>The accessible name of the group that contains the keyboard-reachable series — cartesian series or pie slices, whichever the chart draws. Like the legend group, it is present only while the series are roving tab stops, which is when clicking a series does something (`series.focusOnClick`, or an `onSeriesClick`/`onSliceClick` callback). Replace to localize it.</td><td>should be a string</td><td><div>"Chart series"</div>
-</td>
-</tr>
-<tr id="accessibility.targetMinSize">
-<td><a href="#accessibility.targetMinSize">targetMinSize</a></td><td>the minimum size (in pixels) of the click targets the chart lays out itself<br/><br/>The floor for the chart chrome a pointer can click: legend item boxes, the tooltip controls’ buttons, and interactive tooltip rows are laid out at least this many pixels in each direction the chart controls. The default of `24` is the WCAG 2.5.8 minimum, which these targets otherwise miss at ordinary font sizes — a legend item is about 22px tall at a 16px host font, and they sit one pixel apart, so a mis-hit filters the series next to it. The floor applies to a target only while clicking it does something (`legend.filterOnClick` / `focusOnClick`, the tooltip controls, the tooltip’s click config), so a legend nothing responds to stays compact, and it is not gated by `enabled` or `hidden`: it is about pointers and touch, not assistive tech. Series shapes — bars, markers, pie slices — are deliberately not padded: their size is the data, and growing their hit area would change which value the pointer lands on. Set to `0` to lay every target out at its content size.</td><td>should be a number >= to 0</td><td><div>24</div>
 </td>
 </tr>
 <tr id="accessibility.tooltipLabel">
@@ -158,16 +158,16 @@ table thead td { border-bottom-width: 2px; }
 <th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
 </tr>
 </thead>
-<tr id="animation.animate">
-<td><a href="#animation.animate">animate</a></td><td>whether all animation should be enabled or disabled<br/><br/>The master switch for staged animation. When `false`, config and data changes apply instantly. When `true`, each update plays up to three sequential phases — axis expansion, value change, axis contraction — skipping phases it does not need, and each phase’s duration scales with the size of its change (small updates play faster than the configured maximum). Width/height changes re-layout the chart instantly either way. The user’s reduced-motion preference can also disable animation — see `accessibility.respectReducedMotion`.</td><td>should be a boolean</td><td><div>true</div>
-</td>
-</tr>
 <tr id="animation.categoryDomainChange">
 <td><a href="#animation.categoryDomainChange">categoryDomainChange</a></td><td>how category axis domain changes animate relative to value changes: staged, combined, or auto<br/><br/>The category axis counterpart of `valueDomainChange`, with the same modes. The default is `'staged'` rather than `'auto'`: a category domain change usually also changes the category set (a sliding time window), and the staged union — zoom out over both windows, tween, zoom in — shows where the data moved, where a combined slide draws entering and leaving points connected mid-flight. Set `'auto'` to slide barely-overlapping windows during the value phase instead, or `'combined'` to merge every category domain change into it.</td><td>should be one of [ "auto", "combined", "staged" ]</td><td><div>"staged"</div>
 </td>
 </tr>
 <tr id="animation.contractionDuration">
 <td><a href="#animation.contractionDuration">contractionDuration</a></td><td>the maximum duration (in milliseconds) for the axis contraction animation phase when data is removed from the chart<br/><br/>Duration (in milliseconds) of the axis contraction phase, which plays last when the settled data needs smaller axis domains.</td><td>should be a number >= to 0</td><td><div>1000</div>
+</td>
+</tr>
+<tr id="animation.enabled">
+<td><a href="#animation.enabled">enabled</a></td><td>whether all animation should be enabled or disabled<br/><br/>The master switch for staged animation. When `false`, config and data changes apply instantly. When `true`, each update plays up to three sequential phases — axis expansion, value change, axis contraction — skipping phases it does not need, and each phase’s duration scales with the size of its change (small updates play faster than the configured maximum). Width/height changes re-layout the chart instantly either way. The user’s reduced-motion preference can also disable animation — see `accessibility.respectReducedMotion`.</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="animation.expansionDuration">
@@ -402,44 +402,44 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.marker.normal.strokeColors">marker.normal.strokeColors</a></td><td>the colors to use for strokes, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
 </td>
 </tr>
-<tr id="colorPalette.series">
-<td><a href="#colorPalette.series">series</a></td><td>the color palettes to use for series shapes that are colored by series or category index<br/><br/>The fallback coloring for series that do not set explicit colors: each series takes the palette entry for its series index (or its category index, for series configured to color by category index). The focused/defocused variants apply while another element has focus. The built-in arrays use Paul Tol's <a href="https://sronpersonalpages.nl/~pault/">Bright qualitative color scheme</a>, designed to be color-blind safe.</td><td>should be an object with any of the properties { normal: should be an object with any of the properties { strokeColors: should be a non-empty array with elements that should be a valid color, fillColors: should be a non-empty array with elements that should be a valid color }, focused: should be an object with any of the properties { strokeColors: should be a non-empty array with elements that should be a valid color, fillColors: should be a non-empty array with elements that should be a valid color }, defocused: should be an object with any of the properties { strokeColors: should be a non-empty array with elements that should be a valid color, fillColors: should be a non-empty array with elements that should be a valid color } }</td><td><div>{ normal: { … }, focused: { … }, defocused: { … } }</div>
+<tr id="colorPalette.shape">
+<td><a href="#colorPalette.shape">shape</a></td><td>the color palettes to use for series shapes that are colored by series or category index<br/><br/>The fallback coloring for series that do not set explicit colors: each series takes the palette entry for its series index (or its category index, for series configured to color by category index). The focused/defocused variants apply while another element has focus. The built-in arrays use Paul Tol's <a href="https://sronpersonalpages.nl/~pault/">Bright qualitative color scheme</a>, designed to be color-blind safe.</td><td>should be an object with any of the properties { normal: should be an object with any of the properties { strokeColors: should be a non-empty array with elements that should be a valid color, fillColors: should be a non-empty array with elements that should be a valid color }, focused: should be an object with any of the properties { strokeColors: should be a non-empty array with elements that should be a valid color, fillColors: should be a non-empty array with elements that should be a valid color }, defocused: should be an object with any of the properties { strokeColors: should be a non-empty array with elements that should be a valid color, fillColors: should be a non-empty array with elements that should be a valid color } }</td><td><div>{ normal: { … }, focused: { … }, defocused: { … } }</div>
 </td>
 </tr>
-<tr id="colorPalette.series.defocused">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.series.defocused">series.defocused</a></td><td>the palette to use for the defocused shapes</td><td>should be an object with any of the properties { strokeColors: should be a non-empty array with elements that should be a valid color, fillColors: should be a non-empty array with elements that should be a valid color }</td><td><div>{ strokeColors: ["#4477aa", "#ee6677", "#228833", "#ccbb44", "#66ccee", "#aa3377", "#bbbbbb"], fillColors: ["#4477aa", "#ee6677", "#228833", "#ccbb44", "#66ccee", "#aa3377", "#bbbbbb"] }</div>
+<tr id="colorPalette.shape.defocused">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.shape.defocused">shape.defocused</a></td><td>the palette to use for the defocused shapes</td><td>should be an object with any of the properties { strokeColors: should be a non-empty array with elements that should be a valid color, fillColors: should be a non-empty array with elements that should be a valid color }</td><td><div>{ strokeColors: ["#4477aa", "#ee6677", "#228833", "#ccbb44", "#66ccee", "#aa3377", "#bbbbbb"], fillColors: ["#4477aa", "#ee6677", "#228833", "#ccbb44", "#66ccee", "#aa3377", "#bbbbbb"] }</div>
 </td>
 </tr>
-<tr id="colorPalette.series.defocused.fillColors">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.series.defocused.fillColors">series.defocused.fillColors</a></td><td>the colors to use for fills, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
+<tr id="colorPalette.shape.defocused.fillColors">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.shape.defocused.fillColors">shape.defocused.fillColors</a></td><td>the colors to use for fills, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
 </td>
 </tr>
-<tr id="colorPalette.series.defocused.strokeColors">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.series.defocused.strokeColors">series.defocused.strokeColors</a></td><td>the colors to use for strokes, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
+<tr id="colorPalette.shape.defocused.strokeColors">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.shape.defocused.strokeColors">shape.defocused.strokeColors</a></td><td>the colors to use for strokes, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
 </td>
 </tr>
-<tr id="colorPalette.series.focused">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.series.focused">series.focused</a></td><td>the palette to use for the focused shapes</td><td>should be an object with any of the properties { strokeColors: should be a non-empty array with elements that should be a valid color, fillColors: should be a non-empty array with elements that should be a valid color }</td><td><div>{ strokeColors: ["#4477aa", "#ee6677", "#228833", "#ccbb44", "#66ccee", "#aa3377", "#bbbbbb"], fillColors: ["#4477aa", "#ee6677", "#228833", "#ccbb44", "#66ccee", "#aa3377", "#bbbbbb"] }</div>
+<tr id="colorPalette.shape.focused">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.shape.focused">shape.focused</a></td><td>the palette to use for the focused shapes</td><td>should be an object with any of the properties { strokeColors: should be a non-empty array with elements that should be a valid color, fillColors: should be a non-empty array with elements that should be a valid color }</td><td><div>{ strokeColors: ["#4477aa", "#ee6677", "#228833", "#ccbb44", "#66ccee", "#aa3377", "#bbbbbb"], fillColors: ["#4477aa", "#ee6677", "#228833", "#ccbb44", "#66ccee", "#aa3377", "#bbbbbb"] }</div>
 </td>
 </tr>
-<tr id="colorPalette.series.focused.fillColors">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.series.focused.fillColors">series.focused.fillColors</a></td><td>the colors to use for fills, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
+<tr id="colorPalette.shape.focused.fillColors">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.shape.focused.fillColors">shape.focused.fillColors</a></td><td>the colors to use for fills, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
 </td>
 </tr>
-<tr id="colorPalette.series.focused.strokeColors">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.series.focused.strokeColors">series.focused.strokeColors</a></td><td>the colors to use for strokes, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
+<tr id="colorPalette.shape.focused.strokeColors">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.shape.focused.strokeColors">shape.focused.strokeColors</a></td><td>the colors to use for strokes, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
 </td>
 </tr>
-<tr id="colorPalette.series.normal">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.series.normal">series.normal</a></td><td>the palette to use while nothing has focus</td><td>should be an object with any of the properties { strokeColors: should be a non-empty array with elements that should be a valid color, fillColors: should be a non-empty array with elements that should be a valid color }</td><td><div>{ strokeColors: ["#4477aa", "#ee6677", "#228833", "#ccbb44", "#66ccee", "#aa3377", "#bbbbbb"], fillColors: ["#4477aa", "#ee6677", "#228833", "#ccbb44", "#66ccee", "#aa3377", "#bbbbbb"] }</div>
+<tr id="colorPalette.shape.normal">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.shape.normal">shape.normal</a></td><td>the palette to use while nothing has focus</td><td>should be an object with any of the properties { strokeColors: should be a non-empty array with elements that should be a valid color, fillColors: should be a non-empty array with elements that should be a valid color }</td><td><div>{ strokeColors: ["#4477aa", "#ee6677", "#228833", "#ccbb44", "#66ccee", "#aa3377", "#bbbbbb"], fillColors: ["#4477aa", "#ee6677", "#228833", "#ccbb44", "#66ccee", "#aa3377", "#bbbbbb"] }</div>
 </td>
 </tr>
-<tr id="colorPalette.series.normal.fillColors">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.series.normal.fillColors">series.normal.fillColors</a></td><td>the colors to use for fills, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
+<tr id="colorPalette.shape.normal.fillColors">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.shape.normal.fillColors">shape.normal.fillColors</a></td><td>the colors to use for fills, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
 </td>
 </tr>
-<tr id="colorPalette.series.normal.strokeColors">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.series.normal.strokeColors">series.normal.strokeColors</a></td><td>the colors to use for strokes, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
+<tr id="colorPalette.shape.normal.strokeColors">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#colorPalette.shape.normal.strokeColors">shape.normal.strokeColors</a></td><td>the colors to use for strokes, taken by series or category index and wrapping around when there are more series than colors</td><td>should be a non-empty array with elements that should be a valid color</td><td><div><span class="colorIcon" style="background-color: #4477aa"></span><span class="colorIcon" style="background-color: #ee6677"></span><span class="colorIcon" style="background-color: #228833"></span><span class="colorIcon" style="background-color: #ccbb44"></span><span class="colorIcon" style="background-color: #66ccee"></span><span class="colorIcon" style="background-color: #aa3377"></span><span class="colorIcon" style="background-color: #bbbbbb"></span></div>
 </td>
 </tr>
 </table>
@@ -452,32 +452,32 @@ table thead td { border-bottom-width: 2px; }
 <th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
 </tr>
 </thead>
+<tr id="clipIndicator.front">
+<td><a href="#clipIndicator.front">front</a></td><td>whether the clip indicator should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
 <tr id="clipIndicator.hatch">
-<td><a href="#clipIndicator.hatch">hatch</a></td><td>the diagonal hatch filling the clip indicator band (use null for a flat fill instead)</td><td>should be an object with any of the properties { spacing: should be a number >= to 0, width: should be a number >= to 0 } or be equal to null</td><td><div>{ spacing: 6, width: 2 }</div>
+<td><a href="#clipIndicator.hatch">hatch</a></td><td>the diagonal hatch filling the clip indicator band (use null for a flat fill instead)</td><td>should be an object with any of the properties { spacing: should be a number >= to 0, lineWidth: should be a number >= to 0 } or be equal to null</td><td><div>{ spacing: 6, lineWidth: 2 }</div>
+</td>
+</tr>
+<tr id="clipIndicator.hatch.lineWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#clipIndicator.hatch.lineWidth">hatch.lineWidth</a></td><td>the thickness (in pixels) of each hatch line; at or above spacing the hatch closes up into a flat fill</td><td>should be a number >= to 0</td><td><div>2</div>
 </td>
 </tr>
 <tr id="clipIndicator.hatch.spacing">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#clipIndicator.hatch.spacing">hatch.spacing</a></td><td>the distance (in pixels) between neighbouring hatch lines</td><td>should be a number >= to 0</td><td><div>6</div>
 </td>
 </tr>
-<tr id="clipIndicator.hatch.width">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#clipIndicator.hatch.width">hatch.width</a></td><td>the thickness (in pixels) of each hatch line; at or above spacing the hatch closes up into a flat fill</td><td>should be a number >= to 0</td><td><div>2</div>
-</td>
-</tr>
 <tr id="clipIndicator.label">
 <td><a href="#clipIndicator.label">label</a></td><td>the text shown in the clip indicator band, and the band's accessible name (use null for no label; the band is still shown)</td><td>should be a string or be equal to null</td><td><div>"Clipped"</div>
 </td>
 </tr>
-<tr id="clipIndicator.padding">
-<td><a href="#clipIndicator.padding">padding</a></td><td>the space (in pixels) between the clip indicator label and the edges of its band, which also determines the band depth when size is "auto"</td><td>should be a number >= to 0</td><td><div>2</div>
-</td>
-</tr>
-<tr id="clipIndicator.showInFront">
-<td><a href="#clipIndicator.showInFront">showInFront</a></td><td>whether the clip indicator should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>true</div>
+<tr id="clipIndicator.labelPadding">
+<td><a href="#clipIndicator.labelPadding">labelPadding</a></td><td>the space (in pixels) between the clip indicator label and the edges of its band, which also determines the band depth when size is "auto"</td><td>should be a number >= to 0</td><td><div>2</div>
 </td>
 </tr>
 <tr id="clipIndicator.size">
-<td><a href="#clipIndicator.size">size</a></td><td>the depth (in pixels) of the clip indicator band (use "auto" to size it from the label plus padding on both sides)</td><td>should be a number >= to 0 or be equal to "auto"</td><td><div>"auto"</div>
+<td><a href="#clipIndicator.size">size</a></td><td>the depth (in pixels) of the clip indicator band (use "auto" to size it from the label plus labelPadding on both sides)</td><td>should be a number >= to 0 or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="clipIndicator.style">
@@ -630,15 +630,15 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 </thead>
 <tr id="categoryAxis.axisLine">
-<td><a href="#categoryAxis.axisLine">axisLine</a></td><td>the line drawn along the length of the axis</td><td>should be an object with any of the properties { visible: should be a boolean, front: should be a boolean, margin: should be a number >= to 0, style: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] } } }</td><td><div>{ visible: true, front: false, margin: 0, style: { … } }</div>
+<td><a href="#categoryAxis.axisLine">axisLine</a></td><td>the line drawn along the length of the axis</td><td>should be an object with any of the properties { visible: should be a boolean, front: should be a boolean, marginInner: should be a number >= to 0, style: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] } } }</td><td><div>{ visible: true, front: false, marginInner: 0, style: { … } }</div>
 </td>
 </tr>
 <tr id="categoryAxis.axisLine.front">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.axisLine.front">axisLine.front</a></td><td>whether the axis line should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="categoryAxis.axisLine.margin">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.axisLine.margin">axisLine.margin</a></td><td>the margin (in pixels) between the line shown along the axis and the inner boundary of the axis</td><td>should be a number >= to 0</td><td><div>0</div>
+<tr id="categoryAxis.axisLine.marginInner">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.axisLine.marginInner">axisLine.marginInner</a></td><td>the margin (in pixels) between the line shown along the axis and the inner boundary of the axis</td><td>should be a number >= to 0</td><td><div>0</div>
 </td>
 </tr>
 <tr id="categoryAxis.axisLine.style">
@@ -810,15 +810,15 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.focusTickMark">
-<td><a href="#categoryAxis.focusTickMark">focusTickMark</a></td><td>the tick marks drawn perpendicular to the axis at its focused series domain or category value</td><td>should be an object with any of the properties { visible: should be a boolean, front: should be a boolean, size: should be a number >= to 0, margin: should be a number >= to 0, style: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null } }</td><td><div>{ visible: true, front: false, size: 9, margin: 3, style: { … } }</div>
+<td><a href="#categoryAxis.focusTickMark">focusTickMark</a></td><td>the tick marks drawn perpendicular to the axis at its focused series domain or category value</td><td>should be an object with any of the properties { visible: should be a boolean, front: should be a boolean, size: should be a number >= to 0, marginInner: should be a number >= to 0, style: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null } }</td><td><div>{ visible: true, front: false, size: 9, marginInner: 3, style: { … } }</div>
 </td>
 </tr>
 <tr id="categoryAxis.focusTickMark.front">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.focusTickMark.front">focusTickMark.front</a></td><td>whether the focus tick marks should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="categoryAxis.focusTickMark.margin">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.focusTickMark.margin">focusTickMark.margin</a></td><td>the margin (in pixels) to show between the inside of the axis and the focus tick mark line(s)</td><td>should be a number >= to 0</td><td><div>3</div>
+<tr id="categoryAxis.focusTickMark.marginInner">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.focusTickMark.marginInner">focusTickMark.marginInner</a></td><td>the margin (in pixels) to show between the inside of the axis and the focus tick mark line(s)</td><td>should be a number >= to 0</td><td><div>3</div>
 </td>
 </tr>
 <tr id="categoryAxis.focusTickMark.size">
@@ -1277,7 +1277,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.tickLabel">
-<td><a href="#categoryAxis.tickLabel">tickLabel</a></td><td>the labels shown at each tick along the axis</td><td>should be an object with any of the properties { front: should be a boolean, backgroundStyle: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, size: should be a number >= to 0 or be equal to "auto", marginInner: should be a number >= to 0, marginOuter: should be a number >= to 0, paddingInner: should be a number >= to 0, paddingOuter: should be a number >= to 0, prefix: should be a string or be equal to null, suffix: should be a string or be equal to null, rotation: should be a number >= to -90 and <= 90, anchor: should be one of [ "start", "end", "middle", "auto" ], textStyle: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor"), fillOpacity: should be a number >= to 0 and <= 1 }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 } }, format: should be any value, truncationEnabled: should be a boolean, truncationMaxFraction: should be a number >= to 0 and <= 1, truncationMinLength: should be a number >= to 0, truncationValue: should be a string }</td><td><div>{ front: false, anchor: "auto", backgroundStyle: { … }, size: "auto", marginInner: 2, marginOuter: 1, paddingInner: 5, paddingOuter: 5, format: "auto", prefix: null, suffix: null, rotation: 0, textStyle: { … }, truncationValue: "…", truncationMinLength: 0, truncationMaxFraction: 0.2 }</div>
+<td><a href="#categoryAxis.tickLabel">tickLabel</a></td><td>the labels shown at each tick along the axis</td><td>should be an object with any of the properties { front: should be a boolean, backgroundStyle: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, size: should be a number >= to 0 or be equal to "auto", marginInner: should be a number >= to 0, marginOuter: should be a number >= to 0, paddingInner: should be a number >= to 0, paddingOuter: should be a number >= to 0, prefix: should be a string or be equal to null, suffix: should be a string or be equal to null, rotation: should be a number >= to -90 and <= 90, anchor: should be one of [ "start", "end", "middle", "auto" ], textStyle: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor"), fillOpacity: should be a number >= to 0 and <= 1 }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 } }, format: should be any value, truncationEnabled: should be a boolean, truncationMaxFraction: should be a number >= to 0 and <= 1, truncationMinLength: should be a number >= to 0, truncationText: should be a string }</td><td><div>{ front: false, anchor: "auto", backgroundStyle: { … }, size: "auto", marginInner: 2, marginOuter: 1, paddingInner: 5, paddingOuter: 5, format: "auto", prefix: null, suffix: null, rotation: 0, textStyle: { … }, truncationText: "…", truncationMinLength: 0, truncationMaxFraction: 0.2 }</div>
 </td>
 </tr>
 <tr id="categoryAxis.tickLabel.anchor">
@@ -1458,20 +1458,20 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.tickLabel.truncationMinLength">tickLabel.truncationMinLength</a></td><td>the minimum length (in pixels) to allow tick label text perpendicular to the axis, applied when truncationMaxFraction would allow less</td><td>should be a number >= to 0</td><td><div>0</div>
 </td>
 </tr>
-<tr id="categoryAxis.tickLabel.truncationValue">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.tickLabel.truncationValue">tickLabel.truncationValue</a></td><td>the truncation text to append to the axis tick label text when its content is truncated</td><td>should be a string</td><td><div>"…"</div>
+<tr id="categoryAxis.tickLabel.truncationText">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.tickLabel.truncationText">tickLabel.truncationText</a></td><td>the truncation text to append to the axis tick label text when its content is truncated</td><td>should be a string</td><td><div>"…"</div>
 </td>
 </tr>
 <tr id="categoryAxis.tickMark">
-<td><a href="#categoryAxis.tickMark">tickMark</a></td><td>the tick marks drawn perpendicular to the axis at each tick value</td><td>should be an object with any of the properties { visible: should be a boolean, front: should be a boolean, size: should be a number >= to 0, margin: should be a number >= to 0, style: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] } } }</td><td><div>{ visible: true, front: false, size: 3, margin: 0, style: { … } }</div>
+<td><a href="#categoryAxis.tickMark">tickMark</a></td><td>the tick marks drawn perpendicular to the axis at each tick value</td><td>should be an object with any of the properties { visible: should be a boolean, front: should be a boolean, size: should be a number >= to 0, marginInner: should be a number >= to 0, style: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] } } }</td><td><div>{ visible: true, front: false, size: 3, marginInner: 0, style: { … } }</div>
 </td>
 </tr>
 <tr id="categoryAxis.tickMark.front">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.tickMark.front">tickMark.front</a></td><td>whether the axis tick marks should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="categoryAxis.tickMark.margin">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.tickMark.margin">tickMark.margin</a></td><td>the margin (in pixels) to show between the inside of the axis and the axis tick mark lines</td><td>should be a number >= to 0</td><td><div>0</div>
+<tr id="categoryAxis.tickMark.marginInner">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.tickMark.marginInner">tickMark.marginInner</a></td><td>the margin (in pixels) to show between the inside of the axis and the axis tick mark lines</td><td>should be a number >= to 0</td><td><div>0</div>
 </td>
 </tr>
 <tr id="categoryAxis.tickMark.size">
@@ -1547,7 +1547,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.title">
-<td><a href="#categoryAxis.title">title</a></td><td>the title shown alongside the axis</td><td>should be an object with any of the properties { text: should be a string or be equal to null, front: should be a boolean, backgroundStyle: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, truncationEnabled: should be a boolean, truncationValue: should be a string, size: should be a number >= to 0 or be equal to "auto", marginInner: should be a number >= to 0, marginOuter: should be a number >= to 0, paddingInner: should be a number >= to 0, paddingOuter: should be a number >= to 0, textStyle: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor"), fillOpacity: should be a number >= to 0 and <= 1 }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 } } }</td><td><div>{ text: null, front: false, backgroundStyle: { … }, truncationEnabled: true, truncationValue: "…", size: "auto", marginInner: 2, marginOuter: 2, paddingInner: 3, paddingOuter: 3, textStyle: { … } }</div>
+<td><a href="#categoryAxis.title">title</a></td><td>the title shown alongside the axis</td><td>should be an object with any of the properties { text: should be a string or be equal to null, front: should be a boolean, backgroundStyle: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, truncationEnabled: should be a boolean, truncationText: should be a string, size: should be a number >= to 0 or be equal to "auto", marginInner: should be a number >= to 0, marginOuter: should be a number >= to 0, paddingInner: should be a number >= to 0, paddingOuter: should be a number >= to 0, textStyle: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor"), fillOpacity: should be a number >= to 0 and <= 1 }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 } } }</td><td><div>{ text: null, front: false, backgroundStyle: { … }, truncationEnabled: true, truncationText: "…", size: "auto", marginInner: 2, marginOuter: 2, paddingInner: 3, paddingOuter: 3, textStyle: { … } }</div>
 </td>
 </tr>
 <tr id="categoryAxis.title.backgroundStyle">
@@ -1698,8 +1698,8 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.title.truncationEnabled">title.truncationEnabled</a></td><td>whether to apply text truncation to the contents of the axis title when it would overflow the axis bounds</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
-<tr id="categoryAxis.title.truncationValue">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.title.truncationValue">title.truncationValue</a></td><td>the truncation text to append to the axis title when its length exceeds the bounds of the axis</td><td>should be a string</td><td><div>"…"</div>
+<tr id="categoryAxis.title.truncationText">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.title.truncationText">title.truncationText</a></td><td>the truncation text to append to the axis title when its length exceeds the bounds of the axis</td><td>should be a string</td><td><div>"…"</div>
 </td>
 </tr>
 <tr id="categoryAxis.type">
@@ -1781,27 +1781,31 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="legend.focusOnClick">
-<td><a href="#legend.focusOnClick">focusOnClick</a></td><td>whether to focus a series when the series icon or title is clicked<br/><br/>When `true`, clicking a legend item focuses its series (see `focusOnMouseOver`). Combine with `filterOnClick` deliberately — with both enabled a click filters and focuses.</td><td>should be a boolean</td><td><div>false</div>
+<td><a href="#legend.focusOnClick">focusOnClick</a></td><td>whether to focus a series when the series icon or title is clicked<br/><br/>When `true`, clicking a legend item focuses its series (see `focusOnHover`). Combine with `filterOnClick` deliberately — with both enabled a click filters and focuses.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="legend.focusOnMouseOver">
-<td><a href="#legend.focusOnMouseOver">focusOnMouseOver</a></td><td>whether to focus a series when the mouse is moved over the series icon or title<br/><br/>When `true`, hovering a legend item focuses its series: the series gets its focused styling and every other series gets its defocused styling. `onFocus` reports focus changes.</td><td>should be a boolean</td><td><div>true</div>
+<tr id="legend.focusOnHover">
+<td><a href="#legend.focusOnHover">focusOnHover</a></td><td>whether to focus a series when the pointer hovers over the series icon or title<br/><br/>When `true`, hovering a legend item focuses its series: the series gets its focused styling and every other series gets its defocused styling. `onFocus` reports focus changes.</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="legend.icon">
-<td><a href="#legend.icon">icon</a></td><td>the series icons shown next to the series titles in the legend</td><td>should be an object with any of the properties { showColors: should be a boolean, showShapes: should be a boolean, showPlaceholders: should be a boolean, size: should be a number >= to 0 or be equal to "auto", spacerSize: should be a number >= to 0, borderSize: should be a number >= to 0, borderColor: should be a valid svg color (or "none" / "currentColor"), borderOpacity: should be a number >= to 0 and <= 1, filteredColor: should be a valid svg color (or "none" / "currentColor"), unfilteredColor: should be a valid svg color (or "none" / "currentColor") }</td><td><div>{ showColors: true, showShapes: true, showPlaceholders: true, size: "auto", spacerSize: 4, borderSize: 1, borderColor: "currentColor", borderOpacity: 0.65, filteredColor: "rgba(255,255,255,0)", unfilteredColor: "rgba(0,0,0,0.5)" }</div>
+<td><a href="#legend.icon">icon</a></td><td>the series icons shown next to the series titles in the legend</td><td>should be an object with any of the properties { showColors: should be a boolean, showShapes: should be a boolean, showPlaceholders: should be a boolean, size: should be a number >= to 0 or be equal to "auto", spacing: should be a number >= to 0, borderStyle: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 }, filteredColor: should be a valid svg color (or "none" / "currentColor"), unfilteredColor: should be a valid svg color (or "none" / "currentColor") }</td><td><div>{ showColors: true, showShapes: true, showPlaceholders: true, size: "auto", spacing: 4, borderStyle: { … }, filteredColor: "rgba(255,255,255,0)", unfilteredColor: "rgba(0,0,0,0.5)" }</div>
 </td>
 </tr>
-<tr id="legend.icon.borderColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#legend.icon.borderColor">icon.borderColor</a></td><td>the color of the border drawn around series icons</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
+<tr id="legend.icon.borderStyle">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#legend.icon.borderStyle">icon.borderStyle</a></td><td>the border drawn around series icons</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 }</td><td><div>{ strokeColor: "currentColor", strokeOpacity: 0.65, strokeWidth: 1 }</div>
 </td>
 </tr>
-<tr id="legend.icon.borderOpacity">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#legend.icon.borderOpacity">icon.borderOpacity</a></td><td>the opacity (0 - 1) of the border drawn around series icons</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
+<tr id="legend.icon.borderStyle.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#legend.icon.borderStyle.strokeColor">icon.borderStyle.strokeColor</a></td><td>the color of the border drawn around series icons: use "none" to switch the border off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
-<tr id="legend.icon.borderSize">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#legend.icon.borderSize">icon.borderSize</a></td><td>the width (in pixels) of the border drawn around series icons</td><td>should be a number >= to 0</td><td><div>1</div>
+<tr id="legend.icon.borderStyle.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#legend.icon.borderStyle.strokeOpacity">icon.borderStyle.strokeOpacity</a></td><td>the opacity (0 - 1) of the border drawn around series icons</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
+</td>
+</tr>
+<tr id="legend.icon.borderStyle.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#legend.icon.borderStyle.strokeWidth">icon.borderStyle.strokeWidth</a></td><td>the width (in pixels) of the border drawn around series icons</td><td>should be a number >= to 0</td><td><div>1</div>
 </td>
 </tr>
 <tr id="legend.icon.filteredColor">
@@ -1824,8 +1828,8 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#legend.icon.size">icon.size</a></td><td>the width and height (in pixels) of the series icons, or "auto" to match the legend text font size</td><td>should be a number >= to 0 or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
-<tr id="legend.icon.spacerSize">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#legend.icon.spacerSize">icon.spacerSize</a></td><td>the horizontal space (in pixels) to show between series icons and titles</td><td>should be a number >= to 0</td><td><div>4</div>
+<tr id="legend.icon.spacing">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#legend.icon.spacing">icon.spacing</a></td><td>the horizontal space (in pixels) to show between series icons and titles</td><td>should be a number >= to 0</td><td><div>4</div>
 </td>
 </tr>
 <tr id="legend.icon.unfilteredColor">
@@ -1976,16 +1980,16 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#legend.position">position</a></td><td>the position of the legend relative to the chart (top or bottom)</td><td>should be one of [ "top", "bottom" ]</td><td><div>"bottom"</div>
 </td>
 </tr>
-<tr id="legend.showFilteringOnLabels">
-<td><a href="#legend.showFilteringOnLabels">showFilteringOnLabels</a></td><td>whether to strike through the item text of filtered series<br/><br/>When `true`, the item text of a series that has been filtered out of the chart is drawn with a line through it, so the legend shows at a glance which series are filtered. The strike-through covers the item text only, never its color icon — the icon already says the same thing by going hollow.</td><td>should be a boolean</td><td><div>false</div>
+<tr id="legend.strikeThroughFiltered">
+<td><a href="#legend.strikeThroughFiltered">strikeThroughFiltered</a></td><td>whether to strike through the item text of filtered series<br/><br/>When `true`, the item text of a series that has been filtered out of the chart is drawn with a line through it, so the legend shows at a glance which series are filtered. The strike-through covers the item text only, never its color icon — the icon already says the same thing by going hollow.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="legend.truncationEnabled">
 <td><a href="#legend.truncationEnabled">truncationEnabled</a></td><td>whether to use text truncation when a legend item width exceeds the width of the chart</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
-<tr id="legend.truncationValue">
-<td><a href="#legend.truncationValue">truncationValue</a></td><td>the truncation text to append to legend item text when its width exceeds the width of the chart</td><td>should be a string</td><td><div>"…"</div>
+<tr id="legend.truncationText">
+<td><a href="#legend.truncationText">truncationText</a></td><td>the truncation text to append to legend item text when its width exceeds the width of the chart</td><td>should be a string</td><td><div>"…"</div>
 </td>
 </tr>
 <tr id="legend.visible">
@@ -2060,12 +2064,6 @@ table thead td { border-bottom-width: 2px; }
 <th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
 </tr>
 </thead>
-<tr id="patterns.angle">
-<td><a href="#patterns.angle">angle</a></td><td>the clockwise rotation (in degrees) of a lines or crosshatch pattern</td><td><p>should be a number >= to -360 and <= 360 when type is lines or crosshatch</p>
-<p>should be equal to undefined when type is dots</p>
-</td><td><div>45 (when type is lines or crosshatch)</div>
-</td>
-</tr>
 <tr id="patterns.backgroundColor">
 <td><a href="#patterns.backgroundColor">backgroundColor</a></td><td>the color behind the pattern marks: use "series" for the owning series color, "currentColor" to follow the host page CSS color, or null for a transparent background</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "series" or be equal to null</td><td><div>null</div>
 </td>
@@ -2104,6 +2102,12 @@ table thead td { border-bottom-width: 2px; }
 </td><td><div>2 (when type is dots)</div>
 </td>
 </tr>
+<tr id="patterns.rotation">
+<td><a href="#patterns.rotation">rotation</a></td><td>the clockwise rotation (in degrees, -360 to 360) of a lines or crosshatch pattern</td><td><p>should be a number >= to -360 and <= 360 when type is lines or crosshatch</p>
+<p>should be equal to undefined when type is dots</p>
+</td><td><div>45 (when type is lines or crosshatch)</div>
+</td>
+</tr>
 <tr id="patterns.spacing">
 <td><a href="#patterns.spacing">spacing</a></td><td>the screen-space distance (in pixels) between repeated pattern marks</td><td>should be a number >= to 1</td><td><div>8</div>
 </td>
@@ -2123,35 +2127,39 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 </thead>
 <tr id="pie.centerLabel">
-<td><a href="#pie.centerLabel">centerLabel</a></td><td>a text label shown at the center of the pie (use null for none; most useful for donut and gauge charts)</td><td>should be a string or be equal to null</td><td><div>null</div>
+<td><a href="#pie.centerLabel">centerLabel</a></td><td>the text label shown at the center of the pie (most useful for donut and gauge charts)</td><td>should be an object with any of the properties { text: should be a string or be equal to null, textStyle: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null } }</td><td><div>{ text: null, textStyle: { … } }</div>
 </td>
 </tr>
-<tr id="pie.centerLabelTextStyle">
-<td><a href="#pie.centerLabelTextStyle">centerLabelTextStyle</a></td><td>the styles to apply to the center label text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page's css color and theme)</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }</td><td><div>{ strokeColor: null, strokeOpacity: null, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }</div>
+<tr id="pie.centerLabel.text">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabel.text">centerLabel.text</a></td><td>the text to show at the center of the pie (use null for none)</td><td>should be a string or be equal to null</td><td><div>null</div>
 </td>
 </tr>
-<tr id="pie.centerLabelTextStyle.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabelTextStyle.fillColor">centerLabelTextStyle.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to null</td><td><div>"currentColor"</div>
+<tr id="pie.centerLabel.textStyle">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabel.textStyle">centerLabel.textStyle</a></td><td>the styles to apply to the center label text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page's css color and theme)</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }</td><td><div>{ strokeColor: null, strokeOpacity: null, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }</div>
 </td>
 </tr>
-<tr id="pie.centerLabelTextStyle.fillOpacity">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabelTextStyle.fillOpacity">centerLabelTextStyle.fillOpacity</a></td><td>the opacity (0 - 1) of the fill, or null to leave the svg fill-opacity attribute unset</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>null</div>
+<tr id="pie.centerLabel.textStyle.fillColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabel.textStyle.fillColor">centerLabel.textStyle.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to null</td><td><div>"currentColor"</div>
 </td>
 </tr>
-<tr id="pie.centerLabelTextStyle.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabelTextStyle.strokeColor">centerLabelTextStyle.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to null</td><td><div>null</div>
+<tr id="pie.centerLabel.textStyle.fillOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabel.textStyle.fillOpacity">centerLabel.textStyle.fillOpacity</a></td><td>the opacity (0 - 1) of the fill, or null to leave the svg fill-opacity attribute unset</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>null</div>
 </td>
 </tr>
-<tr id="pie.centerLabelTextStyle.strokeDashArray">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabelTextStyle.strokeDashArray">centerLabelTextStyle.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke</td><td>should be a valid dash array or be equal to null</td><td><div>null</div>
+<tr id="pie.centerLabel.textStyle.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabel.textStyle.strokeColor">centerLabel.textStyle.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to null</td><td><div>null</div>
 </td>
 </tr>
-<tr id="pie.centerLabelTextStyle.strokeOpacity">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabelTextStyle.strokeOpacity">centerLabelTextStyle.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke, or null to leave the svg stroke-opacity attribute unset</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>null</div>
+<tr id="pie.centerLabel.textStyle.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabel.textStyle.strokeDashArray">centerLabel.textStyle.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke</td><td>should be a valid dash array or be equal to null</td><td><div>null</div>
 </td>
 </tr>
-<tr id="pie.centerLabelTextStyle.strokeWidth">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabelTextStyle.strokeWidth">centerLabelTextStyle.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>null</div>
+<tr id="pie.centerLabel.textStyle.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabel.textStyle.strokeOpacity">centerLabel.textStyle.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke, or null to leave the svg stroke-opacity attribute unset</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="pie.centerLabel.textStyle.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.centerLabel.textStyle.strokeWidth">centerLabel.textStyle.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="pie.centerOffsetXFraction">
@@ -2456,15 +2464,15 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.axisLine">
-<td><a href="#valueAxes.axisLine">axisLine</a></td><td>the line drawn along the length of the axis</td><td>should be an object with any of the properties { visible: should be a boolean, front: should be a boolean, margin: should be a number >= to 0, style: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] } } }</td><td><div>{ visible: true, front: false, margin: 0, style: { … } }</div>
+<td><a href="#valueAxes.axisLine">axisLine</a></td><td>the line drawn along the length of the axis</td><td>should be an object with any of the properties { visible: should be a boolean, front: should be a boolean, marginInner: should be a number >= to 0, style: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] } } }</td><td><div>{ visible: true, front: false, marginInner: 0, style: { … } }</div>
 </td>
 </tr>
 <tr id="valueAxes.axisLine.front">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.axisLine.front">axisLine.front</a></td><td>whether the axis line should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="valueAxes.axisLine.margin">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.axisLine.margin">axisLine.margin</a></td><td>the margin (in pixels) between the line shown along the axis and the inner boundary of the axis</td><td>should be a number >= to 0</td><td><div>0</div>
+<tr id="valueAxes.axisLine.marginInner">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.axisLine.marginInner">axisLine.marginInner</a></td><td>the margin (in pixels) between the line shown along the axis and the inner boundary of the axis</td><td>should be a number >= to 0</td><td><div>0</div>
 </td>
 </tr>
 <tr id="valueAxes.axisLine.style">
@@ -2657,8 +2665,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#valueAxes.focusOnClick">focusOnClick</a></td><td>whether the value axis should be focused whenever the user clicks/taps a part of it in the chart</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="valueAxes.focusOnMouseOver">
-<td><a href="#valueAxes.focusOnMouseOver">focusOnMouseOver</a></td><td>whether the value axis should be focused whenever the user mouses over a part of it in the chart</td><td>should be a boolean</td><td><div>true</div>
+<tr id="valueAxes.focusOnHover">
+<td><a href="#valueAxes.focusOnHover">focusOnHover</a></td><td>whether the value axis should be focused whenever the user hovers the pointer over a part of it in the chart</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="valueAxes.focusRange">
@@ -2706,15 +2714,15 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.focusTickMark">
-<td><a href="#valueAxes.focusTickMark">focusTickMark</a></td><td>the tick marks drawn perpendicular to the axis at its focused series domain or category value</td><td>should be an object with any of the properties { visible: should be a boolean, front: should be a boolean, size: should be a number >= to 0, margin: should be a number >= to 0, style: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null } }</td><td><div>{ visible: false, front: false, size: 9, margin: 3, style: { … } }</div>
+<td><a href="#valueAxes.focusTickMark">focusTickMark</a></td><td>the tick marks drawn perpendicular to the axis at its focused series domain or category value</td><td>should be an object with any of the properties { visible: should be a boolean, front: should be a boolean, size: should be a number >= to 0, marginInner: should be a number >= to 0, style: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null } }</td><td><div>{ visible: false, front: false, size: 9, marginInner: 3, style: { … } }</div>
 </td>
 </tr>
 <tr id="valueAxes.focusTickMark.front">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.focusTickMark.front">focusTickMark.front</a></td><td>whether the focus tick marks should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="valueAxes.focusTickMark.margin">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.focusTickMark.margin">focusTickMark.margin</a></td><td>the margin (in pixels) to show between the inside of the axis and the focus tick mark line(s)</td><td>should be a number >= to 0</td><td><div>3</div>
+<tr id="valueAxes.focusTickMark.marginInner">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.focusTickMark.marginInner">focusTickMark.marginInner</a></td><td>the margin (in pixels) to show between the inside of the axis and the focus tick mark line(s)</td><td>should be a number >= to 0</td><td><div>3</div>
 </td>
 </tr>
 <tr id="valueAxes.focusTickMark.size">
@@ -3330,15 +3338,15 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.tickMark">
-<td><a href="#valueAxes.tickMark">tickMark</a></td><td>the tick marks drawn perpendicular to the axis at each tick value</td><td>should be an object with any of the properties { visible: should be a boolean, front: should be a boolean, size: should be a number >= to 0, margin: should be a number >= to 0, style: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] } } }</td><td><div>{ visible: true, front: false, size: 3, margin: 0, style: { … } }</div>
+<td><a href="#valueAxes.tickMark">tickMark</a></td><td>the tick marks drawn perpendicular to the axis at each tick value</td><td>should be an object with any of the properties { visible: should be a boolean, front: should be a boolean, size: should be a number >= to 0, marginInner: should be a number >= to 0, style: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] } } }</td><td><div>{ visible: true, front: false, size: 3, marginInner: 0, style: { … } }</div>
 </td>
 </tr>
 <tr id="valueAxes.tickMark.front">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.tickMark.front">tickMark.front</a></td><td>whether the axis tick marks should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="valueAxes.tickMark.margin">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.tickMark.margin">tickMark.margin</a></td><td>the margin (in pixels) to show between the inside of the axis and the axis tick mark lines</td><td>should be a number >= to 0</td><td><div>0</div>
+<tr id="valueAxes.tickMark.marginInner">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.tickMark.marginInner">tickMark.marginInner</a></td><td>the margin (in pixels) to show between the inside of the axis and the axis tick mark lines</td><td>should be a number >= to 0</td><td><div>0</div>
 </td>
 </tr>
 <tr id="valueAxes.tickMark.size">
@@ -3426,7 +3434,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.title">
-<td><a href="#valueAxes.title">title</a></td><td>the title shown alongside the axis</td><td>should be an object with any of the properties { text: should be a string or be equal to null, front: should be a boolean, backgroundStyle: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, truncationEnabled: should be a boolean, truncationValue: should be a string, size: should be a number >= to 0 or be equal to "auto", marginInner: should be a number >= to 0, marginOuter: should be a number >= to 0, paddingInner: should be a number >= to 0, paddingOuter: should be a number >= to 0, textStyle: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor"), fillOpacity: should be a number >= to 0 and <= 1 }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 } } }</td><td><div>{ text: null, front: false, backgroundStyle: { … }, truncationEnabled: true, truncationValue: "…", size: "auto", marginInner: 2, marginOuter: 2, paddingInner: 3, paddingOuter: 3, textStyle: { … } }</div>
+<td><a href="#valueAxes.title">title</a></td><td>the title shown alongside the axis</td><td>should be an object with any of the properties { text: should be a string or be equal to null, front: should be a boolean, backgroundStyle: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, truncationEnabled: should be a boolean, truncationText: should be a string, size: should be a number >= to 0 or be equal to "auto", marginInner: should be a number >= to 0, marginOuter: should be a number >= to 0, paddingInner: should be a number >= to 0, paddingOuter: should be a number >= to 0, textStyle: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor"), fillOpacity: should be a number >= to 0 and <= 1 }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 } } }</td><td><div>{ text: null, front: false, backgroundStyle: { … }, truncationEnabled: true, truncationText: "…", size: "auto", marginInner: 2, marginOuter: 2, paddingInner: 3, paddingOuter: 3, textStyle: { … } }</div>
 </td>
 </tr>
 <tr id="valueAxes.title.backgroundStyle">
@@ -3577,8 +3585,8 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.title.truncationEnabled">title.truncationEnabled</a></td><td>whether to apply text truncation to the contents of the axis title when it would overflow the axis bounds</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
-<tr id="valueAxes.title.truncationValue">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.title.truncationValue">title.truncationValue</a></td><td>the truncation text to append to the axis title when its length exceeds the bounds of the axis</td><td>should be a string</td><td><div>"…"</div>
+<tr id="valueAxes.title.truncationText">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.title.truncationText">title.truncationText</a></td><td>the truncation text to append to the axis title when its length exceeds the bounds of the axis</td><td>should be a string</td><td><div>"…"</div>
 </td>
 </tr>
 <tr id="valueAxes.type">
@@ -3849,16 +3857,16 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#series.focusCategoryOnClick">focusCategoryOnClick</a></td><td>whether the category should be focused whenever the user clicks/taps a category of the series in the chart</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="series.focusCategoryOnMouseOver">
-<td><a href="#series.focusCategoryOnMouseOver">focusCategoryOnMouseOver</a></td><td>whether the category should be focused whenever the user mouses over a category of the series in the chart</td><td>should be a boolean</td><td><div>false</div>
+<tr id="series.focusCategoryOnHover">
+<td><a href="#series.focusCategoryOnHover">focusCategoryOnHover</a></td><td>whether the category should be focused whenever the user hovers the pointer over a category of the series in the chart</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="series.focusOnClick">
 <td><a href="#series.focusOnClick">focusOnClick</a></td><td>whether the series should be focused whenever the user clicks/taps a part of it in the chart</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="series.focusOnMouseOver">
-<td><a href="#series.focusOnMouseOver">focusOnMouseOver</a></td><td>whether the series should be focused whenever the user mouses over a part of it in the chart</td><td>should be a boolean</td><td><div>false</div>
+<tr id="series.focusOnHover">
+<td><a href="#series.focusOnHover">focusOnHover</a></td><td>whether the series should be focused whenever the user hovers the pointer over a part of it in the chart</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="series.followSeries">
@@ -4065,7 +4073,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.marker.minSize">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.marker.minSize">marker.minSize</a></td><td>the minimum marker size (in pixels) to use when interpolating the marker size based on a marker property value</td><td>should be a number >= to 0</td><td><div>1</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.marker.minSize">marker.minSize</a></td><td>the minimum marker size (in pixels) that a marker scaled by a marker property value shrinks to (ignored without a markerProperty)<br/><br/>Only used with a `markerProperty`: the size the smallest marker property value scales down to; the largest takes `size`.</td><td>should be a number >= to 0</td><td><div>1</div>
 </td>
 </tr>
 <tr id="series.marker.shape">
@@ -4080,7 +4088,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.marker.size">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.marker.size">marker.size</a></td><td>the maximum marker size (in pixels) to use when interpolating the marker size based on a marker property value, or the marker size when no marker property is used</td><td>should be a number >= to 0</td><td><div>6</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.marker.size">marker.size</a></td><td>the marker size (in pixels); with a markerProperty it is the size of the largest value, and the markers scale down from it toward minSize<br/><br/>Without a `markerProperty` every marker is drawn at exactly this size, and `minSize` is not used. With one, the series value with the largest marker property value gets this size and the others scale down toward `minSize` by `sizeScale`, so `size` is the top of the range and `minSize` the bottom — there is no separate maximum.</td><td>should be a number >= to 0</td><td><div>6</div>
 </td>
 </tr>
 <tr id="series.marker.sizeScale">
@@ -4222,7 +4230,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.shapeStyle.defocused.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.defocused.fillColor">shapeStyle.defocused.fillColor</a></td><td>the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.defocused.fillColor">shapeStyle.defocused.fillColor</a></td><td>the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette shape color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle.defocused.fillOpacity">
@@ -4233,7 +4241,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.shapeStyle.defocused.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.defocused.strokeColor">shapeStyle.defocused.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.defocused.strokeColor">shapeStyle.defocused.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette shape color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle.defocused.strokeDashArray">
@@ -4259,7 +4267,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.shapeStyle.focused.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.focused.fillColor">shapeStyle.focused.fillColor</a></td><td>the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.focused.fillColor">shapeStyle.focused.fillColor</a></td><td>the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette shape color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle.focused.fillOpacity">
@@ -4270,7 +4278,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.shapeStyle.focused.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.focused.strokeColor">shapeStyle.focused.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.focused.strokeColor">shapeStyle.focused.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette shape color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle.focused.strokeDashArray">
@@ -4296,7 +4304,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.shapeStyle.normal.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.normal.fillColor">shapeStyle.normal.fillColor</a></td><td>the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "seriesIndex" / "categoryIndex" to take the matching colorPalette series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "categoryIndex" ]</td><td><div>"seriesIndex"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.normal.fillColor">shapeStyle.normal.fillColor</a></td><td>the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "seriesIndex" / "categoryIndex" to take the matching colorPalette shape color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "categoryIndex" ]</td><td><div>"seriesIndex"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle.normal.fillOpacity">
@@ -4307,7 +4315,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.shapeStyle.normal.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.normal.strokeColor">shapeStyle.normal.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "seriesIndex" / "categoryIndex" to take the matching colorPalette series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "categoryIndex" ]</td><td><div>"seriesIndex"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.normal.strokeColor">shapeStyle.normal.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "seriesIndex" / "categoryIndex" to take the matching colorPalette shape color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "categoryIndex" ]</td><td><div>"seriesIndex"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle.normal.strokeDashArray">
@@ -4862,8 +4870,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#title.truncationEnabled">truncationEnabled</a></td><td>whether to use text truncation when the title width exceeds the width of the chart</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
-<tr id="title.truncationValue">
-<td><a href="#title.truncationValue">truncationValue</a></td><td>the truncation text to append to the title when its width exceeds the width of the chart</td><td>should be a string</td><td><div>"…"</div>
+<tr id="title.truncationText">
+<td><a href="#title.truncationText">truncationText</a></td><td>the truncation text to append to the title when its width exceeds the width of the chart</td><td>should be a string</td><td><div>"…"</div>
 </td>
 </tr>
 <tr id="title.verticalAlign">
@@ -4920,12 +4928,12 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.backgroundStyle.strokeWidth">backgroundStyle.strokeWidth</a></td><td>the width (in pixels) of the border around the tooltip (use null for none)</td><td>should be a number >= to 0 or be equal to null</td><td><div>2</div>
 </td>
 </tr>
-<tr id="tooltip.borderRadius">
-<td><a href="#tooltip.borderRadius">borderRadius</a></td><td>the radius (in pixels) of the corners of the tooltip</td><td>should be a number >= to 0</td><td><div>4</div>
-</td>
-</tr>
 <tr id="tooltip.closeOnClick">
 <td><a href="#tooltip.closeOnClick">closeOnClick</a></td><td>whether to hide the tooltip when the user clicks/taps within it</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
+<tr id="tooltip.cornerRadius">
+<td><a href="#tooltip.cornerRadius">cornerRadius</a></td><td>the radius (in pixels) of the corners of the tooltip</td><td>should be a number >= to 0</td><td><div>4</div>
 </td>
 </tr>
 <tr id="tooltip.dropShadow">
@@ -4968,8 +4976,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltip.focusCategoryOnClick">focusCategoryOnClick</a></td><td>whether category values should be focused when the user clicks/taps on them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="tooltip.focusCategoryOnMouseOver">
-<td><a href="#tooltip.focusCategoryOnMouseOver">focusCategoryOnMouseOver</a></td><td>whether category values should be focused when the user mouses over them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
+<tr id="tooltip.focusCategoryOnHover">
+<td><a href="#tooltip.focusCategoryOnHover">focusCategoryOnHover</a></td><td>whether category values should be focused when the user hovers the pointer over them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="tooltip.focusModeText">
@@ -4980,32 +4988,32 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltip.focusSeriesOnClick">focusSeriesOnClick</a></td><td>whether series should be focused when the user clicks/taps on them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="tooltip.focusSeriesOnMouseOver">
-<td><a href="#tooltip.focusSeriesOnMouseOver">focusSeriesOnMouseOver</a></td><td>whether series should be focused when the user mouses over them in the tooltip<br/><br/>Ignored while `showControls` is on — there the controls’ mode decides: a row’s series focuses on hover while filter mode is active.</td><td>should be a boolean</td><td><div>false</div>
+<tr id="tooltip.focusSeriesOnHover">
+<td><a href="#tooltip.focusSeriesOnHover">focusSeriesOnHover</a></td><td>whether series should be focused when the user hovers the pointer over them in the tooltip<br/><br/>Ignored while `showControls` is on — there the controls’ mode decides: a row’s series focuses on hover while filter mode is active.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="tooltip.followPointer">
 <td><a href="#tooltip.followPointer">followPointer</a></td><td>whether the tooltip should track the mouse position in the chart drawing area</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="tooltip.hideFiltered">
-<td><a href="#tooltip.hideFiltered">hideFiltered</a></td><td>whether to hide series that have been filtered from the tooltip</td><td>should be a boolean</td><td><div>false</div>
-</td>
-</tr>
 <tr id="tooltip.icon">
-<td><a href="#tooltip.icon">icon</a></td><td>the series icons shown next to the series titles in the tooltip</td><td>should be an object with any of the properties { showColors: should be a boolean, showShapes: should be a boolean, showPlaceholders: should be a boolean, size: should be a number >= to 0 or be equal to "auto", spacerSize: should be a number >= to 0, borderSize: should be a number >= to 0, borderColor: should be a valid svg color (or "none" / "currentColor"), borderOpacity: should be a number >= to 0 and <= 1, filteredColor: should be a valid svg color (or "none" / "currentColor"), unfilteredColor: should be a valid svg color (or "none" / "currentColor") }</td><td><div>{ showColors: true, showShapes: true, showPlaceholders: true, size: "auto", spacerSize: 4, borderSize: 1, borderColor: "currentColor", borderOpacity: 0.65, filteredColor: "rgba(255,255,255,0)", unfilteredColor: "rgba(0,0,0,0.5)" }</div>
+<td><a href="#tooltip.icon">icon</a></td><td>the series icons shown next to the series titles in the tooltip</td><td>should be an object with any of the properties { showColors: should be a boolean, showShapes: should be a boolean, showPlaceholders: should be a boolean, size: should be a number >= to 0 or be equal to "auto", spacing: should be a number >= to 0, borderStyle: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 }, filteredColor: should be a valid svg color (or "none" / "currentColor"), unfilteredColor: should be a valid svg color (or "none" / "currentColor") }</td><td><div>{ showColors: true, showShapes: true, showPlaceholders: true, size: "auto", spacing: 4, borderStyle: { … }, filteredColor: "rgba(255,255,255,0)", unfilteredColor: "rgba(0,0,0,0.5)" }</div>
 </td>
 </tr>
-<tr id="tooltip.icon.borderColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.icon.borderColor">icon.borderColor</a></td><td>the color of the border drawn around series icons</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
+<tr id="tooltip.icon.borderStyle">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.icon.borderStyle">icon.borderStyle</a></td><td>the border drawn around series icons</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 }</td><td><div>{ strokeColor: "currentColor", strokeOpacity: 0.65, strokeWidth: 1 }</div>
 </td>
 </tr>
-<tr id="tooltip.icon.borderOpacity">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.icon.borderOpacity">icon.borderOpacity</a></td><td>the opacity (0 - 1) of the border drawn around series icons</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
+<tr id="tooltip.icon.borderStyle.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.icon.borderStyle.strokeColor">icon.borderStyle.strokeColor</a></td><td>the color of the border drawn around series icons: use "none" to switch the border off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
-<tr id="tooltip.icon.borderSize">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.icon.borderSize">icon.borderSize</a></td><td>the width (in pixels) of the border drawn around series icons</td><td>should be a number >= to 0</td><td><div>1</div>
+<tr id="tooltip.icon.borderStyle.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.icon.borderStyle.strokeOpacity">icon.borderStyle.strokeOpacity</a></td><td>the opacity (0 - 1) of the border drawn around series icons</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
+</td>
+</tr>
+<tr id="tooltip.icon.borderStyle.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.icon.borderStyle.strokeWidth">icon.borderStyle.strokeWidth</a></td><td>the width (in pixels) of the border drawn around series icons</td><td>should be a number >= to 0</td><td><div>1</div>
 </td>
 </tr>
 <tr id="tooltip.icon.filteredColor">
@@ -5028,8 +5036,8 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.icon.size">icon.size</a></td><td>the width and height (in pixels) of the series icons, or "auto" to match the inherited font size</td><td>should be a number >= to 0 or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
-<tr id="tooltip.icon.spacerSize">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.icon.spacerSize">icon.spacerSize</a></td><td>the horizontal space (in pixels) to show between series icons and titles</td><td>should be a number >= to 0</td><td><div>4</div>
+<tr id="tooltip.icon.spacing">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.icon.spacing">icon.spacing</a></td><td>the horizontal space (in pixels) to show between series icons and titles</td><td>should be a number >= to 0</td><td><div>4</div>
 </td>
 </tr>
 <tr id="tooltip.icon.unfilteredColor">
@@ -5040,8 +5048,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltip.keepInside">keepInside</a></td><td>whether to keep the tooltip within the series drawing area (true) or allow it to overlap the axes (false)</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="tooltip.linePadding">
-<td><a href="#tooltip.linePadding">linePadding</a></td><td>the padding (in pixels) between each line of the tooltip</td><td>should be a number >= to 0</td><td><div>3</div>
+<tr id="tooltip.lineSpacing">
+<td><a href="#tooltip.lineSpacing">lineSpacing</a></td><td>the space (in pixels) between each line of the tooltip</td><td>should be a number >= to 0</td><td><div>3</div>
 </td>
 </tr>
 <tr id="tooltip.missingValueText">
@@ -5072,21 +5080,17 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltip.rangeValueSeparator">rangeValueSeparator</a></td><td>the text to use when joining the values for a series that has more than one value</td><td>should be a string</td><td><div>" - "</div>
 </td>
 </tr>
-<tr id="tooltip.rightAlignValues">
-<td><a href="#tooltip.rightAlignValues">rightAlignValues</a></td><td>whether to right-align the values shown in the tooltip</td><td>should be a boolean</td><td><div>true</div>
-</td>
-</tr>
 <tr id="tooltip.showCategory">
 <td><a href="#tooltip.showCategory">showCategory</a></td><td>whether the category value should be shown as the first line of the tooltip</td><td>should be a boolean</td><td><div>false (when chart.type is pie)</div>
 <div>true (when chart.type is xy)</div>
 </td>
 </tr>
 <tr id="tooltip.showControls">
-<td><a href="#tooltip.showControls">showControls</a></td><td>whether the focus/filter controls should be shown at the top of the tooltip<br/><br/>When `true`, a control strip renders above the tooltip lines: ‹ and › buttons step the shown category, and a mode button toggles what clicking a tooltip row does. In filter mode (the initial mode) a series row toggles its series out of the chart like a legend click (`filterable` permitting), and hovering a series row focuses its series like hovering its legend item; in focus mode a row click pins focus on its series or category. With the controls shown, the mode decides click and series-hover behavior — the `focus…OnClick` / `filterSeriesOnClick` / `focusSeriesOnMouseOver` settings are not consulted (`focusCategoryOnMouseOver` still is). The mode button shows the active mode via `filterModeText` / `focusModeText`, and the step buttons are labeled for assistive tech by `accessibility.tooltipPreviousLabel` / `tooltipNextLabel`.</td><td>should be a boolean</td><td><div>false</div>
+<td><a href="#tooltip.showControls">showControls</a></td><td>whether the focus/filter controls should be shown at the top of the tooltip<br/><br/>When `true`, a control strip renders above the tooltip lines: ‹ and › buttons step the shown category, and a mode button toggles what clicking a tooltip row does. In filter mode (the initial mode) a series row toggles its series out of the chart like a legend click (`filterable` permitting), and hovering a series row focuses its series like hovering its legend item; in focus mode a row click pins focus on its series or category. With the controls shown, the mode decides click and series-hover behavior — the `focus…OnClick` / `filterSeriesOnClick` / `focusSeriesOnHover` settings are not consulted (`focusCategoryOnHover` still is). The mode button shows the active mode via `filterModeText` / `focusModeText`, and the step buttons are labeled for assistive tech by `accessibility.tooltipPreviousLabel` / `tooltipNextLabel`.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="tooltip.showFilteringOnLabels">
-<td><a href="#tooltip.showFilteringOnLabels">showFilteringOnLabels</a></td><td>whether to strike through the label text of filtered series<br/><br/>When `true`, the label of a series that has been filtered out of the chart is drawn with a line through it. The strike-through covers the label only, so the value beside it stays legible — except when `rightAlignValues` is `false`, where the label and the value are one piece of text and both are struck.</td><td>should be a boolean</td><td><div>false</div>
+<tr id="tooltip.showFiltered">
+<td><a href="#tooltip.showFiltered">showFiltered</a></td><td>whether to show series that have been filtered out of the chart in the tooltip</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="tooltip.showMissingValues">
@@ -5096,6 +5100,14 @@ table thead td { border-bottom-width: 2px; }
 <tr id="tooltip.snapToCategory">
 <td><a href="#tooltip.snapToCategory">snapToCategory</a></td><td>whether the tooltip should be centered at the closest category value (true) or at the click/tap position (false)</td><td>should be a boolean</td><td><div>false (when chart.type is pie)</div>
 <div>true (when chart.type is xy)</div>
+</td>
+</tr>
+<tr id="tooltip.strikeThroughFiltered">
+<td><a href="#tooltip.strikeThroughFiltered">strikeThroughFiltered</a></td><td>whether to strike through the label text of filtered series<br/><br/>When `true`, the label of a series that has been filtered out of the chart is drawn with a line through it. The strike-through covers the label only, so the value beside it stays legible — except when `valueAlign` is `'left'`, where the label and the value are one piece of text and both are struck.</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
+<tr id="tooltip.valueAlign">
+<td><a href="#tooltip.valueAlign">valueAlign</a></td><td>the horizontal alignment of the values shown in the tooltip (left, right): left runs the label and value together as one piece of text, right floats the values to the far edge</td><td>should be one of [ "left", "right" ]</td><td><div>"right"</div>
 </td>
 </tr>
 <tr id="tooltip.visible">

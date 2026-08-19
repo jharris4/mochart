@@ -21,7 +21,7 @@ function mount(config: MochartInputConfig, data: readonly unknown[] = rows): Ele
 function base(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'c' },
     series: [{ id: 'A', property: 'a', renderer: 'bar' }],
     ...overrides
@@ -39,7 +39,7 @@ describe('built-in SVG patterns', () => {
   it('renders lines, crosshatch, and dots in screen-space pattern definitions', () => {
     const container = mount(base({
       patterns: [
-        { id: 'lines', type: 'lines', spacing: 9, angle: -30, lineWidth: 3 },
+        { id: 'lines', type: 'lines', spacing: 9, rotation: -30, lineWidth: 3 },
         { id: 'cross', type: 'crosshatch', foregroundColor: 'currentColor', backgroundColor: '#fff' },
         { id: 'dots', type: 'dots', radius: 1.5 }
       ],
@@ -116,7 +116,7 @@ describe('built-in SVG patterns', () => {
   it('uses patterns and both gradient types on pie slices with their default line renderer', () => {
     const pie = createPie([{ label: 'A', value: 3 }, { label: 'B', value: 2 }]);
     const common = {
-      version: '1.0.0', animation: { animate: false }, chart: pie.chart, pie: pie.pie,
+      version: '1.0.0', animation: { enabled: false }, chart: pie.chart, pie: pie.pie,
       categoryAxis: pie.categoryAxis, series: pie.series
     };
 
@@ -159,7 +159,7 @@ describe('built-in SVG patterns', () => {
     expect(pattern.querySelector('rect')).toBeNull();
 
     handle.update({ config: base({
-      patterns: [{ id: 'p', type: 'lines', angle: 30, lineWidth: 4, backgroundColor: '#123456' }],
+      patterns: [{ id: 'p', type: 'lines', rotation: 30, lineWidth: 4, backgroundColor: '#123456' }],
       series: [{ id: 'A', property: 'a', renderer: 'bar', pattern: 'p' }]
     }) } as Partial<DefaultChartProps>);
 
@@ -172,7 +172,7 @@ describe('built-in SVG patterns', () => {
     expect(pattern.children[0].getAttribute('fill')).toBe('#123456');
 
     handle.update({ config: base({
-      patterns: [{ id: 'p', type: 'lines', angle: 30, lineWidth: 4 }],
+      patterns: [{ id: 'p', type: 'lines', rotation: 30, lineWidth: 4 }],
       series: [{ id: 'A', property: 'a', renderer: 'bar', pattern: null }]
     }) } as Partial<DefaultChartProps>);
 

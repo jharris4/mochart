@@ -15,7 +15,7 @@ export const config: MochartInputConfig = {
   seriesStacks: [{ id: 'users' }],
   legend: {
     filterOnClick: true,
-    focusOnMouseOver: true
+    focusOnHover: true
   }
 };
 

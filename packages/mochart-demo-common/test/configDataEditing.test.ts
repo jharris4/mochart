@@ -13,7 +13,7 @@ import type { DemoConfig, MochartDemoConfig } from '../src/types';
 // module constant, which every Apply's JSON-clone destroyed — the button read
 // unpressed while slow animations stayed active, and only Reset recovered.
 describe('toggleConfigSection across the clone boundary', () => {
-  const original = { animate: true, initialDuration: 700 };
+  const original = { enabled: true, initialDuration: 700 };
   const baseDemoConfig = () => ({
     configWithDefaults: { animation: { ...original } },
     configWithoutDefaults: { animation: { ...original } }

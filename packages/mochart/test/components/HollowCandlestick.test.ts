@@ -23,7 +23,7 @@ function mountHollowCandlestick(): Element {
   const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs } = createCandlestick(ITEMS, { hollow: true });
   const config = {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: categoryAxisConfig,
     series: seriesConfigs
   } as unknown as MochartInputConfig;

@@ -39,16 +39,16 @@ export function prepareTruncation(truncationEnabled: boolean, truncationChanged:
   };
 }
 
-export function getTruncatedText(truncationEnabled: boolean, truncationValue: string, text: string, truncationData: TruncationDataValue): string;
-export function getTruncatedText(truncationEnabled: boolean, truncationValue: string, text: string[], truncationData: TruncationDataValue): string[];
-export function getTruncatedText(truncationEnabled: boolean, truncationValue: string, text: string | string[], truncationData: TruncationDataValue): string | string[] {
+export function getTruncatedText(truncationEnabled: boolean, truncationText: string, text: string, truncationData: TruncationDataValue): string;
+export function getTruncatedText(truncationEnabled: boolean, truncationText: string, text: string[], truncationData: TruncationDataValue): string[];
+export function getTruncatedText(truncationEnabled: boolean, truncationText: string, text: string | string[], truncationData: TruncationDataValue): string | string[] {
   if (truncationEnabled && truncationData !== null) {
     if (Array.isArray(text)) {
       let aTruncationData;
       text = text.map((aText, i) => {
         aTruncationData = (truncationData as TruncationData[])[i];
         if (aTruncationData.text !== aTruncationData.truncatedText) {
-          aText = aTruncationData.truncatedText + truncationValue;
+          aText = aTruncationData.truncatedText + truncationText;
         }
         return aText;
       });
@@ -56,14 +56,14 @@ export function getTruncatedText(truncationEnabled: boolean, truncationValue: st
     else {
       const singleTruncationData = truncationData as TruncationData;
       if (singleTruncationData.text !== singleTruncationData.truncatedText) {
-        text = singleTruncationData.truncatedText + truncationValue;
+        text = singleTruncationData.truncatedText + truncationText;
       }
     }
   }
   return text;
 }
 
-export function updateTruncation(truncationValue: string, oldTruncationData: TruncationDataValue, text: string | string[], maxLength: number, domElement: SVGTextContentElement | ArrayLike<SVGTextContentElement> | null) {
+export function updateTruncation(truncationText: string, oldTruncationData: TruncationDataValue, text: string | string[], maxLength: number, domElement: SVGTextContentElement | ArrayLike<SVGTextContentElement> | null) {
   let truncationData: TruncationDataValue = oldTruncationData;
   let needsTruncation = false;
   let checkTruncation = true;
@@ -76,7 +76,7 @@ export function updateTruncation(truncationValue: string, oldTruncationData: Tru
     if (domElements !== null && domElements.length > 0) {
       let aTruncateData;
       for (let i = 0; i < domElements.length; i++) {
-        aTruncateData = truncateSVGText(domElements[i], maxLength, truncationValue, (truncationData as TruncationData[])[i]);
+        aTruncateData = truncateSVGText(domElements[i], maxLength, truncationText, (truncationData as TruncationData[])[i]);
         if (aTruncateData.truncatedText !== aTruncateData.lastText) {
           needsTruncation = true;
         }
@@ -93,7 +93,7 @@ export function updateTruncation(truncationValue: string, oldTruncationData: Tru
       truncationData = { text: text };
     }
     if (domElement !== null) {
-      truncationData = truncateSVGText(domElement as SVGTextContentElement, maxLength, truncationValue, truncationData as TruncationData);
+      truncationData = truncateSVGText(domElement as SVGTextContentElement, maxLength, truncationText, truncationData as TruncationData);
       if (oldTruncationData === null || truncationData === null || truncationData.truncatedText !== truncationData.lastText) {
         needsTruncation = true;
       }
@@ -142,8 +142,8 @@ export class TruncationTracker {
   }
 
   /** measure(): one refinement step, re-rendering through setState while more are needed */
-  update(host: TruncationHost, truncationValue: string, text: string | string[], maxLength: number, domElement: SVGTextContentElement | ArrayLike<SVGTextContentElement> | null): void {
-    const { checkTruncation, truncationData } = updateTruncation(truncationValue, host.state.truncationData, text, maxLength, domElement);
+  update(host: TruncationHost, truncationText: string, text: string | string[], maxLength: number, domElement: SVGTextContentElement | ArrayLike<SVGTextContentElement> | null): void {
+    const { checkTruncation, truncationData } = updateTruncation(truncationText, host.state.truncationData, text, maxLength, domElement);
     // fields must be written before setState: its commit flush runs the next measure pass synchronously
     this.data = truncationData;
     this.check = checkTruncation;

@@ -29,7 +29,7 @@ const numberRows = [
 function makeConfig(categoryAxis: Record<string, unknown>, overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis,
     series: [{ property: 'sales' }],
     ...overrides

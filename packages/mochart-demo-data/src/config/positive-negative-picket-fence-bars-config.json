@@ -7,7 +7,7 @@
     "inverted": false
   },
   "animation": {
-    "animate": true,
+    "enabled": true,
     "expansionDuration": 300,
     "initialDuration": 3000,
     "valueChangeDuration": 3000,

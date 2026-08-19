@@ -5,7 +5,7 @@ export default function getValidators() {
     enabled: validators.boolean(),
     hidden: validators.boolean(),
     respectReducedMotion: validators.boolean(),
-    targetMinSize: validators.numberMin(0),
+    minTargetSize: validators.numberMin(0),
     chartLabel: validators.string(),
     chartRoleDescription: validators.string(),
     plotLabel: validators.string(),

@@ -19,7 +19,7 @@ export type { CreateSparklineConfigOptions } from './config/helper/sparkline';
 export { NONE, AUTO, TYPE_DATE, TYPE_NUMBER, TYPE_STRING, SCALE_ORDINAL, SCALE_LINEAR } from './config/core/constants';
 // the union types every config member is declared with, so a host can name one in its own signatures
 export type {
-  Auto, Align, VerticalAlign, Anchor, Position, MissingValueMode, AxisSide, ThresholdTitleSide,
+  Auto, Align, TooltipValueAlign, VerticalAlign, Anchor, Position, MissingValueMode, AxisSide, ThresholdTitleSide,
   ChartType, PieLabelType, PieTooltipValueType, Scale, DataType, RendererType, PatternType, CurveType,
   CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale, DomainChange
 } from './config/core/constants';

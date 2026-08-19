@@ -139,14 +139,14 @@ export default class Title extends Renderer<TitleProps, TitleState> {
     const { title: titleConfig } = mochartConfig;
 
     if (titleConfig.text !== NONE) {
-      const { text: title, prefix, suffix, truncationEnabled, truncationValue, link, linkDisabled,
+      const { text: title, prefix, suffix, truncationEnabled, truncationText, link, linkDisabled,
         textBackgroundStyle: titleBackgroundStyle, textStyle: titleTextStyle
       } = titleConfig;
       const { text: titlePrefix, backgroundStyle: prefixBackgroundStyle, textStyle: prefixTextStyle } = prefix;
       const { text: titleSuffix, backgroundStyle: suffixBackgroundStyle, textStyle: suffixTextStyle } = suffix;
 
       const { truncationData } = this.state;
-      const titleText = getTruncatedText(truncationEnabled, truncationValue, title, truncationData);
+      const titleText = getTruncatedText(truncationEnabled, truncationText, title, truncationData);
 
       const titleTransform = translateObject(titleLayoutInfo);
       const { paddingRelativeBounds } = titleLayoutInfo;
@@ -204,9 +204,9 @@ export default class Title extends Renderer<TitleProps, TitleState> {
       const { mochartConfig, titleTextLayoutInfo } = this.props;
       const { title: titleConfig } = mochartConfig;
       const { width } = titleTextLayoutInfo;
-      const { text: title, truncationValue, textMargin, textPadding } = titleConfig;
+      const { text: title, truncationText, textMargin, textPadding } = titleConfig;
       const maxLength = Math.max(width - getSpacingWidth(textMargin, textPadding), 0);
-      this.truncation.update(this, truncationValue, title!, maxLength, domElement);
+      this.truncation.update(this, truncationText, title!, maxLength, domElement);
     }
   }
 

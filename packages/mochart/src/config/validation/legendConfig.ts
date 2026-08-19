@@ -7,7 +7,7 @@ export default function getValidators() {
     visible: validators.boolean(),
     position: validators.oneOf(POSITIONS),
     truncationEnabled: validators.boolean(),
-    truncationValue: validators.string(),
+    truncationText: validators.string(),
     alignedToAxes: validators.boolean(),
     align: validators.oneOf(ALIGNS),
     margin: validators.margin(),
@@ -20,8 +20,8 @@ export default function getValidators() {
       textStyle: validators.style()
     }, true),
     icon: validators.partialObjectWithShape(getSeriesIconValidators(), true),
-    showFilteringOnLabels: validators.boolean(),
-    focusOnMouseOver: validators.boolean(),
+    strikeThroughFiltered: validators.boolean(),
+    focusOnHover: validators.boolean(),
     focusOnClick: validators.boolean(),
     filterOnClick: validators.boolean()
   };

@@ -42,7 +42,7 @@ function rawConfig(categoryProperty = 'name'): any {
     categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
     seriesDefaults: { renderer: 'bar' },
     series: [{ property: 'value', title: 'Value' }],
-    animation: { animate: false }
+    animation: { enabled: false }
   };
 }
 

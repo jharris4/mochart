@@ -27,7 +27,7 @@ export function getConditionalDefaults(configWithRegularDefaults: PatternConfig,
       { condition: (_config, _index) => true, suffix: 'pattern index', default: 'P' + index, defaultText: 'P${index}' },
       { ...defaultRule, default: 'P' + index }
     ], configWithRegularDefaults, index),
-    angle: conditionalDefault([
+    rotation: conditionalDefault([
       { condition: linePattern, suffix: 'when type is lines or crosshatch', default: 45 },
       { ...defaultRule, default: undefined }
     ], configWithRegularDefaults, index),

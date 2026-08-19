@@ -12,7 +12,7 @@ beforeAll(() => { installSvgMeasurementShims(); });
 function config(extra: Record<string, unknown>): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'c', type: 'string', scale: 'ordinal' },
     valueAxes: [{ id: 'v' }],
     series: [{ property: 'v', renderer: 'bar' }],
@@ -42,10 +42,10 @@ describe('charts smaller than their own spacing', () => {
     expect(negativeRects(config({ title: { text: 'T' }, legend: { visible: true } }), 20, 20)).toEqual([]);
   });
 
-  // legend.icon.size and legend.icon.borderSize validate independently, so a border wider than the icon put a negative width on the icon rect and the browser dropped it
+  // legend.icon.size and legend.icon.borderStyle.strokeWidth validate independently, so a border wider than the icon put a negative width on the icon rect and the browser dropped it
   it('emits no negative rect when the legend icon border exceeds the icon size', () => {
     expect(negativeRects(config({
-      legend: { visible: true, icon: { size: 4, borderSize: 10, showShapes: false } }
+      legend: { visible: true, icon: { size: 4, borderStyle: { strokeWidth: 10 }, showShapes: false } }
     }), 640, 420)).toEqual([]);
   });
 

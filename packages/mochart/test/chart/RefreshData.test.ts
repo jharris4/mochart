@@ -62,7 +62,7 @@ describe('createChart refresh', () => {
     const dataProvider = new mochart.ArrayOfObjectsDataProvider(data);
     const mochartConfig = mochart.enhanceConfig({
       ...config,
-      animation: { animate: false }
+      animation: { enabled: false }
     } as never);
     const focuses: { focusedCategoryIndex: number }[] = [];
     const props = {
@@ -97,7 +97,7 @@ describe('createChart refresh', () => {
     };
     const mochartConfig = mochart.enhanceConfig({
       ...config,
-      animation: { animate: false }
+      animation: { enabled: false }
     } as never);
     const focuses: { focusedCategoryIndex: number }[] = [];
     const props = {
@@ -169,7 +169,7 @@ describe('createChart refresh', () => {
   it('animates a category pushed in place onto a zero-copy provider as an addition', () => {
     const data = { label: ['a', 'b'], value: [1, 3] };
     const dataProvider = new mochart.ObjectOfArraysDataProvider(data);
-    const mochartConfig = mochart.enhanceConfig({ ...config, animation: { animate: true } } as never);
+    const mochartConfig = mochart.enhanceConfig({ ...config, animation: { enabled: true } } as never);
     expect(mochartConfig.validation.valid).toBe(true);
 
     const container = mountContainer();
@@ -261,7 +261,7 @@ describe('createChart refresh', () => {
 // Regression: the animated source read the previous provider's validity off the old read delegate,
 // which reads live after refresh(), so an in-place validity flip never routed through start()
 describe('animated createChart refresh across a provider validity flip', () => {
-  const animatedConfig = { ...config, animation: { animate: true } };
+  const animatedConfig = { ...config, animation: { enabled: true } };
   const rows = [{ label: 'a', value: 1 }, { label: 'b', value: 3 }];
 
   function liveProvider(error: () => unknown, data = rows) {

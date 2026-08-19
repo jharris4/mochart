@@ -42,7 +42,7 @@ export default function getValidators(thresholdValue = validators.number(), tick
     axisLine: group({
       visible: validators.boolean(),
       front: validators.boolean(),
-      margin: validators.numberMin(0),
+      marginInner: validators.numberMin(0),
       style: styleStates(lineMembers)
     }),
 
@@ -66,7 +66,7 @@ export default function getValidators(thresholdValue = validators.number(), tick
       visible: validators.boolean(),
       front: validators.boolean(),
       size: validators.numberMin(0),
-      margin: validators.numberMin(0),
+      marginInner: validators.numberMin(0),
       style: styleShape(['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'], false)
     }),
 
@@ -110,7 +110,7 @@ export default function getValidators(thresholdValue = validators.number(), tick
       visible: validators.boolean(),
       front: validators.boolean(),
       size: validators.numberMin(0),
-      margin: validators.numberMin(0),
+      marginInner: validators.numberMin(0),
       style: styleStates(lineMembers)
     }),
 
@@ -119,7 +119,7 @@ export default function getValidators(thresholdValue = validators.number(), tick
       front: validators.boolean(),
       backgroundStyle: validators.style(),
       truncationEnabled: validators.boolean(),
-      truncationValue: validators.string(),
+      truncationText: validators.string(),
       size: validators.numberMin(0).orEqual(AUTO),
       marginInner: validators.numberMin(0),
       marginOuter: validators.numberMin(0),

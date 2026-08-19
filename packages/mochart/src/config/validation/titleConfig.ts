@@ -18,7 +18,7 @@ export default function getValidators() {
     link: validators.string().orEqual(NONE),
     linkDisabled: validators.boolean(),
     truncationEnabled: validators.boolean(),
-    truncationValue: validators.string(),
+    truncationText: validators.string(),
     alignedToAxes: validators.boolean(),
     align: validators.oneOf(ALIGNS),
     verticalAlign: validators.oneOf(VERTICAL_ALIGNS),

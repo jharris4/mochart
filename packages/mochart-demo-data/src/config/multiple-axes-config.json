@@ -4,7 +4,7 @@
     "text": "Multiple Axes"
   },
   "animation": {
-    "animate": true,
+    "enabled": true,
     "expansionDuration": 500,
     "initialDuration": 500,
     "valueChangeDuration": 500,
@@ -17,7 +17,7 @@
     },
     "axisLine": {
       "visible": true,
-      "margin": 0
+      "marginInner": 0
     },
     "tickLabel": {
       "format": "%_H:%M"
@@ -31,7 +31,7 @@
   },
   "valueAxisDefaults": {
     "axisLine": {
-      "margin": 0
+      "marginInner": 0
     },
     "gridLine": {
       "visible": false

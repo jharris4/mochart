@@ -25,7 +25,7 @@ interface PieCenterProps {
 }
 
 /** The pie center content: an optional text label and/or the live total of the unfiltered slice
- * values (counting along with value tweens); styled by centerLabelTextStyle / centerTotal.textStyle. */
+ * values (counting along with value tweens); styled by centerLabel.textStyle / centerTotal.textStyle. */
 export default class PieCenter extends Renderer<PieCenterProps> {
   root = svgEl('g');
   label = this.elSlot(this.root);
@@ -39,7 +39,7 @@ export default class PieCenter extends Renderer<PieCenterProps> {
 
   sync() {
     const { pieConfig, seriesLayoutInfo, radialLayoutInfo, total, accessibility } = this.props;
-    const { centerLabel, centerLabelTextStyle } = pieConfig;
+    const { text: centerLabel, textStyle: centerLabelTextStyle } = pieConfig.centerLabel;
     const { visible: showCenterTotal, textStyle: centerTotalTextStyle } = pieConfig.centerTotal;
     const showLabel = centerLabel !== NONE;
 

@@ -45,7 +45,7 @@ export default function getValidators(config: Partial<CategoryAxisConfig>) {
       ], config),
       truncationMaxFraction: validators.numberMinMax(0, 1),
       truncationMinLength: validators.numberMin(0),
-      truncationValue: validators.string()
+      truncationText: validators.string()
     }),
 
     dateUTC: validators.boolean(),

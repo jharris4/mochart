@@ -78,7 +78,7 @@ export class ChartController {
 
   private isAnimated(): boolean {
     const { mochartConfig } = this.props;
-    if (!mochartConfig || !mochartConfig.animation.animate) {
+    if (!mochartConfig || !mochartConfig.animation.enabled) {
       return false;
     }
     return !(mochartConfig.accessibility.respectReducedMotion && this.reducedMotion?.matches);

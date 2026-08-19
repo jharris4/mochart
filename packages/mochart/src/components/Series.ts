@@ -164,10 +164,10 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
     let onCategoryLeave = noOpCategory;
     let onCategoryClick: SeriesState['onCategoryClick'] = noOpCategory;
 
-    if (seriesConfig.focusOnMouseOver) {
+    if (seriesConfig.focusOnHover) {
       onSeriesEnter = (event: Event) => { if (isHoverPointer(event)) { this.hoverActive = true; onFocus({ seriesId }); } };
       onSeriesLeave = () => { if (this.hoverActive) { this.hoverActive = false; onFocus({ seriesId: null }); } };
-      if (seriesConfig.focusCategoryOnMouseOver) {
+      if (seriesConfig.focusCategoryOnHover) {
         onCategoryEnter = (categoryIndex: number) => { onFocus({ seriesId, categoryIndex: getCategoryIndex(categoryIndex) }); };
         onCategoryLeave = (_categoryIndex: number) => { onFocus({ seriesId: null, categoryIndex: null }); };
       }
@@ -176,7 +176,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         onCategoryLeave = (_categoryIndex: number) => { onFocus({ seriesId: null }); };
       }
     }
-    else if (seriesConfig.focusCategoryOnMouseOver) {
+    else if (seriesConfig.focusCategoryOnHover) {
       onCategoryEnter = (categoryIndex: number) => { onFocus({ categoryIndex: getCategoryIndex(categoryIndex) }); };
       onCategoryLeave = (_categoryIndex: number) => { onFocus({ categoryIndex: null }); };
     }

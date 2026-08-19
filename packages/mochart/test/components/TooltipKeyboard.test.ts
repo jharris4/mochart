@@ -26,7 +26,7 @@ const rows = [
 function makeConfig(tooltip: Record<string, unknown> = {}, overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     tooltip,
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [
@@ -149,8 +149,8 @@ describe('tooltip row keyboard semantics', () => {
     expect(tooltipRows(container)[0].getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('keeps keyboard focus inside the tooltip when hideFiltered unmounts the acted-on row', () => {
-    const container = mountChart(makeConfig({ showControls: true, hideFiltered: true }));
+  it('keeps keyboard focus inside the tooltip when showFiltered: false unmounts the acted-on row', () => {
+    const container = mountChart(makeConfig({ showControls: true, showFiltered: false }));
     openTooltip(container);
 
     const first = tooltipRows(container)[0];
@@ -298,7 +298,7 @@ describe('tooltip row keyboard semantics', () => {
   });
 
   it('falls back to a control button when filtering unmounts the last row', () => {
-    const container = mountChart(makeConfig({ showControls: true, hideFiltered: true }, {
+    const container = mountChart(makeConfig({ showControls: true, showFiltered: false }, {
       series: [{ id: 'S0', property: 'sales' }]
     }));
     openTooltip(container);
@@ -382,9 +382,9 @@ describe('tooltip row pointer focus', () => {
     container.querySelector(getCssSelector('tooltip') + ' '
       + getCssClassMatchSelector(getIdCssClass('tooltipSeriesLine', seriesId)))!;
 
-  it('focuses the category from hover when focusCategoryOnMouseOver is set without the controls', () => {
+  it('focuses the category from hover when focusCategoryOnHover is set without the controls', () => {
     const focuses: ChartFocus[] = [];
-    const container = mountChart(makeConfig({ focusCategoryOnMouseOver: true }), {
+    const container = mountChart(makeConfig({ focusCategoryOnHover: true }), {
       onFocus: focus => { focuses.push(focus); }
     });
     openTooltip(container);
@@ -397,7 +397,7 @@ describe('tooltip row pointer focus', () => {
 
   it('focuses the category from hover in filter mode with the controls shown', () => {
     const focuses: ChartFocus[] = [];
-    const container = mountChart(makeConfig({ showControls: true, focusCategoryOnMouseOver: true }), {
+    const container = mountChart(makeConfig({ showControls: true, focusCategoryOnHover: true }), {
       onFocus: focus => { focuses.push(focus); }
     });
     openTooltip(container);
@@ -515,7 +515,7 @@ describe('tooltip rows a series can opt out of', () => {
     trackHandle(createDefaultChart(container, {
       config: {
         version: '1.0.0',
-        animation: { animate: false },
+        animation: { enabled: false },
         tooltip: { showControls: true },
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         series: [

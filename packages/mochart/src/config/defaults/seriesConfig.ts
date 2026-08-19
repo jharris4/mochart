@@ -112,9 +112,9 @@ export function getRegularDefaults() {
     showInTooltip: true,
     filterable: true,
     followSeries: NONE,
-    focusOnMouseOver: false,
+    focusOnHover: false,
     focusOnClick: false,
-    focusCategoryOnMouseOver: false,
+    focusCategoryOnHover: false,
     focusCategoryOnClick: false,
     showPointer: false,
     useAxisFocus: true

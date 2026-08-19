@@ -227,8 +227,8 @@ createDefaultChart(container, {
 });
 ```
 
-- `onFocus(focus)` — the focused series/category/axis changed (mouse over/out or
-  click, per the series' `focusOnMouseOver`/`focusOnClick` config)
+- `onFocus(focus)` — the focused series/category/axis changed (pointer over/out or
+  click, per the series' `focusOnHover`/`focusOnClick` config)
 - `onSeriesFilter(filter)` — a legend click toggled a series in/out of the
   filtered set
 - `onChartClick` / `onChartMouseEnter` / `onChartMouseMove` /

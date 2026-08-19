@@ -30,7 +30,7 @@ const otherRows = [
 function makeConfig(seriesOverrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ id: 'sales', property: 'sales', renderer: 'bar', marker: { shape: 'circle' }, labelProperty: 'sales', ...seriesOverrides }]
   } as unknown as MochartInputConfig;
@@ -101,7 +101,7 @@ describe('CategoryShapeCache', () => {
 
 describe('series shape handlers across syncs', () => {
   it('keeps the same handler functions on bars, markers and labels through a data update', () => {
-    const { container, handle } = mountChart(makeConfig({ focusCategoryOnMouseOver: true, focusCategoryOnClick: true }));
+    const { container, handle } = mountChart(makeConfig({ focusCategoryOnHover: true, focusCategoryOnClick: true }));
     const before = (['seriesBar', 'seriesMarker', 'seriesLabel'] as const).map(key => ({ ...listeners(shape(container, key, 1)) }));
 
     handle.update({ data: otherRows } as Partial<DefaultChartProps>);
@@ -124,7 +124,7 @@ describe('series shape handlers across syncs', () => {
     mouse(bar, 'pointerenter');
     expect(focuses).toEqual([]);
 
-    handle.update({ config: makeConfig({ focusCategoryOnMouseOver: true }) } as Partial<DefaultChartProps>);
+    handle.update({ config: makeConfig({ focusCategoryOnHover: true }) } as Partial<DefaultChartProps>);
 
     expect(listeners(shape(container, 'seriesBar', 1)).pointerenter).toBe(handler);
     mouse(shape(container, 'seriesBar', 1), 'pointerenter');

@@ -243,7 +243,7 @@ describe('Mochart support hover documentation', () => {
       return tooltip!.create().dom.textContent ?? '';
     };
     expect(hover('{"legend":{"icon":{"filteredColor":"#000"}}}', 'filteredColor')).toMatch(/Default: "/);
-    expect(hover('{"colorPalette":{"series":{"normal":{"fillColors":[]}}}}', 'fillColors')).toMatch(/Default: \["#/);
+    expect(hover('{"colorPalette":{"shape":{"normal":{"fillColors":[]}}}}', 'fillColors')).toMatch(/Default: \["#/);
     const conditional = hover('{"categoryAxis":{"maxTickCount":3}}', 'maxTickCount');
     expect(conditional).toContain('Default when scale is linear: 10');
     expect(conditional).toContain('Default when scale is ordinal: 0');
@@ -319,11 +319,11 @@ describe('all-config completions', () => {
       'spacing', 'foregroundColor', 'foregroundOpacity', 'backgroundColor', 'backgroundOpacity'
     ]));
     expect(labels(allOptions)).not.toEqual(expect.arrayContaining([
-      'id', 'ignore', 'type', 'angle', 'lineWidth', 'radius'
+      'id', 'ignore', 'type', 'rotation', 'lineWidth', 'radius'
     ]));
 
     const entryOptions = await completionOptions('{"patterns": [{"|": null}]}');
-    expect(labels(entryOptions)).toEqual(expect.arrayContaining(['id', 'type', 'angle', 'lineWidth', 'radius']));
+    expect(labels(entryOptions)).toEqual(expect.arrayContaining(['id', 'type', 'rotation', 'lineWidth', 'radius']));
   });
 });
 

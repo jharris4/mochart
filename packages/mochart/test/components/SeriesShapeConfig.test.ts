@@ -15,7 +15,7 @@ function mountChart(overrides: Record<string, unknown>, data: readonly unknown[]
   const container = mountContainer();
   const config = {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     ...overrides
   } as unknown as MochartInputConfig;
@@ -109,7 +109,7 @@ describe('pie centre offset', () => {
   const pie = (extra: Record<string, unknown>) => ({
     chart: { type: 'pie' },
     categoryAxis: { property: 'slice', type: 'string', scale: 'ordinal' },
-    pie: { centerLabel: 'Total', ...extra },
+    pie: { centerLabel: { text: 'Total' }, ...extra },
     series: [{ id: 'S0', property: 'value', renderer: 'bar' }]
   });
 

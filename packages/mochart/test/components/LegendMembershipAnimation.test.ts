@@ -28,7 +28,7 @@ beforeAll(async () => {
 function makeConfig(costsShowInLegend: boolean) {
   return mochart.enhanceConfig({
     version: '1.0.0',
-    animation: { animate: true },
+    animation: { enabled: true },
     legend: { visible: true },
     categoryAxis: { property: 'label', type: 'string', scale: 'ordinal' },
     series: [

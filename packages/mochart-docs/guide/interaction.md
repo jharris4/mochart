@@ -18,7 +18,7 @@ filtering plays the staged series transition:
 ## Focus
 
 Hovering or clicking a series (per its
-[`focusOnMouseOver`](/reference/series#series.focusOnMouseOver) /
+[`focusOnHover`](/reference/series#series.focusOnHover) /
 [`focusOnClick`](/reference/series#series.focusOnClick) config, both off by
 default) focuses it: the focused series is styled from the `focused` state of
 its [styles](/guide/config-model#styles-and-focus-states) and every other
@@ -27,11 +27,11 @@ series from their `defocused` state, animated over
 By default those states change only opacity and width — their colors are
 `'same'`, meaning "keep the normal state's color". The legend drives the
 same focus via
-[`legend.focusOnMouseOver`](/reference/legend#legend.focusOnMouseOver) (on
+[`legend.focusOnHover`](/reference/legend#legend.focusOnHover) (on
 by default) and
 [`legend.focusOnClick`](/reference/legend#legend.focusOnClick).
 
-The `*OnMouseOver` configs act on hovering pointers only — a mouse, a
+The `*OnHover` configs act on hovering pointers only — a mouse, a
 trackpad, or a pen held over the chart. A touch tap never counts as a hover
 (browsers emulate one right before the tap's click), so on touch screens a
 tap does only what the matching `*OnClick` config says; give touch users
@@ -40,7 +40,7 @@ tap does only what the matching `*OnClick` config says; give touch users
 should be able to focus.
 
 Category focus has knobs of its own: the series'
-[`focusCategoryOnMouseOver`](/reference/series#series.focusCategoryOnMouseOver)
+[`focusCategoryOnHover`](/reference/series#series.focusCategoryOnHover)
 and [`focusCategoryOnClick`](/reference/series#series.focusCategoryOnClick)
 focus the category the pointer is on, and a series with
 [`useAxisFocus`](/reference/series#series.useAxisFocus) shows as focused
@@ -53,9 +53,9 @@ enabled, clicking a legend item toggles its series out of (and back into) the
 chart. The item stays in the legend so the series can be restored, and the
 removal/return animates as a series transition. Its color icon goes hollow to
 mark it filtered; set
-[`legend.showFilteringOnLabels`](/reference/legend#legend.showFilteringOnLabels)
+[`legend.strikeThroughFiltered`](/reference/legend#legend.strikeThroughFiltered)
 to strike through the item text as well, and
-[`tooltip.showFilteringOnLabels`](/reference/tooltip#tooltip.showFilteringOnLabels)
+[`tooltip.strikeThroughFiltered`](/reference/tooltip#tooltip.strikeThroughFiltered)
 to do the same to the series' tooltip label. Both default to `false`.
 Set [`filterable: false`](/reference/series#series.filterable) on a series
 to exempt it from legend (and tooltip) filtering entirely, and
@@ -73,10 +73,10 @@ values — label, prefix/suffix, d3-format string — lives on the series
 friends).
 
 The tooltip can drive focus and filtering too, all off by default:
-[`tooltip.focusCategoryOnMouseOver`](/reference/tooltip#tooltip.focusCategoryOnMouseOver)
+[`tooltip.focusCategoryOnHover`](/reference/tooltip#tooltip.focusCategoryOnHover)
 and [`tooltip.focusCategoryOnClick`](/reference/tooltip#tooltip.focusCategoryOnClick)
 focus the category value the pointer is on inside the tooltip;
-[`focusSeriesOnMouseOver`](/reference/tooltip#tooltip.focusSeriesOnMouseOver),
+[`focusSeriesOnHover`](/reference/tooltip#tooltip.focusSeriesOnHover),
 [`focusSeriesOnClick`](/reference/tooltip#tooltip.focusSeriesOnClick) and
 [`filterSeriesOnClick`](/reference/tooltip#tooltip.filterSeriesOnClick) do
 the same for the series rows. Each series can also drop its color icon from
@@ -94,7 +94,7 @@ of the chart, exactly like a legend click — respecting
 focuses its series the way hovering its legend item does; in focus mode
 clicking a row pins focus on its series — or, on the category line, on the
 category. With the controls shown, the mode decides row behavior and the
-`focus…OnClick` / `filterSeriesOnClick` / `focusSeriesOnMouseOver` settings
+`focus…OnClick` / `filterSeriesOnClick` / `focusSeriesOnHover` settings
 above are not consulted. The mode button shows the active mode via
 [`tooltip.filterModeText`](/reference/tooltip#tooltip.filterModeText) /
 [`tooltip.focusModeText`](/reference/tooltip#tooltip.focusModeText)
@@ -122,8 +122,8 @@ createDefaultChart(container, {
 });
 ```
 
-- `onFocus(focus)` — the focused series/category/value axis changed (mouse
-  over/out or click, per the series' `focusOnMouseOver`/`focusOnClick`
+- `onFocus(focus)` — the focused series/category/value axis changed (pointer
+  over/out or click, per the series' `focusOnHover`/`focusOnClick`
   config)
 - `onSeriesFilter(filter)` — a legend click toggled a series in or out of
   the filtered set

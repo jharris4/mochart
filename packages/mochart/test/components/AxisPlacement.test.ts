@@ -20,7 +20,7 @@ function mount(overrides: Record<string, unknown>, data: readonly unknown[] = ro
   const container = mountContainer();
   const config = {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales', renderer: 'bar' }],
     ...overrides
@@ -137,7 +137,7 @@ describe('axis visibility and chrome', () => {
     trackHandle(createDefaultChart(container, {
       config: {
         version: '1.0.0',
-        animation: { animate: false },
+        animation: { enabled: false },
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         valueAxes: [{ id: 'VA0', visibleWhenAllFiltered: false }],
         series: [{ id: 'sales', property: 'sales', renderer: 'bar', axis: 'VA0' }]

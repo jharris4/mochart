@@ -19,7 +19,7 @@ export default function getValidators(config: Partial<PatternConfig>) {
     foregroundOpacity: validators.opacity(),
     backgroundColor: patternColor().orEqual(null),
     backgroundOpacity: validators.opacity(),
-    angle: validators.conditional([
+    rotation: validators.conditional([
       { condition: linePattern, suffix: 'when type is lines or crosshatch', validator: validators.numberMinMax(-360, 360) },
       { ...defaultRule, suffix: 'when type is dots', validator: validators.equal(undefined) }
     ], config),

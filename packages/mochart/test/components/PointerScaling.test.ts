@@ -18,7 +18,7 @@ const rows = [
 
 const config = {
   version: '1.0.0',
-  animation: { animate: false },
+  animation: { enabled: false },
   categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
   series: [{ property: 'sales' }]
 } as unknown as MochartInputConfig;

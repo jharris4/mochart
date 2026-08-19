@@ -36,7 +36,7 @@ function pieChartProps(items: PieItem[], options: CreatePieOptions = {}, configO
   const pie = mochart.createPie(items, options);
   const config = {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     chart: pie.chart,
     pie: pie.pie,
     categoryAxis: pie.categoryAxis,
@@ -302,7 +302,7 @@ describe('pie chart rendering', () => {
 
   it('renders the center label and a filtering-aware total', () => {
     const { config, data } = pieChartProps(ITEMS, { donut: true }, {
-      pie: { innerRadiusFraction: 0.6, centerLabel: 'Total', centerTotal: { visible: true, format: ',.0f' } } as Partial<PieConfig>
+      pie: { innerRadiusFraction: 0.6, centerLabel: { text: 'Total' }, centerTotal: { visible: true, format: ',.0f' } } as Partial<PieConfig>
     });
     const { container } = mountChart(config, data);
     expect(container.querySelector(getCssSelector('pieCenterLabel'))!.textContent).toBe('Total');
@@ -344,7 +344,7 @@ describe('pie chart rendering', () => {
     const pie = mochart.createPie(ITEMS);
     const config = {
       version: VERSION,
-      animation: { animate: true },
+      animation: { enabled: true },
       chart: pie.chart,
       pie: { label: { visible: true, minFraction: 0 } },
       categoryAxis: pie.categoryAxis,
@@ -369,7 +369,7 @@ describe('pie chart rendering', () => {
     const pie = mochart.createPie(ITEMS);
     const config = {
       version: VERSION,
-      animation: { animate: true },
+      animation: { enabled: true },
       chart: pie.chart,
       pie: pie.pie,
       categoryAxis: pie.categoryAxis,
@@ -401,9 +401,9 @@ describe('pie slice hover focus', () => {
     return slices[index];
   }
 
-  it('focuses and unfocuses the slice series when focusOnMouseOver is set', () => {
+  it('focuses and unfocuses the slice series when focusOnHover is set', () => {
     const focuses: ChartFocus[] = [];
-    const { config, data } = pieChartProps(ITEMS, {}, { seriesDefaults: { focusOnMouseOver: true } });
+    const { config, data } = pieChartProps(ITEMS, {}, { seriesDefaults: { focusOnHover: true } });
     const { container } = mountChart(config, data, { onFocus: focus => { focuses.push(focus); } });
 
     // focusing moves the slice to the end of the DOM, so keep the node rather than re-querying by index

@@ -111,7 +111,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     let onSeriesEnter: PieSeriesState['onSeriesEnter'] = noOp;
     let onSeriesLeave = noOp;
     let onSeriesClick = noOp;
-    if (seriesConfig.focusOnMouseOver) {
+    if (seriesConfig.focusOnHover) {
       onSeriesEnter = (event: Event) => { if (isHoverPointer(event)) { this.hoverActive = true; onFocus({ seriesId }); } };
       onSeriesLeave = () => { if (this.hoverActive) { this.hoverActive = false; onFocus({ seriesId: null }); } };
     }

@@ -123,7 +123,7 @@ describe('mid-tween focus remap', () => {
 
   function mountRemapChart() {
     const focuses: ChartFocus[] = [];
-    const mounted = mountChart({ config: slowData, series: { focusCategoryOnMouseOver: true }, onFocus: focus => focuses.push(focus) });
+    const mounted = mountChart({ config: slowData, series: { focusCategoryOnHover: true }, onFocus: focus => focuses.push(focus) });
     const lastFocusedCategory = () => focuses[focuses.length - 1].focusedCategoryIndex;
     return { ...mounted, lastFocusedCategory };
   }

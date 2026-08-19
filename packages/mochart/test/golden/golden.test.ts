@@ -111,7 +111,7 @@ function buildMochartConfig(
 ): EnhancedMochartConfig {
   const raw = loadJson(configPaths[configBasename]);
   const migrated = mochart.migrateConfig(raw) as Record<string, any>;
-  migrated.animation = { ...(migrated.animation || {}), animate };
+  migrated.animation = { ...(migrated.animation || {}), enabled: animate };
   mutate?.(migrated);
   return mochart.enhanceConfig(migrated as MochartInputConfig) as EnhancedMochartConfig;
 }

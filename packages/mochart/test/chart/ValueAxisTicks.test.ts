@@ -88,7 +88,7 @@ describe('value axis tick labels under filtering', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const mochartConfig = enhanceConfig({
       version: '1.0.0',
-      animation: { animate: false },
+      animation: { enabled: false },
       categoryAxis: { property: 'label', type: 'string', scale: 'ordinal', visible: false },
       valueAxes: [{ id: 'va', adjustForFiltering: true }],
       series: [

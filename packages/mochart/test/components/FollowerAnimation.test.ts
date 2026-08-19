@@ -26,7 +26,7 @@ function mountHollowCandlestick(items: typeof ITEMS) {
   const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs } = mochart.createCandlestick(items, { hollow: true });
   const mochartConfig = mochart.enhanceConfig({
     version: '1.0.0',
-    animation: { animate: true },
+    animation: { enabled: true },
     legend: { visible: true },
     categoryAxis: categoryAxisConfig,
     series: seriesConfigs
@@ -60,7 +60,7 @@ describe('followSeries animation sync (hollow candlestick)', () => {
   it('recomputes follower focus when followSeries changes in place', () => {
     const makeConfig = (followLeader: boolean) => mochart.enhanceConfig({
       version: '1.0.0',
-      animation: { animate: true, focusDuration: 64 },
+      animation: { enabled: true, focusDuration: 64 },
       categoryAxis: { property: 'label', type: 'string', scale: 'ordinal' },
       series: [
         { id: 'companion', property: 'high', renderer: 'bar', showInLegend: false,

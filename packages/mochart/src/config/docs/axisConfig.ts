@@ -61,7 +61,7 @@ export default function getDescriptions() {
       properties: {
         visible: 'whether to show a line along the length of the axis',
         front: 'whether the axis line should be shown in front (true) or behind (false) the series shapes',
-        margin: 'the margin (in pixels) between the line shown along the axis and the inner boundary of the axis',
+        marginInner: 'the margin (in pixels) between the line shown along the axis and the inner boundary of the axis',
         style: styleStates('the style of the line shown along the axis', strokeMembers)
       }
     },
@@ -90,7 +90,7 @@ export default function getDescriptions() {
         visible: 'whether to show lines perpendicular to the axis showing the focused series domain or category value',
         front: 'whether the focus tick marks should be shown in front (true) or behind (false) the series shapes',
         size: 'the length (in pixels) of the focus tick mark line(s)',
-        margin: 'the margin (in pixels) to show between the inside of the axis and the focus tick mark line(s)',
+        marginInner: 'the margin (in pixels) to show between the inside of the axis and the focus tick mark line(s)',
         style: partialStyle('the style of the focus tick mark line(s)', lineMembers)
       }
     },
@@ -149,7 +149,7 @@ export default function getDescriptions() {
         visible: 'whether to show lines perpendicular to each tick value along the axis',
         front: 'whether the axis tick marks should be shown in front (true) or behind (false) the series shapes',
         size: 'the length (in pixels) of the axis tick mark lines',
-        margin: 'the margin (in pixels) to show between the inside of the axis and the axis tick mark lines',
+        marginInner: 'the margin (in pixels) to show between the inside of the axis and the axis tick mark lines',
         style: styleStates('the style of the axis tick mark lines', strokeMembers)
       }
     },
@@ -161,7 +161,7 @@ export default function getDescriptions() {
         front: 'whether the axis title should be shown in front (true) or behind (false) the series shapes',
         backgroundStyle: style('the styles to apply to the axis title background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
         truncationEnabled: 'whether to apply text truncation to the contents of the axis title when it would overflow the axis bounds',
-        truncationValue: 'the truncation text to append to the axis title when its length exceeds the bounds of the axis',
+        truncationText: 'the truncation text to append to the axis title when its length exceeds the bounds of the axis',
         size: 'the space (in pixels) perpendicular to the axis direction to allocate for the axis title (use "auto" to derive from the font size)',
         marginInner: 'the margin (in pixels) to show between the axis title and the inside of the axis',
         marginOuter: 'the margin (in pixels) to show between the axis title and the outside of the axis',

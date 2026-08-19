@@ -20,7 +20,7 @@ function markerPath(size: number): string {
 function mountChart(data: readonly unknown[], markerOverrides: Record<string, unknown> = {}): Element {
   const config = {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     tooltip: { visible: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{

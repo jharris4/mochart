@@ -13,7 +13,7 @@ const VERSION = '1.0.0';
 function mountChart(config: Record<string, unknown>, data: readonly unknown[]): Element {
   const container = mountContainer();
   trackHandle(createDefaultChart(container, {
-    config: { version: VERSION, animation: { animate: false }, ...config } as unknown as MochartInputConfig,
+    config: { version: VERSION, animation: { enabled: false }, ...config } as unknown as MochartInputConfig,
     data, width: 800, height: 600
   } as DefaultChartProps));
   return container;

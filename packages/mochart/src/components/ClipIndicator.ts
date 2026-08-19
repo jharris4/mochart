@@ -104,11 +104,11 @@ export default class ClipIndicator extends Renderer<ClipIndicatorProps, ClipIndi
   /** The band's fill: a diagonal hatch drawn from the style's fill colour; degenerate hatches collapse to the flat fill they would draw anyway. */
   private syncPattern(patternUniqueId: string, fill: string | null | undefined): string | null | undefined {
     const hatch = this.props.mochartConfig.clipIndicator.hatch;
-    if (hatch === NONE || hatch.spacing <= 0 || hatch.width >= hatch.spacing) {
+    if (hatch === NONE || hatch.spacing <= 0 || hatch.lineWidth >= hatch.spacing) {
       this.pattern.node.remove();
       return fill;
     }
-    if (hatch.width <= 0) {
+    if (hatch.lineWidth <= 0) {
       this.pattern.node.remove();
       return NONE;
     }
@@ -117,7 +117,7 @@ export default class ClipIndicator extends Renderer<ClipIndicatorProps, ClipIndi
       patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' });
     // centered in the tile: a line along x=0 loses its negative half to the tile clip
     this.patternLine.set({ x1: hatch.spacing / 2, y1: 0, x2: hatch.spacing / 2, y2: hatch.spacing,
-      stroke: fill ?? null, strokeWidth: hatch.width });
+      stroke: fill ?? null, strokeWidth: hatch.lineWidth });
     return 'url(#' + patternUniqueId + ')';
   }
 
@@ -180,14 +180,14 @@ export default class ClipIndicator extends Renderer<ClipIndicatorProps, ClipIndi
 
   /** The band's depth: an explicit size, or the measured label height plus padding on both sides. */
   getSize(): number {
-    const { size, padding, label } = this.props.mochartConfig.clipIndicator;
+    const { size, labelPadding, label } = this.props.mochartConfig.clipIndicator;
     if (size !== AUTO) {
       return size;
     }
     const measured = label !== NONE && this.state.textBounds !== null
       ? this.state.textBounds.height
       : this.state.fontSize ?? defaultFontSize;
-    return measured + padding * 2;
+    return measured + labelPadding * 2;
   }
 }
 

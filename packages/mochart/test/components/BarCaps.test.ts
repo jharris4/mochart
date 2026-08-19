@@ -20,7 +20,7 @@ function mount(overrides: Record<string, unknown>, data: readonly unknown[] = ro
   const container = mountContainer();
   const config = {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'a', renderer: 'bar' }],
     ...overrides

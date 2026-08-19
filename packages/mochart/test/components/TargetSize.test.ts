@@ -1,4 +1,4 @@
-// accessibility.targetMinSize: the floor for the chart's own click targets (legend items, tooltip control buttons, interactive tooltip rows) while series shapes keep their data geometry.
+// accessibility.minTargetSize: the floor for the chart's own click targets (legend items, tooltip control buttons, interactive tooltip rows) while series shapes keep their data geometry.
 import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { mockBoundingClientRect, mountContainer, trackHandle } from './helpers';
@@ -18,7 +18,7 @@ const rows = [
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [
       { id: 'S0', property: 'sales' },
@@ -73,7 +73,7 @@ beforeAll(() => {
 describe('legend item click targets', () => {
   it('lays the item boxes out to the 24px default, which their content misses', () => {
     const floored = mountChart(makeConfig({ legend: { visible: true } }));
-    const unfloored = mountChart(makeConfig({ legend: { visible: true }, accessibility: { targetMinSize: 0 } }));
+    const unfloored = mountChart(makeConfig({ legend: { visible: true }, accessibility: { minTargetSize: 0 } }));
 
     // the measured content box is 22px tall here, so the default floor is doing the work
     expect(legendItemBoxes(unfloored).map(rect => boxSize(rect).height)).toEqual([22, 22]);
@@ -81,7 +81,7 @@ describe('legend item click targets', () => {
   });
 
   it('applies the floor in both directions', () => {
-    const container = mountChart(makeConfig({ legend: { visible: true }, accessibility: { targetMinSize: 60 } }));
+    const container = mountChart(makeConfig({ legend: { visible: true }, accessibility: { minTargetSize: 60 } }));
 
     for (const rect of legendItemBoxes(container)) {
       expect(boxSize(rect)).toEqual({ width: 60, height: 60 });
@@ -107,7 +107,7 @@ describe('legend item click targets', () => {
 
 describe('tooltip click targets', () => {
   it('floors the controls buttons and the ends they sit in', () => {
-    const container = mountChart(makeConfig({ legend: { visible: false }, tooltip: { showControls: true }, accessibility: { targetMinSize: 44 } }));
+    const container = mountChart(makeConfig({ legend: { visible: false }, tooltip: { showControls: true }, accessibility: { minTargetSize: 44 } }));
     openTooltip(container);
 
     const buttons = controlButtons(container);
@@ -120,7 +120,7 @@ describe('tooltip click targets', () => {
   });
 
   it('leaves the controls unstyled at the default width and no floor', () => {
-    const container = mountChart(makeConfig({ legend: { visible: false }, tooltip: { showControls: true }, accessibility: { targetMinSize: 0 } }));
+    const container = mountChart(makeConfig({ legend: { visible: false }, tooltip: { showControls: true }, accessibility: { minTargetSize: 0 } }));
     openTooltip(container);
 
     const buttons = controlButtons(container);
@@ -167,8 +167,8 @@ describe('tooltip click targets', () => {
 
 describe('series shapes', () => {
   it('keeps its data geometry: the floor never pads a shape', () => {
-    const floored = mountChart(makeConfig({ legend: { visible: false }, accessibility: { targetMinSize: 60 } }));
-    const unfloored = mountChart(makeConfig({ legend: { visible: false }, accessibility: { targetMinSize: 0 } }));
+    const floored = mountChart(makeConfig({ legend: { visible: false }, accessibility: { minTargetSize: 60 } }));
+    const unfloored = mountChart(makeConfig({ legend: { visible: false }, accessibility: { minTargetSize: 0 } }));
 
     const shapes = (container: Element): string =>
       container.querySelector(getCssSelector('seriesContainer'))!.innerHTML;

@@ -2,7 +2,7 @@ import { AUTO, DOMAIN_CHANGE_STAGED } from '../core/constants';
 
 export default function getDefaults() {
   return {
-    animate: true,
+    enabled: true,
     valueDomainChange: AUTO,
     categoryDomainChange: DOMAIN_CHANGE_STAGED,
     initialDuration: 1000,

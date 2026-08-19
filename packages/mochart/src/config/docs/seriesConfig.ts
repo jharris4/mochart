@@ -106,7 +106,7 @@ export default function getDescriptions() {
     valueSuffix: 'the text to append series values with when showing them in the tooltip (use null for none)',
     useTitleForValueLabel: 'whether to use the title value for the valueLabel value when the valueLabel is not set',
     title: 'the title to display for the series in the legend (use null for none)',
-    shapeStyle: styleStates('the style of the series shape', styleMembers, 'series', false),
+    shapeStyle: styleStates('the style of the series shape', styleMembers, 'shape', false),
     label: {
       description: 'the labels drawn next to the series shapes from the labelProperty values',
       properties: {
@@ -145,8 +145,8 @@ export default function getDescriptions() {
       description: 'the markers drawn at each series value',
       properties: {
         shape: 'the shape to use when drawing the series marker (circle, cross, diamond, square, star, triangle, wye) (use null for none)',
-        size: 'the maximum marker size (in pixels) to use when interpolating the marker size based on a marker property value, or the marker size when no marker property is used',
-        minSize: 'the minimum marker size (in pixels) to use when interpolating the marker size based on a marker property value',
+        size: 'the marker size (in pixels); with a markerProperty it is the size of the largest value, and the markers scale down from it toward minSize',
+        minSize: 'the minimum marker size (in pixels) that a marker scaled by a marker property value shrinks to (ignored without a markerProperty)',
         sizeScale: 'the scale used to interpolate marker sizes from marker property values ("sqrt" scales the marker area with the value, "linear" scales its diameter)',
         style: styleStates('the style of the series marker', styleMembers, 'marker', true),
         showForMissingValues: 'whether to still show a marker at missing values (most useful with missingValueMode "base", which gives the marker a position)'
@@ -158,9 +158,9 @@ export default function getDescriptions() {
     showColorInTooltip: 'whether to show the series color as an icon next to the series title in the tooltip',
     filterable: 'whether or not the series can be filtered out of the chart via the legend or tooltip',
     followSeries: 'the unique identifier of another series whose legend filtering and focus this series follows (use null for none)',
-    focusOnMouseOver: 'whether the series should be focused whenever the user mouses over a part of it in the chart',
+    focusOnHover: 'whether the series should be focused whenever the user hovers the pointer over a part of it in the chart',
     focusOnClick: 'whether the series should be focused whenever the user clicks/taps a part of it in the chart',
-    focusCategoryOnMouseOver: 'whether the category should be focused whenever the user mouses over a category of the series in the chart',
+    focusCategoryOnHover: 'whether the category should be focused whenever the user hovers the pointer over a category of the series in the chart',
     focusCategoryOnClick: 'whether the category should be focused whenever the user clicks/taps a category of the series in the chart',
     showPointer: 'whether to show the pointer cursor when the user mouses over the series shapes in the chart',
     useAxisFocus: 'whether to show the series as focused when the value axis it belongs to is focused',
@@ -184,6 +184,10 @@ export function getDetails() {
     partialRangeIsMissing: 'Only affects series with a `rangeProperty` (stacked series are unaffected). By default a category with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such categories count as missing instead, following the configured `missingValueMode` treatment.',
     valueFormat: 'A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the value axis `tickLabel.format` when that is set.',
     cap: { properties: { type: 'Draws a decorative cap on the value end of each bar in the series; `size` controls its extent. To cap only the outside of a stacked bar, see `onlyStackOuter` and `seriesStacks[].outerCap.type`.' } },
+    marker: { properties: {
+      size: 'Without a `markerProperty` every marker is drawn at exactly this size, and `minSize` is not used. With one, the series value with the largest marker property value gets this size and the others scale down toward `minSize` by `sizeScale`, so `size` is the top of the range and `minSize` the bottom — there is no separate maximum.',
+      minSize: 'Only used with a `markerProperty`: the size the smallest marker property value scales down to; the largest takes `size`.'
+    } },
     bar: { properties: {
       widthFraction: 'Only affects the `bar` renderer. Narrows each bar within its layout slot (the full category slot, or the series’ sub-slot when grouped), so a narrow bar can overlay a full-width one from another series — e.g. a candlestick wick behind its body, or a bullet-chart measure over its backing range. The narrowed bar is centered by default; `barAlignFraction` moves it within the slot.',
       alignFraction: 'Only affects the `bar` renderer, and only when `widthFraction` is less than 1. Lets narrowed bars from different series share one slot side by side — e.g. the left open tick and right close tick of an OHLC bar.',

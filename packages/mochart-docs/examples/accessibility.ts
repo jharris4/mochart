@@ -11,7 +11,7 @@ export const config: MochartInputConfig = {
   ],
   legend: {
     filterOnClick: true,
-    focusOnMouseOver: true
+    focusOnHover: true
   },
   accessibility: {
     plotLabel: 'Weekly signup values',

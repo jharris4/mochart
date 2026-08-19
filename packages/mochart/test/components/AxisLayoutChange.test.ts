@@ -28,7 +28,7 @@ const rows = [
 ];
 
 const config = makeConfig({
-  animation: { animate: false },
+  animation: { enabled: false },
   legend: { visible: false },
   categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
   valueAxes: [{ id: 'VA0', side: 'start' }, { id: 'VA1', side: 'end', visibleWhenAllFiltered: false }],

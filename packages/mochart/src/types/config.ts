@@ -1,5 +1,5 @@
 import type {
-  Auto, Align, AxisSide, MissingValueMode, VerticalAlign, Anchor, Position, Scale, DataType, RendererType, ThresholdTitleSide,
+  Auto, Align, TooltipValueAlign, AxisSide, MissingValueMode, VerticalAlign, Anchor, Position, Scale, DataType, RendererType, ThresholdTitleSide,
   CurveType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale, PatternType,
   ChartType, PieLabelType, PieTooltipValueType, DomainChange
 } from '../config/core/constants';
@@ -171,7 +171,7 @@ export interface AccessibilityConfig {
    *
    * When `true` and the user’s system requests reduced motion (the
    * `prefers-reduced-motion: reduce` accessibility setting, for users sensitive
-   * to movement), the chart behaves as if `animation.animate` were `false`:
+   * to movement), the chart behaves as if `animation.enabled` were `false`:
    * config, data, and focus changes apply instantly. The preference is watched
    * live, so changing the system setting takes effect without re-creating the
    * chart. Set to `false` to animate regardless of the preference. Independent
@@ -201,7 +201,7 @@ export interface AccessibilityConfig {
    *
    * @default 24
    */
-  targetMinSize: number;
+  minTargetSize: number;
   /**
    * The screen-reader name for the chart when the title has no text.
    *
@@ -329,7 +329,7 @@ export interface AnimationConfig {
    *
    * @default true
    */
-  animate: boolean;
+  enabled: boolean;
   /**
    * How value axis domain changes animate relative to value changes: staged,
    * combined, or auto.
@@ -496,7 +496,7 @@ export interface ClipIndicatorHatchConfig {
    * The thickness (in pixels) of each hatch line; at or above spacing the hatch
    * closes up into a flat fill.
    */
-  width: number;
+  lineWidth: number;
 }
 
 export interface ClipIndicatorConfig {
@@ -509,7 +509,7 @@ export interface ClipIndicatorConfig {
   visible: boolean;
   /**
    * The depth (in pixels) of the clip indicator band (use "auto" to size it
-   * from the label plus padding on both sides).
+   * from the label plus labelPadding on both sides).
    *
    * @default "auto"
    */
@@ -520,7 +520,7 @@ export interface ClipIndicatorConfig {
    *
    * @default 2
    */
-  padding: number;
+  labelPadding: number;
   /**
    * The text shown in the clip indicator band, and the band's accessible name
    * (use null for no label; the band is still shown).
@@ -553,7 +553,7 @@ export interface ClipIndicatorConfig {
    * The diagonal hatch filling the clip indicator band (use null for a flat
    * fill instead).
    *
-   * @default { spacing: 6, width: 2 }
+   * @default { spacing: 6, lineWidth: 2 }
    */
   hatch: ClipIndicatorHatchConfig | null;
   /**
@@ -562,7 +562,7 @@ export interface ClipIndicatorConfig {
    *
    * @default true
    */
-  showInFront: boolean;
+  front: boolean;
 }
 
 /** The labels drawn on the pie slices. */
@@ -641,6 +641,24 @@ export interface PieTooltipConfig {
    * @default "auto"
    */
   percentFormat: string | Auto;
+}
+
+/** The text label shown at the center of the pie. */
+export interface PieCenterLabelConfig {
+  /**
+   * The text to show at the center of the pie (use null for none).
+   *
+   * @default null
+   */
+  text: string | null;
+  /**
+   * The styles to apply to the center label text (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
+   * to follow the host page's css color and theme).
+   *
+   * @default { strokeColor: null, strokeOpacity: null, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
+   */
+  textStyle: Style;
 }
 
 /** The total of the slice values shown at the center of the pie. */
@@ -738,20 +756,12 @@ export interface PieConfig {
    */
   tooltip: PieTooltipConfig;
   /**
-   * A text label shown at the center of the pie (use null for none; most useful
-   * for donut and gauge charts).
+   * The text label shown at the center of the pie (most useful for donut and
+   * gauge charts).
    *
-   * @default null
+   * @default { text: null, textStyle: { … } }
    */
-  centerLabel: string | null;
-  /**
-   * The styles to apply to the center label text (strokeColor, strokeOpacity,
-   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
-   * to follow the host page's css color and theme).
-   *
-   * @default { strokeColor: null, strokeOpacity: null, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
-   */
-  centerLabelTextStyle: Style;
+  centerLabel: PieCenterLabelConfig;
   /**
    * The total of the slice values shown at the center of the pie.
    *
@@ -816,7 +826,7 @@ export interface ColorPaletteConfig {
    *
    * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  series: ColorPaletteStates;
+  shape: ColorPaletteStates;
   /**
    * The color palettes to use for series markers that are colored by series or
    * category index.
@@ -969,7 +979,7 @@ export interface TitleConfig {
    *
    * @default "…"
    */
-  truncationValue: string;
+  truncationText: string;
   /**
    * Whether the title should be aligned between the axes (true) or the chart
    * bounds (false).
@@ -1049,6 +1059,29 @@ export interface TitleConfig {
   textStyle: Style;
 }
 
+/** The border drawn around a series icon: always written, so no member is null. */
+export interface SeriesIconBorderStyle {
+  /**
+   * The color of the border drawn around series icons: use "none" to switch the
+   * border off, or "currentColor" to follow the host page's css color.
+   *
+   * @default "currentColor"
+   */
+  strokeColor: string;
+  /**
+   * The opacity (0 - 1) of the border drawn around series icons.
+   *
+   * @default 0.65
+   */
+  strokeOpacity: number;
+  /**
+   * The width (in pixels) of the border drawn around series icons.
+   *
+   * @default 1
+   */
+  strokeWidth: number;
+}
+
 /**
  * The series icons shown beside series titles, the `icon` group of both the
  * legend and the tooltip.
@@ -1103,25 +1136,13 @@ export interface SeriesIconConfig {
    *
    * @default 4
    */
-  spacerSize: number;
+  spacing: number;
   /**
-   * The width (in pixels) of the border drawn around series icons.
+   * The border drawn around series icons.
    *
-   * @default 1
+   * @default { strokeColor: "currentColor", strokeOpacity: 0.65, strokeWidth: 1 }
    */
-  borderSize: number;
-  /**
-   * The color of the border drawn around series icons.
-   *
-   * @default "currentColor"
-   */
-  borderColor: string;
-  /**
-   * The opacity (0 - 1) of the border drawn around series icons.
-   *
-   * @default 0.65
-   */
-  borderOpacity: number;
+  borderStyle: SeriesIconBorderStyle;
   /**
    * The color to use for the series icon when the corresponding series is
    * filtered.
@@ -1199,7 +1220,7 @@ export interface LegendConfig {
    *
    * @default "…"
    */
-  truncationValue: string;
+  truncationText: string;
   /**
    * Whether the legend should be aligned between the axes (true) or the chart
    * bounds (false).
@@ -1237,7 +1258,7 @@ export interface LegendConfig {
   /**
    * The series icons shown next to the series titles in the legend.
    *
-   * @default { showColors: true, showShapes: true, showPlaceholders: true, size: "auto", spacerSize: 4, borderSize: 1, borderColor: "currentColor", borderOpacity: 0.65, filteredColor: "rgba(255,255,255,0)", unfilteredColor: "rgba(0,0,0,0.5)" }
+   * @default { showColors: true, showShapes: true, showPlaceholders: true, size: "auto", spacing: 4, borderStyle: { … }, filteredColor: "rgba(255,255,255,0)", unfilteredColor: "rgba(0,0,0,0.5)" }
    */
   icon: SeriesIconConfig;
   /**
@@ -1257,9 +1278,9 @@ export interface LegendConfig {
    *
    * @default false
    */
-  showFilteringOnLabels: boolean;
+  strikeThroughFiltered: boolean;
   /**
-   * Whether to focus a series when the mouse is moved over the series icon or
+   * Whether to focus a series when the pointer hovers over the series icon or
    * title.
    *
    * When `true`, hovering a legend item focuses its series: the series gets its
@@ -1268,12 +1289,12 @@ export interface LegendConfig {
    *
    * @default true
    */
-  focusOnMouseOver: boolean;
+  focusOnHover: boolean;
   /**
    * Whether to focus a series when the series icon or title is clicked.
    *
    * When `true`, clicking a legend item focuses its series (see
-   * `focusOnMouseOver`). Combine with `filterOnClick` deliberately — with both
+   * `focusOnHover`). Combine with `filterOnClick` deliberately — with both
    * enabled a click filters and focuses.
    *
    * @default false
@@ -1377,22 +1398,22 @@ export interface TooltipConfig {
    */
   focusSeriesOnClick: boolean;
   /**
-   * Whether category values should be focused when the user mouses over them in
-   * the tooltip.
+   * Whether category values should be focused when the user hovers the pointer
+   * over them in the tooltip.
    *
    * @default false
    */
-  focusCategoryOnMouseOver: boolean;
+  focusCategoryOnHover: boolean;
   /**
-   * Whether series should be focused when the user mouses over them in the
-   * tooltip.
+   * Whether series should be focused when the user hovers the pointer over them
+   * in the tooltip.
    *
    * Ignored while `showControls` is on — there the controls’ mode decides: a
    * row’s series focuses on hover while filter mode is active.
    *
    * @default false
    */
-  focusSeriesOnMouseOver: boolean;
+  focusSeriesOnHover: boolean;
   /**
    * Whether the category value should be shown as the first line of the
    * tooltip.
@@ -1413,11 +1434,11 @@ export interface TooltipConfig {
    * and hovering a series row focuses its series like hovering its legend item;
    * in focus mode a row click pins focus on its series or category. With the
    * controls shown, the mode decides click and series-hover behavior — the
-   * `focus…OnClick` / `filterSeriesOnClick` / `focusSeriesOnMouseOver` settings
-   * are not consulted (`focusCategoryOnMouseOver` still is). The mode button
-   * shows the active mode via `filterModeText` / `focusModeText`, and the step
-   * buttons are labeled for assistive tech by
-   * `accessibility.tooltipPreviousLabel` / `tooltipNextLabel`.
+   * `focus…OnClick` / `filterSeriesOnClick` / `focusSeriesOnHover` settings are
+   * not consulted (`focusCategoryOnHover` still is). The mode button shows the
+   * active mode via `filterModeText` / `focusModeText`, and the step buttons
+   * are labeled for assistive tech by `accessibility.tooltipPreviousLabel` /
+   * `tooltipNextLabel`.
    *
    * @default false
    */
@@ -1457,17 +1478,19 @@ export interface TooltipConfig {
    */
   padding: MarginPadding;
   /**
-   * The padding (in pixels) between each line of the tooltip.
+   * The space (in pixels) between each line of the tooltip.
    *
    * @default 3
    */
-  linePadding: number;
+  lineSpacing: number;
   /**
-   * Whether to right-align the values shown in the tooltip.
+   * The horizontal alignment of the values shown in the tooltip (left, right):
+   * left runs the label and value together as one piece of text, right floats
+   * the values to the far edge.
    *
-   * @default true
+   * @default "right"
    */
-  rightAlignValues: boolean;
+  valueAlign: TooltipValueAlign;
   /**
    * The styles to apply to the tooltip box (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none)).
@@ -1480,11 +1503,11 @@ export interface TooltipConfig {
    *
    * @default 4
    */
-  borderRadius: number;
+  cornerRadius: number;
   /**
    * The series icons shown next to the series titles in the tooltip.
    *
-   * @default { showColors: true, showShapes: true, showPlaceholders: true, size: "auto", spacerSize: 4, borderSize: 1, borderColor: "currentColor", borderOpacity: 0.65, filteredColor: "rgba(255,255,255,0)", unfilteredColor: "rgba(0,0,0,0.5)" }
+   * @default { showColors: true, showShapes: true, showPlaceholders: true, size: "auto", spacing: 4, borderStyle: { … }, filteredColor: "rgba(255,255,255,0)", unfilteredColor: "rgba(0,0,0,0.5)" }
    */
   icon: SeriesIconConfig;
   /**
@@ -1498,13 +1521,13 @@ export interface TooltipConfig {
    *
    * When `true`, the label of a series that has been filtered out of the chart
    * is drawn with a line through it. The strike-through covers the label only,
-   * so the value beside it stays legible — except when `rightAlignValues` is
-   * `false`, where the label and the value are one piece of text and both are
+   * so the value beside it stays legible — except when `valueAlign` is
+   * `'left'`, where the label and the value are one piece of text and both are
    * struck.
    *
    * @default false
    */
-  showFilteringOnLabels: boolean;
+  strikeThroughFiltered: boolean;
   /**
    * Whether to adjust the series values when series filtering changes.
    *
@@ -1519,11 +1542,12 @@ export interface TooltipConfig {
    */
   adjustSizeForFiltering: boolean;
   /**
-   * Whether to hide series that have been filtered from the tooltip.
+   * Whether to show series that have been filtered out of the chart in the
+   * tooltip.
    *
-   * @default false
+   * @default true
    */
-  hideFiltered: boolean;
+  showFiltered: boolean;
   /**
    * Whether to show series that do not have defined values in the tooltip.
    *
@@ -1665,7 +1689,7 @@ export interface AxisLineConfig {
    *
    * @default 0
    */
-  margin: number;
+  marginInner: number;
   /**
    * The style of the line shown along the axis.
    *
@@ -1735,7 +1759,7 @@ export interface AxisFocusTickMarkConfig {
    *
    * @default 3
    */
-  margin: number;
+  marginInner: number;
   /**
    * The style of the focus tick mark line(s).
    *
@@ -1794,7 +1818,7 @@ export interface AxisTickMarkConfig {
    *
    * @default 0
    */
-  margin: number;
+  marginInner: number;
   /**
    * The style of the axis tick mark lines.
    *
@@ -1914,7 +1938,7 @@ export interface CategoryAxisTickLabelConfig extends AxisTickLabelConfig {
    *
    * @default "…"
    */
-  truncationValue: string;
+  truncationText: string;
   /**
    * The minimum length (in pixels) to allow tick label text perpendicular to
    * the axis, applied when truncationMaxFraction would allow less.
@@ -1977,7 +2001,7 @@ export interface AxisTitleConfig {
    *
    * @default "…"
    */
-  truncationValue: string;
+  truncationText: string;
   /**
    * The space (in pixels) perpendicular to the axis direction to allocate for
    * the axis title (use "auto" to derive from the font size).
@@ -2049,7 +2073,7 @@ export interface AxisConfigBase {
   /**
    * The line drawn along the length of the axis.
    *
-   * @default { visible: true, front: false, margin: 0, style: { … } }
+   * @default { visible: true, front: false, marginInner: 0, style: { … } }
    */
   axisLine: AxisLineConfig;
   /**
@@ -2104,10 +2128,10 @@ export interface AxisConfigBase {
    * The tick marks drawn perpendicular to the axis at its focused series domain
    * or category value.
    *
-   * Category axis default: `{ visible: true, front: false, size: 9, margin: 3,
-   * style: { … } }`.
-   * Value axis default: `{ visible: false, front: false, size: 9, margin: 3,
-   * style: { … } }`.
+   * Category axis default: `{ visible: true, front: false, size: 9,
+   * marginInner: 3, style: { … } }`.
+   * Value axis default: `{ visible: false, front: false, size: 9, marginInner:
+   * 3, style: { … } }`.
    */
   focusTickMark: AxisFocusTickMarkConfig;
   /**
@@ -2256,7 +2280,7 @@ export interface AxisConfigBase {
    * Category axis default: `{ front: false, anchor: "auto", backgroundStyle: {
    * … }, size: "auto", marginInner: 2, marginOuter: 1, paddingInner: 5,
    * paddingOuter: 5, format: "auto", prefix: null, suffix: null, rotation: 0,
-   * textStyle: { … }, truncationValue: "…", truncationMinLength: 0,
+   * textStyle: { … }, truncationText: "…", truncationMinLength: 0,
    * truncationMaxFraction: 0.2 }`.
    * Value axis default: `{ front: false, anchor: "auto", backgroundStyle: { …
    * }, size: "auto", marginInner: 2, marginOuter: 1, paddingInner: 5,
@@ -2267,13 +2291,13 @@ export interface AxisConfigBase {
   /**
    * The tick marks drawn perpendicular to the axis at each tick value.
    *
-   * @default { visible: true, front: false, size: 3, margin: 0, style: { … } }
+   * @default { visible: true, front: false, size: 3, marginInner: 0, style: { … } }
    */
   tickMark: AxisTickMarkConfig;
   /**
    * The title shown alongside the axis.
    *
-   * @default { text: null, front: false, backgroundStyle: { … }, truncationEnabled: true, truncationValue: "…", size: "auto", marginInner: 2, marginOuter: 2, paddingInner: 3, paddingOuter: 3, textStyle: { … } }
+   * @default { text: null, front: false, backgroundStyle: { … }, truncationEnabled: true, truncationText: "…", size: "auto", marginInner: 2, marginOuter: 2, paddingInner: 3, paddingOuter: 3, textStyle: { … } }
    */
   title: AxisTitleConfig;
   /**
@@ -2355,7 +2379,7 @@ export interface CategoryAxisConfig extends AxisConfigBase {
   /**
    * The labels shown at each tick along the axis.
    *
-   * @default { front: false, anchor: "auto", backgroundStyle: { … }, size: "auto", marginInner: 2, marginOuter: 1, paddingInner: 5, paddingOuter: 5, format: "auto", prefix: null, suffix: null, rotation: 0, textStyle: { … }, truncationValue: "…", truncationMinLength: 0, truncationMaxFraction: 0.2 }
+   * @default { front: false, anchor: "auto", backgroundStyle: { … }, size: "auto", marginInner: 2, marginOuter: 1, paddingInner: 5, paddingOuter: 5, format: "auto", prefix: null, suffix: null, rotation: 0, textStyle: { … }, truncationText: "…", truncationMinLength: 0, truncationMaxFraction: 0.2 }
    */
   tickLabel: CategoryAxisTickLabelConfig;
   /**
@@ -2478,12 +2502,12 @@ export interface ValueAxisConfig extends AxisConfigBase {
    */
   baseLine: AxisBaseLineConfig;
   /**
-   * Whether the value axis should be focused whenever the user mouses over a
-   * part of it in the chart.
+   * Whether the value axis should be focused whenever the user hovers the
+   * pointer over a part of it in the chart.
    *
    * @default true
    */
-  focusOnMouseOver: boolean;
+  focusOnHover: boolean;
   /**
    * Whether the value axis should be focused whenever the user clicks/taps a
    * part of it in the chart.
@@ -2907,16 +2931,24 @@ export interface SeriesMarkerConfig {
    */
   shape: MarkerShape | null;
   /**
-   * The maximum marker size (in pixels) to use when interpolating the marker
-   * size based on a marker property value, or the marker size when no marker
-   * property is used.
+   * The marker size (in pixels); with a markerProperty it is the size of the
+   * largest value, and the markers scale down from it toward minSize.
+   *
+   * Without a `markerProperty` every marker is drawn at exactly this size, and
+   * `minSize` is not used. With one, the series value with the largest marker
+   * property value gets this size and the others scale down toward `minSize` by
+   * `sizeScale`, so `size` is the top of the range and `minSize` the bottom —
+   * there is no separate maximum.
    *
    * @default 6
    */
   size: number;
   /**
-   * The minimum marker size (in pixels) to use when interpolating the marker
-   * size based on a marker property value.
+   * The minimum marker size (in pixels) that a marker scaled by a marker
+   * property value shrinks to (ignored without a markerProperty).
+   *
+   * Only used with a `markerProperty`: the size the smallest marker property
+   * value scales down to; the largest takes `size`.
    *
    * @default 1
    */
@@ -3325,12 +3357,12 @@ export interface SeriesConfig {
    */
   followSeries: string | null;
   /**
-   * Whether the series should be focused whenever the user mouses over a part
-   * of it in the chart.
+   * Whether the series should be focused whenever the user hovers the pointer
+   * over a part of it in the chart.
    *
    * @default false
    */
-  focusOnMouseOver: boolean;
+  focusOnHover: boolean;
   /**
    * Whether the series should be focused whenever the user clicks/taps a part
    * of it in the chart.
@@ -3339,12 +3371,12 @@ export interface SeriesConfig {
    */
   focusOnClick: boolean;
   /**
-   * Whether the category should be focused whenever the user mouses over a
-   * category of the series in the chart.
+   * Whether the category should be focused whenever the user hovers the pointer
+   * over a category of the series in the chart.
    *
    * @default false
    */
-  focusCategoryOnMouseOver: boolean;
+  focusCategoryOnHover: boolean;
   /**
    * Whether the category should be focused whenever the user clicks/taps a
    * category of the series in the chart.
@@ -3643,12 +3675,13 @@ export interface PatternConfig {
    */
   backgroundOpacity: number;
   /**
-   * The clockwise rotation (in degrees) of a lines or crosshatch pattern.
+   * The clockwise rotation (in degrees, -360 to 360) of a lines or crosshatch
+   * pattern.
    *
    * Default:
    * - `45` — when type is lines or crosshatch
    */
-  angle?: number;
+  rotation?: number;
   /**
    * The width (in pixels) of the strokes in a lines or crosshatch pattern.
    *
@@ -3665,12 +3698,12 @@ export interface PatternConfig {
   radius?: number;
 }
 
-type PatternInputConfigBase = Omit<PatternConfig, 'type' | 'angle' | 'lineWidth' | 'radius'>;
+type PatternInputConfigBase = Omit<PatternConfig, 'type' | 'rotation' | 'lineWidth' | 'radius'>;
 
 export type PatternInputConfig =
-  | (PatternInputConfigBase & { type: 'lines'; angle: number; lineWidth: number; radius?: never })
-  | (PatternInputConfigBase & { type: 'crosshatch'; angle: number; lineWidth: number; radius?: never })
-  | (PatternInputConfigBase & { type: 'dots'; radius: number; angle?: never; lineWidth?: never });
+  | (PatternInputConfigBase & { type: 'lines'; rotation: number; lineWidth: number; radius?: never })
+  | (PatternInputConfigBase & { type: 'crosshatch'; rotation: number; lineWidth: number; radius?: never })
+  | (PatternInputConfigBase & { type: 'dots'; radius: number; rotation?: never; lineWidth?: never });
 
 /** Properties that can be shared by every built-in pattern type. */
 export type PatternDefaultsConfig = Pick<PatternConfig,

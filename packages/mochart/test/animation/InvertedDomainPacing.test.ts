@@ -21,7 +21,7 @@ interface Row { [key: string]: string | number; c: string; v: number }
 function mount(valueAxis: Record<string, unknown>, rows: Row[]) {
   const mochartConfig = mochart.enhanceConfig({
     version: '1.0.0',
-    animation: { animate: true, expansionDuration: 400, valueChangeDuration: 200, contractionDuration: 400 },
+    animation: { enabled: true, expansionDuration: 400, valueChangeDuration: 200, contractionDuration: 400 },
     categoryAxis: { property: 'c', type: 'string', scale: 'ordinal' },
     valueAxes: [valueAxis],
     series: [{ id: 'S0', property: 'v', renderer: 'bar' }]

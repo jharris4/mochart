@@ -20,7 +20,7 @@ function mountChart(overrides: Record<string, unknown> = {}): Element {
   const container = mountContainer();
   const config = {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ id: 'S0', property: 'sales', renderer: 'bar' }, { id: 'S1', property: 'costs', renderer: 'bar' }],
     legend: { visible: true, filterOnClick: true },
@@ -63,7 +63,7 @@ beforeAll(() => {
 
 describe('tooltip size for filtering', () => {
   it('keeps the box sized for a filtered row by default', () => {
-    const container = mountChart({ tooltip: { hideFiltered: true } });
+    const container = mountChart({ tooltip: { showFiltered: false } });
     filterSeries(container, 'S0');
     openTooltip(container);
 
@@ -73,7 +73,7 @@ describe('tooltip size for filtering', () => {
   });
 
   it('lets the box shrink to the remaining rows when adjustSizeForFiltering is on', () => {
-    const container = mountChart({ tooltip: { hideFiltered: true, adjustSizeForFiltering: true } });
+    const container = mountChart({ tooltip: { showFiltered: false, adjustSizeForFiltering: true } });
     filterSeries(container, 'S0');
     openTooltip(container);
 
@@ -86,7 +86,7 @@ describe('tooltip size for filtering', () => {
 
   it('changes nothing while no series is filtered', () => {
     for (const adjustSizeForFiltering of [false, true]) {
-      const container = mountChart({ tooltip: { hideFiltered: true, adjustSizeForFiltering } });
+      const container = mountChart({ tooltip: { showFiltered: false, adjustSizeForFiltering } });
       openTooltip(container);
 
       expect(hasRow(container, 'tooltipSizer', 'S0')).toBe(true);
@@ -98,7 +98,7 @@ describe('tooltip size for filtering', () => {
 describe('tooltip box style', () => {
   it('writes the border radius, drop shadow colour and row padding it is given', () => {
     const container = mountChart({
-      tooltip: { borderRadius: 17, dropShadow: { color: 'rgb(1, 2, 3)', offsetX: 4, offsetY: 5, blurRadius: 6 }, linePadding: 19 }
+      tooltip: { cornerRadius: 17, dropShadow: { color: 'rgb(1, 2, 3)', offsetX: 4, offsetY: 5, blurRadius: 6 }, lineSpacing: 19 }
     });
     openTooltip(container);
     const style = tooltipStyle(container);
@@ -113,7 +113,7 @@ describe('tooltip box style', () => {
   });
 
   it('gives a row that becomes the last row the last row bottom padding', () => {
-    const container = mountChart({ tooltip: { hideFiltered: true, linePadding: 19 } });
+    const container = mountChart({ tooltip: { showFiltered: false, lineSpacing: 19 } });
     openTooltip(container);
     const row = container.querySelector<HTMLElement>(getCssSelector('tooltip') + ' ' + getIdCssSelector('tooltipSeriesLine', 'S0'))!;
     expect(row.style.paddingBottom).toBe('19px');

@@ -28,7 +28,7 @@ function rawConfig(): any {
     categoryAxis: { property: 'name', type: 'string', scale: 'ordinal' },
     seriesDefaults: { renderer: 'bar' },
     series: [{ property: 'value', title: 'Value' }],
-    animation: { animate: false }
+    animation: { enabled: false }
   };
 }
 

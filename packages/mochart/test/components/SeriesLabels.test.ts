@@ -24,7 +24,7 @@ function labelTexts(seriesOverrides: Record<string, unknown>, valueAxes?: unknow
   const container = mountContainer();
   const config = {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales', renderer: 'bar', labelProperty: 'sales', ...seriesOverrides }],
     ...(valueAxes ? { valueAxes } : {})
@@ -71,7 +71,7 @@ describe('series label fraction guards', () => {
     trackHandle(createDefaultChart(container, {
       config: {
         version: '1.0.0',
-        animation: { animate: false },
+        animation: { enabled: false },
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         valueAxes: [{ id: 'VA0', base: null }],
         seriesStacks: [{ id: 'S', axis: 'VA0' }],
@@ -92,7 +92,7 @@ describe('series label fraction guards', () => {
     trackHandle(createDefaultChart(container, {
       config: {
         version: '1.0.0',
-        animation: { animate: false },
+        animation: { enabled: false },
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         valueAxes: [{ id: 'VA0' }],
         seriesStacks: [{ id: 'S', axis: 'VA0' }],

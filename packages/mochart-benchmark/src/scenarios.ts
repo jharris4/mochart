@@ -53,7 +53,7 @@ export function makeConfig(type: ScenarioType, seriesCount: number, options: Sce
     version: '1.0.0',
     title: { text: 'Benchmark' },
     animation: {
-      animate: options.animate,
+      enabled: options.animate,
       expansionDuration: 300,
       valueChangeDuration: 300,
       contractionDuration: 300,

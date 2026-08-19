@@ -65,7 +65,7 @@ function loadJson(filePath: string): any {
 
 function buildConfig(): EnhancedMochartConfig {
   const migrated = mochart.migrateConfig(loadJson(configPath)) as Record<string, any>;
-  migrated.animation = { ...(migrated.animation || {}), animate: true };
+  migrated.animation = { ...(migrated.animation || {}), enabled: true };
   return mochart.enhanceConfig(migrated as MochartInputConfig) as EnhancedMochartConfig;
 }
 
@@ -133,7 +133,7 @@ describe('truncation measurement cost', () => {
   it('stops measuring settled legend items and the title across focus updates', () => {
     const mochartConfig = mochart.enhanceConfig({
       version: '1.0.0',
-      animation: { animate: false },
+      animation: { enabled: false },
       title: { text: 'Sales' },
       legend: { visible: true },
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },

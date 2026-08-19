@@ -23,13 +23,13 @@ import * as patterns from '../examples/patterns'
 - In an XY chart, a series can use a pattern only when its `renderer` is
   `area` or `bar`; pie slices can use one whatever the series renderer.
 - `spacing`, the foreground/background colors and their opacities are common
-  to every type. Lines and crosshatches add `angle` and `lineWidth`; dots add
+  to every type. Lines and crosshatches add `rotation` and `lineWidth`; dots add
   `radius`.
 - `foregroundColor: "series"` or `backgroundColor: "series"` resolves to the
   owning series' normal fill color. `"currentColor"` follows the CSS `color`
   the chart inherits. A `null` background is transparent (the default).
 - Only the common properties can go in `patternDefaults`; `type`, `id`,
-  `ignore`, `angle`, `lineWidth`, and `radius` belong on individual entries.
+  `ignore`, `rotation`, `lineWidth`, and `radius` belong on individual entries.
 - A series cannot use both `pattern` and `gradient`. Set `pattern: null` to
   opt a series out of an automatically applied sole pattern.
 - With [`colorProperty`](/recipes/color-by-value), the pattern replaces the

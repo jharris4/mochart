@@ -219,7 +219,7 @@ export function getTooltipAnnouncement(mochartConfig: EnhancedMochartConfig, too
     }
     const seriesId = seriesConfig.id;
     const seriesIsFiltered = filteredFlags[seriesId];
-    if (seriesIsFiltered && tooltipConfig.hideFiltered) {
+    if (seriesIsFiltered && !tooltipConfig.showFiltered) {
       continue;
     }
     const pieValues: PieTooltipValues | undefined = piePercentFormat === null ? undefined : {

@@ -20,7 +20,7 @@ const PALETTE_2 = '#228833';
 function makeConfig(seriesOverrides: Record<string, unknown>): MochartInputConfig {
   return {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     tooltip: { visible: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales', ...seriesOverrides }]

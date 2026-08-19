@@ -67,7 +67,7 @@ function config(options: {
   return {
     version: '1.0.0',
     animation: {
-      animate,
+      enabled: animate,
       initialDuration: 64,
       expansionDuration: 64,
       valueChangeDuration: 64,
@@ -326,7 +326,7 @@ beforeAll(async () => {
 function withAnimation(configValue: MochartInputConfig, animate: boolean): MochartInputConfig {
   return {
     ...configValue,
-    animation: { ...configValue.animation, animate }
+    animation: { ...configValue.animation, enabled: animate }
   };
 }
 

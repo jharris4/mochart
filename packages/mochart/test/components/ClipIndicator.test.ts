@@ -16,7 +16,7 @@ const contained = [{ c: 'a', v: 5 }, { c: 'b', v: 8 }];
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'c', type: 'string', scale: 'ordinal' },
     valueAxes: [{ min: 0, max: 10 }],
     series: [{ property: 'v', renderer: 'bar' }],
@@ -113,7 +113,7 @@ describe('band geometry', () => {
 
   it('derives an automatic depth from the measured label plus padding on both sides', () => {
     // jsdom's getBBox shim reports 0, so the measured label height is 0 and only padding remains
-    expect(bands(mount(makeConfig({ clipIndicator: { padding: 5 } })))[0].height).toBe(0 + 5 * 2);
+    expect(bands(mount(makeConfig({ clipIndicator: { labelPadding: 5 } })))[0].height).toBe(0 + 5 * 2);
   });
 
   it('never grows deeper than the plot itself', () => {
@@ -168,7 +168,7 @@ describe('band presentation', () => {
   });
 
   it('takes the hatch geometry from the config', () => {
-    const pattern = mount(makeConfig({ clipIndicator: { hatch: { spacing: 10, width: 3 } } }))
+    const pattern = mount(makeConfig({ clipIndicator: { hatch: { spacing: 10, lineWidth: 3 } } }))
       .querySelector(getCssSelector('clipIndicator') + ' pattern')!;
     expect(pattern.getAttribute('width')).toBe('10');
     expect(pattern.getAttribute('height')).toBe('10');
@@ -191,7 +191,7 @@ describe('band presentation', () => {
     expect(inFront.querySelector(getCssSelector('seriesContainer'))!
       .compareDocumentPosition(inFront.querySelector(getCssSelector('clipIndicator'))!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    const behind = mount(makeConfig({ clipIndicator: { showInFront: false } }));
+    const behind = mount(makeConfig({ clipIndicator: { front: false } }));
     expect(behind.querySelector(getCssSelector('seriesContainer'))!
       .compareDocumentPosition(behind.querySelector(getCssSelector('clipIndicator'))!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
@@ -227,16 +227,16 @@ describe('degenerate hatches', () => {
 
   it('collapses to a flat fill when the lines are as thick as the gaps', () => {
     // a closed-up hatch is a solid fill, and drawn as a pattern it would seam along the 45deg tile edge
-    expect(shapeOf({ spacing: 6, width: 6 }).getAttribute('fill')).toBe('currentColor');
-    expect(shapeOf({ spacing: 6, width: 9 }).getAttribute('fill')).toBe('currentColor');
+    expect(shapeOf({ spacing: 6, lineWidth: 6 }).getAttribute('fill')).toBe('currentColor');
+    expect(shapeOf({ spacing: 6, lineWidth: 9 }).getAttribute('fill')).toBe('currentColor');
   });
 
   it('collapses to a flat fill when the spacing leaves no tile to draw', () => {
-    expect(shapeOf({ spacing: 0, width: 2 }).getAttribute('fill')).toBe('currentColor');
+    expect(shapeOf({ spacing: 0, lineWidth: 2 }).getAttribute('fill')).toBe('currentColor');
   });
 
   it('paints nothing when the lines have no width', () => {
-    expect(shapeOf({ spacing: 6, width: 0 }).getAttribute('fill')).toBeNull();
+    expect(shapeOf({ spacing: 6, lineWidth: 0 }).getAttribute('fill')).toBeNull();
   });
 });
 

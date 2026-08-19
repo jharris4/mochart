@@ -191,7 +191,7 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   let tickMarkX2 = 0;
   let tickMarkY2 = 0;
   if (axisConfig.tickMark.visible) {
-    const { margin: tickMarkMargin, size: tickMarkSize } = axisConfig.tickMark;
+    const { marginInner: tickMarkMargin, size: tickMarkSize } = axisConfig.tickMark;
     const tickMarkOffset = notAfter ? (vertical ? width : height) - tickMarkMargin : tickMarkMargin;
     tickMarkX1 = vertical ? tickMarkOffset : 0;
     tickMarkX2 = vertical ? (notAfter ? tickMarkX1 - tickMarkSize : tickMarkX1 + tickMarkSize) : 0;
@@ -208,7 +208,7 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   let focusTickMarkX2 = 0;
   let focusTickMarkY2 = 0;
   if (axisConfig.focusTickMark.visible) {
-    const { margin: focusTickMarkMargin, size: focusTickMarkSize } = axisConfig.focusTickMark;
+    const { marginInner: focusTickMarkMargin, size: focusTickMarkSize } = axisConfig.focusTickMark;
     const focusTickMarkOffset = notAfter ? (vertical ? width : height) - focusTickMarkMargin : focusTickMarkMargin;
     focusTickMarkX1 = vertical ? focusTickMarkOffset : 0;
     focusTickMarkX2 = vertical ? (notAfter ? focusTickMarkX1 - focusTickMarkSize : focusTickMarkX1 + focusTickMarkSize) : 0;
@@ -225,7 +225,7 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   let axisLineX2 = 0;
   let axisLineY2 = 0;
   if (axisConfig.axisLine.visible === true) {
-    const { margin: axisLineMargin } = axisConfig.axisLine;
+    const { marginInner: axisLineMargin } = axisConfig.axisLine;
     const axisLineOffset = notAfter ? (vertical ? width : height) - axisLineMargin : axisLineMargin;
     axisLineX1 = vertical ? axisLineOffset : 0;
     axisLineY1 = vertical ? 0 : axisLineOffset;

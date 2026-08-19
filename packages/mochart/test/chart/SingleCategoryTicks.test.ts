@@ -19,7 +19,7 @@ function renderChart(categoryAxis: Record<string, unknown>, data: Record<string,
   const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
   const mochartConfig = enhanceConfig({
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'x', scale: 'linear', ...categoryAxis },
     valueAxes: [{ visible: false }],
     series: [{ property: 'value', renderer: 'line' }]

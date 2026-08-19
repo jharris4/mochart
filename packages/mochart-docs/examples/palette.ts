@@ -10,7 +10,7 @@ export const config: MochartInputConfig = {
   categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
   valueAxes: [{ title: { text: 'requests' }, gridLine: { visible: true } }],
   colorPalette: {
-    series: {
+    shape: {
       normal: {
         strokeColors: colors,
         fillColors: colors

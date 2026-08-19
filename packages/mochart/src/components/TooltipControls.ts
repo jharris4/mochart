@@ -101,9 +101,9 @@ export default class TooltipControls extends Renderer<TooltipControlsProps> {
     const { tooltip: tooltipConfig, accessibility: accessibilityConfig } = mochartConfig;
     if (tooltipConfig.showControls) {
       // shown buttons are always click targets, so they take the target floor in both directions
-      const { targetMinSize } = accessibilityConfig;
-      const targetStyle = targetMinSize > 0 ? { minHeight: targetMinSize } : {};
-      const containerStyle = { flex: '0 0 auto', width: Math.max(buttonWidth, targetMinSize) };
+      const { minTargetSize } = accessibilityConfig;
+      const targetStyle = minTargetSize > 0 ? { minHeight: minTargetSize } : {};
+      const containerStyle = { flex: '0 0 auto', width: Math.max(buttonWidth, minTargetSize) };
       const controlsStyle: Record<string, string | number> = {
         display: 'flex',
         gap: 3,

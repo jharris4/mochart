@@ -7,7 +7,7 @@
     "text": "Cluttered Inverted"
   },
   "animation": {
-    "animate": true,
+    "enabled": true,
     "expansionDuration": 1000,
     "initialDuration": 1000,
     "valueChangeDuration": 1000,
@@ -32,7 +32,7 @@
       "text": "Category Axis"
     },
     "axisLine": {
-      "margin": 3
+      "marginInner": 3
     },
     "gridLine": {
       "visible": true
@@ -44,7 +44,7 @@
   },
   "valueAxisDefaults": {
     "axisLine": {
-      "margin": 3
+      "marginInner": 3
     }
   },
   "valueAxes": [

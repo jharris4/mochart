@@ -23,7 +23,7 @@ const hiddenStyle = { visibility: 'hidden' };
 
 type AxisDisplayConfig = Omit<AxisConfigBase, 'tickLabel'> &
   Pick<CategoryAxisConfig, 'scale'> &
-  { tickLabel: AxisTickLabelConfig & Partial<Pick<CategoryAxisTickLabelConfig, 'truncationEnabled' | 'truncationValue' | 'truncationMinLength' | 'truncationMaxFraction'>> } &
+  { tickLabel: AxisTickLabelConfig & Partial<Pick<CategoryAxisTickLabelConfig, 'truncationEnabled' | 'truncationText' | 'truncationMinLength' | 'truncationMaxFraction'>> } &
   Partial<Pick<EnhancedValueAxisConfig, 'useSeriesFocus'>>;
 
 interface AxisTickLabelsProps {
@@ -111,15 +111,15 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
       truncationChanged ? this.tickLabelStrings : undefined);
   }
 
-  getTruncatedLabels(truncationEnabled: boolean, truncationValue: string, truncationData: TruncationDataValue): string[] {
+  getTruncatedLabels(truncationEnabled: boolean, truncationText: string, truncationData: TruncationDataValue): string[] {
     const labels = this.tickLabelStrings;
     if (!truncationEnabled || truncationData === null) {
       return labels;
     }
     const source = this.truncatedLabelsSource;
-    if (source === null || source.labels !== labels || source.value !== truncationValue || source.data !== truncationData) {
-      this.truncatedLabels = getTruncatedText(true, truncationValue, labels, truncationData);
-      this.truncatedLabelsSource = { labels, value: truncationValue, data: truncationData };
+    if (source === null || source.labels !== labels || source.value !== truncationText || source.data !== truncationData) {
+      this.truncatedLabels = getTruncatedText(true, truncationText, labels, truncationData);
+      this.truncatedLabelsSource = { labels, value: truncationText, data: truncationData };
     }
     return this.truncatedLabels;
   }
@@ -155,9 +155,9 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
     const tickRotationTransform = tickLabelRotation === 0 ? null : 'rotate(' + tickLabelRotation + ')';
 
     const truncationEnabled = axisConfig.tickLabel.truncationEnabled ?? false;
-    const truncationValue = axisConfig.tickLabel.truncationValue ?? '';
+    const truncationText = axisConfig.tickLabel.truncationText ?? '';
     const useSeriesFocus = axisConfig.useSeriesFocus ?? false;
-    const tickLabels = this.getTruncatedLabels(truncationEnabled, truncationValue, truncationData);
+    const tickLabels = this.getTruncatedLabels(truncationEnabled, truncationText, truncationData);
 
     const clipPath = truncationEnabled && tickLabelClipPathUniqueId ? getClipPathReference(tickLabelClipPathUniqueId) : null;
 
@@ -213,7 +213,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
       typedSizeLabel.set({ className: mochartCssClasses['axisSizeTickLabel'],
         ariaHidden: accessibility ? 'true' : null });
       typedSizeLabel.textHandle.set({ style: hiddenStyle });
-      typedSizeLabel.valueHandle.set('W' + truncationValue);
+      typedSizeLabel.valueHandle.set('W' + truncationText);
     }
     else {
       this.sizeTickLabel.set(null);
@@ -230,7 +230,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
 
       const { axisLayoutInfo, tickSpacing, axisConfig, plotLayoutInfo } = this.props;
       const { vertical } = axisLayoutInfo;
-      const tickLabelTruncationValue = axisConfig.tickLabel.truncationValue ?? '';
+      const tickLabelTruncationText = axisConfig.tickLabel.truncationText ?? '';
       // the labels only seed fresh truncation data; an existing entry set is refined in place
       const axisTickLabels = this.state.truncationData === null ? this.tickLabelStrings : emptyArray;
       let maxLength = tickSpacing ?? 0;
@@ -239,7 +239,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
           (axisConfig.tickLabel.truncationMaxFraction ?? 0) * (vertical ? plotLayoutInfo.width : plotLayoutInfo.height));
       }
 
-      this.truncation.update(this, tickLabelTruncationValue, axisTickLabels, maxLength, domElements);
+      this.truncation.update(this, tickLabelTruncationText, axisTickLabels, maxLength, domElements);
     }
   }
 }

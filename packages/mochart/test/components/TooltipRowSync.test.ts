@@ -30,7 +30,7 @@ const costsChanged = [
 function makeConfig(tooltip: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     tooltip,
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     valueAxes: [{ min: 0, max: 40 }],
@@ -95,7 +95,7 @@ describe('tooltip row sync', () => {
   it('still routes row hover and click to the row series through the shared handlers', () => {
     const focuses: ChartFocus[] = [];
     const filters: ChartSeriesFilter[] = [];
-    const { container } = mountChart(makeConfig({ focusSeriesOnMouseOver: true, filterSeriesOnClick: true }),
+    const { container } = mountChart(makeConfig({ focusSeriesOnHover: true, filterSeriesOnClick: true }),
       { onFocus: focus => { focuses.push(focus); }, onSeriesFilter: filter => { filters.push(filter); } });
     openTooltip(container);
 

@@ -54,10 +54,10 @@ plot edge with data behind it and needs no configuration to appear.
   to `null` for a band with no text.
 - [`size`](/reference/clipIndicator#clipIndicator.size) is the band
   depth, defaulting to `auto` — the label height plus
-  [`padding`](/reference/clipIndicator#clipIndicator.padding) on
+  [`labelPadding`](/reference/clipIndicator#clipIndicator.labelPadding) on
   both sides.
 - [`hatch`](/reference/clipIndicator#clipIndicator.hatch) sets the
-  diagonal fill's `spacing` and `width`. Set it to `null` for a flat fill
+  diagonal fill's `spacing` and `lineWidth`. Set it to `null` for a flat fill
   instead, which also lightens the
   [`style`](/reference/clipIndicator#clipIndicator.style) default,
   since a solid band at the hatched weight reads much heavier.

@@ -34,7 +34,7 @@ export const config: MochartInputConfig = {
     // the center total tracks the unfiltered slices, so clicking a legend
     // entry counts it down; the negative Y offset lifts it off the gauge
     // pivot into the hole
-    centerLabel: 'responses',
+    centerLabel: { text: 'responses' },
     centerTotal: {
       visible: true,
       format: ',.0f'

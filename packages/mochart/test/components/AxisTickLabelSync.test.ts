@@ -29,7 +29,7 @@ const renamedRows = [
 function makeConfig(categoryAxis: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', ...categoryAxis },
     valueAxes: [{ min: 0, max: 40 }],
     series: [{ id: 'S0', property: 'sales', renderer: 'bar' }]

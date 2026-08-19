@@ -7,7 +7,7 @@ export default function getDescriptions() {
     link: 'the link to create for the title (use null for none)',
     linkDisabled: 'whether to prevent default navigation behaviour when the link is clicked',
     truncationEnabled: 'whether to use text truncation when the title width exceeds the width of the chart',
-    truncationValue: 'the truncation text to append to the title when its width exceeds the width of the chart',
+    truncationText: 'the truncation text to append to the title when its width exceeds the width of the chart',
     alignedToAxes: 'whether the title should be aligned between the axes (true) or the chart bounds (false)',
     align: 'the alignment for the title (left, center, right)',
     verticalAlign: 'the vertical alignment of the prefix/text/suffix within the title (top, middle, bottom)',

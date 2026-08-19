@@ -1,4 +1,4 @@
-// Pointer handlers on cartesian series shapes: focusOnMouseOver and focusCategoryOnMouseOver decide whether
+// Pointer handlers on cartesian series shapes: focusOnHover and focusCategoryOnHover decide whether
 // hovering focuses the series, the category, both or neither, and the shapes carry the resulting handlers.
 import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
@@ -22,7 +22,7 @@ function mountChart(seriesOverrides: Record<string, unknown>, callbacks: Partial
   const container = mountContainer();
   const config = {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales', renderer: 'bar', ...seriesOverrides }]
   } as unknown as MochartInputConfig;
@@ -102,7 +102,7 @@ describe('series shape hover focus', () => {
   it('focuses the series and the category when both configs are set', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(
-      { id: 'sales', focusOnMouseOver: true, focusCategoryOnMouseOver: true },
+      { id: 'sales', focusOnHover: true, focusCategoryOnHover: true },
       { onFocus: focus => focuses.push(focus) });
 
     mouse(bar(container, 1), 'pointerenter');
@@ -115,7 +115,7 @@ describe('series shape hover focus', () => {
   it('focuses only the series when the category config is off', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(
-      { id: 'sales', focusOnMouseOver: true, focusCategoryOnMouseOver: false },
+      { id: 'sales', focusOnHover: true, focusCategoryOnHover: false },
       { onFocus: focus => focuses.push(focus) });
 
     mouse(bar(container, 2), 'pointerenter');
@@ -128,7 +128,7 @@ describe('series shape hover focus', () => {
   it('focuses only the category when the series config is off', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(
-      { id: 'sales', focusOnMouseOver: false, focusCategoryOnMouseOver: true },
+      { id: 'sales', focusOnHover: false, focusCategoryOnHover: true },
       { onFocus: focus => focuses.push(focus) });
 
     mouse(bar(container, 0), 'pointerenter');
@@ -143,7 +143,7 @@ describe('series shape hover focus', () => {
     const focuses: ChartFocus[] = [];
     const clicks: string[] = [];
     const container = mountChart(
-      { id: 'sales', renderer: 'line', marker: { shape: 'circle' }, focusCategoryOnMouseOver: true, focusCategoryOnClick: true },
+      { id: 'sales', renderer: 'line', marker: { shape: 'circle' }, focusCategoryOnHover: true, focusCategoryOnClick: true },
       { onFocus: focus => focuses.push(focus), onSeriesClick: payload => clicks.push(payload.seriesId) });
     const marker = container.querySelector(getIdCssSelector('seriesMarker', '1'))!;
     expect(marker).not.toBeNull();
@@ -163,7 +163,7 @@ describe('series shape hover focus', () => {
     const focuses: ChartFocus[] = [];
     const clicks: string[] = [];
     const container = mountChart(
-      { id: 'sales', labelProperty: 'sales', focusCategoryOnMouseOver: true, focusCategoryOnClick: true },
+      { id: 'sales', labelProperty: 'sales', focusCategoryOnHover: true, focusCategoryOnClick: true },
       { onFocus: focus => focuses.push(focus), onSeriesClick: payload => clicks.push(payload.seriesId) });
     const label = container.querySelector(getIdCssSelector('seriesLabel', '2'))!;
     expect(label).not.toBeNull();
@@ -182,7 +182,7 @@ describe('series shape hover focus', () => {
   it('focuses the series from a line series path', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(
-      { id: 'sales', renderer: 'line', focusOnMouseOver: true },
+      { id: 'sales', renderer: 'line', focusOnHover: true },
       { onFocus: focus => focuses.push(focus) });
     const line = container.querySelector(getCssSelector('seriesLine'))!;
     expect(line).not.toBeNull();

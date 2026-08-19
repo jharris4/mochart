@@ -29,7 +29,7 @@ const swappedRows = [
 function makeConfig(stopColor = '#1f77b4', animate = false): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate },
+    animation: { enabled: animate },
     tooltip: { followPointer: true },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     linearGradients: [{

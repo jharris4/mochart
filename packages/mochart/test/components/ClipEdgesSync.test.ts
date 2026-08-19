@@ -22,7 +22,7 @@ const contained = [{ c: 'a', v: 5 }, { c: 'b', v: 8 }];
 function makeConfig(): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     tooltip: { followPointer: true },
     categoryAxis: { property: 'c', type: 'string', scale: 'ordinal' },
     valueAxes: [{ min: 0, max: 10 }],

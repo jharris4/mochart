@@ -18,7 +18,7 @@ const rows = [{ category: 'total', s0: 30, s1: 50, s2: 20 }];
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     chart: { type: 'pie' },
     categoryAxis: { property: 'category', type: 'string', scale: 'ordinal' },
     series: [

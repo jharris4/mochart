@@ -26,7 +26,7 @@ function mount(overrides: Record<string, unknown>, data: readonly unknown[] = ro
   const container = mountContainer();
   const config = {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales', renderer: 'bar' }],
     ...overrides
@@ -256,7 +256,7 @@ describe('threshold styling', () => {
       trackHandle(createDefaultChart(container, {
         config: {
           version: '1.0.0',
-          animation: { animate: false },
+          animation: { enabled: false },
           categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
           valueAxes: [{ id: 'VA0', min: 0, max: 100, useSeriesFocus,
             thresholds: [{ value: 50, title: { text: 'T' } }] }],
@@ -276,7 +276,7 @@ describe('threshold styling', () => {
     trackHandle(createDefaultChart(container, {
       config: {
         version: '1.0.0',
-        animation: { animate: false },
+        animation: { enabled: false },
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         valueAxes: [
           { id: 'VA0' },
@@ -307,7 +307,7 @@ describe('threshold styling', () => {
     trackHandle(createDefaultChart(container, {
       config: {
         version: '1.0.0',
-        animation: { animate: false },
+        animation: { enabled: false },
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         valueAxes: [{ id: 'VA0', min: 0, max: 100, visibleWhenAllFiltered, adjustForFiltering: false,
           thresholds: [{ value: 50, title: { text: 'Target' } }] }],

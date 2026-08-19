@@ -8,11 +8,13 @@ export default function getValidators() {
     showShapes: validators.boolean(),
     showPlaceholders: validators.boolean(),
     size: validators.numberMin(0).orEqual(AUTO),
-    spacerSize: validators.numberMin(0),
-    borderSize: validators.numberMin(0),
+    spacing: validators.numberMin(0),
     // svgColor, not color / cssColor: the icons are svg (even inside the html tooltip), so 'currentColor' and 'none' are valid here.
-    borderColor: validators.svgColor(),
-    borderOpacity: validators.opacity(),
+    borderStyle: validators.partialObjectWithShape({
+      strokeColor: validators.svgColor(),
+      strokeOpacity: validators.opacity(),
+      strokeWidth: validators.numberMin(0)
+    }, true),
     filteredColor: validators.svgColor(),
     unfilteredColor: validators.svgColor()
   };

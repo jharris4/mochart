@@ -24,9 +24,9 @@ const rows = [
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: { text: 'Month' }, focusRange: { visible: true } },
-    tooltip: { focusSeriesOnMouseOver: true },
+    tooltip: { focusSeriesOnHover: true },
     valueAxes: [
       { id: 'VA0', side: 'start', title: { text: 'Left Titled' } },
       { id: 'VA1', side: 'end', title: { text: 'Right Titled' } }

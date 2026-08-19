@@ -11,7 +11,7 @@ const paletteStates = () => validators.partialObjectWithShape({
 
 export default function getValidators() {
   return {
-    series: paletteStates(),
+    shape: paletteStates(),
     marker: paletteStates(),
     label: paletteStates(),
     errorBar: paletteStates()

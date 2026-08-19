@@ -21,13 +21,13 @@ describe('built-in pattern config', () => {
 
     expect(config.validation).toEqual({ valid: true, errors: [], warnings: [] });
     expect(config.patterns).toEqual([
-      expect.objectContaining({ id: 'P0', type: 'lines', spacing: 8, angle: 45, lineWidth: 2,
+      expect.objectContaining({ id: 'P0', type: 'lines', spacing: 8, rotation: 45, lineWidth: 2,
         foregroundColor: 'series', foregroundOpacity: 1, backgroundColor: null, backgroundOpacity: 1 }),
-      expect.objectContaining({ id: 'P1', type: 'crosshatch', spacing: 8, angle: 45, lineWidth: 2 }),
+      expect.objectContaining({ id: 'P1', type: 'crosshatch', spacing: 8, rotation: 45, lineWidth: 2 }),
       expect.objectContaining({ id: 'P2', type: 'dots', spacing: 8, radius: 2 })
     ]);
     expect(config.patterns[0]).not.toHaveProperty('radius');
-    expect(config.patterns[2]).not.toHaveProperty('angle');
+    expect(config.patterns[2]).not.toHaveProperty('rotation');
     expect(config.patterns[2]).not.toHaveProperty('lineWidth');
   });
 
@@ -156,16 +156,16 @@ describe('built-in pattern config', () => {
     expect(pattern.validation.valid).toBe(true);
   });
 
-  it('validates spacing, angle, opacity, and radius bounds', () => {
+  it('validates spacing, rotation, opacity, and radius bounds', () => {
     const config = enhance({ ...base, patterns: [
-      { type: 'lines', spacing: 0, angle: 400, foregroundOpacity: 2 },
+      { type: 'lines', spacing: 0, rotation: 400, foregroundOpacity: 2 },
       { type: 'dots', radius: -1 }
     ] });
 
     expect(config.validation.valid).toBe(false);
     expect(config.validation.errors).toEqual(expect.arrayContaining([
       expect.stringContaining('patterns[0] - spacing -'),
-      expect.stringContaining('patterns[0] - angle -'),
+      expect.stringContaining('patterns[0] - rotation -'),
       expect.stringContaining('patterns[0] - foregroundOpacity -'),
       expect.stringContaining('patterns[1] - radius -')
     ]));

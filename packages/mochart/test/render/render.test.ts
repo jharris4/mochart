@@ -261,7 +261,7 @@ describe('Renderer', () => {
     expect(parent.innerHTML).toBe('');
   });
 
-  // a slot rebuilt inside an ElSlot init callback (the tooltip row's icon, which changes host when rightAlignValues flips) left the previous slot registered and its child mounted
+  // a slot rebuilt inside an ElSlot init callback (the tooltip row's icon, which changes host when valueAlign flips) left the previous slot registered and its child mounted
   it('releaseRegion destroys a replaced slot and drops it from the cascade', () => {
     const parent = host();
     const disposed: string[] = [];

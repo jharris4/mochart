@@ -4,7 +4,7 @@
     "text": "Gradients"
   },
   "animation": {
-    "animate": true,
+    "enabled": true,
     "expansionDuration": 500,
     "initialDuration": 500,
     "valueChangeDuration": 500,
@@ -14,7 +14,7 @@
   "categoryAxis": {
     "axisLine": {
       "visible": true,
-      "margin": 0
+      "marginInner": 0
     },
     "type": "number",
     "scale": "ordinal",
@@ -24,7 +24,7 @@
   },
   "valueAxes": {
     "axisLine": {
-      "margin": 0
+      "marginInner": 0
     },
     "gridLine": {
       "visible": true

@@ -1,4 +1,4 @@
-import { NONE } from '../core/constants';
+import { NONE, ALIGN_RIGHT } from '../core/constants';
 import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 import { getRegularDefaults as getSeriesIconRegularDefaults } from './seriesIconConfig';
 
@@ -17,18 +17,18 @@ export function getRegularDefaults() {
     filterSeriesOnClick: false,
     focusCategoryOnClick: false,
     focusSeriesOnClick: false,
-    focusCategoryOnMouseOver: false,
-    focusSeriesOnMouseOver: false,
+    focusCategoryOnHover: false,
+    focusSeriesOnHover: false,
     showControls: false,
     filterModeText: 'Filter',
     focusModeText: 'Focus',
     keepInside: false,
     padding: { top: 2, right: 2, bottom: 2, left: 2 },
-    linePadding: 3,
-    rightAlignValues: true,
+    lineSpacing: 3,
+    valueAlign: ALIGN_RIGHT,
     // Html, not svg: a null opacity leaves the color's own alpha alone, a named one is composited into it (utils/style cssStyleColor).
     backgroundStyle: { strokeColor: 'rgba(0,0,0,0.3)', strokeOpacity: NONE, strokeWidth: 2, fillColor: 'rgba(255,255,255,0.9)', fillOpacity: NONE },
-    borderRadius: 4,
+    cornerRadius: 4,
     dropShadow: {
       color: 'rgba(0,0,0,0.3)',
       offsetX: 0,
@@ -37,10 +37,10 @@ export function getRegularDefaults() {
     },
     // The series icons are svg even inside the html tooltip, so they take the legend icon defaults.
     icon: getSeriesIconRegularDefaults(),
-    showFilteringOnLabels: false,
+    strikeThroughFiltered: false,
     adjustForFiltering: true,
     adjustSizeForFiltering: false,
-    hideFiltered: false,
+    showFiltered: true,
     showMissingValues: true,
     filteredValueText: NONE,
     filteredValueCharacter: '-',

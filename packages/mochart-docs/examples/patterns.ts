@@ -12,8 +12,8 @@ export const config: MochartInputConfig = {
     backgroundColor: '#fff'
   },
   patterns: [
-    { id: 'direct', type: 'lines', angle: 45, lineWidth: 2 },
-    { id: 'partner', type: 'crosshatch', angle: 45, lineWidth: 1.5 },
+    { id: 'direct', type: 'lines', rotation: 45, lineWidth: 2 },
+    { id: 'partner', type: 'crosshatch', rotation: 45, lineWidth: 1.5 },
     { id: 'marketplace', type: 'dots', radius: 2 }
   ],
   series: [

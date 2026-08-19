@@ -23,7 +23,7 @@ export default function getValidators() {
       style: axisStyleValidators.styleStates(axisStyleValidators.lineMembers)
     }, true),
 
-    focusOnMouseOver: validators.boolean(),
+    focusOnHover: validators.boolean(),
     focusOnClick: validators.boolean(),
 
     id: validators.string(),

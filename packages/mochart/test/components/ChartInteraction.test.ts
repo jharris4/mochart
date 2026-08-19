@@ -31,7 +31,7 @@ const rows = [
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales' }],
     ...overrides
@@ -164,7 +164,7 @@ describe('value axis hover focus', () => {
     return inner!;
   }
 
-  it('focuses and unfocuses the axis, which focusOnMouseOver enables by default', () => {
+  it('focuses and unfocuses the axis, which focusOnHover enables by default', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig(), { onFocus: focus => { focuses.push(focus); } });
 
@@ -175,10 +175,10 @@ describe('value axis hover focus', () => {
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedValueAxisId: null });
   });
 
-  it('reports no axis focus when focusOnMouseOver is turned off', () => {
+  it('reports no axis focus when focusOnHover is turned off', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(
-      makeConfig({ valueAxes: [{ focusOnMouseOver: false }] }),
+      makeConfig({ valueAxes: [{ focusOnHover: false }] }),
       { onFocus: focus => { focuses.push(focus); } });
 
     mouse(axisInner(container), 'pointerenter', 40, 300);
@@ -548,8 +548,8 @@ describe('tooltip', () => {
     expect(filteredLine).not.toBeNull();
     expect(filteredLine!.textContent).not.toContain('5.00');
 
-    // hideFiltered drops the line completely
-    const hiding = mountChart(makeConfig({ ...twoSeries, tooltip: { hideFiltered: true } }));
+    // showFiltered: false drops the line completely
+    const hiding = mountChart(makeConfig({ ...twoSeries, tooltip: { showFiltered: false } }));
     const hidingRoot = chartRoot(hiding);
     hiding.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', 'S1')))!
       .dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -559,9 +559,9 @@ describe('tooltip', () => {
     expect(hiding.querySelector(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getIdCssClass('tooltipSeriesLine', 'S0')))).not.toBeNull();
   });
 
-  it('renders plain series lines when rightAlignValues is off and prefixes the category label', () => {
+  it('renders plain series lines when valueAlign is left and prefixes the category label', () => {
     const container = mountChart(makeConfig({
-      tooltip: { rightAlignValues: false },
+      tooltip: { valueAlign: 'left' },
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', valueLabel: 'Month' }
     }));
     const root = chartRoot(container);
@@ -630,7 +630,7 @@ describe('tooltip', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig({
       series: [{ property: 'sales' }, { property: 'costs' }],
-      tooltip: { focusSeriesOnMouseOver: true }
+      tooltip: { focusSeriesOnHover: true }
     }), {
       onFocus: focus => { focuses.push(focus); }
     });
@@ -652,7 +652,7 @@ describe('tooltip', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig({
       series: [{ property: 'sales' }, { property: 'costs' }],
-      tooltip: { focusSeriesOnMouseOver: true }
+      tooltip: { focusSeriesOnHover: true }
     }), {
       onFocus: focus => { focuses.push(focus); },
       filteredSeriesIds: { S1: true }
@@ -819,7 +819,7 @@ describe('tooltip', () => {
   it('draws a series crosshair line when a series is focused', () => {
     const container = mountChart(makeConfig({
       series: [{ property: 'sales' }, { property: 'costs' }],
-      tooltip: { focusSeriesOnMouseOver: true },
+      tooltip: { focusSeriesOnHover: true },
       crosshair: { seriesLine: { visible: true } }
     }));
     const root = chartRoot(container);
@@ -883,7 +883,7 @@ describe('tooltip', () => {
   });
 });
 
-describe('showFilteringOnLabels', () => {
+describe('strikeThroughFiltered', () => {
   const twoSeries = {
     legend: { visible: true },
     series: [{ property: 'sales' }, { property: 'costs' }]
@@ -909,7 +909,7 @@ describe('showFilteringOnLabels', () => {
   it('strikes through the legend text of a filtered series when enabled', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      legend: { visible: true, showFilteringOnLabels: true }
+      legend: { visible: true, strikeThroughFiltered: true }
     }));
     expect(legendTextDecorations(container, 'S1')).toEqual([null, null]);
 
@@ -927,7 +927,7 @@ describe('showFilteringOnLabels', () => {
   it('strikes through the tooltip label of a filtered series when enabled', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      tooltip: { showFilteringOnLabels: true }
+      tooltip: { strikeThroughFiltered: true }
     }));
     filter(container, 'S1');
     openTooltip(container);
@@ -953,10 +953,10 @@ describe('showFilteringOnLabels', () => {
     expect(filteredLabel.style.textDecoration).toBe('');
   });
 
-  it('strikes the whole line when rightAlignValues puts the label and value together', () => {
+  it('strikes the whole line when valueAlign left puts the label and value together', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      tooltip: { rightAlignValues: false, showFilteringOnLabels: true }
+      tooltip: { valueAlign: 'left', strikeThroughFiltered: true }
     }));
     filter(container, 'S1');
     openTooltip(container);
@@ -983,7 +983,7 @@ describe('showFilteringOnLabels', () => {
   it('decorates the hidden sizer copy of the tooltip the same way', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      tooltip: { showFilteringOnLabels: true }
+      tooltip: { strikeThroughFiltered: true }
     }));
     filter(container, 'S1');
     openTooltip(container);
@@ -1314,7 +1314,7 @@ describe('tooltip last-line style', () => {
     const rows = container.querySelectorAll(getDescendantCssSelector('tooltip', 'tooltipSeriesLine')) as NodeListOf<HTMLElement>;
     expect(rows.length).toBe(1);
     // the last rendered row keeps only the uniform item padding (2px), not
-    // the 3px linePadding that separates non-final rows
+    // the 3px lineSpacing that separates non-final rows
     expect(rows[0].style.paddingBottom).toBe('2px');
   });
 
@@ -1394,7 +1394,7 @@ describe('touch and pointer focus never count as hover', () => {
   it('ignores touch on series shapes and the value axis', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig({
-      series: [{ property: 'sales', renderer: 'bar', focusOnMouseOver: true, focusCategoryOnMouseOver: true }]
+      series: [{ property: 'sales', renderer: 'bar', focusOnHover: true, focusCategoryOnHover: true }]
     }), { onFocus: focus => { focuses.push(focus); } });
 
     touch(container.querySelector(getIdCssSelector('seriesBar', 1))!, 'pointerenter');
@@ -1433,7 +1433,7 @@ describe('touch and pointer focus never count as hover', () => {
   it('keeps a pinned series focus across a tap on bars, the series group and the value axis', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig({
-      series: [{ property: 'sales', renderer: 'bar', focusOnMouseOver: true, focusCategoryOnMouseOver: true, focusOnClick: true }],
+      series: [{ property: 'sales', renderer: 'bar', focusOnHover: true, focusCategoryOnHover: true, focusOnClick: true }],
       valueAxes: [{ focusOnClick: true }]
     }), { onFocus: focus => { focuses.push(focus); } });
     const bar = container.querySelector(getIdCssSelector('seriesBar', 1))!;
@@ -1479,7 +1479,7 @@ describe('touch and pointer focus never count as hover', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig({
       chart: { type: 'pie' },
-      series: [{ property: 'sales', focusOnMouseOver: true, focusOnClick: true }, { property: 'costs' }]
+      series: [{ property: 'sales', focusOnHover: true, focusOnClick: true }, { property: 'costs' }]
     }), { onFocus: focus => { focuses.push(focus); } });
     const slice = container.querySelector(getIdCssSelector('series', 'S0') + ' ' + getCssSelector('seriesSlice'))!;
 
@@ -1494,7 +1494,7 @@ describe('touch and pointer focus never count as hover', () => {
 
   it('keeps the pinned category focus across a tap on the tooltip category row', () => {
     const focuses: ChartFocus[] = [];
-    const container = mountChart(makeConfig({ ...twoSeries, tooltip: { focusCategoryOnMouseOver: true } }), {
+    const container = mountChart(makeConfig({ ...twoSeries, tooltip: { focusCategoryOnHover: true } }), {
       onFocus: focus => { focuses.push(focus); }
     });
     const root = chartRoot(container);

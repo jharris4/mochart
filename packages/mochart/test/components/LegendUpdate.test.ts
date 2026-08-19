@@ -22,7 +22,7 @@ const rows = [
 function makeConfig(costsShowInLegend: boolean): MochartInputConfig {
   return {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales' }, { property: 'costs', showInLegend: costsShowInLegend }]
   } as unknown as MochartInputConfig;

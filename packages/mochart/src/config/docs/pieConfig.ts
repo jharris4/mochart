@@ -28,8 +28,13 @@ export default function getDescriptions() {
         percentFormat: 'the d3 format specifier used to format the percent part of the tooltip values (use auto to derive a format)'
       }
     },
-    centerLabel: 'a text label shown at the center of the pie (use null for none; most useful for donut and gauge charts)',
-    centerLabelTextStyle: style('the styles to apply to the center label text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)'),
+    centerLabel: {
+      description: 'the text label shown at the center of the pie (most useful for donut and gauge charts)',
+      properties: {
+        text: 'the text to show at the center of the pie (use null for none)',
+        textStyle: style('the styles to apply to the center label text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)')
+      }
+    },
     centerTotal: {
       description: 'the total of the slice values shown at the center of the pie',
       properties: {

@@ -86,7 +86,7 @@ arrow keys and <kbd>Home</kbd>/<kbd>End</kbd> move between items, and
 <kbd>Enter</kbd>/<kbd>Space</kbd> acts exactly like a click — filtering or
 focusing the series. A keyboard-focused item highlights its series the same
 way hovering it does (with
-[`legend.focusOnMouseOver`](/reference/legend#legend.focusOnMouseOver), on by
+[`legend.focusOnHover`](/reference/legend#legend.focusOnHover), on by
 default).
 
 Pie and donut slices work the same way when they are interactive (the series
@@ -255,7 +255,7 @@ A target takes the floor only while clicking it does something — the legend's
 [`focusOnClick`](/reference/legend#legend.focusOnClick), the tooltip's
 [`showControls`](/reference/tooltip#tooltip.showControls) and its click config
 — so a legend nothing responds to stays compact. Change the floor with
-[`accessibility.targetMinSize`](/reference/accessibility#accessibility.targetMinSize):
+[`accessibility.minTargetSize`](/reference/accessibility#accessibility.minTargetSize):
 raise it (`44` is the common touch recommendation) or set `0` to lay every
 target out at its content size. It is deliberately not gated by `enabled` or
 `hidden`, because clicking and tapping work whatever those are set to.

@@ -80,14 +80,14 @@ describe('getColor palette + keyword resolution', () => {
   });
 
   it('resolves "seriesIndex" to the palette color at that index (wrapping)', () => {
-    const palette = colorPaletteConfig.series.normal.fillColors;
+    const palette = colorPaletteConfig.shape.normal.fillColors;
     expect(getSeriesFillColor(colorPaletteConfig, series({ shapeStyle: { normal: { fillColor: 'seriesIndex' } } }), 1)).toBe(palette[1]);
     // wraps past the end
     expect(getSeriesFillColor(colorPaletteConfig, series({ shapeStyle: { normal: { fillColor: 'seriesIndex' } } }), palette.length + 2)).toBe(palette[2]);
   });
 
   it('resolves "categoryIndex" to the palette color for the category index', () => {
-    const palette = colorPaletteConfig.series.normal.fillColors;
+    const palette = colorPaletteConfig.shape.normal.fillColors;
     expect(getSeriesFillColor(colorPaletteConfig, series({ shapeStyle: { normal: { fillColor: 'categoryIndex' } } }), 0, null, '#fallback', 3)).toBe(palette[3]);
   });
 

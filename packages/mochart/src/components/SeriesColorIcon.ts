@@ -88,17 +88,17 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     const showSeriesColor = showIconColors && seriesConfig[seriesShowColorProperty];
 
     if (showSeriesColor || showIconPlaceholders) {
-      const { size: iconSize, spacerSize: iconSpacerSize } = seriesContextConfig.icon;
+      const { size: iconSize, spacing: iconSpacing } = seriesContextConfig.icon;
       const geometrySize = getIconGeometrySize(seriesContextConfig);
       const displaySize = iconSize === AUTO ? '1em' : iconSize;
       const colorStyle = {
         display: 'inline-block',
-        width: iconSize === AUTO ? `calc(1em + ${iconSpacerSize}px)` : iconSize + iconSpacerSize,
+        width: iconSize === AUTO ? `calc(1em + ${iconSpacing}px)` : iconSize + iconSpacing,
         verticalAlign: 'middle'
       };
       const spacerStyle = {
         display: 'inline-block',
-        width: iconSpacerSize,
+        width: iconSpacing,
         height: displaySize
       };
 
@@ -159,7 +159,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
 
     const seriesGradientColors = getSeriesGradientColors(seriesConfig);
     if (pattern !== NONE) {
-      const fillPalette = this.props.colorPaletteConfig.series.normal.fillColors;
+      const fillPalette = this.props.colorPaletteConfig.shape.normal.fillColors;
       const fallbackColor = fillPalette[this.props.seriesIndex % fillPalette.length] ?? null;
       this.ensureDefsFillSlot().set(Pattern, {
         uniqueId: fillDefinitionId,
@@ -196,7 +196,8 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
       return;
     }
 
-    const { borderSize: iconBorderSize, borderColor: iconBorderColor, borderOpacity: iconBorderOpacity, filteredColor: iconFilteredColor, unfilteredColor: iconUnfilteredColor, showShapes: showIconShapes } = seriesContextConfig.icon;
+    const { borderStyle: iconBorderStyle, filteredColor: iconFilteredColor, unfilteredColor: iconUnfilteredColor, showShapes: showIconShapes } = seriesContextConfig.icon;
+    const { strokeColor: iconBorderColor, strokeOpacity: iconBorderOpacity, strokeWidth: iconBorderSize } = iconBorderStyle;
     const iconSize = getIconGeometrySize(seriesContextConfig, this.props.resolvedIconSize);
     const { gradient, pattern } = seriesConfig;
     const markerShape = seriesConfig.marker.shape;
@@ -204,7 +205,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     const { opacity, focusedOpacity, defocusedOpacity } = getSeriesOpacities(seriesConfig);
     const hasFillDefinition = pattern !== NONE || gradient !== NONE || getSeriesGradientColors(seriesConfig);
     const halfBorderSize = iconBorderSize / 2.0;
-    // iconSize and iconBorderSize validate independently, so a border wider than the icon would
+    // icon.size and icon.borderStyle.strokeWidth validate independently, so a border wider than the icon would
     // otherwise put a negative width on the rect and the browser would drop the element
     const shapeSize = Math.max(iconSize - iconBorderSize, 0);
     const fillDefinitionReference = pattern !== NONE

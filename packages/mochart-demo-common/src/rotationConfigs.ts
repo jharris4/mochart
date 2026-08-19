@@ -35,11 +35,11 @@ const baseConfig = {
     "title": {
       "text": "Category Axis Title",
       "truncationEnabled": true,
-      "truncationValue": "..."
+      "truncationText": "..."
     },
     "tickLabel": {
       "truncationEnabled": true,
-      "truncationValue": "...",
+      "truncationText": "...",
       "truncationMaxFraction": 0.20,
       "anchor": "auto",
       "rotation": 0

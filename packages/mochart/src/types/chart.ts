@@ -121,7 +121,7 @@ export interface ChartCallbacks {
   onTitleClick?: () => void;
   /**
    * The focused series/category/value axis — via pointer over/click on the
-   * plot or the legend, per the `focusOnMouseOver`/`focusOnClick` config.
+   * plot or the legend, per the `focusOnHover`/`focusOnClick` config.
    */
   onFocus?: (focus: ChartFocus) => void;
   /**

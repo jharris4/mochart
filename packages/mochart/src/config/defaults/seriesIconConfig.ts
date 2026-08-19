@@ -7,11 +7,9 @@ export function getRegularDefaults() {
     showShapes: true,
     showPlaceholders: true,
     size: AUTO,
-    spacerSize: 4,
-    borderSize: 1,
-    // The other two stay literal: they carry their own alpha, which 'currentColor' cannot.
-    borderColor: COLOR_CURRENT,
-    borderOpacity: 0.65,
+    spacing: 4,
+    // The two filter colors stay literal: they carry their own alpha, which 'currentColor' cannot.
+    borderStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1 },
     filteredColor: 'rgba(255,255,255,0)',
     unfilteredColor: 'rgba(0,0,0,0.5)'
   };

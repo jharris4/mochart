@@ -20,7 +20,7 @@ const rows = [
 function makeConfig(legend: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     legend: { visible: true, ...legend },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [

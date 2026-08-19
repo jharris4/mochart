@@ -139,8 +139,8 @@ export default class Plot extends Renderer<PlotProps> {
 
     // one slot each side of the series container; only the chosen one is populated
     const clipIndicatorProps = { mochartConfig, seriesLayoutInfo, clippedEdges, clipIndicatorPatternUniqueId };
-    this.clipIndicatorFront.set(mochartConfig.clipIndicator.showInFront ? ClipIndicator : null, clipIndicatorProps);
-    this.clipIndicatorBack.set(mochartConfig.clipIndicator.showInFront ? null : ClipIndicator, clipIndicatorProps);
+    this.clipIndicatorFront.set(mochartConfig.clipIndicator.front ? ClipIndicator : null, clipIndicatorProps);
+    this.clipIndicatorBack.set(mochartConfig.clipIndicator.front ? null : ClipIndicator, clipIndicatorProps);
 
     this.crosshair.set(Crosshair, { mochartConfig, seriesLayoutInfo,
       categoryPercentages: categoryFocusDomainPercentages, seriesPercentages: seriesFocusDomainPercentages,

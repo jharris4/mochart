@@ -25,7 +25,7 @@ function mountChart() {
   const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
   const mochartConfig = enhanceConfig({
     version: '1.0.0',
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [
       { id: 'sales', property: 'sales', renderer: 'line' },
@@ -79,7 +79,7 @@ describe('controlled filteredSeriesIds', () => {
     const chart = createChart(container, {
       mochartConfig: enhanceConfig({
         version: '1.0.0',
-        animation: { animate },
+        animation: { enabled: animate },
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         series: [
           { id: 'sales', property: 'sales', renderer: 'line' },
@@ -118,7 +118,7 @@ describe('controlled filteredSeriesIds', () => {
     chart = createChart(container, {
       mochartConfig: enhanceConfig({
         version: '1.0.0',
-        animation: { animate },
+        animation: { enabled: animate },
         legend: { visible: true },
         categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
         series: [
@@ -163,7 +163,7 @@ describe('synchronous host re-entrancy', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const makeConfig = (categoryProperty: string) => enhanceConfig({
       version: '1.0.0',
-      animation: { animate: false },
+      animation: { enabled: false },
       categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
       series: [
         { id: 'sales', property: 'sales', renderer: 'line' },
@@ -215,7 +215,7 @@ describe('synchronous host re-entrancy', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const makeConfig = (categoryProperty: string) => enhanceConfig({
       version: '1.0.0',
-      animation: { animate: false },
+      animation: { enabled: false },
       categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
       series: [
         { id: 'sales', property: 'sales', renderer: 'line' },
@@ -262,7 +262,7 @@ describe('synchronous host re-entrancy', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const makeConfig = (categoryProperty: string) => enhanceConfig({
       version: '1.0.0',
-      animation: { animate: false },
+      animation: { enabled: false },
       categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
       series: [
         { id: 'sales', property: 'sales', renderer: 'line' },
@@ -373,7 +373,7 @@ describe('controlled focus props', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const mochartConfig = enhanceConfig({
       version: '1.0.0',
-      animation: { animate: false },
+      animation: { enabled: false },
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
       series: [{ id: 'sales', property: 'sales', renderer: 'line' }]
     });
@@ -418,7 +418,7 @@ describe('controlled focus props', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const mochartConfig = enhanceConfig({
       version: '1.0.0',
-      animation: { animate: false },
+      animation: { enabled: false },
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
       series: [{ id: 'sales', property: 'sales', renderer: 'line' }]
     });
@@ -457,7 +457,7 @@ describe('controlled focus props', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const makeConfig = (categoryProperty: string) => enhanceConfig({
       version: '1.0.0',
-      animation: { animate: false },
+      animation: { enabled: false },
       categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
       series: [
         { id: 'sales', property: 'sales', renderer: 'line' },
@@ -509,7 +509,7 @@ describe('focusedCategoryIndex on mount with animation', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const mochartConfig = enhanceConfig({
       version: '1.0.0',
-      animation: { animate: true, focusDuration: 800 },
+      animation: { enabled: true, focusDuration: 800 },
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
       series: [{ id: 'sales', property: 'sales', renderer: 'bar' }]
     });

@@ -47,7 +47,7 @@ describe('public config type surface', () => {
   it('discriminates built-in pattern properties by type', () => {
     const config: MochartInputConfig = {
       patterns: [
-        { type: 'lines', angle: 30, lineWidth: 2 },
+        { type: 'lines', rotation: 30, lineWidth: 2 },
         { type: 'dots', radius: 2 }
       ]
     };

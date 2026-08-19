@@ -162,9 +162,9 @@ describe('color palette defaults', () => {
     const first = getDefaults(config) as { colorPalette: Record<string, Record<string, { strokeColors: string[]; fillColors: string[] }>> };
     const lists = Object.values(first.colorPalette).flatMap(palettes => Object.values(palettes).flatMap(palette => [palette.strokeColors, palette.fillColors]));
     expect(new Set(lists).size).toBe(lists.length);
-    first.colorPalette.series.normal.strokeColors.push('#000000');
+    first.colorPalette.shape.normal.strokeColors.push('#000000');
     const second = getDefaults(config) as typeof first;
-    expect(second.colorPalette.series.normal.strokeColors).toHaveLength(7);
+    expect(second.colorPalette.shape.normal.strokeColors).toHaveLength(7);
   });
 });
 

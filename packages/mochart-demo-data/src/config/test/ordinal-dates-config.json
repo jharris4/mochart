@@ -4,7 +4,7 @@
     "text": "Ordinal Dates"
   },
   "animation": {
-    "animate": true,
+    "enabled": true,
     "expansionDuration": 300,
     "initialDuration": 300,
     "valueChangeDuration": 300,
@@ -16,7 +16,7 @@
     "type": "date",
     "axisLine": {
       "visible": true,
-      "margin": 0
+      "marginInner": 0
     },
     "gridLine": {
       "visible": true
@@ -35,7 +35,7 @@
       "id": "VA0",
       "visible": true,
       "axisLine": {
-        "margin": 0
+        "marginInner": 0
       },
       "gridLine": {
         "visible": true

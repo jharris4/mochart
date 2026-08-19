@@ -79,7 +79,7 @@ export default class Tooltip extends Renderer<TooltipProps> {
         // a null width must not leave the solid border at css 'medium'; the layout counts it as 0 too
         borderWidth: backgroundStyle.strokeWidth ?? 0,
         borderColor: cssStyleColor(backgroundStyle.strokeColor, backgroundStyle.strokeOpacity),
-        borderRadius: tooltipConfig.borderRadius,
+        borderRadius: tooltipConfig.cornerRadius,
         boxShadow: boxShadowStyle,
         visibility: tooltipBounds !== null ? 'visible' : 'hidden'
       };

@@ -62,7 +62,7 @@ export default class ValueAxis extends Renderer<ValueAxisProps, ValueAxisState> 
     let onValueAxisLeave = noOp;
     let onValueAxisClick = noOp;
 
-    if (valueAxisConfig.focusOnMouseOver) {
+    if (valueAxisConfig.focusOnHover) {
       onValueAxisEnter = (event: Event) => { if (isHoverPointer(event)) { this.hoverActive = true; onFocus({ valueAxisId }); } };
       onValueAxisLeave = () => { if (this.hoverActive) { this.hoverActive = false; onFocus({ valueAxisId: null }); } };
     }

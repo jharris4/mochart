@@ -45,7 +45,7 @@ const renamedRows = [
 function makeConfig(): MochartInputConfig {
   return {
     version: VERSION,
-    animation: { animate: true },
+    animation: { enabled: true },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{ property: 'sales' }]
   } as unknown as MochartInputConfig;

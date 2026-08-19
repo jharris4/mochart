@@ -12,7 +12,7 @@ export const config: MochartInputConfig = {
   ],
   legend: {
     filterOnClick: true,
-    focusOnMouseOver: true
+    focusOnHover: true
   }
 };
 

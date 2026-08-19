@@ -34,7 +34,7 @@ function mountChart(categoryOverrides: Record<string, unknown>, valueOverrides: 
   const container = mountContainer();
   const config = {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     // every optional piece of chrome switched on, so each layer test has something to move
     categoryAxis: withOverrides({ property: 'month', type: 'string', scale: 'ordinal', title: { text: 'Month' },
       focusRange: { visible: true }, gridLine: { visible: true } }, categoryOverrides),

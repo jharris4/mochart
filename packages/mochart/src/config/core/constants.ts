@@ -21,6 +21,11 @@ export const ALIGNS = [
   ALIGN_LEFT, ALIGN_CENTER, ALIGN_RIGHT
 ];
 
+// the tooltip values are aligned to one edge of the tooltip; there is no centered layout
+export const TOOLTIP_VALUE_ALIGNS = [
+  ALIGN_LEFT, ALIGN_RIGHT
+];
+
 export const VERTICAL_ALIGN_TOP = 'top';
 export const VERTICAL_ALIGN_MIDDLE = 'middle';
 export const VERTICAL_ALIGN_BOTTOM = 'bottom';
@@ -201,6 +206,7 @@ export const MARKER_SIZE_SCALES = [MARKER_SIZE_SCALE_SQRT, MARKER_SIZE_SCALE_LIN
 export type Auto = typeof AUTO;
 
 export type Align = typeof ALIGN_LEFT | typeof ALIGN_CENTER | typeof ALIGN_RIGHT;
+export type TooltipValueAlign = typeof ALIGN_LEFT | typeof ALIGN_RIGHT;
 export type VerticalAlign = typeof VERTICAL_ALIGN_TOP | typeof VERTICAL_ALIGN_MIDDLE | typeof VERTICAL_ALIGN_BOTTOM;
 export type Anchor = typeof ANCHOR_START | typeof ANCHOR_END | typeof ANCHOR_MIDDLE;
 export type Position = typeof POSITION_TOP | typeof POSITION_BOTTOM;

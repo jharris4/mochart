@@ -21,7 +21,7 @@ function mountVolumeCandlestick(): Element {
   const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs, valueAxes: valueAxisConfigs } = createCandlestick(ITEMS, { volume: true });
   const config = {
     version: VERSION,
-    animation: { animate: false },
+    animation: { enabled: false },
     categoryAxis: categoryAxisConfig,
     valueAxes: valueAxisConfigs,
     series: seriesConfigs

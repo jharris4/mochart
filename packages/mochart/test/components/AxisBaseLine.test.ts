@@ -24,7 +24,7 @@ function mount(overrides: Record<string, unknown>, props: Partial<DefaultChartPr
   trackHandle(createDefaultChart(container, {
     config: {
       version: '1.0.0',
-      animation: { animate: false },
+      animation: { enabled: false },
       categoryAxis: { property: 'c', type: 'string', scale: 'ordinal' },
       valueAxes: [axis],
       series: [{ id: 'v', property: 'v', renderer: 'bar' }],

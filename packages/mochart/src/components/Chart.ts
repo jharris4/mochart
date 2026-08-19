@@ -1303,7 +1303,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }));
 
     const patterns: RendererItem[] = [];
-    const fillPalette = mochartConfig.colorPalette.series.normal.fillColors;
+    const fillPalette = mochartConfig.colorPalette.shape.normal.fillColors;
     mochartConfig.series.forEach((seriesConfig: EnhancedSeriesConfig, seriesIndex: number) => {
       if (seriesConfig.patternConfig !== undefined) {
         const fallbackColor = fillPalette[seriesIndex % fillPalette.length] ?? null;
