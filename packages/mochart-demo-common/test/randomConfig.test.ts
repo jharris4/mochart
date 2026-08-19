@@ -98,9 +98,7 @@ describe('validateRandomConfig', () => {
         series: { ...genericConfig.series, reuse: { global: false, step: 'always' } } })).toBe(false);
     });
 
-    // Regression: the checks compared the interval count with the required
-    // number of values, but the generator draws both ends of the range, so a
-    // range with exactly enough values was rejected.
+    // Regression: the checks compared the interval count, not the values it lands on, one of which is the min.
     it('accepts a range with exactly enough values, and rejects one value short', () => {
       const single = { count: 1, reuse: { globalFraction: 0, stepFraction: 0 } };
       expect(validateRandomConfig(withCategory({ ...single, number: { min: 5, max: 5, interval: 1 } }))).toBe(true);

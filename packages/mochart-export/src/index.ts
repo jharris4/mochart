@@ -189,9 +189,7 @@ function getEffectiveBackgroundColor(element: Element): string {
     const color = getComputedStyle(current).backgroundColor;
     if (!isTransparentColor(color)) {
       const layer = parseColorLayer(color);
-      // an opaque backdrop ends the walk, and so does a form we cannot composite (a wide-gamut
-      // color(), say): it stands as the background when nothing translucent covers it, and white
-      // is the best a composite can do when something does
+      // an opaque backdrop ends the walk, and so does one we cannot composite; white backs it when it is covered
       if (layer === null || layer.a >= 1) {
         return layers.length === 0 ? color : flattenColorLayers(layers, layer ?? WHITE_LAYER);
       }

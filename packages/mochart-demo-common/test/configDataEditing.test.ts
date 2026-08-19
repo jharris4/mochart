@@ -227,9 +227,7 @@ describe('applyDataEdit error copy', () => {
     }
   });
 
-  // Regression: the row predicate only asked for a non-null object, and arrays
-  // are objects, so array rows skipped this shape error and failed later as
-  // chart content, pointing the reader at the console for the wrong reason.
+  // Regression: arrays are objects, so array rows skipped this shape error and failed later as chart content.
   it('reports the shape error for array rows, whole or mixed in', () => {
     for (const text of ['[[]]', '[[1, 2]]', '[{"month": "Jan", "sales": 1}, []]', '[null]', '[1]']) {
       const result = applyDataEdit(text, [], null, config);
