@@ -139,30 +139,67 @@ export function getChartSvgText(element: Element, options: ExportSvgOptions = {}
   return svgElement ? getSvgText(svgElement, options) : null;
 }
 
+interface ColorLayer {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+}
+
+const WHITE_LAYER: ColorLayer = { r: 255, g: 255, b: 255, a: 1 };
+
+/** The rgb/rgba forms getComputedStyle returns a color in; null for anything else. */
+function parseColorLayer(color: string): ColorLayer | null {
+  const match = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+)\s*)?\)$/.exec(color);
+  return match === null ? null : {
+    r: Number(match[1]), g: Number(match[2]), b: Number(match[3]), a: match[4] === undefined ? 1 : Number(match[4])
+  };
+}
+
 function isTransparentColor(color: string): boolean {
   if (!color || color === 'transparent') {
     return true;
   }
-  const match = /^rgba\((?:[^,]+,){3}\s*([0-9.]+)\s*\)$/.exec(color);
-  return match !== null && parseFloat(match[1]) === 0;
+  const layer = parseColorLayer(color);
+  return layer !== null && layer.a === 0;
+}
+
+/** Translucent layers, nearest the chart first, painted source-over onto an opaque backdrop. */
+function flattenColorLayers(layers: ColorLayer[], backdrop: ColorLayer): string {
+  let result = backdrop;
+  for (let index = layers.length - 1; index >= 0; index--) {
+    const layer = layers[index];
+    const blend = (from: number, to: number) => layer.a * from + (1 - layer.a) * to;
+    result = { r: blend(layer.r, result.r), g: blend(layer.g, result.g), b: blend(layer.b, result.b), a: 1 };
+  }
+  return `rgb(${Math.round(result.r)}, ${Math.round(result.g)}, ${Math.round(result.b)})`;
 }
 
 /**
- * The effective page background behind the chart: the nearest ancestor with a
- * non-transparent computed background. The export inlines the page's computed
- * (theme-resolved) chart colors, so this default keeps exports WYSIWYG — a
- * chart on a dark page exports onto its dark background, not onto white.
+ * The effective page background behind the chart: the nearest opaque ancestor
+ * background with any translucent ones in front of it composited onto it, since
+ * an exported file has nothing behind it to blend with. The export inlines the
+ * page's computed (theme-resolved) chart colors, so this default keeps exports
+ * WYSIWYG — a chart on a dark page exports onto its dark background, not white.
  */
 function getEffectiveBackgroundColor(element: Element): string {
+  const layers: ColorLayer[] = [];
   let current: Element | null = element;
   while (current) {
     const color = getComputedStyle(current).backgroundColor;
     if (!isTransparentColor(color)) {
-      return color;
+      const layer = parseColorLayer(color);
+      // an opaque backdrop ends the walk, and so does a form we cannot composite (a wide-gamut
+      // color(), say): it stands as the background when nothing translucent covers it, and white
+      // is the best a composite can do when something does
+      if (layer === null || layer.a >= 1) {
+        return layers.length === 0 ? color : flattenColorLayers(layers, layer ?? WHITE_LAYER);
+      }
+      layers.push(layer);
     }
     current = current.parentElement;
   }
-  return '#ffffff';
+  return layers.length === 0 ? '#ffffff' : flattenColorLayers(layers, WHITE_LAYER);
 }
 
 /**

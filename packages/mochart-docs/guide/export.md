@@ -73,9 +73,10 @@ following the host page via `currentColor`
 (see [Colors, theming, and dark mode](/guide/theming)), and the export inlines
 those resolved colors. The default background matches: with no
 `backgroundColor` given, the export paints the effective page background
-behind the chart (the nearest ancestor with a non-transparent background,
-white when there is none), so a chart on a dark page exports dark-on-dark
-instead of light-on-white. Pass an explicit `backgroundColor` to override, or
+behind the chart (the nearest opaque ancestor background, with any
+translucent ones in front of it composited onto it, and white when there is
+none), so a chart on a dark page exports dark-on-dark instead of
+light-on-white. Pass an explicit `backgroundColor` to override, or
 export `transparent` and let the destination supply the background.
 
 ### Web fonts

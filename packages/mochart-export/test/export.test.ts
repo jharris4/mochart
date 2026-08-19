@@ -158,6 +158,37 @@ describe('getChartSvgText', () => {
     }
   });
 
+  it('composites a translucent background onto the opaque one behind it', () => {
+    document.body.style.backgroundColor = 'rgb(0, 0, 0)';
+    container.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
+    try {
+      const svgText = getChartSvgText(container)!;
+      expect(svgText).toMatch(/fill: rgb\(128, 0, 0\)/);
+    }
+    finally {
+      document.body.style.backgroundColor = '';
+    }
+  });
+
+  it('composites every translucent layer, over white when no ancestor is opaque', () => {
+    container.style.backgroundColor = 'rgba(0, 0, 0, 0.04)';
+    expect(getChartSvgText(container)!).toMatch(/fill: rgb\(245, 245, 245\)/);
+
+    document.body.style.backgroundColor = 'rgba(0, 0, 255, 0.5)';
+    try {
+      container.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
+      expect(getChartSvgText(container)!).toMatch(/fill: rgb\(191, 64, 128\)/);
+    }
+    finally {
+      document.body.style.backgroundColor = '';
+    }
+  });
+
+  it('leaves an explicit translucent background alone, since the caller asked for it', () => {
+    const svgText = getChartSvgText(container, { backgroundColor: 'rgba(255, 0, 0, 0.5)' })!;
+    expect(svgText).toMatch(/fill: rgba\(255, 0, 0, 0\.5\)/);
+  });
+
   it('lets an explicit background win over the page background', () => {
     container.style.backgroundColor = 'rgb(32, 33, 39)';
     const svgText = getChartSvgText(container, { backgroundColor: '#ffffff' })!;
