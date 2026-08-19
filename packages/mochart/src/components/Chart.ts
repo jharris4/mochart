@@ -411,6 +411,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   }
 
   processChartEvent(event: ChartPointerEvent, mouseInCallback: ChartPointCallback, mouseOutCallback?: ChartPointCallback): void {
+    // no plot rect to map onto: a child handler (a legend click) destroyed the chart before the event bubbled here
+    if (this.chartRectRef === null) {
+      return;
+    }
     const { x, y, withinPlot } = this.toPlotLocalPoint(event.clientX, event.clientY);
     if (withinPlot) {
       mouseInCallback(x, y);

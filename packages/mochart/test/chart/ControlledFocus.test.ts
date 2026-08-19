@@ -310,6 +310,29 @@ describe('synchronous host re-entrancy', () => {
     expect(onSeriesFilter).toHaveBeenCalledTimes(1);
     expect(onFocus).not.toHaveBeenCalled();
   });
+
+  // Regression: the same click kept bubbling to the chart root's own click handler, which mapped the
+  // point through the plot rect ref the destroy had already cleared, and threw
+  it('ignores a pointer event that reaches the root after a child handler destroyed the chart', () => {
+    const { chart, container } = mountChart();
+    const onSeriesFilter = vi.fn(() => chart.destroy());
+    chart.update({ onSeriesFilter });
+    runFrames();
+    const item = container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', 'costs')))!;
+    // jsdom reports a listener exception through window's error event rather than from dispatchEvent
+    const errors: string[] = [];
+    const onError = (event: ErrorEvent) => { errors.push(event.message); event.preventDefault(); };
+    window.addEventListener('error', onError);
+    try {
+      item.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 10, clientY: 10 }));
+      runFrames();
+    }
+    finally {
+      window.removeEventListener('error', onError);
+    }
+    expect(errors).toEqual([]);
+    expect(onSeriesFilter).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('controlled focus props', () => {
