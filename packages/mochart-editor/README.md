@@ -63,7 +63,11 @@ because `JSON.parse` would keep only the last value; `format()` refuses such
 text rather than dropping the earlier copy. The `@mochart/editor/json` entry
 exposes the same rule without the editor: `parseJson(text)` throws a
 `JsonDuplicateKeyError` (a `SyntaxError` naming every repeat) where
-`JSON.parse` would succeed, and `findDuplicateJsonKeys(text)` lists them.
+`JSON.parse` would succeed, and `findDuplicateJsonKeys(text)` lists them as
+`DuplicateJsonKey` records (`key`, `path`, and the `from`/`to` offsets of the
+later name token); `duplicateJsonKeyMessage(duplicate)` renders one as the
+editor's message, and `formatJsonPath(path)` renders any `JsonPath` as
+`series[0].property`.
 
 Pass `theme: 'dark'` for the bundled dark syntax treatment, then use
 `setTheme('light' | 'dark')` to change it without replacing the document or

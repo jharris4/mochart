@@ -109,8 +109,12 @@ available without loading the editor from the `@mochart/editor/json`
 entry — `parseJson(text)` is `JSON.parse` that throws a
 `JsonDuplicateKeyError` (a `SyntaxError` naming every repeat) instead of
 keeping the last one, and `findDuplicateJsonKeys(text)` lists the repeats
-with their offsets. The demos gate their Apply buttons on it so the editor's
-underline and the footer error agree.
+as `DuplicateJsonKey` records (the `key`, the `path` of the object repeating
+it, and the `from`/`to` offsets of the later name token).
+`duplicateJsonKeyMessage(duplicate)` renders one record as the message the
+editor shows, and `formatJsonPath(path)` renders any `JsonPath` in that
+`series[0].property` style. The demos gate their Apply buttons on it so the
+editor's underline and the footer error agree.
 
 ## Theming
 
