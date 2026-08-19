@@ -6,7 +6,7 @@ import type { DataProvider } from '@mochart/core';
 import { Chart } from '@mochart/vue';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, controlsMenuPlacement, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, getSeriesValuesText, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, controlsMenuPlacement, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, getSeriesValuesText, demoText, parseJson } from '@mochart/demo-common';
 import type { PieSliceInfo, ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -537,7 +537,7 @@ function applySeriesChanges() {
   const { series: seriesConfigs } = mochartConfig;
   if (seriesConfigs.length > 0) {
     try {
-      const dataObject = JSON.parse(seriesValuesText.value);
+      const dataObject = parseJson(seriesValuesText.value) as Record<string, unknown>;
       const seriesConfig = seriesConfigs[seriesIndex.value];
       const { property, rangeProperty, markerProperty, labelProperty, colorProperty, tooltipProperty, errorLowProperty, errorHighProperty } = seriesConfig;
       filteredDataObject[property!] = dataObject['p'];

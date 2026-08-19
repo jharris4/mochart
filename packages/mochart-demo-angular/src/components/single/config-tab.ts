@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getJsonError, getJsonErrorMessage, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, parseJson, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -171,7 +171,7 @@ export class ConfigTab implements OnInit, OnChanges {
 
   private updateShowDefaults(nextShowDefaults: boolean): void {
     try {
-      const newConfig = JSON.parse(this.configText());
+      const newConfig = parseJson(this.configText()) as DemoConfig;
       const newMochartDemoConfig = buildMochartDemoConfig(newConfig);
       const { configValidation } = newMochartDemoConfig;
       const { valid } = configValidation;
@@ -191,9 +191,9 @@ export class ConfigTab implements OnInit, OnChanges {
         this.errorMessage.set(demoText.errors.invalidChartConfig);
       }
     }
-    catch {
+    catch (error) {
       console.warn('Invalid Chart Config JSON: ' + this.configText());
-      this.errorMessage.set(demoText.errors.invalidJson);
+      this.errorMessage.set(getJsonErrorMessage(error));
     }
   }
 
@@ -255,13 +255,7 @@ export class ConfigTab implements OnInit, OnChanges {
   // Live JSON validity — disables Apply and shows an inline hint while the
   // editor holds unparseable text.
   get jsonError(): string | null {
-    try {
-      JSON.parse(this.configText());
-      return null;
-    }
-    catch {
-      return demoText.errors.invalidJson;
-    }
+    return getJsonError(this.configText());
   }
 
   get footerError(): string | null {

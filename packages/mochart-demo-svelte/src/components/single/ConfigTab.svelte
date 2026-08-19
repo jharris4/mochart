@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+  import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getJsonError, getJsonErrorMessage, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, parseJson, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
   import JsonEditorContent from '../misc/JsonEditorContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -62,7 +62,7 @@
 
   function updateShowDefaults(nextShowDefaults: boolean) {
     try {
-      const newConfig = JSON.parse(configText);
+      const newConfig = parseJson(configText) as DemoConfig;
       const newMochartDemoConfig = buildMochartDemoConfig(newConfig);
       const { configValidation } = newMochartDemoConfig;
       const { valid } = configValidation;
@@ -82,9 +82,9 @@
         errorMessage = demoText.errors.invalidChartConfig;
       }
     }
-    catch {
+    catch (error) {
       console.warn('Invalid Chart Config JSON: ' + configText);
-      errorMessage = demoText.errors.invalidJson;
+      errorMessage = getJsonErrorMessage(error);
     }
   }
 
@@ -124,15 +124,7 @@
 
   // Live JSON validity — disables Apply and shows an inline hint while the
   // editor holds unparseable text.
-  const jsonError = $derived.by(() => {
-    try {
-      JSON.parse(configText);
-      return null;
-    }
-    catch {
-      return demoText.errors.invalidJson;
-    }
-  });
+  const jsonError = $derived(getJsonError(configText));
   const footerError = $derived(jsonError ?? errorMessage);
 
   const inverted = $derived(demoConfig.configWithDefaults.plot.inverted);

@@ -8,7 +8,7 @@ import { exportPNG, exportSVG } from '@mochart/export';
 
 import { Chart } from '@mochart/angular';
 
-import { applyPieSliceValue, controlsMenuPlacement, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, getSeriesValuesText, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, controlsMenuPlacement, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, getSeriesValuesText, demoText, parseJson } from '@mochart/demo-common';
 
 import type { PieSliceInfo } from '@mochart/demo-common';
 
@@ -1003,7 +1003,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     const { series: seriesConfigs } = mochartConfig;
     if (seriesConfigs.length > 0) {
       try {
-        const dataObject = JSON.parse(this.seriesValuesText());
+        const dataObject = parseJson(this.seriesValuesText()) as Record<string, unknown>;
         const seriesConfig = seriesConfigs[this.seriesIndex()];
         const { property, rangeProperty, markerProperty, labelProperty, colorProperty, tooltipProperty, errorLowProperty, errorHighProperty } = seriesConfig;
         filteredDataObject[property!] = dataObject['p'];

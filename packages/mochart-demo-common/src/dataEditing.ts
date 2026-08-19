@@ -2,6 +2,7 @@ import { ArrayOfObjectsDataProvider, NONE, getDataErrors } from '@mochart/core';
 
 import buildMochartDemoConfig from './mochartDemoConfig';
 import { demoText } from './demoText';
+import { getJsonErrorMessage, parseJson } from './json';
 import { filterDataProperties, restoreHiddenDataProperties } from './unusedDataProperties';
 
 import type { DataObject, DemoConfig, MochartDemoConfig } from './types';
@@ -50,22 +51,12 @@ export function isArrayOfObjects(candidate: unknown): boolean {
   return Array.isArray(candidate) && !candidate.some(v => !isObject(v));
 }
 
-export function getJsonError(text: string): string | null {
-  try {
-    JSON.parse(text);
-    return null;
-  }
-  catch {
-    return 'Invalid JSON';
-  }
-}
-
 /** The config's category property, for category-value row matching. */
 export function getCategoryProperty(config: DemoConfig): string | null {
   return (config as { categoryAxis?: { property?: string } }).categoryAxis?.property ?? null;
 }
 
-export type ParsedFullData = { full: DataObject[] } | { error: 'json' | 'data' };
+export type ParsedFullData = { full: DataObject[] } | { error: 'json'; message: string } | { error: 'data' };
 
 /**
  * Parse edited data-tab text back to a full dataset. When the text is a
@@ -75,10 +66,10 @@ export type ParsedFullData = { full: DataObject[] } | { error: 'json' | 'data' }
 export function parseFullData(text: string, fullData: DataObject[], viewUsedProperties: Set<string> | null, categoryProperty?: string | null): ParsedFullData {
   let parsed: unknown;
   try {
-    parsed = JSON.parse(text);
+    parsed = parseJson(text);
   }
-  catch {
-    return { error: 'json' };
+  catch (error) {
+    return { error: 'json', message: getJsonErrorMessage(error) };
   }
   if (!isArrayOfObjects(parsed)) {
     return { error: 'data' };
@@ -122,8 +113,8 @@ export function applyDataEdit(text: string, fullData: DataObject[], viewUsedProp
   const parsed = parseFullData(text, fullData, viewUsedProperties, getCategoryProperty(config));
   if ('error' in parsed) {
     if (parsed.error === 'json') {
-      console.warn('Invalid Data JSON');
-      return { ok: false, errorMessage: demoText.errors.invalidJson, callbackError: demoText.errors.invalidData };
+      console.warn('Invalid Data JSON: ' + parsed.message);
+      return { ok: false, errorMessage: parsed.message, callbackError: demoText.errors.invalidData };
     }
     console.warn('Invalid Data - should be an array of objects');
     // same copy as the live-edit path, so Apply and live edits agree

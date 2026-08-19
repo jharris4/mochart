@@ -5,7 +5,7 @@
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
 
-  import { demoText, formatRandomConfig, getDemoTabPanelAttrs, validateRandomConfig } from '@mochart/demo-common';
+  import { demoText, formatRandomConfig, getDemoTabPanelAttrs, getJsonError, getJsonErrorMessage, parseJson, validateRandomConfig } from '@mochart/demo-common';
 
   import type { RandomConfigWithValid } from '../../types';
 
@@ -45,26 +45,18 @@
 
   function onUpdateClick() {
     try {
-      const newConfig = JSON.parse(configText);
+      const newConfig = parseJson(configText) as RandomConfigWithValid;
       newConfig.valid = validateRandomConfig(newConfig, generator);
       errorMessage = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
       onUpdate(newConfig);
     }
-    catch {
+    catch (error) {
       console.warn('Invalid Random Config JSON: ' + configText);
-      errorMessage = demoText.errors.invalidJson;
+      errorMessage = getJsonErrorMessage(error);
     }
   }
 
-  const jsonError = $derived.by(() => {
-    try {
-      JSON.parse(configText);
-      return null;
-    }
-    catch {
-      return demoText.errors.invalidJson;
-    }
-  });
+  const jsonError = $derived(getJsonError(configText));
   const footerError = $derived(jsonError ?? errorMessage);
 </script>
 

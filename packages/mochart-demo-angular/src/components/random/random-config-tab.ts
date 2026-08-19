@@ -5,7 +5,7 @@ import { JsonEditorContent } from '../misc/json-editor-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { Icon } from '../misc/icon';
 
-import { demoText, formatRandomConfig, getDemoTabPanelAttrs, validateRandomConfig } from '@mochart/demo-common';
+import { demoText, formatRandomConfig, getDemoTabPanelAttrs, getJsonError, getJsonErrorMessage, parseJson, validateRandomConfig } from '@mochart/demo-common';
 
 import type { RandomConfigWithValid } from '../../types';
 
@@ -71,25 +71,19 @@ export class RandomConfigTab implements OnInit, OnChanges {
 
   onUpdateClick = (): void => {
     try {
-      const newConfig = JSON.parse(this.configText());
+      const newConfig = parseJson(this.configText()) as RandomConfigWithValid;
       newConfig.valid = validateRandomConfig(newConfig, this.generator);
       this.errorMessage.set(newConfig.valid ? null : demoText.errors.invalidRandomConfigValues);
       this.onUpdate(newConfig);
     }
-    catch {
+    catch (error) {
       console.warn('Invalid Random Config JSON: ' + this.configText());
-      this.errorMessage.set(demoText.errors.invalidJson);
+      this.errorMessage.set(getJsonErrorMessage(error));
     }
   };
 
   get jsonError(): string | null {
-    try {
-      JSON.parse(this.configText());
-      return null;
-    }
-    catch {
-      return demoText.errors.invalidJson;
-    }
+    return getJsonError(this.configText());
   }
 
   get footerError(): string | null {

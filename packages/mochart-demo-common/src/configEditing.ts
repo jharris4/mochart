@@ -1,5 +1,6 @@
 import buildMochartDemoConfig from './mochartDemoConfig';
 import { demoText } from './demoText';
+import { getJsonErrorMessage, parseJson } from './json';
 
 import type { DemoConfig, MochartDemoConfig } from './types';
 
@@ -33,16 +34,6 @@ export function copyDemoConfig(demoConfig: DemoConfigView | MochartDemoConfig): 
   return JSON.parse(JSON.stringify({ configWithDefaults, configWithoutDefaults }));
 }
 
-export function parseConfig(configText: string): DemoConfig | null {
-  try {
-    return JSON.parse(configText);
-  }
-  catch {
-    console.warn('Invalid Chart Config JSON: ' + configText);
-    return null;
-  }
-}
-
 export type ConfigTextToggle =
   { demoConfig: DemoConfigView; text: string; error: null } |
   { demoConfig: null; text: null; error: string };
@@ -53,9 +44,13 @@ export type ConfigTextParse =
 
 /** Parse editor text and check it builds: JSON syntax alone leaves a config the chart cannot render. */
 export function parseConfigFromText(configText: string): ConfigTextParse {
-  const parsed = parseConfig(configText);
-  if (parsed === null) {
-    return { config: null, build: null, error: demoText.errors.invalidJson };
+  let parsed: DemoConfig;
+  try {
+    parsed = parseJson(configText) as DemoConfig;
+  }
+  catch (error) {
+    console.warn('Invalid Chart Config JSON: ' + configText);
+    return { config: null, build: null, error: getJsonErrorMessage(error) };
   }
   const build = buildMochartDemoConfig(parsed);
   if (!build.configValidation.valid) {
@@ -93,7 +88,7 @@ export function toggleConfigFromText(configText: string, showDefaults: boolean, 
 export function demoConfigFromText(configText: string, previousDemoConfig: DemoConfigView): DemoConfigView {
   let parsed: DemoConfig;
   try {
-    parsed = JSON.parse(configText);
+    parsed = parseJson(configText) as DemoConfig;
   }
   catch {
     return previousDemoConfig;

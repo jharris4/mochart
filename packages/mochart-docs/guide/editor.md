@@ -60,7 +60,8 @@ The returned `JsonEditorHandle` drives the editor imperatively:
   Controlled `setValue` updates do not fire `onChange`; only user edits and
   `format()` do.
 - `format()` — pretty-print the current JSON; returns `false` (leaving the
-  text alone) when it does not parse.
+  text alone) when it does not parse or repeats a key, since a round-trip
+  through `JSON.parse` would silently drop the earlier copy.
 - `setTheme('light' | 'dark')` — switch the color treatment without
   replacing the document or its undo history.
 - `setReadOnly(readOnly)` — toggle editing.
@@ -100,12 +101,25 @@ underlined on the offending key itself. The editable element's
 `aria-invalid` tracks whether any errors are present, and the editor's
 border color reflects it visually.
 
+A key repeated within one object is a `'json'` error on the later
+occurrence (`Duplicate key "property" in series[0]`), even though
+`JSON.parse` accepts it: JSON.parse keeps only the last value, so the
+first block of settings would vanish without a word. The same rule is
+available without loading the editor from the `@mochart/editor/json`
+entry — `parseJson(text)` is `JSON.parse` that throws a
+`JsonDuplicateKeyError` (a `SyntaxError` naming every repeat) instead of
+keeping the last one, and `findDuplicateJsonKeys(text)` lists the repeats
+with their offsets. The demos gate their Apply buttons on it so the editor's
+underline and the footer error agree.
+
 ## Theming
 
 Pass `theme: 'dark'` for the bundled dark treatment and switch later with
 `setTheme`. Both themes read CSS custom properties from `.mochart-editor`
 (`--mochart-editor-background`, `--mochart-editor-foreground`,
 `--mochart-editor-border`, `--mochart-editor-focus`,
-`--mochart-editor-focus-soft`, `--mochart-editor-gutter`), so a host page
-can restyle the surface without touching the stylesheet. The element also
+`--mochart-editor-focus-soft`, `--mochart-editor-gutter`,
+`--mochart-editor-selection`, and `--mochart-editor-match` — the tint on
+other occurrences of the selected text), so a host page can restyle the surface without touching the
+stylesheet. The element also
 carries `data-theme` and `data-validity` attributes for host CSS to key on.

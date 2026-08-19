@@ -31,6 +31,10 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       },
+      "./json": {
+        "types": "./dist/json.d.ts",
+        "default": "./dist/json.js"
+      },
       "./editor.css": "./css/editor.css"
     }
   },
@@ -49,6 +53,11 @@
       "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./json": {
+      "development": "./src/json.ts",
+      "types": "./dist/json.d.ts",
+      "default": "./dist/json.js"
     },
     "./editor.css": "./css/editor.css"
   },

@@ -5,7 +5,7 @@ import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import Icon from '../misc/Icon.vue';
 
-import { demoText, formatRandomConfig, getDemoTabPanelAttrs, validateRandomConfig } from '@mochart/demo-common';
+import { demoText, formatRandomConfig, getDemoTabPanelAttrs, getJsonError, getJsonErrorMessage, parseJson, validateRandomConfig } from '@mochart/demo-common';
 
 import type { RandomConfigWithValid } from '../../types';
 
@@ -36,26 +36,18 @@ function onTextChange(nextConfigText: string) {
 
 function onUpdateClick() {
   try {
-    const newConfig = JSON.parse(configText.value);
+    const newConfig = parseJson(configText.value) as RandomConfigWithValid;
     newConfig.valid = validateRandomConfig(newConfig, props.generator);
     errorMessage.value = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
     props.onUpdate(newConfig);
   }
-  catch {
+  catch (error) {
     console.warn('Invalid Random Config JSON: ' + configText.value);
-    errorMessage.value = demoText.errors.invalidJson;
+    errorMessage.value = getJsonErrorMessage(error);
   }
 }
 
-const jsonError = computed(() => {
-  try {
-    JSON.parse(configText.value);
-    return null;
-  }
-  catch {
-    return demoText.errors.invalidJson;
-  }
-});
+const jsonError = computed(() => getJsonError(configText.value));
 const footerError = computed(() => jsonError.value ?? errorMessage.value);
 
 const panelAttrs = getDemoTabPanelAttrs('config');

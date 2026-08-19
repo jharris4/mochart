@@ -1,7 +1,7 @@
 
 import { buttonWithTooltip, el, icon, setActiveClass, tabContainer } from '../misc/dom';
 
-import { createJsonEditorContent, demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
+import { createJsonEditorContent, demoText, formatRandomConfig, getJsonError, getJsonErrorMessage, parseJson, validateRandomConfig } from '@mochart/demo-common';
 
 import type { RandomConfigWithValid } from '../../types';
 
@@ -37,26 +37,16 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
     }
   });
 
-  function jsonError(): string | null {
-    try {
-      JSON.parse(configEditor.getValue());
-      return null;
-    }
-    catch {
-      return demoText.errors.invalidJson;
-    }
-  }
-
   function onUpdateClick(): void {
     try {
-      const newConfig = JSON.parse(configEditor.getValue());
+      const newConfig = parseJson(configEditor.getValue()) as RandomConfigWithValid;
       newConfig.valid = validateRandomConfig(newConfig, getGenerator());
       errorMessage = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
       onUpdate(newConfig);
     }
-    catch {
+    catch (error) {
       console.warn('Invalid Random Config JSON: ' + configEditor.getValue());
-      errorMessage = demoText.errors.invalidJson;
+      errorMessage = getJsonErrorMessage(error);
     }
     sync();
   }
@@ -87,7 +77,7 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
   ], 'config');
 
   function sync(): void {
-    const currentJsonError = jsonError();
+    const currentJsonError = getJsonError(configEditor.getValue());
     const currentFooterError = currentJsonError ?? errorMessage;
     applyButton.setDisabled(currentJsonError !== null);
     footerError.hidden = currentFooterError === null;

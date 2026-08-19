@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 
-import { applyTransitionConfigEdit, demoText, formatTransitionConfig, getDemoTabPanelAttrs } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, demoText, formatTransitionConfig, getDemoTabPanelAttrs, getJsonError } from '@mochart/demo-common';
 
 import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -43,15 +43,7 @@ function onUpdateClick() {
   }
 }
 
-const jsonError = computed(() => {
-  try {
-    JSON.parse(configText.value);
-    return null;
-  }
-  catch {
-    return demoText.errors.invalidJson;
-  }
-});
+const jsonError = computed(() => getJsonError(configText.value));
 const footerError = computed(() => jsonError.value ?? errorMessage.value);
 
 const panelAttrs = getDemoTabPanelAttrs('config');

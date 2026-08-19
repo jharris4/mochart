@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import Icon from '../misc/Icon';
 
-import { applyTransitionConfigEdit, demoText, formatTransitionConfig, getDemoTabPanelAttrs } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, demoText, formatTransitionConfig, getDemoTabPanelAttrs, getJsonError } from '@mochart/demo-common';
 
 import JsonEditorContent from '../misc/JsonEditorContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -36,15 +36,7 @@ export default function TransitionConfigTab({ active, transitionConfig, onUpdate
     }
   };
 
-  const jsonError = useMemo(() => {
-    try {
-      JSON.parse(configText);
-      return null;
-    }
-    catch {
-      return demoText.errors.invalidJson;
-    }
-  }, [configText]);
+  const jsonError = useMemo(() => getJsonError(configText), [configText]);
   const footerError = jsonError ?? errorMessage;
 
   return (

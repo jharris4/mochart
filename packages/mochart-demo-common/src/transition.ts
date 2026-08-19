@@ -5,6 +5,7 @@ import type { MochartConfig } from '@mochart/core';
 
 import buildMochartDemoConfig from './mochartDemoConfig';
 import { demoText } from './demoText';
+import { getJsonErrorMessage, parseJson } from './json';
 import { stringifyWithSpacedCommas } from './dataEditing';
 
 import type { TransitionConfig, ChartDataProviderLike } from './types';
@@ -124,7 +125,7 @@ export type TransitionConfigEditResult = { ok: true; config: TransitionConfig } 
 /** Parse + validate a transition-config edit for Apply. */
 export function applyTransitionConfigEdit(configText: string): TransitionConfigEditResult {
   try {
-    const newConfig = JSON.parse(configText);
+    const newConfig = parseJson(configText) as TransitionConfig;
     if (objectValidator(newConfig)) {
       if (objectValidator(newConfig.config)) {
         const mochartDemoConfig = buildMochartDemoConfig(newConfig.config);
@@ -159,8 +160,8 @@ export function applyTransitionConfigEdit(configText: string): TransitionConfigE
       return { ok: false, errorMessage: demoText.errors.transitionObject };
     }
   }
-  catch {
+  catch (error) {
     console.warn('Invalid Transition Config JSON: ', configText);
-    return { ok: false, errorMessage: demoText.errors.invalidJson };
+    return { ok: false, errorMessage: getJsonErrorMessage(error) };
   }
 }

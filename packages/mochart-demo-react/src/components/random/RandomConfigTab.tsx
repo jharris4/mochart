@@ -4,7 +4,7 @@ import Icon from '../misc/Icon';
 import JsonEditorContent from '../misc/JsonEditorContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 
-import { demoText, formatRandomConfig, getDemoTabPanelAttrs, validateRandomConfig } from '@mochart/demo-common';
+import { demoText, formatRandomConfig, getDemoTabPanelAttrs, getJsonError, getJsonErrorMessage, parseJson, validateRandomConfig } from '@mochart/demo-common';
 
 import type { RandomConfigWithValid } from '../../types';
 
@@ -29,26 +29,18 @@ export default function RandomMochartConfigTab({ active, randomConfig, generator
 
   const onUpdateClick = () => {
     try {
-      const newConfig = JSON.parse(configText);
+      const newConfig = parseJson(configText) as RandomConfigWithValid;
       newConfig.valid = validateRandomConfig(newConfig, generator);
       setErrorMessage(newConfig.valid ? null : demoText.errors.invalidRandomConfigValues);
       onUpdate(newConfig);
     }
-    catch {
+    catch (error) {
       console.warn('Invalid Random Config JSON: ' + configText);
-      setErrorMessage(demoText.errors.invalidJson);
+      setErrorMessage(getJsonErrorMessage(error));
     }
   };
 
-  const jsonError = useMemo(() => {
-    try {
-      JSON.parse(configText);
-      return null;
-    }
-    catch {
-      return demoText.errors.invalidJson;
-    }
-  }, [configText]);
+  const jsonError = useMemo(() => getJsonError(configText), [configText]);
   const footerError = jsonError ?? errorMessage;
 
   return (

@@ -1,4 +1,5 @@
 import type { JsonEditorHandle, JsonEditorSupport } from '@mochart/editor';
+import { parseJson } from './json';
 
 type EditorModule = typeof import('@mochart/editor');
 
@@ -24,7 +25,7 @@ export interface JsonEditorContentHandle {
 
 function formatJson(text: string): string {
   try {
-    return JSON.stringify(JSON.parse(text), null, 2);
+    return JSON.stringify(parseJson(text), null, 2);
   }
   catch {
     return text;
@@ -71,7 +72,7 @@ export function createJsonEditorContent(options: JsonEditorContentOptions): Json
         return editor.format();
       }
       try {
-        value = JSON.stringify(JSON.parse(value), null, 2);
+        value = JSON.stringify(parseJson(value), null, 2);
         return true;
       }
       catch {

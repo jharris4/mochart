@@ -127,4 +127,26 @@ describe('JSON editor', () => {
     expect(editor.getValue()).toBe('{');
     editor.destroy();
   });
+
+  it('reports repeated keys as errors on the later key and refuses to format them away', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const onDiagnostics = vi.fn();
+    const value = '{"chart": {"type": "line"}, "series": [{"property": "a", "property": "b"}], "chart": {}}';
+    const editor = createJsonEditor(host, { value, ariaLabel: 'Configuration', onDiagnostics });
+    const content = editor.element.querySelector<HTMLElement>('.cm-content')!;
+
+    await vi.waitFor(() => expect(content.getAttribute('aria-invalid')).toBe('true'));
+    const diagnostics = onDiagnostics.mock.lastCall![0] as { from: number; to: number; message: string; severity: string; source: string; path?: unknown }[];
+    expect(diagnostics.map(diagnostic => [value.slice(diagnostic.from, diagnostic.to), diagnostic.message, diagnostic.severity, diagnostic.source, diagnostic.path])).toEqual([
+      ['"property"', 'Duplicate key "property" in series[0]', 'error', 'json', ['series', 0, 'property']],
+      ['"chart"', 'Duplicate key "chart"', 'error', 'json', ['chart']]
+    ]);
+    expect(diagnostics[1].from).toBe(value.lastIndexOf('"chart"'));
+
+    expect(editor.format()).toBe(false);
+    expect(editor.getValue()).toBe(value);
+    editor.destroy();
+    host.remove();
+  });
 });

@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getJsonError, getJsonErrorMessage, isConfigSectionActive, parseConfigFromText, parseJson, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -52,7 +52,7 @@ export class ConfigTab extends LightElement {
 
   private updateShowDefaults(nextShowDefaults: boolean): void {
     try {
-      const newConfig = JSON.parse(this.configText);
+      const newConfig = parseJson(this.configText) as DemoConfig;
       const newMochartDemoConfig = buildMochartDemoConfig(newConfig);
       const { configValidation } = newMochartDemoConfig;
       const { valid } = configValidation;
@@ -72,9 +72,9 @@ export class ConfigTab extends LightElement {
         this.errorMessage = demoText.errors.invalidChartConfig;
       }
     }
-    catch {
+    catch (error) {
       console.warn('Invalid Chart Config JSON: ' + this.configText);
-      this.errorMessage = demoText.errors.invalidJson;
+      this.errorMessage = getJsonErrorMessage(error);
     }
   }
 
@@ -119,13 +119,7 @@ export class ConfigTab extends LightElement {
   // Live JSON validity — disables Apply and shows an inline hint while the
   // editor holds unparseable text.
   private get jsonError(): string | null {
-    try {
-      JSON.parse(this.configText);
-      return null;
-    }
-    catch {
-      return demoText.errors.invalidJson;
-    }
+    return getJsonError(this.configText);
   }
 
   override render(): unknown {

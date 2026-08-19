@@ -1,5 +1,5 @@
 
-import { applyTransitionConfigEdit, createJsonEditorContent, demoText, formatTransitionConfig } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, createJsonEditorContent, demoText, formatTransitionConfig, getJsonError } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, tabContainer } from '../misc/dom';
 
@@ -34,16 +34,6 @@ export function transitionConfigTab(props: TransitionConfigTabProps): Transition
       sync();
     }
   });
-
-  function jsonError(): string | null {
-    try {
-      JSON.parse(configEditor.getValue());
-      return null;
-    }
-    catch {
-      return demoText.errors.invalidJson;
-    }
-  }
 
   function onUpdateClick(): void {
     const result = applyTransitionConfigEdit(configEditor.getValue());
@@ -83,7 +73,7 @@ export function transitionConfigTab(props: TransitionConfigTabProps): Transition
   ], 'config');
 
   function sync(): void {
-    const currentJsonError = jsonError();
+    const currentJsonError = getJsonError(configEditor.getValue());
     const currentFooterError = currentJsonError ?? errorMessage;
     applyButton.setDisabled(currentJsonError !== null);
     footerError.hidden = currentFooterError === null;

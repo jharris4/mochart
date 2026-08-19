@@ -7,6 +7,19 @@ import { linter, type Diagnostic } from '@codemirror/lint';
 import { tags } from '@lezer/highlight';
 import type { JsonEditorDiagnostic, JsonEditorHandle, JsonEditorOptions } from './types.js';
 import { supportImplementation } from './support.js';
+import { duplicateJsonKeyMessage, findDuplicateJsonKeys, parseJson } from './jsonDuplicateKeys.js';
+
+// JSON.parse keeps the last of repeated keys silently, so the syntax layer flags the later ones as errors
+function duplicateKeyDiagnostics(text: string): Diagnostic[] {
+  return findDuplicateJsonKeys(text).map(duplicate => ({
+    from: duplicate.from,
+    to: duplicate.to,
+    severity: 'error',
+    message: duplicateJsonKeyMessage(duplicate),
+    source: 'json',
+    path: [...duplicate.path, duplicate.key]
+  } as Diagnostic));
+}
 
 function publicDiagnostic(diagnostic: Diagnostic): JsonEditorDiagnostic {
   const source = diagnostic.source === 'mochart' ? 'mochart' : 'json';
@@ -27,6 +40,15 @@ const darkHighlightStyle = HighlightStyle.define([
   { tag: tags.invalid, color: '#ff7b72', textDecoration: 'underline wavy' }
 ]);
 
+// Selection and other-occurrence colours come from editor.css custom properties in both themes, so the selection stays an accent fill and the occurrence tint a neutral one
+const selectionTheme = EditorView.theme({
+  // the focused selector mirrors CodeMirror's own, which is too specific for a plain '&.cm-focused .cm-selectionBackground' to beat
+  '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection': {
+    backgroundColor: 'var(--mochart-editor-selection)'
+  },
+  '.cm-selectionMatch': { backgroundColor: 'var(--mochart-editor-match)' }
+});
+
 const darkTheme = [
   EditorView.theme({
     '&': {
@@ -35,9 +57,6 @@ const darkTheme = [
     },
     '.cm-content': { caretColor: '#f0f6fc' },
     '.cm-cursor, .cm-dropCursor': { borderLeftColor: '#f0f6fc' },
-    '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection': {
-      backgroundColor: '#264f78'
-    },
     '.cm-activeLine': { backgroundColor: 'rgb(110 118 129 / 12%)' },
     '.cm-activeLineGutter': { backgroundColor: 'rgb(110 118 129 / 18%)' },
     '.cm-tooltip': {
@@ -69,6 +88,7 @@ export function createJsonEditor(host: HTMLElement, options: JsonEditorOptions):
   const diagnosticsExtension = linter(view => {
     const diagnostics = syntaxLinter(view);
     if (diagnostics.length === 0) {
+      diagnostics.push(...duplicateKeyDiagnostics(view.state.doc.toString()));
       for (const implementation of implementations) {
         if (implementation.diagnostics) diagnostics.push(...implementation.diagnostics(view));
       }
@@ -100,6 +120,7 @@ export function createJsonEditor(host: HTMLElement, options: JsonEditorOptions):
     basicSetup,
     json(),
     diagnosticsExtension,
+    selectionTheme,
     readOnly.of(EditorState.readOnly.of(currentReadOnly)),
     theme.of(currentTheme === 'dark' ? darkTheme : []),
     EditorView.contentAttributes.of(contentAttributes),
@@ -156,7 +177,7 @@ export function createJsonEditor(host: HTMLElement, options: JsonEditorOptions):
     },
     format() {
       try {
-        const parsed: unknown = JSON.parse(view.state.doc.toString());
+        const parsed = parseJson(view.state.doc.toString());
         const formatted = JSON.stringify(parsed, null, indentation);
         externalUpdate = true;
         view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: formatted } });

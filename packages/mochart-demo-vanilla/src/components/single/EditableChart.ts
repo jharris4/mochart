@@ -2,7 +2,7 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@moc
 import type { DataProvider } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, controlsMenuPlacement, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, getSeriesValuesText, demoText, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
+import { applyPieSliceValue, controlsMenuPlacement, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, getSeriesValuesText, demoText, parseJson, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
 
 import type { PieSliceInfo, ShareState } from '@mochart/demo-common';
 
@@ -566,7 +566,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     const { series: seriesConfigs } = mochartConfig;
     if (seriesConfigs.length > 0) {
       try {
-        const dataObject = JSON.parse(seriesValuesText);
+        const dataObject = parseJson(seriesValuesText) as Record<string, unknown>;
         const seriesConfig = seriesConfigs[seriesIndex];
         const { property, rangeProperty, markerProperty, labelProperty, colorProperty, tooltipProperty, errorLowProperty, errorHighProperty } = seriesConfig;
         filteredDataObject[property!] = dataObject['p'];

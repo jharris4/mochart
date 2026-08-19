@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import Icon from '../misc/Icon';
 
-import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getJsonError, getJsonErrorMessage, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, parseJson, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -61,7 +61,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
   const updateShowDefaults = (showDefaults: boolean) => {
     const { configText } = state;
     try {
-      const newConfig = JSON.parse(configText);
+      const newConfig = parseJson(configText) as DemoConfig;
       const mochartDemoConfig = buildMochartDemoConfig(newConfig);
       const { configValidation } = mochartDemoConfig;
       const { valid } = configValidation;
@@ -80,9 +80,9 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
         setErrorMessage(demoText.errors.invalidChartConfig);
       }
     }
-    catch {
+    catch (error) {
       console.warn('Invalid Chart Config JSON: ' + state.configText);
-      setErrorMessage(demoText.errors.invalidJson);
+      setErrorMessage(getJsonErrorMessage(error));
     }
   };
 
@@ -128,15 +128,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
 
   // Live JSON validity — disables Apply and shows an inline hint while the
   // editor holds unparseable text.
-  const jsonError = useMemo(() => {
-    try {
-      JSON.parse(configText);
-      return null;
-    }
-    catch {
-      return demoText.errors.invalidJson;
-    }
-  }, [configText]);
+  const jsonError = useMemo(() => getJsonError(configText), [configText]);
   const footerError = jsonError ?? errorMessage;
 
   // The phone fold. Apply stays beside the editor it applies, and the

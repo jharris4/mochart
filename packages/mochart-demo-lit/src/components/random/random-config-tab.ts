@@ -6,7 +6,7 @@ import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, icon } from '../misc/templates';
 import '../misc/json-editor-content';
 
-import { demoText, formatRandomConfig, getDemoTabPanelAttrs, validateRandomConfig } from '@mochart/demo-common';
+import { demoText, formatRandomConfig, getDemoTabPanelAttrs, getJsonError, getJsonErrorMessage, parseJson, validateRandomConfig } from '@mochart/demo-common';
 
 import type { RandomConfigWithValid } from '../../types';
 
@@ -37,25 +37,19 @@ export class RandomConfigTab extends LightElement {
 
   private onUpdateClick = (): void => {
     try {
-      const newConfig = JSON.parse(this.configText);
+      const newConfig = parseJson(this.configText) as RandomConfigWithValid;
       newConfig.valid = validateRandomConfig(newConfig, this.generator);
       this.errorMessage = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
       this.onUpdate(newConfig);
     }
-    catch {
+    catch (error) {
       console.warn('Invalid Random Config JSON: ' + this.configText);
-      this.errorMessage = demoText.errors.invalidJson;
+      this.errorMessage = getJsonErrorMessage(error);
     }
   };
 
   private get jsonError(): string | null {
-    try {
-      JSON.parse(this.configText);
-      return null;
-    }
-    catch {
-      return demoText.errors.invalidJson;
-    }
+    return getJsonError(this.configText);
   }
 
   override render(): unknown {

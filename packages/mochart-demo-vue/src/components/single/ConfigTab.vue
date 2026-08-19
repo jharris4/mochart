@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, ref, shallowRef, watch } from 'vue';
 
-import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getJsonError, getJsonErrorMessage, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, parseJson, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -49,7 +49,7 @@ function resetConfig() {
 
 function updateShowDefaults(nextShowDefaults: boolean) {
   try {
-    const newConfig = JSON.parse(configText.value);
+    const newConfig = parseJson(configText.value) as DemoConfig;
     const newMochartDemoConfig = buildMochartDemoConfig(newConfig);
     const { configValidation } = newMochartDemoConfig;
     const { valid } = configValidation;
@@ -69,9 +69,9 @@ function updateShowDefaults(nextShowDefaults: boolean) {
       errorMessage.value = demoText.errors.invalidChartConfig;
     }
   }
-  catch {
+  catch (error) {
     console.warn('Invalid Chart Config JSON: ' + configText.value);
-    errorMessage.value = demoText.errors.invalidJson;
+    errorMessage.value = getJsonErrorMessage(error);
   }
 }
 
@@ -116,15 +116,7 @@ const slowIcon = computed(() => slow.value ? 'hourglass' : 'hourglass-end');
 
 // Live JSON validity — disables Apply and shows an inline hint while the
 // editor holds unparseable text.
-const jsonError = computed(() => {
-  try {
-    JSON.parse(configText.value);
-    return null;
-  }
-  catch {
-    return demoText.errors.invalidJson;
-  }
-});
+const jsonError = computed(() => getJsonError(configText.value));
 const footerError = computed(() => jsonError.value ?? errorMessage.value);
 
 // ---------------------------------------------------------------------------

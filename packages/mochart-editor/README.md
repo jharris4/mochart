@@ -58,10 +58,17 @@ The Mochart support provides:
 - hover documentation, defaults, and validation rules;
 - syntax and path-aware Mochart validation diagnostics.
 
+Keys repeated within one object are syntax errors on the later occurrence,
+because `JSON.parse` would keep only the last value; `format()` refuses such
+text rather than dropping the earlier copy. The `@mochart/editor/json` entry
+exposes the same rule without the editor: `parseJson(text)` throws a
+`JsonDuplicateKeyError` (a `SyntaxError` naming every repeat) where
+`JSON.parse` would succeed, and `findDuplicateJsonKeys(text)` lists them.
+
 Pass `theme: 'dark'` for the bundled dark syntax treatment, then use
 `setTheme('light' | 'dark')` to change it without replacing the document or
 undo history. Both themes use CSS custom properties, so hosts can override the
-editor surface, focus, border, and gutter colors. The editable element receives
+editor surface, focus, border, gutter, selection, and selection-match colors. The editable element receives
 `aria-invalid` as diagnostics change, and `ariaDescribedBy` can connect it to
 keyboard instructions or other help text.
 

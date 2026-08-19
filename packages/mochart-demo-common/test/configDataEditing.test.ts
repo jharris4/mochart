@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
-import { copyDemoConfig, demoConfigFromText, isConfigSectionActive, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '../src/configEditing';
+import { copyDemoConfig, demoConfigFromText, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '../src/configEditing';
+import { getJsonError } from '../src/json';
 import { restoreHiddenDataProperties } from '../src/unusedDataProperties';
 import { applyDataEdit, formatData, getConfigDataError, getSeriesValuesText, stringifyWithSpacedCommas } from '../src/dataEditing';
 import buildMochartDemoConfig from '../src/mochartDemoConfig';
@@ -279,6 +280,32 @@ describe('applyTransitionConfigEdit error copy', () => {
       data: [{ month: 'Jan' }]
     });
     expect(applyTransitionConfigEdit(validConfig)).toEqual({ ok: false, errorMessage: demoText.errors.transitionDataArrays });
+  });
+});
+
+// JSON.parse keeps the last of repeated keys silently; every editor tab's parse path names the repeat instead
+describe('duplicate JSON keys', () => {
+  const config = { version: '1.0.0', categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' }, series: [{ property: 'sales' }] } as unknown as DemoConfig;
+
+  it('is reported by getJsonError with the duplicate named, unlike plain syntax errors', () => {
+    expect(getJsonError('{"a": 1}')).toBeNull();
+    expect(getJsonError('{"a": 1')).toBe(demoText.errors.invalidJson);
+    expect(getJsonError('{"a": 1, "a": 2}')).toBe('Duplicate key "a"');
+    expect(getJsonError('{"a": [{"b": 1, "b": 2}], "c": {"d": 1, "d": 2}}')).toBe('Duplicate key "b" in a[0]; Duplicate key "d" in c');
+  });
+
+  it('blocks a config apply', () => {
+    const result = parseConfigFromText('{"version": "1.0.0", "categoryAxis": {"property": "month", "type": "string", "scale": "ordinal"}, "series": [{"property": "sales", "property": "high"}]}');
+    expect(result).toEqual({ config: null, build: null, error: 'Duplicate key "property" in series[0]' });
+  });
+
+  it('blocks a data apply and keeps the short chart error state', () => {
+    const result = applyDataEdit('[{"month": "Jan", "sales": 1, "sales": 2}]', [], null, config);
+    expect(result).toEqual({ ok: false, errorMessage: 'Duplicate key "sales" in [0]', callbackError: demoText.errors.invalidData });
+  });
+
+  it('blocks a transition apply', () => {
+    expect(applyTransitionConfigEdit('{"config": {}, "data": [], "data": []}')).toEqual({ ok: false, errorMessage: 'Duplicate key "data"' });
   });
 });
 

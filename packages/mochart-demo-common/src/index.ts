@@ -9,9 +9,11 @@ export { default as buildMochartDemoConfig } from './mochartDemoConfig';
 
 export { collectUsedDataProperties } from './unusedDataProperties';
 
+export { parseJson, getJsonError, getJsonErrorMessage } from './json';
+
 export {
   formatData, formatDataView,
-  getJsonError, getCategoryProperty, parseFullData, applyDataEdit, getConfigDataError,
+  getCategoryProperty, parseFullData, applyDataEdit, getConfigDataError,
   getCategoryIndexTitle, getSeriesIndexTitle, getSeriesValuesText
 } from './dataEditing';
 export type { ParsedFullData } from './dataEditing';

@@ -1,4 +1,4 @@
-import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, createJsonEditorContent, demoConfigFromText, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
+import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, createJsonEditorContent, demoConfigFromText, demoText, formatMochartDemoConfig, getJsonError, getJsonErrorMessage, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, isConfigSectionActive, parseConfigFromText, parseJson, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -52,16 +52,6 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     return configEditor.getValue();
   }
 
-  function jsonError(): string | null {
-    try {
-      JSON.parse(getConfigText());
-      return null;
-    }
-    catch {
-      return demoText.errors.invalidJson;
-    }
-  }
-
   function onTextChange(): void {
     errorMessage = null;
     demoConfig = demoConfigFromText(getConfigText(), demoConfig);
@@ -70,7 +60,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
 
   function updateShowDefaults(nextShowDefaults: boolean): void {
     try {
-      const newConfig = JSON.parse(getConfigText());
+      const newConfig = parseJson(getConfigText()) as DemoConfig;
       const newMochartDemoConfig = buildMochartDemoConfig(newConfig);
       const { configValidation } = newMochartDemoConfig;
       const { valid } = configValidation;
@@ -90,9 +80,9 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
         errorMessage = demoText.errors.invalidChartConfig;
       }
     }
-    catch {
+    catch (error) {
       console.warn('Invalid Chart Config JSON: ' + getConfigText());
-      errorMessage = demoText.errors.invalidJson;
+      errorMessage = getJsonErrorMessage(error);
     }
     sync();
   }
@@ -270,7 +260,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
   // Patch every derived bit of the footer from the current state (the vanilla
   // stand-in for the framework demos' derived values).
   function sync(): void {
-    const currentJsonError = jsonError();
+    const currentJsonError = getJsonError(getConfigText());
     const currentFooterError = currentJsonError ?? errorMessage;
     applyButton.setDisabled(currentJsonError !== null);
     formatButton.setDisabled(currentJsonError !== null);
