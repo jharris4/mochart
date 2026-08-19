@@ -157,7 +157,8 @@ type SectionSupersets = {
 describe('DeepPartial', () => {
   it('makes nested members optional without narrowing what Partial accepted', () => {
     expectType<Equal<SectionSupersets[keyof SectionSupersets], true>>();
-    expectType<Extends<Partial<PatternInputConfig>, SectionEntry<MochartInputConfig['patterns']>>>();
+    // patterns keeps its discriminator, so an entry that names nothing but its type is the partial it accepts
+    expectType<Extends<Pick<PatternInputConfig, 'type'>, SectionEntry<MochartInputConfig['patterns']>>>();
     expectType<Extends<Partial<Style>, DeepPartial<Style>>>();
     expectType<Extends<{ backgroundStyle: { fillColor: 'red' } }, DeepPartial<{ backgroundStyle: Style }>>>();
     const nested: MochartInputConfig = {
@@ -289,6 +290,19 @@ describe('types agree with the validators', () => {
     }
   }
   const { model } = buildConfigReference();
+  const inputDeclaration = declarations.get('MochartInputConfig')!;
+  const inputType = checker.getTypeAtLocation(inputDeclaration);
+
+  // a section's input entries: OneOrMany unwrapped to the entry union, so each discriminated branch is checked
+  const inputEntryTypes = (sectionId: string): ts.Type[] => {
+    const symbol = checker.getPropertyOfType(inputType, sectionId);
+    if (symbol === undefined) {
+      return [];
+    }
+    return typeParts(checker.getTypeOfSymbolAtLocation(symbol, inputDeclaration))
+      .filter(part => (part.flags & ts.TypeFlags.Undefined) === 0)
+      .flatMap(part => typeParts(part.getNumberIndexType() ?? part));
+  };
 
   const mismatches: string[] = [];
   const checkedSections: string[] = [];
@@ -335,18 +349,29 @@ describe('types agree with the validators', () => {
       }
     }
 
+    const inputEntries = inputEntryTypes(sectionId);
     for (const property of model.sections.find(candidate => candidate.id === sectionId)?.properties ?? []) {
       const member = members.get(property.key);
       if (member === undefined) {
         mismatches.push(interfaceName + '.' + property.key + ': documented for ' + sectionId + ' but not declared');
         continue;
       }
-      if (optionalityExceptions[sectionId + '.' + property.key] !== undefined) {
-        continue;
-      }
       const optional = (member.flags & ts.SymbolFlags.Optional) !== 0;
       const hasDefault = (property.default !== undefined && property.default.kind !== 'none')
         || property.conditionalDefaults !== undefined;
+
+      // nothing fills in a member that is required and has no default, so DeepPartial must not make it optional
+      if (!optional && !hasDefault && inputEntries.some(entry => {
+        const inputMember = checker.getPropertyOfType(entry, property.key);
+        return inputMember === undefined || (inputMember.flags & ts.SymbolFlags.Optional) !== 0;
+      })) {
+        mismatches.push(interfaceName + '.' + property.key
+          + ': required with no default, but the input config accepts an entry without it');
+      }
+
+      if (optionalityExceptions[sectionId + '.' + property.key] !== undefined) {
+        continue;
+      }
       if (optional === hasDefault) {
         mismatches.push(interfaceName + '.' + property.key + ': declared ' + (optional ? 'optional' : 'required')
           + ' but it ' + (hasDefault ? 'has' : 'has no') + ' default');

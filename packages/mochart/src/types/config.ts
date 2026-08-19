@@ -3779,6 +3779,9 @@ export type DeepPartial<T> =
   T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } :
   T;
 
+/** `DeepPartial` for a discriminated entry: nothing supplies the `type` discriminator, so it stays required. */
+type DeepPartialEntry<T> = T extends { type: unknown } ? DeepPartial<T> & Pick<T, 'type'> : never;
+
 /** The user-facing config accepted by buildMochartConfig, before defaults are applied. */
 export interface MochartInputConfig {
   id?: unknown;
@@ -3804,7 +3807,7 @@ export interface MochartInputConfig {
   linearGradientDefaults?: DeepPartial<LinearGradientConfig>;
   radialGradients?: OneOrMany<DeepPartial<RadialGradientConfig>>;
   radialGradientDefaults?: DeepPartial<RadialGradientConfig>;
-  patterns?: OneOrMany<DeepPartial<PatternInputConfig>>;
+  patterns?: OneOrMany<DeepPartialEntry<PatternInputConfig>>;
   patternDefaults?: DeepPartial<PatternDefaultsConfig>;
   valueAxes?: OneOrMany<DeepPartial<ValueAxisConfig>>;
   valueAxisDefaults?: DeepPartial<ValueAxisConfig>;
