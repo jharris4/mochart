@@ -249,6 +249,7 @@ export interface ShareLinkCopier {
 /** Everything the Share item does apart from rendering: build, copy, announce, and drive the copied flag through `onCopiedChange`; without a usable clipboard the link is offered in a prompt. */
 export function createShareLinkCopier(onCopiedChange: (copied: boolean) => void): ShareLinkCopier {
   let revertTimer: ReturnType<typeof setTimeout> | null = null;
+  let disposed = false;
 
   function clearRevert(): void {
     if (revertTimer !== null) {
@@ -265,7 +266,11 @@ export function createShareLinkCopier(onCopiedChange: (copied: boolean) => void)
         window.prompt(demoText.shareButton.tooltip, url);
         return;
       }
+      // a write still pending at teardown would call back, announce, and arm a timer for a menu that is gone
       navigator.clipboard.writeText(url).then(() => {
+        if (disposed) {
+          return;
+        }
         onCopiedChange(true);
         announce(demoText.shareButton.announcementCopied);
         clearRevert();
@@ -274,9 +279,15 @@ export function createShareLinkCopier(onCopiedChange: (copied: boolean) => void)
           onCopiedChange(false);
         }, copiedFeedbackMs);
       }, () => {
+        if (disposed) {
+          return;
+        }
         window.prompt(demoText.shareButton.tooltip, url);
       });
     },
-    dispose: clearRevert
+    dispose() {
+      disposed = true;
+      clearRevert();
+    }
   };
 }

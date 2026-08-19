@@ -123,6 +123,36 @@ describe('createShareLinkCopier', () => {
     copier.dispose();
   });
 
+  // Regression: dispose dropped only the revert timer, so a write still in flight called back after teardown.
+  it('ignores a clipboard write that resolves after dispose', async () => {
+    let settle: () => void = () => { /* replaced below */ };
+    stubClipboard(() => new Promise<void>(resolve => { settle = resolve; }));
+    const changes: boolean[] = [];
+    const copier = createShareLinkCopier(copied => changes.push(copied));
+
+    copier.copy(state);
+    copier.dispose();
+    settle();
+    await vi.advanceTimersByTimeAsync(5000);
+
+    expect(changes).toEqual([]);
+    expect(liveRegions().map(region => region.textContent)).not.toContain(demoText.shareButton.announcementCopied);
+  });
+
+  it('ignores a clipboard write that rejects after dispose, rather than prompting a menu that is gone', async () => {
+    let fail: () => void = () => { /* replaced below */ };
+    stubClipboard(() => new Promise<void>((_resolve, reject) => { fail = () => reject(new Error('insecure context')); }));
+    const prompt = vi.spyOn(window, 'prompt').mockReturnValue(null);
+    const copier = createShareLinkCopier(() => { /* label swap not under test */ });
+
+    copier.copy(state);
+    copier.dispose();
+    fail();
+    await vi.advanceTimersByTimeAsync(5000);
+
+    expect(prompt).not.toHaveBeenCalled();
+  });
+
   it('drops a pending revert on dispose, so a torn-down menu never calls back', async () => {
     stubClipboard(() => Promise.resolve());
     const changes: boolean[] = [];
