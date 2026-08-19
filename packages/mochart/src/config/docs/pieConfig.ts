@@ -21,8 +21,13 @@ export default function getDescriptions() {
         adjustForFiltering: 'whether percent slice labels (and the minFraction threshold) renormalize against the unfiltered slices (true) or always use every slice\'s share of the full total (false)'
       }
     },
-    tooltipValues: 'the content of the tooltip value for each slice: the slice value (value), the slice percentage of the total (percent) or a combination of both (valuePercent for "value (percent)", percentValue for "percent (value)"); the value part is formatted by the series valueFormat, valuePrefix and valueSuffix, and the percent part renormalizes against the unfiltered slices unless tooltip.adjustForFiltering is false',
-    tooltipPercentFormat: 'the d3 format specifier used to format the percent part of the tooltip values (use auto to derive a format)',
+    tooltip: {
+      description: 'the values shown in the tooltip for the slices',
+      properties: {
+        valueType: 'the content of the tooltip value for each slice: the slice value (value), the slice percentage of the total (percent) or a combination of both (valuePercent for "value (percent)", percentValue for "percent (value)"); the value part is formatted by the series valueFormat, valuePrefix and valueSuffix, and the percent part renormalizes against the unfiltered slices unless the top-level tooltip.adjustForFiltering is false',
+        percentFormat: 'the d3 format specifier used to format the percent part of the tooltip values (use auto to derive a format)'
+      }
+    },
     centerLabel: 'a text label shown at the center of the pie (use null for none; most useful for donut and gauge charts)',
     centerLabelTextStyle: style('the styles to apply to the center label text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)'),
     centerTotal: {

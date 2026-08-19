@@ -281,7 +281,7 @@ OHLC: `CreateOhlcOptions`, `OhlcData` (OHLC items are `CandlestickItem`s);
 pie: `PieItem`, `CreatePieOptions`, `PieData`; sparkline:
 `CreateSparklineConfigOptions`. The shipped `.d.ts` documents every field —
 hover the type in your editor. Option members typed as a config union —
-`CreatePieOptions.tooltipValues` (`PieTooltipLabelType`) and
+`CreatePieOptions.tooltipValueType` (`PieTooltipValueType`) and
 `CreateHeatmapColorScaleOptions.colorInterpolation` (`ColorInterpolation`) —
 use the unions listed under [Constants](#constants), so a wrapper prop that
 forwards one can be typed.

@@ -38,7 +38,7 @@ function values(max: number[], min: number[] | null = null): SeriesValueObject {
 const NA = NaN;
 
 describe('getSeriesPositionData', () => {
-  describe('plain series with missingValues break (default)', () => {
+  describe('plain series with missingValueMode break (default)', () => {
     const config = enhance({ series: [{ property: 'v' }] });
     const data = getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
       values([10, NA, 30.3, 40, 50]), upright);
@@ -75,9 +75,9 @@ describe('getSeriesPositionData', () => {
     });
   });
 
-  describe('missingValues base', () => {
+  describe('missingValueMode base', () => {
     it('positions missing categories at the base and treats them as defined', () => {
-      const config = enhance({ valueAxes: [{ base: 20 }], series: [{ property: 'v', missingValues: 'base' }] });
+      const config = enhance({ valueAxes: [{ base: 20 }], series: [{ property: 'v', missingValueMode: 'base' }] });
       const data = getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
         values([10, NA, 30, NA, 50]), upright);
       expect(data.seriesPositions).toEqual([180, 160, 140, 160, 100]);
@@ -88,7 +88,7 @@ describe('getSeriesPositionData', () => {
     });
 
     it('uses the range start as the missing position when the axis has no base', () => {
-      const config = enhance({ series: [{ property: 'v', missingValues: 'base' }] });
+      const config = enhance({ series: [{ property: 'v', missingValueMode: 'base' }] });
       const data = getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
         values([10, NA, 30, 40, 50]), upright);
       expect(data.seriesPositions[1]).toBe(200);
@@ -96,7 +96,7 @@ describe('getSeriesPositionData', () => {
     });
 
     it('fills both ends of a wholly missing ranged category with the base', () => {
-      const config = enhance({ valueAxes: [{ base: 20 }], series: [{ property: 'v', rangeProperty: 'r', missingValues: 'base' }] });
+      const config = enhance({ valueAxes: [{ base: 20 }], series: [{ property: 'v', rangeProperty: 'r', missingValueMode: 'base' }] });
       const data = getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
         values([10, NA, 30, 40, 50], [30, NA, 10, 40, 60]), upright);
       expect(data.seriesPositions[1]).toBe(160);
@@ -255,9 +255,9 @@ describe('getSeriesPositionData', () => {
     });
   });
 
-  describe('missingValues connect (skip compaction)', () => {
+  describe('missingValueMode connect (skip compaction)', () => {
     it('compacts a plain series to its defined categories and maps compact indices back', () => {
-      const config = enhance({ series: [{ property: 'v', missingValues: 'connect' }] });
+      const config = enhance({ series: [{ property: 'v', missingValueMode: 'connect' }] });
       const data = getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
         values([10, NA, 30, NA, 50]), upright);
       expect(data.skipped).toBe(true);
@@ -277,7 +277,7 @@ describe('getSeriesPositionData', () => {
     });
 
     it('applies the base split over the compact arrays', () => {
-      const config = enhance({ valueAxes: [{ base: 50 }], series: [{ property: 'v', missingValues: 'connect' }] });
+      const config = enhance({ valueAxes: [{ base: 50 }], series: [{ property: 'v', missingValueMode: 'connect' }] });
       const data = getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
         values([80, NA, 20, NA, 50]), upright);
       expect(data.length).toBe(3);
@@ -289,7 +289,7 @@ describe('getSeriesPositionData', () => {
     });
 
     it('compacts prior positions alongside a ranged series', () => {
-      const config = enhance({ series: [{ property: 'v', rangeProperty: 'r', renderer: 'bar', missingValues: 'connect' }] });
+      const config = enhance({ series: [{ property: 'v', rangeProperty: 'r', renderer: 'bar', missingValueMode: 'connect' }] });
       const data = getSeriesPositionData(config.categoryAxis, config.series[0], categoryValueData, uprightScale,
         values([10, NA, 30, NA, 50], [20, NA, NA, 15, 60]), upright);
       // category 3 keeps its range end after back-fill, so only category 1 is skipped
@@ -336,8 +336,8 @@ describe('getSeriesPositionData', () => {
       expect(data.getSeriesExtent(null, 0)).toBe(40);
     });
 
-    it('compacts stack tops and priors under missingValues connect', () => {
-      const config = stacked({ missingValues: 'connect' });
+    it('compacts stack tops and priors under missingValueMode connect', () => {
+      const config = stacked({ missingValueMode: 'connect' });
       const data = getSeriesPositionData(config.categoryAxis, config.series[1], categoryValueData, uprightScale,
         stackValues, upright);
       expect(data.length).toBe(4);
@@ -350,8 +350,8 @@ describe('getSeriesPositionData', () => {
 
     // Regression: the connect path sorted stack tops against priors like unstacked ranges, so a
     // negative segment (top below its prior) rendered at the prior and its cap pointed at the base
-    it('keeps a negative stack segment\'s top and prior in place under missingValues connect', () => {
-      const config = stacked({ missingValues: 'connect' });
+    it('keeps a negative stack segment\'s top and prior in place under missingValueMode connect', () => {
+      const config = stacked({ missingValueMode: 'connect' });
       // scale spans -100..100 across 200px so negative stack values map below the base
       const signedScale = makeScale(value => 100 - value, [-100, 100], [200, 0]);
       const negativeStackValues = values([-30, NA, -50, -60, -70], [-10, NA, -20, -40, -60]);
@@ -460,7 +460,7 @@ const waterfallConfig = enhance({
   plot: { inverted: true },
   categoryAxis: { property: 'step', type: 'string', scale: 'ordinal' },
   valueAxes: [{ base: 0 }],
-  series: [{ property: 'end', rangeProperty: 'start', renderer: 'bar', missingValues: 'connect', partialRangeIsMissing: true }]
+  series: [{ property: 'end', rangeProperty: 'start', renderer: 'bar', missingValueMode: 'connect', partialRangeIsMissing: true }]
 });
 
 // An inverted value axis ranges [0, extent], so the domain minimum maps to

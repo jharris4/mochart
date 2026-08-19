@@ -160,7 +160,7 @@ describe('pie chart rendering', () => {
     expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
   });
 
-  describe('tooltip values (pieConfig.tooltipValues)', () => {
+  describe('tooltip values (pieConfig.tooltip.valueType)', () => {
     function tooltipRows(items: PieItem[], options: CreatePieOptions, extraProps: Partial<DefaultChartProps> = {}): string[] {
       const { config, data } = pieChartProps(items, options);
       const { container } = mountChart(config, data, extraProps);
@@ -176,25 +176,25 @@ describe('pie chart rendering', () => {
     });
 
     it('shows each slice\'s share for percent, and both parts for the combinations', () => {
-      expect(tooltipRows(ITEMS, { tooltipValues: 'percent' }))
+      expect(tooltipRows(ITEMS, { tooltipValueType: 'percent' }))
         .toEqual(['Chrome: 62.0%', 'Safari: 20.0%', 'Firefox: 18.0%']);
-      expect(tooltipRows(ITEMS, { tooltipValues: 'valuePercent', valueFormat: ',.0f' }))
+      expect(tooltipRows(ITEMS, { tooltipValueType: 'valuePercent', valueFormat: ',.0f' }))
         .toEqual(['Chrome: 62 (62.0%)', 'Safari: 20 (20.0%)', 'Firefox: 18 (18.0%)']);
-      expect(tooltipRows(ITEMS, { tooltipValues: 'percentValue', valueFormat: ',.0f' }))
+      expect(tooltipRows(ITEMS, { tooltipValueType: 'percentValue', valueFormat: ',.0f' }))
         .toEqual(['Chrome: 62.0% (62)', 'Safari: 20.0% (20)', 'Firefox: 18.0% (18)']);
     });
 
     // The inconsistency this option exists to remove: percent slice labels
     // renormalize when a slice is filtered, so the tooltip must too.
     it('renormalizes the percentages against the unfiltered slices, like the labels', () => {
-      const rows = tooltipRows(ITEMS, { tooltipValues: 'percent' }, { filteredSeriesIds: { slice0: true } });
+      const rows = tooltipRows(ITEMS, { tooltipValueType: 'percent' }, { filteredSeriesIds: { slice0: true } });
       // Safari 20 and Firefox 18 now split the whole circle
       expect(rows[1]).toBe('Safari: 52.6%');
       expect(rows[2]).toBe('Firefox: 47.4%');
     });
 
     it('freezes the percentages at the full-total shares when adjustForFiltering is off', () => {
-      const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percent' },
+      const { config, data } = pieChartProps(ITEMS, { tooltipValueType: 'percent' },
         { tooltip: { adjustForFiltering: false } });
       const { container } = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
       const root = container.querySelector(getChartRootCssSelector())!;
@@ -206,7 +206,7 @@ describe('pie chart rendering', () => {
     });
 
     it('masks a filtered slice\'s own row with the filtered placeholder', () => {
-      const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percent' },
+      const { config, data } = pieChartProps(ITEMS, { tooltipValueType: 'percent' },
         { tooltip: { filteredValueText: '--' } });
       const { container } = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
       const root = container.querySelector(getChartRootCssSelector())!;
@@ -217,10 +217,11 @@ describe('pie chart rendering', () => {
       expect(rows[0]).toBe('Chrome: --');
     });
 
-    it('formats the percent part with tooltipPercentFormat and the value part per series', () => {
-      const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percentValue', valueFormat: ',.1f' });
-      // merged, not replaced: the helper's fragment carries tooltipValues
-      (config as { pie: DeepPartial<PieConfig> }).pie = { ...config.pie, tooltipPercentFormat: '.0%' };
+    it('formats the percent part with tooltip.percentFormat and the value part per series', () => {
+      const { config, data } = pieChartProps(ITEMS, { tooltipValueType: 'percentValue', valueFormat: ',.1f' });
+      // merged, not replaced: the helper's fragment carries tooltip.valueType
+      const piePartial = (config as { pie: DeepPartial<PieConfig> }).pie;
+      (config as { pie: DeepPartial<PieConfig> }).pie = { ...piePartial, tooltip: { ...piePartial.tooltip, percentFormat: '.0%' } };
       const { container } = mountChart(config, data);
       const root = container.querySelector(getChartRootCssSelector())!;
       mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);

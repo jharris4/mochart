@@ -3,7 +3,7 @@ import { createStyleValidators, lineMembers, styleMembers } from './styleStateVa
 
 import {
   AUTO, NONE, RENDERERS, CURVE_TYPES, CAP_TYPES, LABEL_POSITIONS, COLOR_INTERPOLATIONS, MARKER_SHAPES, MARKER_SIZE_SCALES,
-  COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX, MISSING_VALUES, RENDERER_AREA, RENDERER_BAR
+  COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX, MISSING_VALUE_MODES, RENDERER_AREA, RENDERER_BAR
 } from '../core/constants';
 import type { DeepPartial, SeriesConfig } from '../../types/config';
 import type { Validator } from '@mochart/movalid';
@@ -88,7 +88,7 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
     allowAbsentDataProperties: validators.boolean(),
     ignore: validators.boolean(),
     renderer: validators.oneOf(RENDERERS),
-    missingValues: validators.oneOf(MISSING_VALUES),
+    missingValueMode: validators.oneOf(MISSING_VALUE_MODES),
     partialRangeIsMissing: validators.boolean(),
     // partial: curve deep-merges over its default, so { param } alone is valid; extras warn via the unknown-key walk
     curve: validators.partialObjectWithShape({

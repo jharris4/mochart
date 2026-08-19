@@ -7,7 +7,9 @@
     "type": "pie"
   },
   "pie": {
-    "tooltipValues": "percentValue",
+    "tooltip": {
+      "valueType": "percentValue"
+    },
     "startAngle": -90,
     "endAngle": 90,
     "innerRadiusFraction": 0.55,

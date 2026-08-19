@@ -32,7 +32,7 @@ import * as dateAxis from '../examples/dateAxis'
   window a linear date axis; they take an ISO date string or a timestamp — see
   [axis bounds](/recipes/axis-bounds).
 - A date that is present but has no value is a gap in the shape;
-  [`missingValues`](/reference/series#series.missingValues) chooses whether
+  [`missingValueMode`](/reference/series#series.missingValueMode) chooses whether
   the shape breaks there (default), connects across it, or drops to the base.
 - The `area` renderer fills to the value axis
   [`base`](/reference/valueAxes#valueAxes.base) when one is set; with no base

@@ -49,7 +49,7 @@ describe('missing value markers', () => {
     { month: 'Mar', sales: 30 }
   ];
   const lineSeries = (extra: Record<string, unknown>) => ({
-    series: [{ id: 'S0', property: 'sales', renderer: 'line', missingValues: 'base', ...extra }]
+    series: [{ id: 'S0', property: 'sales', renderer: 'line', missingValueMode: 'base', ...extra }]
   });
 
   it('skips the missing category by default', () => {

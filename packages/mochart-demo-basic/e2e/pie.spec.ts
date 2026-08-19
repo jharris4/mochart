@@ -97,7 +97,7 @@ test.describe('donut demo', () => {
   });
 
   // The donut's labels and tooltip both show shares (label.type 'percent',
-  // tooltipValues 'percent'), so filtering a slice has to move both.
+  // tooltip.valueType 'percent'), so filtering a slice has to move both.
   test('renormalizes the tooltip shares with the labels when a slice is filtered', async ({ page }) => {
     await openDemo(page, 'donut');
     await expect(page.locator(sliceSelector).first()).toBeAttached();

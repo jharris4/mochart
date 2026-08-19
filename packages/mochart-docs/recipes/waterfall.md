@@ -23,7 +23,7 @@ import * as waterfall from '../examples/waterfall'
   all spanning from the shared `start` property via
   [`rangeProperty`](/reference/series#series.rangeProperty). Every row
   carries a value for exactly one of them, and
-  [`missingValues: 'connect'`](/reference/series#series.missingValues) with
+  [`missingValueMode: 'connect'`](/reference/series#series.missingValueMode) with
   [`partialRangeIsMissing`](/reference/series#series.partialRangeIsMissing)
   keeps the other two from rendering (`start` exists on every row, so without
   `partialRangeIsMissing` they would collapse to zero-height bars instead of

@@ -1,7 +1,7 @@
 import {
   AUTO, NONE, RENDERER_AREA, RENDERER_BAR, RENDERER_LINE, RENDERER_NONE, MARKER_SHAPE_CIRCLE, MARKER_SIZE_SCALE_SQRT, CURVE_TYPE_LINEAR,
   COLOR_SAME, COLOR_SERIES, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX, COLOR_CURRENT, LABEL_POSITION_CENTER,
-  COLOR_INTERPOLATION_HCL, MISSING_VALUES_BREAK
+  COLOR_INTERPOLATION_HCL, MISSING_VALUE_MODE_BREAK
 } from '../core/constants';
 
 import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
@@ -33,7 +33,7 @@ export function getRegularDefaults() {
     pattern: NONE,
     ignore: false,
     renderer: RENDERER_LINE,
-    missingValues: MISSING_VALUES_BREAK,
+    missingValueMode: MISSING_VALUE_MODE_BREAK,
     partialRangeIsMissing: false,
     curve: { type: CURVE_TYPE_LINEAR },
     bar: {

@@ -44,12 +44,12 @@ export const POSITIONS = [
   POSITION_TOP, POSITION_BOTTOM
 ];
 
-export const MISSING_VALUES_BREAK = 'break';
-export const MISSING_VALUES_CONNECT = 'connect';
-export const MISSING_VALUES_BASE = 'base';
+export const MISSING_VALUE_MODE_BREAK = 'break';
+export const MISSING_VALUE_MODE_CONNECT = 'connect';
+export const MISSING_VALUE_MODE_BASE = 'base';
 
-export const MISSING_VALUES = [
-  MISSING_VALUES_BREAK, MISSING_VALUES_CONNECT, MISSING_VALUES_BASE
+export const MISSING_VALUE_MODES = [
+  MISSING_VALUE_MODE_BREAK, MISSING_VALUE_MODE_CONNECT, MISSING_VALUE_MODE_BASE
 ];
 
 export const DOMAIN_CHANGE_COMBINED = 'combined';
@@ -88,13 +88,19 @@ export const PIE_LABEL_TYPE_PERCENT_VALUE = 'percentValue';
 export const PIE_LABEL_TYPE_TITLE_VALUE = 'titleValue';
 export const PIE_LABEL_TYPE_TITLE_PERCENT = 'titlePercent';
 
-// The label types minus the title-bearing ones: a tooltip row already renders the series title as its label.
-export const PIE_TOOLTIP_LABEL_TYPES: PieTooltipLabelType[] = [
-  PIE_LABEL_TYPE_VALUE, PIE_LABEL_TYPE_PERCENT, PIE_LABEL_TYPE_VALUE_PERCENT, PIE_LABEL_TYPE_PERCENT_VALUE
+export const PIE_LABEL_TYPES: PieLabelType[] = [
+  PIE_LABEL_TYPE_VALUE, PIE_LABEL_TYPE_PERCENT, PIE_LABEL_TYPE_TITLE, PIE_LABEL_TYPE_VALUE_PERCENT,
+  PIE_LABEL_TYPE_PERCENT_VALUE, PIE_LABEL_TYPE_TITLE_VALUE, PIE_LABEL_TYPE_TITLE_PERCENT
 ];
 
-export const PIE_LABEL_TYPES: PieLabelType[] = [
-  ...PIE_TOOLTIP_LABEL_TYPES, PIE_LABEL_TYPE_TITLE, PIE_LABEL_TYPE_TITLE_VALUE, PIE_LABEL_TYPE_TITLE_PERCENT
+// No title variants: a tooltip row already renders the series title as its label.
+export const PIE_TOOLTIP_VALUE_TYPE_VALUE = 'value';
+export const PIE_TOOLTIP_VALUE_TYPE_PERCENT = 'percent';
+export const PIE_TOOLTIP_VALUE_TYPE_VALUE_PERCENT = 'valuePercent';
+export const PIE_TOOLTIP_VALUE_TYPE_PERCENT_VALUE = 'percentValue';
+
+export const PIE_TOOLTIP_VALUE_TYPES: PieTooltipValueType[] = [
+  PIE_TOOLTIP_VALUE_TYPE_VALUE, PIE_TOOLTIP_VALUE_TYPE_PERCENT, PIE_TOOLTIP_VALUE_TYPE_VALUE_PERCENT, PIE_TOOLTIP_VALUE_TYPE_PERCENT_VALUE
 ];
 
 export const SCALE_ORDINAL = 'ordinal';
@@ -198,16 +204,18 @@ export type Align = typeof ALIGN_LEFT | typeof ALIGN_CENTER | typeof ALIGN_RIGHT
 export type VerticalAlign = typeof VERTICAL_ALIGN_TOP | typeof VERTICAL_ALIGN_MIDDLE | typeof VERTICAL_ALIGN_BOTTOM;
 export type Anchor = typeof ANCHOR_START | typeof ANCHOR_END | typeof ANCHOR_MIDDLE;
 export type Position = typeof POSITION_TOP | typeof POSITION_BOTTOM;
-export type MissingValues = typeof MISSING_VALUES_BREAK | typeof MISSING_VALUES_CONNECT | typeof MISSING_VALUES_BASE;
+export type MissingValueMode = typeof MISSING_VALUE_MODE_BREAK | typeof MISSING_VALUE_MODE_CONNECT | typeof MISSING_VALUE_MODE_BASE;
 export type DomainChange = typeof AUTO | typeof DOMAIN_CHANGE_COMBINED | typeof DOMAIN_CHANGE_STAGED;
 export type AxisSide = typeof SIDE_START | typeof SIDE_END;
 export type ThresholdTitleSide = typeof TITLE_SIDE_LOW | typeof TITLE_SIDE_HIGH;
 export type ChartType = typeof CHART_TYPE_XY | typeof CHART_TYPE_PIE;
-export type PieTooltipLabelType =
-  typeof PIE_LABEL_TYPE_VALUE | typeof PIE_LABEL_TYPE_PERCENT |
-  typeof PIE_LABEL_TYPE_VALUE_PERCENT | typeof PIE_LABEL_TYPE_PERCENT_VALUE;
-export type PieLabelType = PieTooltipLabelType |
-  typeof PIE_LABEL_TYPE_TITLE | typeof PIE_LABEL_TYPE_TITLE_VALUE | typeof PIE_LABEL_TYPE_TITLE_PERCENT;
+export type PieLabelType =
+  typeof PIE_LABEL_TYPE_VALUE | typeof PIE_LABEL_TYPE_PERCENT | typeof PIE_LABEL_TYPE_TITLE |
+  typeof PIE_LABEL_TYPE_VALUE_PERCENT | typeof PIE_LABEL_TYPE_PERCENT_VALUE |
+  typeof PIE_LABEL_TYPE_TITLE_VALUE | typeof PIE_LABEL_TYPE_TITLE_PERCENT;
+export type PieTooltipValueType =
+  typeof PIE_TOOLTIP_VALUE_TYPE_VALUE | typeof PIE_TOOLTIP_VALUE_TYPE_PERCENT |
+  typeof PIE_TOOLTIP_VALUE_TYPE_VALUE_PERCENT | typeof PIE_TOOLTIP_VALUE_TYPE_PERCENT_VALUE;
 export type Scale = typeof SCALE_ORDINAL | typeof SCALE_LINEAR;
 export type DataType = typeof TYPE_STRING | typeof TYPE_NUMBER | typeof TYPE_DATE;
 export type RendererType = typeof RENDERER_BAR | typeof RENDERER_LINE | typeof RENDERER_AREA | typeof RENDERER_NONE;

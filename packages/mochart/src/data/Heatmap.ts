@@ -218,7 +218,7 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
       renderer: 'bar',
       // an all-missing row leaves its properties out of every data object
       allowAbsentDataProperties: true,
-      missingValues: 'connect',
+      missingValueMode: 'connect',
       group: null,
       stack: null,
       shapeStyle: { normal: { fillOpacity: 1 } },

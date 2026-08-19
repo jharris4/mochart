@@ -501,11 +501,11 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
 
     // Percent values come from the same normalized slice fractions as the labels (getPieSliceFractions),
     // built once per tooltip; tooltipConfig.adjustForFiltering picks renormalized vs full-total shares.
-    const pieTooltipValues = pieConfig.tooltipValues;
+    const pieTooltipValueType = pieConfig.tooltip.valueType;
     let piePercentFormat: ((fraction: number) => string) | null = null;
     let rawFractions: Record<string, number> = Object.create(null);
     let adjustedFractions: Record<string, number> = Object.create(null);
-    if (chartConfig.type === CHART_TYPE_PIE && pieLabelTypeUsesPercent(pieTooltipValues)) {
+    if (chartConfig.type === CHART_TYPE_PIE && pieLabelTypeUsesPercent(pieTooltipValueType)) {
       piePercentFormat = getPieTooltipPercentFormat(pieConfig);
       rawFractions = getPieSliceFractionMap(seriesConfigs, seriesId => raw.values[seriesId]?.plain);
       adjustedFractions = adjustForFiltering && tooltipConfig.adjustForFiltering ?
@@ -573,7 +573,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       if (!adjustForFiltering || !(seriesIsFiltered && tooltipConfig.hideFiltered)) {
         const valueFormat = valueFormats[seriesId];
         const pieValues: PieTooltipValues | undefined = piePercentFormat === null ? undefined : {
-          tooltipValues: pieTooltipValues, percentFormat: piePercentFormat,
+          valueType: pieTooltipValueType, percentFormat: piePercentFormat,
           fraction: adjustedFractions[seriesId] ?? 0, rawFraction: rawFractions[seriesId] ?? 0,
           filtered: seriesIsFiltered
         };

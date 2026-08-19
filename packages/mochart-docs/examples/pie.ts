@@ -15,7 +15,7 @@ const pie = createPie(
   ],
   // valuePercent puts each slice's share next to its value in the tooltip,
   // e.g. "420 (48.8%)"
-  { valueFormat: ',.0f', tooltipValues: 'valuePercent' }
+  { valueFormat: ',.0f', tooltipValueType: 'valuePercent' }
 );
 
 export const config: MochartInputConfig = {

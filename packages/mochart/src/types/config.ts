@@ -1,7 +1,7 @@
 import type {
-  Auto, Align, AxisSide, MissingValues, VerticalAlign, Anchor, Position, Scale, DataType, RendererType, ThresholdTitleSide,
+  Auto, Align, AxisSide, MissingValueMode, VerticalAlign, Anchor, Position, Scale, DataType, RendererType, ThresholdTitleSide,
   CurveType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale, PatternType,
-  ChartType, PieLabelType, PieTooltipLabelType, DomainChange
+  ChartType, PieLabelType, PieTooltipValueType, DomainChange
 } from '../config/core/constants';
 import type { MarginPadding, InnerOuter } from './geometry';
 
@@ -621,6 +621,28 @@ export interface PieLabelConfig {
   adjustForFiltering: boolean;
 }
 
+/** The values shown in the tooltip for the pie slices. */
+export interface PieTooltipConfig {
+  /**
+   * The content of the tooltip value for each slice: the slice value (value),
+   * the slice percentage of the total (percent) or a combination of both
+   * (valuePercent for "value (percent)", percentValue for "percent (value)");
+   * the value part is formatted by the series valueFormat, valuePrefix and
+   * valueSuffix, and the percent part renormalizes against the unfiltered
+   * slices unless the top-level tooltip.adjustForFiltering is false.
+   *
+   * @default "value"
+   */
+  valueType: PieTooltipValueType;
+  /**
+   * The d3 format specifier used to format the percent part of the tooltip
+   * values (use auto to derive a format).
+   *
+   * @default "auto"
+   */
+  percentFormat: string | Auto;
+}
+
 /** The total of the slice values shown at the center of the pie. */
 export interface PieCenterTotalConfig {
   /**
@@ -710,23 +732,11 @@ export interface PieConfig {
    */
   label: PieLabelConfig;
   /**
-   * The content of the tooltip value for each slice: the slice value (value),
-   * the slice percentage of the total (percent) or a combination of both
-   * (valuePercent for "value (percent)", percentValue for "percent (value)");
-   * the value part is formatted by the series valueFormat, valuePrefix and
-   * valueSuffix, and the percent part renormalizes against the unfiltered
-   * slices unless tooltip.adjustForFiltering is false.
+   * The values shown in the tooltip for the slices.
    *
-   * @default "value"
+   * @default { valueType: "value", percentFormat: "auto" }
    */
-  tooltipValues: PieTooltipLabelType;
-  /**
-   * The d3 format specifier used to format the percent part of the tooltip
-   * values (use auto to derive a format).
-   *
-   * @default "auto"
-   */
-  tooltipPercentFormat: string | Auto;
+  tooltip: PieTooltipConfig;
   /**
    * A text label shown at the center of the pie (use null for none; most useful
    * for donut and gauge charts).
@@ -2927,7 +2937,7 @@ export interface SeriesMarkerConfig {
   style: StyleStates<SeriesColor>;
   /**
    * Whether to still show a marker at missing values (most useful with
-   * missingValues "base", which gives the marker a position).
+   * missingValueMode "base", which gives the marker a position).
    *
    * @default false
    */
@@ -3132,7 +3142,7 @@ export interface SeriesConfig {
    * By default a category with just one of `property`/`rangeProperty` undefined
    * keeps a zero-extent span collapsed at the defined value, so ranged areas
    * stay connected through it. When `true` such categories count as missing
-   * instead, following the configured `missingValues` treatment.
+   * instead, following the configured `missingValueMode` treatment.
    *
    * @default false
    */
@@ -3150,7 +3160,7 @@ export interface SeriesConfig {
    *
    * @default "break"
    */
-  missingValues: MissingValues;
+  missingValueMode: MissingValueMode;
 
   /**
    * Whether to animate leading/trailing series position values from their

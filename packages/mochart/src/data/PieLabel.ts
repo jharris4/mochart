@@ -85,5 +85,5 @@ export function getPieLabelFormats(pieConfig: PieConfig): PieLabelFormats {
  * there is no tooltipValueFormat to resolve here.
  */
 export function getPieTooltipPercentFormat(pieConfig: PieConfig): NumberFormat {
-  return format(pieConfig.tooltipPercentFormat === AUTO ? AUTO_TOOLTIP_PERCENT_FORMAT : pieConfig.tooltipPercentFormat);
+  return format(pieConfig.tooltip.percentFormat === AUTO ? AUTO_TOOLTIP_PERCENT_FORMAT : pieConfig.tooltip.percentFormat);
 }

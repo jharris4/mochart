@@ -45,7 +45,7 @@ import * as heatmap from '../examples/heatmap'
   cell's band coordinates —
   [`valueFormat`](/reference/series#series.valueFormat) formats it as usual.
 - `null`/`undefined` cells leave a gap in the grid:
-  [`missingValues: 'connect'`](/reference/series#series.missingValues) skips
+  [`missingValueMode: 'connect'`](/reference/series#series.missingValueMode) skips
   them without disturbing their neighbours. Pass `missingColor` instead to
   draw them as a full band in that colour (it becomes each row's
   [`colorScale.missing`](/reference/series#series.colorScale.missing)) — pick

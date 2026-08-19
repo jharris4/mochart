@@ -27,7 +27,7 @@ import * as candlestickVolume from '../examples/candlestickVolume'
   with [`bar.widthFraction`](/reference/series#series.bar.widthFraction) and
   listed first so the bodies draw over them. Every row carries values for
   exactly one direction, and
-  [`missingValues: 'connect'`](/reference/series#series.missingValues) with
+  [`missingValueMode: 'connect'`](/reference/series#series.missingValueMode) with
   [`partialRangeIsMissing`](/reference/series#series.partialRangeIsMissing)
   keeps the other direction's series from rendering — the same trick as the
   [Waterfall](/recipes/waterfall).

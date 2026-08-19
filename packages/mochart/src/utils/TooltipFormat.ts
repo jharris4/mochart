@@ -1,10 +1,10 @@
-import { NONE, PIE_LABEL_TYPE_PERCENT, MISSING_VALUES_CONNECT, CHART_TYPE_PIE } from '../config/core/constants';
+import { NONE, PIE_TOOLTIP_VALUE_TYPE_PERCENT, MISSING_VALUE_MODE_CONNECT, CHART_TYPE_PIE } from '../config/core/constants';
 import { getSeriesLabel } from './SeriesTitle';
 import { getCategoryFormat, getSeriesFormats } from './ValueFormat';
 import { formatPieLabelType, pieLabelTypeUsesPercent, getPieTooltipPercentFormat } from '../data/PieLabel';
 import { getPieSliceFractionMap } from '../data/PieData';
 import { MISSING_VALUE } from './utils';
-import type { PieTooltipLabelType } from '../config/core/constants';
+import type { PieTooltipValueType } from '../config/core/constants';
 import type { TooltipConfig } from '../types/config';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig } from '../types/enhanced';
 import type { ChartData, SeriesDomainObjects, SeriesValueObject } from '../types/data';
@@ -76,7 +76,7 @@ function getValueText(tooltipConfig: TooltipConfig, seriesConfig: EnhancedSeries
  * so a combined value's value and percentage always come from the same snapshot.
  */
 export interface PieTooltipValues {
-  tooltipValues: PieTooltipLabelType;
+  valueType: PieTooltipValueType;
   percentFormat: (fraction: number) => string;
   /** The slice's fraction, already chosen from the filtered or raw values. */
   fraction: number;
@@ -89,7 +89,7 @@ export interface PieTooltipValues {
 
 function getPieValueText(tooltipConfig: TooltipConfig, seriesConfig: EnhancedSeriesConfig, adjustForFiltering: boolean,
   valueFormat: ValueFormatter, series: CategorySeriesSlice, pieValues: PieTooltipValues): string | null {
-  const { tooltipValues, percentFormat, fraction, rawFraction, filtered } = pieValues;
+  const { valueType, percentFormat, fraction, rawFraction, filtered } = pieValues;
 
   // No value means no row, whichever parts the type asks for — a bare "0.0%"
   // for a slice that has no value would read as a real zero share.
@@ -103,10 +103,10 @@ function getPieValueText(tooltipConfig: TooltipConfig, seriesConfig: EnhancedSer
   const percentText = adjustForFiltering && tooltipConfig.adjustForFiltering && filtered ?
     getFilteredValueText(tooltipConfig, percentFormat(rawFraction)) : percentFormat(fraction);
 
-  if (tooltipValues === PIE_LABEL_TYPE_PERCENT) {
+  if (valueType === PIE_TOOLTIP_VALUE_TYPE_PERCENT) {
     return percentText;
   }
-  return formatPieLabelType(tooltipValues, { title: getSeriesLabel(seriesConfig), value: valueText, percent: percentText });
+  return formatPieLabelType(valueType, { title: getSeriesLabel(seriesConfig), value: valueText, percent: percentText });
 }
 
 export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: EnhancedSeriesConfig, valueFormat: ValueFormatter, series: CategorySeriesSlice,
@@ -123,14 +123,14 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Enhanc
   // Pie slices are plain values, so the percentage-bearing types short-circuit
   // the range/marker/error composition below, which cannot apply to them. An
   // explicit per-series tooltipProperty still wins (above).
-  if (pieValues !== undefined && pieLabelTypeUsesPercent(pieValues.tooltipValues)) {
+  if (pieValues !== undefined && pieLabelTypeUsesPercent(pieValues.valueType)) {
     return { labelText, valueText: getPieValueText(tooltipConfig, seriesConfig, adjustForFiltering, valueFormat, series, pieValues) };
   }
 
   // Mirror the shape's skip semantics (see getSeriesPositionData): under connect+partialRangeIsMissing
   // the direction-split idiom (waterfall, candlestick, OHLC) means "not this direction", not "no data",
   // so those rows (and plain followSeries rows, e.g. direction-split volume) hide instead of "value – N/A".
-  if (seriesConfig.missingValues === MISSING_VALUES_CONNECT && seriesConfig.stack === NONE) {
+  if (seriesConfig.missingValueMode === MISSING_VALUE_MODE_CONNECT && seriesConfig.stack === NONE) {
     const rawValueObject = series.raw.values[seriesConfig.id];
     if (seriesConfig.rangeProperty !== NONE && seriesConfig.partialRangeIsMissing &&
       (rawValueObject.plain === undefined || rawValueObject.range === undefined)) {
@@ -193,11 +193,11 @@ export function getTooltipAnnouncement(mochartConfig: EnhancedMochartConfig, too
   const { category, series } = tooltipValueObject;
   const { raw, filtered, filteredFlags } = series;
 
-  const pieTooltipValues = pieConfig.tooltipValues;
+  const pieTooltipValueType = pieConfig.tooltip.valueType;
   let piePercentFormat: ((fraction: number) => string) | null = null;
   let rawFractions: Record<string, number> = {};
   let adjustedFractions: Record<string, number> = {};
-  if (chartConfig.type === CHART_TYPE_PIE && pieLabelTypeUsesPercent(pieTooltipValues)) {
+  if (chartConfig.type === CHART_TYPE_PIE && pieLabelTypeUsesPercent(pieTooltipValueType)) {
     piePercentFormat = getPieTooltipPercentFormat(pieConfig);
     rawFractions = getPieSliceFractionMap(seriesConfigs, seriesId => raw.values[seriesId]?.plain);
     adjustedFractions = tooltipConfig.adjustForFiltering ?
@@ -223,7 +223,7 @@ export function getTooltipAnnouncement(mochartConfig: EnhancedMochartConfig, too
       continue;
     }
     const pieValues: PieTooltipValues | undefined = piePercentFormat === null ? undefined : {
-      tooltipValues: pieTooltipValues, percentFormat: piePercentFormat,
+      valueType: pieTooltipValueType, percentFormat: piePercentFormat,
       fraction: adjustedFractions[seriesId] ?? 0, rawFraction: rawFractions[seriesId] ?? 0,
       filtered: seriesIsFiltered
     };

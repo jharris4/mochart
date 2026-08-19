@@ -104,7 +104,7 @@ export type SeriesPositionAccessor = (_datum: unknown, index: number) => SeriesP
 
 export interface SeriesPositionData extends ArrayLike<unknown> {
   readonly length: number;
-  /** True when positions were compacted (missingValues "connect"). */
+  /** True when positions were compacted (missingValueMode "connect"). */
   skipped: boolean;
   skipCategoryIndexMap: Record<number, number>;
   getDefined: (_datum: unknown, index: number) => boolean;

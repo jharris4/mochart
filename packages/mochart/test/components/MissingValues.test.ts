@@ -1,4 +1,4 @@
-// missingValues 'connect' index-mapping regressions: positions compact only for 'connect', and the compacted->raw
+// missingValueMode 'connect' index-mapping regressions: positions compact only for 'connect', and the compacted->raw
 // remap (skipCategoryIndexMap) must track the data and feed every raw-indexed lookup (focus, colors, labels, marker sizes).
 import { describe, it, expect, beforeAll } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
@@ -43,7 +43,7 @@ beforeAll(() => {
   installSvgMeasurementShims();
 });
 
-describe('missingValues base', () => {
+describe('missingValueMode base', () => {
   // Positions are not compacted in this combination, so the raw-index remap
   // must be the identity, not an empty-map lookup.
   it('still renders labels, markers, error bars and value colors', () => {
@@ -53,7 +53,7 @@ describe('missingValues base', () => {
       { month: 'Mar', sales: 30, low: 27, high: 33 }
     ];
     const { container } = mountChart(makeConfig({
-      renderer: 'bar', missingValues: 'base',
+      renderer: 'bar', missingValueMode: 'base',
       labelProperty: 'sales', marker: { shape: 'circle' }, colorProperty: 'sales',
       errorLowProperty: 'low', errorHighProperty: 'high'
     }), rows);
@@ -70,11 +70,11 @@ describe('missingValues base', () => {
   });
 });
 
-describe('missingValues connect category-index remapping', () => {
+describe('missingValueMode connect category-index remapping', () => {
   it('remaps click focus through the current data, not a stale map', () => {
     const focuses: ChartFocus[] = [];
     const { container, handle } = mountChart(
-      makeConfig({ renderer: 'bar', missingValues: 'connect', focusCategoryOnClick: true }),
+      makeConfig({ renderer: 'bar', missingValueMode: 'connect', focusCategoryOnClick: true }),
       [{ month: 'Jan', sales: 10 }, { month: 'Feb' }, { month: 'Mar', sales: 30 }],
       { onFocus: focus => { focuses.push(focus); } }
     );
@@ -91,7 +91,7 @@ describe('missingValues connect category-index remapping', () => {
 
   it('keeps categoryIndex palette colors raw-indexed across a gap', () => {
     const { container } = mountChart(makeConfig({
-      renderer: 'bar', missingValues: 'connect',
+      renderer: 'bar', missingValueMode: 'connect',
       shapeStyle: { normal: { fillColor: 'categoryIndex' } }
     }), [{ month: 'Jan', sales: 10 }, { month: 'Feb' }, { month: 'Mar', sales: 30 }]);
 
@@ -103,7 +103,7 @@ describe('missingValues connect category-index remapping', () => {
 
   it('keeps markerProperty sizes raw-indexed when marker values have their own gaps', () => {
     const { container } = mountChart(makeConfig({
-      renderer: 'line', missingValues: 'connect', marker: { shape: 'circle' }, markerProperty: 'size'
+      renderer: 'line', missingValueMode: 'connect', marker: { shape: 'circle' }, markerProperty: 'size'
     }), [
       { month: 'Jan', sales: 10, size: 4 },
       { month: 'Feb', sales: 20 },

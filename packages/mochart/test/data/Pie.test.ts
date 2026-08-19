@@ -68,19 +68,19 @@ describe('createPie', () => {
     expect(seriesConfigs[0]).toMatchObject({ shapeStyle: { normal: { strokeColor: '#ff0000', fillColor: '#ff0000' } }, valueFormat: '.1f' });
   });
 
-  it('forwards tooltipValues to the pieConfig fragment, leaving the data alone', () => {
-    const { data, pie: pieConfig, series: seriesConfigs } = createPie(items(), { tooltipValues: 'percentValue' });
+  it('forwards tooltipValueType to the pieConfig fragment, leaving the data alone', () => {
+    const { data, pie: pieConfig, series: seriesConfigs } = createPie(items(), { tooltipValueType: 'percentValue' });
     // percentages are computed by the chart from the live slice shares, so
     // nothing is baked into the row and no tooltipProperty is wired up
-    expect(pieConfig).toEqual({ tooltipValues: 'percentValue' });
+    expect(pieConfig).toEqual({ tooltip: { valueType: 'percentValue' } });
     expect(data[0]).toEqual({ category: 'all', slice0: 62, slice1: 20, slice2: 18 });
     expect(seriesConfigs[0].tooltipProperty).toBeUndefined();
   });
 
   it('emits a donut pieConfig fragment via the donut and innerRadiusFraction options', () => {
     expect(createPie(items()).pie).toEqual({});
-    expect(createPie(items(), { donut: true, tooltipValues: 'percent' }).pie)
-      .toEqual({ tooltipValues: 'percent', innerRadiusFraction: 0.6 });
+    expect(createPie(items(), { donut: true, tooltipValueType: 'percent' }).pie)
+      .toEqual({ tooltip: { valueType: 'percent' }, innerRadiusFraction: 0.6 });
     expect(createPie(items(), { donut: true }).pie).toEqual({ innerRadiusFraction: 0.6 });
     expect(createPie(items(), { donut: true, innerRadiusFraction: 0.4 }).pie).toEqual({ innerRadiusFraction: 0.4 });
   });
@@ -100,7 +100,7 @@ describe('createPie', () => {
   });
 
   it('assembles into a valid config and data provider', () => {
-    const pie = createPie(items(), { donut: true, tooltipValues: 'percent' });
+    const pie = createPie(items(), { donut: true, tooltipValueType: 'percent' });
     const config: MochartInputConfig = {
       version: '1.0.0',
       chart: pie.chart,

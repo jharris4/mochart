@@ -1,4 +1,4 @@
-import { AUTO, NONE, PIE_LABEL_TYPE_PERCENT, PIE_LABEL_TYPE_VALUE, COLOR_CURRENT } from '../core/constants';
+import { AUTO, NONE, PIE_LABEL_TYPE_PERCENT, PIE_TOOLTIP_VALUE_TYPE_VALUE, COLOR_CURRENT } from '../core/constants';
 import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
 import type { DeepPartial, PieConfig } from '../../types/config';
@@ -24,8 +24,10 @@ export function getRegularDefaults() {
       minFraction: 0.05,
       adjustForFiltering: true
     },
-    tooltipValues: PIE_LABEL_TYPE_VALUE,
-    tooltipPercentFormat: AUTO,
+    tooltip: {
+      valueType: PIE_TOOLTIP_VALUE_TYPE_VALUE,
+      percentFormat: AUTO
+    },
     centerLabel: NONE,
     centerLabelTextStyle: { strokeColor: NONE, strokeOpacity: NONE, strokeWidth: NONE, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },
     centerTotal: {

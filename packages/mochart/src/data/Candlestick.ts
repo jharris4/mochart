@@ -247,7 +247,7 @@ export function buildVolumeSeriesConfigs(volumeOptions: Required<CandlestickVolu
       property: direction + 'Volume',
       axis: VOLUME_AXIS_ID,
       renderer: 'bar',
-      missingValues: 'connect',
+      missingValueMode: 'connect',
       group: null,
       stack: null,
       showInLegend: false,
@@ -314,7 +314,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
     scale: 'ordinal'
   };
 
-  // Two bar series per direction, gated to one direction per category (missingValues 'connect' + partialRangeIsMissing,
+  // Two bar series per direction, gated to one direction per category (missingValueMode 'connect' + partialRangeIsMissing,
   // as in the waterfall helper): a thin low→high wick under an opaque full-width open→close body. Wicks skip the legend
   // but follow their body via followSeries, carrying the range title as their tooltip row (low – high).
   // In hollow mode the wick would show through the see-through up body, so this series turns shapeless
@@ -328,7 +328,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: hollow ? 'none' : 'bar',
       bar: { widthFraction: wickWidthFraction },
-      missingValues: 'connect',
+      missingValueMode: 'connect',
       partialRangeIsMissing: true,
       group: null,
       stack: null,
@@ -351,7 +351,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: 'bar',
       bar: { widthFraction: wickWidthFraction },
-      missingValues: 'connect',
+      missingValueMode: 'connect',
       partialRangeIsMissing: true,
       group: null,
       stack: null,
@@ -384,7 +384,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       // a doji (open === close) has a zero-height body; a filled one would draw nothing at all,
       // while a hollow one already shows its outline
       bar: { widthFraction: bodyWidthFraction, ...(hollowBody ? {} : { minExtent: DEFAULT_BODY_MIN_EXTENT }) },
-      missingValues: 'connect',
+      missingValueMode: 'connect',
       partialRangeIsMissing: true,
       group: null,
       stack: null,

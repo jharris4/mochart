@@ -67,7 +67,7 @@ export default function getDescriptions() {
     },
     ignore: 'whether to ignore this series and treat it as though it were not specified',
     renderer: 'the shape renderer to use when drawing the series shape (line, area, bar, none)',
-    missingValues: 'what to draw at a category whose value is missing: break the shape at the gap (break), connect the neighbouring defined values (connect), or draw the point at the value axis base value (base)',
+    missingValueMode: 'what to draw at a category whose value is missing: break the shape at the gap (break), connect the neighbouring defined values (connect), or draw the point at the value axis base value (base)',
     partialRangeIsMissing: 'whether to treat a value as missing when either of property or rangeProperty is undefined, instead of collapsing to the defined one',
     curve: {
       description: 'the d3 curve type and param to use when drawing the series shape',
@@ -149,7 +149,7 @@ export default function getDescriptions() {
         minSize: 'the minimum marker size (in pixels) to use when interpolating the marker size based on a marker property value',
         sizeScale: 'the scale used to interpolate marker sizes from marker property values ("sqrt" scales the marker area with the value, "linear" scales its diameter)',
         style: styleStates('the style of the series marker', styleMembers, 'marker', true),
-        showForMissingValues: 'whether to still show a marker at missing values (most useful with missingValues "base", which gives the marker a position)'
+        showForMissingValues: 'whether to still show a marker at missing values (most useful with missingValueMode "base", which gives the marker a position)'
       }
     },
     showInLegend: 'whether to show the series in the legend',
@@ -179,9 +179,9 @@ export function getDetails() {
     stack: 'Series sharing the same stack id (an `id` from `seriesStacks`) are drawn stacked on one another and animate as a single unit, so the stack stays gapless mid-transition. All series of a stack must share the same `axis` and the same `group` (or all be ungrouped) — a stack cannot span groups, since each group lays its stacks out in its own sub-slots. Defaults to the sole stack id when exactly one stack is configured; use `null` to opt a series out.',
     group: 'Series sharing the same group id (an `id` from `seriesGroups`) are laid out side by side within each category slot — grouped/clustered bars. Series in the group that also share a `stack` share one sub-slot, so stacks placed in the same group become side-by-side stacked columns. Defaults to the sole group id when exactly one series group is configured; use `null` to opt a series out.',
     curve: 'Only affects the `line` and `area` renderers. `type` selects the d3-shape curve (`linear`, `monotoneX`, `natural`, `step`, `cardinal`, `catmullRom`, …) and `param` is passed to the curve’s tension/alpha configurator for the curve types that take one.',
-    missingValues: 'With `"connect"`, lines and areas bridge missing categories directly between the neighbouring defined values; with `"base"` the point is drawn at the value axis base value; the default `"break"` leaves a gap in the shape. For a series with a `rangeProperty`, a category counts as missing only when both properties are undefined — see `partialRangeIsMissing`.',
+    missingValueMode: 'With `"connect"`, lines and areas bridge missing categories directly between the neighbouring defined values; with `"base"` the point is drawn at the value axis base value; the default `"break"` leaves a gap in the shape. For a series with a `rangeProperty`, a category counts as missing only when both properties are undefined — see `partialRangeIsMissing`.',
     allowAbsentDataProperties: 'Covers every data property the series names — `property`, `rangeProperty`, `errorLowProperty`, `errorHighProperty`, `markerProperty`, `labelProperty`, `tooltipProperty` and `colorProperty`. Kept `false` by default so a misspelled property name is still reported by `getDataErrors`; enable it for a series that may genuinely have no data behind it, which then draws nothing but keeps its legend and tooltip entries. A property that is present but has the wrong number of values is still an error.',
-    partialRangeIsMissing: 'Only affects series with a `rangeProperty` (stacked series are unaffected). By default a category with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such categories count as missing instead, following the configured `missingValues` treatment.',
+    partialRangeIsMissing: 'Only affects series with a `rangeProperty` (stacked series are unaffected). By default a category with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such categories count as missing instead, following the configured `missingValueMode` treatment.',
     valueFormat: 'A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the value axis `tickLabel.format` when that is set.',
     cap: { properties: { type: 'Draws a decorative cap on the value end of each bar in the series; `size` controls its extent. To cap only the outside of a stacked bar, see `onlyStackOuter` and `seriesStacks[].outerCap.type`.' } },
     bar: { properties: {

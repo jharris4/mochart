@@ -1,4 +1,4 @@
-// The donut option adds an inner radius, and tooltipValues 'percent' makes the
+// The donut option adds an inner radius, and tooltipValueType 'percent' makes the
 // tooltip show each slice's share instead of its raw value. The chart computes
 // those percentages from the current slice shares, so — like the percent slice
 // labels below — they renormalize as slices are filtered.
@@ -14,7 +14,7 @@ const donut = createPie(
     { label: 'Opera', value: 3 },
     { label: 'Other', value: 4 }
   ],
-  { donut: true, tooltipValues: 'percent' }
+  { donut: true, tooltipValueType: 'percent' }
 );
 
 export const config: MochartInputConfig = {

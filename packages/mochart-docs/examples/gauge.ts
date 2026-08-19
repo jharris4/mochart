@@ -12,7 +12,7 @@ const gauge = createPie(
   ],
   // percentValue pairs each segment's share with its response count, e.g.
   // "54.0% (540)"
-  { tooltipValues: 'percentValue' }
+  { tooltipValueType: 'percentValue' }
 );
 
 export const config: MochartInputConfig = {

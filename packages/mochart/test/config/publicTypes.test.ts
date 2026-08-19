@@ -3,8 +3,8 @@ import { describe, it, expect, expectTypeOf } from 'vitest';
 import * as mochart from '../../src';
 import type {
   CssStyle, MochartInputConfig, MochartConfig,
-  Auto, Align, VerticalAlign, Anchor, Position, MissingValues, AxisSide, ThresholdTitleSide,
-  ChartType, PieLabelType, PieTooltipLabelType, Scale, DataType, RendererType, CurveType,
+  Auto, Align, VerticalAlign, Anchor, Position, MissingValueMode, AxisSide, ThresholdTitleSide,
+  ChartType, PieLabelType, PieTooltipValueType, Scale, DataType, RendererType, CurveType,
   PatternType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale, DomainChange,
   ChartEventPayload, ChartFocus, ChartSeriesFilter, ChartSliceClickPayload, ChartSeriesClickPayload,
   ChartCallbacks, ChartFactories, ChartFactoryContext, ChartFactoryContent, ChartContentFactory,
@@ -20,8 +20,8 @@ function describeSeries(renderer: RendererType, curve: CurveType, shape: MarkerS
 
 interface EveryUnion {
   auto: Auto; align: Align; verticalAlign: VerticalAlign; anchor: Anchor; position: Position;
-  missingValues: MissingValues; axisSide: AxisSide; thresholdTitleSide: ThresholdTitleSide;
-  chartType: ChartType; pieLabelType: PieLabelType; pieTooltipLabelType: PieTooltipLabelType;
+  missingValueMode: MissingValueMode; axisSide: AxisSide; thresholdTitleSide: ThresholdTitleSide;
+  chartType: ChartType; pieLabelType: PieLabelType; pieTooltipValueType: PieTooltipValueType;
   scale: Scale; dataType: DataType; rendererType: RendererType; curveType: CurveType;
   patternType: PatternType;
   capType: CapType; labelPosition: LabelPosition; colorMode: ColorMode;
@@ -33,8 +33,8 @@ describe('public config type surface', () => {
   it('exposes every config union type by name', () => {
     const values: EveryUnion = {
       auto: 'auto', align: 'left', verticalAlign: 'top', anchor: 'start', position: 'top',
-      missingValues: 'break', axisSide: 'start', thresholdTitleSide: 'low',
-      chartType: 'xy', pieLabelType: 'titlePercent', pieTooltipLabelType: 'value',
+      missingValueMode: 'break', axisSide: 'start', thresholdTitleSide: 'low',
+      chartType: 'xy', pieLabelType: 'titlePercent', pieTooltipValueType: 'value',
       scale: 'linear', dataType: 'number', rendererType: 'bar', curveType: 'stepAfter',
       patternType: 'crosshatch',
       capType: 'round', labelPosition: 'inside', colorMode: 'seriesIndex',

@@ -57,7 +57,7 @@ const descriptions: Record<string, string> = {
   VerticalAlign: 'Vertical alignment.',
   RendererType: 'How a series draws its values.',
   CurveType: 'The interpolation curve for line and area series.',
-  MissingValues: 'How a line or area series treats categories with no value.',
+  MissingValueMode: 'How a line or area series treats categories with no value.',
   CapType: 'The shape of the outer end of a bar.',
   LabelPosition: 'Where a series value label sits relative to its shape.',
   MarkerShape: 'The symbol drawn at each series value.',
@@ -66,7 +66,7 @@ const descriptions: Record<string, string> = {
   ColorInterpolation: 'The color space a series color scale interpolates in.',
   PatternType: 'The fill pattern a `patterns` entry draws.',
   PieLabelType: 'What a pie slice label shows.',
-  PieTooltipLabelType: 'What a pie tooltip row shows: the label types without the series title, which the row already carries.',
+  PieTooltipValueType: 'What a pie tooltip row shows: the slice value, its percent or both, without the series title the row already carries.',
   DomainChange: 'How an axis domain change animates relative to the value change.',
   Auto: 'The `\'auto\'` keyword, accepted by members that otherwise take a number, a format string, or another enumeration.'
 };

@@ -1,5 +1,5 @@
 /**
- * Regression: a missingValues 'connect' bar series with a colorProperty must color each bar from its
+ * Regression: a missingValueMode 'connect' bar series with a colorProperty must color each bar from its
  * raw category index — the renderer used the compacted position index, so after a skipped gap every
  * later bar read the wrong category's color (heatmap grids with missing cells hit this).
  */
@@ -16,7 +16,7 @@ beforeAll(async () => {
   mochart = await import('../../src');
 });
 
-describe('missingValues connect bar series with a colorProperty', () => {
+describe('missingValueMode connect bar series with a colorProperty', () => {
   it('colors bars after a skipped category from their own color values', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const mochartConfig = enhanceConfig({
@@ -24,7 +24,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
       categoryAxis: { property: 'label', type: 'string', scale: 'ordinal' },
       valueAxes: [{ id: 'va' }],
       series: [{
-        axis: 'va', property: 'value', renderer: 'bar', missingValues: 'connect',
+        axis: 'va', property: 'value', renderer: 'bar', missingValueMode: 'connect',
         colorProperty: 'heat',
         colorScale: { interpolation: 'rgb', min: '#000000', max: '#ffffff' }
       }]

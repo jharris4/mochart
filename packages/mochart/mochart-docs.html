@@ -2223,7 +2223,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="pie.label">
-<td><a href="#pie.label">label</a></td><td>the labels drawn on the slices</td><td>should be an object with any of the properties { visible: should be a boolean, type: should be one of [ "value", "percent", "valuePercent", "percentValue", "title", "titleValue", "titlePercent" ], valueFormat: should be a valid number format or be equal to "auto", percentFormat: should be a valid number format or be equal to "auto", radiusFraction: should be a number >= to 0 and <= 1, minFraction: should be a number >= to 0 and <= 1, adjustForFiltering: should be a boolean }</td><td><div>{ visible: false, type: "percent", valueFormat: "auto", percentFormat: "auto", radiusFraction: 0.5, minFraction: 0.05, adjustForFiltering: true }</div>
+<td><a href="#pie.label">label</a></td><td>the labels drawn on the slices</td><td>should be an object with any of the properties { visible: should be a boolean, type: should be one of [ "value", "percent", "title", "valuePercent", "percentValue", "titleValue", "titlePercent" ], valueFormat: should be a valid number format or be equal to "auto", percentFormat: should be a valid number format or be equal to "auto", radiusFraction: should be a number >= to 0 and <= 1, minFraction: should be a number >= to 0 and <= 1, adjustForFiltering: should be a boolean }</td><td><div>{ visible: false, type: "percent", valueFormat: "auto", percentFormat: "auto", radiusFraction: 0.5, minFraction: 0.05, adjustForFiltering: true }</div>
 </td>
 </tr>
 <tr id="pie.label.adjustForFiltering">
@@ -2243,7 +2243,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="pie.label.type">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.label.type">label.type</a></td><td>the content of the slice labels: the slice value (value), the slice percentage of the total (percent), the series title (title), or a combination of two of them (valuePercent for "value (percent)", percentValue for "percent (value)", titleValue for "title: value", titlePercent for "title: percent")</td><td>should be one of [ "value", "percent", "valuePercent", "percentValue", "title", "titleValue", "titlePercent" ]</td><td><div>"percent"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.label.type">label.type</a></td><td>the content of the slice labels: the slice value (value), the slice percentage of the total (percent), the series title (title), or a combination of two of them (valuePercent for "value (percent)", percentValue for "percent (value)", titleValue for "title: value", titlePercent for "title: percent")</td><td>should be one of [ "value", "percent", "title", "valuePercent", "percentValue", "titleValue", "titlePercent" ]</td><td><div>"percent"</div>
 </td>
 </tr>
 <tr id="pie.label.valueFormat">
@@ -2266,12 +2266,16 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#pie.startAngle">startAngle</a></td><td>the angle (in degrees, clockwise from the top) at which the first slice starts</td><td>should be a number</td><td><div>0</div>
 </td>
 </tr>
-<tr id="pie.tooltipPercentFormat">
-<td><a href="#pie.tooltipPercentFormat">tooltipPercentFormat</a></td><td>the d3 format specifier used to format the percent part of the tooltip values (use auto to derive a format)</td><td>should be a valid number format or be equal to "auto"</td><td><div>"auto"</div>
+<tr id="pie.tooltip">
+<td><a href="#pie.tooltip">tooltip</a></td><td>the values shown in the tooltip for the slices</td><td>should be an object with any of the properties { valueType: should be one of [ "value", "percent", "valuePercent", "percentValue" ], percentFormat: should be a valid number format or be equal to "auto" }</td><td><div>{ valueType: "value", percentFormat: "auto" }</div>
 </td>
 </tr>
-<tr id="pie.tooltipValues">
-<td><a href="#pie.tooltipValues">tooltipValues</a></td><td>the content of the tooltip value for each slice: the slice value (value), the slice percentage of the total (percent) or a combination of both (valuePercent for "value (percent)", percentValue for "percent (value)"); the value part is formatted by the series valueFormat, valuePrefix and valueSuffix, and the percent part renormalizes against the unfiltered slices unless tooltip.adjustForFiltering is false</td><td>should be one of [ "value", "percent", "valuePercent", "percentValue" ]</td><td><div>"value"</div>
+<tr id="pie.tooltip.percentFormat">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.tooltip.percentFormat">tooltip.percentFormat</a></td><td>the d3 format specifier used to format the percent part of the tooltip values (use auto to derive a format)</td><td>should be a valid number format or be equal to "auto"</td><td><div>"auto"</div>
+</td>
+</tr>
+<tr id="pie.tooltip.valueType">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pie.tooltip.valueType">tooltip.valueType</a></td><td>the content of the tooltip value for each slice: the slice value (value), the slice percentage of the total (percent) or a combination of both (valuePercent for "value (percent)", percentValue for "percent (value)"); the value part is formatted by the series valueFormat, valuePrefix and valueSuffix, and the percent part renormalizes against the unfiltered slices unless the top-level tooltip.adjustForFiltering is false</td><td>should be one of [ "value", "percent", "valuePercent", "percentValue" ]</td><td><div>"value"</div>
 </td>
 </tr>
 </table>
@@ -4072,7 +4076,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.marker.showForMissingValues">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.marker.showForMissingValues">marker.showForMissingValues</a></td><td>whether to still show a marker at missing values (most useful with missingValues "base", which gives the marker a position)</td><td>should be a boolean</td><td><div>false</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.marker.showForMissingValues">marker.showForMissingValues</a></td><td>whether to still show a marker at missing values (most useful with missingValueMode "base", which gives the marker a position)</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="series.marker.size">
@@ -4175,8 +4179,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#series.markerProperty">markerProperty</a></td><td>the property to retrieve from the data provider for the marker size values (use null for none)</td><td>should be a defined value or equal to null</td><td><div>null</div>
 </td>
 </tr>
-<tr id="series.missingValues">
-<td><a href="#series.missingValues">missingValues</a></td><td>what to draw at a category whose value is missing: break the shape at the gap (break), connect the neighbouring defined values (connect), or draw the point at the value axis base value (base)<br/><br/>With `"connect"`, lines and areas bridge missing categories directly between the neighbouring defined values; with `"base"` the point is drawn at the value axis base value; the default `"break"` leaves a gap in the shape. For a series with a `rangeProperty`, a category counts as missing only when both properties are undefined — see `partialRangeIsMissing`.</td><td>should be one of [ "break", "connect", "base" ]</td><td><div>"break"</div>
+<tr id="series.missingValueMode">
+<td><a href="#series.missingValueMode">missingValueMode</a></td><td>what to draw at a category whose value is missing: break the shape at the gap (break), connect the neighbouring defined values (connect), or draw the point at the value axis base value (base)<br/><br/>With `"connect"`, lines and areas bridge missing categories directly between the neighbouring defined values; with `"base"` the point is drawn at the value axis base value; the default `"break"` leaves a gap in the shape. For a series with a `rangeProperty`, a category counts as missing only when both properties are undefined — see `partialRangeIsMissing`.</td><td>should be one of [ "break", "connect", "base" ]</td><td><div>"break"</div>
 </td>
 </tr>
 <tr id="series.order">
@@ -4186,7 +4190,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.partialRangeIsMissing">
-<td><a href="#series.partialRangeIsMissing">partialRangeIsMissing</a></td><td>whether to treat a value as missing when either of property or rangeProperty is undefined, instead of collapsing to the defined one<br/><br/>Only affects series with a `rangeProperty` (stacked series are unaffected). By default a category with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such categories count as missing instead, following the configured `missingValues` treatment.</td><td>should be a boolean</td><td><div>false</div>
+<td><a href="#series.partialRangeIsMissing">partialRangeIsMissing</a></td><td>whether to treat a value as missing when either of property or rangeProperty is undefined, instead of collapsing to the defined one<br/><br/>Only affects series with a `rangeProperty` (stacked series are unaffected). By default a category with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such categories count as missing instead, following the configured `missingValueMode` treatment.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="series.pattern">

@@ -93,8 +93,8 @@ const winLossMetric: SparklineMetric = {
     categoryAxis: { property: 'i', type: 'string', scale: 'ordinal' },
     valueAxes: [{ base: 0, min: -1, max: 1 }],
     series: [
-      { property: 'up', renderer: 'bar', missingValues: 'connect', shapeStyle: { normal: { fillColor: AQUA } } },
-      { property: 'down', renderer: 'bar', missingValues: 'connect', shapeStyle: { normal: { fillColor: RED } } }
+      { property: 'up', renderer: 'bar', missingValueMode: 'connect', shapeStyle: { normal: { fillColor: AQUA } } },
+      { property: 'down', renderer: 'bar', missingValueMode: 'connect', shapeStyle: { normal: { fillColor: RED } } }
     ]
   }) as DemoConfig,
   generate(step) {

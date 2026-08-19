@@ -60,7 +60,7 @@
     },
     "axis": "VA1",
     "stack": "SS1",
-    "missingValues": "connect"
+    "missingValueMode": "connect"
   },
   "series": [
     {

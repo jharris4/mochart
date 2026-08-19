@@ -86,7 +86,7 @@ describe('getSeriesText', () => {
   });
 
   describe('skip semantics for ranged series (direction-split idiom)', () => {
-    const skipConfig = { rangeProperty: 'hi', missingValues: 'connect', partialRangeIsMissing: true, stack: null } as const;
+    const skipConfig = { rangeProperty: 'hi', missingValueMode: 'connect', partialRangeIsMissing: true, stack: null } as const;
 
     it('hides the row when the plain value is missing, even when missing values are shown', () => {
       const { valueText } = getSeriesText(
@@ -124,7 +124,7 @@ describe('getSeriesText', () => {
     it('hides a plain follower row when its value is missing (direction-split volume)', () => {
       const { valueText } = getSeriesText(
         makeTooltipConfig({ showMissingValues: true }),
-        makeSeriesConfig({ missingValues: 'connect', stack: null, followSeries: 'up' }),
+        makeSeriesConfig({ missingValueMode: 'connect', stack: null, followSeries: 'up' }),
         identity,
         makeSlice({}) as never, // plain undefined — the other direction's volume row
         false
@@ -135,7 +135,7 @@ describe('getSeriesText', () => {
     it('keeps the missing-value text for a plain connect series that follows nothing', () => {
       const { valueText } = getSeriesText(
         makeTooltipConfig({ showMissingValues: true, missingValueText: 'N/A' }),
-        makeSeriesConfig({ missingValues: 'connect', stack: null }),
+        makeSeriesConfig({ missingValueMode: 'connect', stack: null }),
         identity,
         makeSlice({}) as never,
         false
@@ -272,7 +272,7 @@ describe('getSeriesText', () => {
     // TooltipContent picks the fraction from the filtered or raw slice shares (getPieSliceFractionMap)
     // and passes it with the row's filtered flag; a percentage is derived, not stored per value key.
     const pieValues = (over: Partial<PieTooltipValues> = {}): PieTooltipValues => ({
-      tooltipValues: 'percent',
+      valueType: 'percent',
       percentFormat: (fraction: number) => (fraction * 100).toFixed(1) + '%',
       fraction: 0.25,
       rawFraction: 0.2,
@@ -290,15 +290,15 @@ describe('getSeriesText', () => {
     it('combines the value and the percentage in both orders', () => {
       const slice = makeSlice({ plain: 42 }) as never;
       expect(getSeriesText(makeTooltipConfig(), makeSeriesConfig(), identity, slice, false,
-        pieValues({ tooltipValues: 'valuePercent' })).valueText).toBe('42 (25.0%)');
+        pieValues({ valueType: 'valuePercent' })).valueText).toBe('42 (25.0%)');
       expect(getSeriesText(makeTooltipConfig(), makeSeriesConfig(), identity, slice, false,
-        pieValues({ tooltipValues: 'percentValue' })).valueText).toBe('25.0% (42)');
+        pieValues({ valueType: 'percentValue' })).valueText).toBe('25.0% (42)');
     });
 
     it('leaves the plain value alone for the value type', () => {
       const { valueText } = getSeriesText(
         makeTooltipConfig(), makeSeriesConfig(), identity, makeSlice({ plain: 42 }) as never, false,
-        pieValues({ tooltipValues: 'value' })
+        pieValues({ valueType: 'value' })
       );
       expect(valueText).toBe('42');
     });
@@ -325,7 +325,7 @@ describe('getSeriesText', () => {
         makeSeriesConfig(), identity,
         makeSlice({ plain: 42 }, { plain: null }, { y: 100 }) as never, // base "100" => 3 chars
         true,
-        pieValues({ tooltipValues: 'percentValue', fraction: 0, rawFraction: 0.2, filtered: true })
+        pieValues({ valueType: 'percentValue', fraction: 0, rawFraction: 0.2, filtered: true })
       );
       expect(valueText).toBe('##### (###)'); // raw "20.0%" => 5 chars
     });

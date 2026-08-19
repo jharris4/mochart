@@ -39,7 +39,7 @@
         "shape": "square"
       },
       "property": "value2",
-      "missingValues": "base"
+      "missingValueMode": "base"
     },
     {
       "title": "Skip Missing",
@@ -47,7 +47,7 @@
         "shape": "triangle"
       },
       "property": "value3",
-      "missingValues": "connect"
+      "missingValueMode": "connect"
     }
   ]
 }

@@ -29,7 +29,7 @@ export function getPieSlices(mochartConfig: MochartConfig): PieSliceInfo[] {
 /**
  * Apply a slice value edit to the working row. The single write path for slice
  * edits: percent labels and tooltip shares are derived by the chart from the
- * current slice values (pie label.type / tooltipValues), so an edit only
+ * current slice values (pie label.type / tooltip.valueType), so an edit only
  * has to set the value it edits.
  */
 export function applyPieSliceValue(row: DataObject, property: string, value: number): void {

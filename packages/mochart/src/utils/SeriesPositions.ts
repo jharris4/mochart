@@ -1,4 +1,4 @@
-import { NONE, MISSING_VALUES_BASE, MISSING_VALUES_CONNECT, RENDERER_BAR } from '../config/core/constants';
+import { NONE, MISSING_VALUE_MODE_BASE, MISSING_VALUE_MODE_CONNECT, RENDERER_BAR } from '../config/core/constants';
 import { isMissingValue } from './utils';
 import type { CategoryAxisConfig } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
@@ -33,7 +33,7 @@ function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorP
 }
 
 export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, seriesConfig: EnhancedSeriesConfig, categoryValueData: CategoryAxisData['valueData'], valueAxisScale: AxisScale, valueObject: SeriesValueObject, seriesLayoutInfo: LayoutInfo): SeriesPositionData {
-  const { valueAxisConfig, seriesGroupConfig, missingValues, partialRangeIsMissing, group, stack, rangeProperty, renderer } = seriesConfig;
+  const { valueAxisConfig, seriesGroupConfig, missingValueMode, partialRangeIsMissing, group, stack, rangeProperty, renderer } = seriesConfig;
   const { widthFraction: barWidthFraction, alignFraction: barAlignFraction } = seriesConfig.bar;
   const { spacingInfo, positions: categoryPositions } = categoryValueData;
   const { base } = valueAxisConfig;
@@ -55,8 +55,8 @@ export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, se
     }
   }
 
-  const missingPosition = missingValues === MISSING_VALUES_BASE ? seriesBasePosition : undefined;
-  const skip = missingValues === MISSING_VALUES_CONNECT;
+  const missingPosition = missingValueMode === MISSING_VALUE_MODE_BASE ? seriesBasePosition : undefined;
+  const skip = missingValueMode === MISSING_VALUE_MODE_CONNECT;
 
   const seriesPositions: SeriesPosition[] = [];
   let seriesPriorPositions: SeriesPosition[] | null = null;

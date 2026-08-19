@@ -87,14 +87,14 @@ title labels on the slices.
   against the remaining slices — set
   [`label.adjustForFiltering`](/reference/pie#pie.label.adjustForFiltering)
   to `false` to keep every slice's share of the full total instead.
-- [`tooltipValues`](/reference/pie#pie.tooltipValues) does the same for the
+- [`tooltip.valueType`](/reference/pie#pie.tooltip.valueType) does the same for the
   tooltip rows: `'value'` (the default), `'percent'`, or the `'valuePercent'`
   / `'percentValue'` combinations. The value part keeps its per-series
   formatting ([`valueFormat`](/reference/series#series.valueFormat),
   `valuePrefix`, `valueSuffix`) — the helper's `valueFormat` option stamps
   one format onto every slice's series; the percent part is formatted by
-  [`tooltipPercentFormat`](/reference/pie#pie.tooltipPercentFormat). The
-  helper's `tooltipValues` option forwards straight to it.
+  [`tooltip.percentFormat`](/reference/pie#pie.tooltip.percentFormat). The
+  helper's `tooltipValueType` option forwards straight to it.
 - Tooltip percentages are computed from the same slice shares as the labels,
   so they renormalize as slices are filtered — set
   [`tooltip.adjustForFiltering`](/reference/tooltip#tooltip.adjustForFiltering)

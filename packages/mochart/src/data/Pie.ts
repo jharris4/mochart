@@ -1,4 +1,4 @@
-import type { PieTooltipLabelType } from '../config/core/constants';
+import type { PieTooltipValueType } from '../config/core/constants';
 import type { ChartConfig, DeepPartial, CategoryAxisConfig, PieConfig, SeriesConfig } from '../types/config';
 import { computeSliceFractions } from './PieData';
 
@@ -22,12 +22,12 @@ export interface CreatePieOptions {
    * What the tooltip shows for each slice: the slice value, its percentage of
    * the total, or both. Percentages are computed by the chart from the current
    * slice shares — like the slice labels, they renormalize as slices are
-   * filtered — so this is forwarded as `pie.tooltipValues` rather than
+   * filtered — so this is forwarded as `pie.tooltip.valueType` rather than
    * baked into the data.
    *
    * @default 'value'
    */
-  tooltipValues?: PieTooltipLabelType;
+  tooltipValueType?: PieTooltipValueType;
   /** A d3 format specifier forwarded to each slice's series config. */
   valueFormat?: string;
   /**
@@ -51,7 +51,7 @@ export interface PieData {
   /** Fragment to spread into the chart config's `chart` (sets type: 'pie'). */
   chart: Partial<ChartConfig>;
   /** Fragment to spread into the chart config's `pie`. */
-  pie: Partial<PieConfig>;
+  pie: DeepPartial<PieConfig>;
   /** Fragment to spread into the chart config's `categoryAxis`. */
   categoryAxis: Partial<CategoryAxisConfig>;
   /** Fragments to spread into the chart config's `series`, one per slice. */
@@ -92,9 +92,9 @@ export function createPie(items: readonly PieItem[], options: CreatePieOptions =
 
   const chart: Partial<ChartConfig> = { type: 'pie' };
 
-  const pie: Partial<PieConfig> = {};
-  if (options.tooltipValues !== undefined) {
-    pie.tooltipValues = options.tooltipValues;
+  const pie: DeepPartial<PieConfig> = {};
+  if (options.tooltipValueType !== undefined) {
+    pie.tooltip = { valueType: options.tooltipValueType };
   }
   const innerRadiusFraction = options.innerRadiusFraction ?? (options.donut === true ? DEFAULT_DONUT_INNER_RADIUS_FRACTION : undefined);
   if (innerRadiusFraction !== undefined) {

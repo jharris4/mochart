@@ -89,6 +89,7 @@ const sharedInterfaceSources: SharedInterfaceSource[] = [
   { interfaceName: 'LegendItemConfig', sectionId: 'legend', propertyKey: 'item', includeDefaults: true },
   { interfaceName: 'TitleAffixConfig', sectionId: 'title', propertyKey: 'prefix' },
   { interfaceName: 'PieLabelConfig', sectionId: 'pie', propertyKey: 'label', includeDefaults: true },
+  { interfaceName: 'PieTooltipConfig', sectionId: 'pie', propertyKey: 'tooltip', includeDefaults: true },
   { interfaceName: 'CrosshairLineConfig', sectionId: 'crosshair', propertyKey: 'categoryLine', includeDefaults: true },
   { interfaceName: 'PieCenterTotalConfig', sectionId: 'pie', propertyKey: 'centerTotal', includeDefaults: true },
   { interfaceName: 'TooltipDropShadowConfig', sectionId: 'tooltip', propertyKey: 'dropShadow', includeDefaults: true },

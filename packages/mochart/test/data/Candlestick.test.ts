@@ -65,7 +65,7 @@ describe('createCandlestick', () => {
     expect(seriesConfigs.map((seriesConfig) => seriesConfig.id)).toEqual(['upWick', 'downWick', 'up', 'down']);
     for (const seriesConfig of seriesConfigs) {
       expect(seriesConfig.renderer).toBe('bar');
-      expect(seriesConfig.missingValues).toBe('connect');
+      expect(seriesConfig.missingValueMode).toBe('connect');
       expect(seriesConfig.partialRangeIsMissing).toBe(true);
       expect(seriesConfig.group).toBeNull();
       expect(seriesConfig.stack).toBeNull();
@@ -146,7 +146,7 @@ describe('createCandlestick', () => {
       expect(seriesConfigs.map((seriesConfig) => seriesConfig.id)).toEqual(['upWick', 'downWick', 'up', 'down', 'upVolume', 'downVolume']);
       const upVolume = seriesConfigs.find((seriesConfig) => seriesConfig.id === 'upVolume')!;
       expect(upVolume).toMatchObject({
-        property: 'upVolume', axis: 'volume', renderer: 'bar', missingValues: 'connect',
+        property: 'upVolume', axis: 'volume', renderer: 'bar', missingValueMode: 'connect',
         showInLegend: false, followSeries: 'up', valueLabel: 'Volume'
       });
       expect(upVolume.shapeStyle!.normal!.fillColor).toBe(seriesConfigs.find((seriesConfig) => seriesConfig.id === 'up')!.shapeStyle!.normal!.fillColor);

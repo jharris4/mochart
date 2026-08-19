@@ -24,7 +24,7 @@
       "bar": {
         "widthFraction": 0.15
       },
-      "missingValues": "connect",
+      "missingValueMode": "connect",
       "partialRangeIsMissing": true,
       "group": null,
       "stack": null,
@@ -59,7 +59,7 @@
       "bar": {
         "widthFraction": 0.15
       },
-      "missingValues": "connect",
+      "missingValueMode": "connect",
       "partialRangeIsMissing": true,
       "group": null,
       "stack": null,
@@ -94,7 +94,7 @@
       "bar": {
         "widthFraction": 0.15
       },
-      "missingValues": "connect",
+      "missingValueMode": "connect",
       "partialRangeIsMissing": true,
       "group": null,
       "stack": null,
@@ -118,7 +118,7 @@
       "bar": {
         "widthFraction": 0.15
       },
-      "missingValues": "connect",
+      "missingValueMode": "connect",
       "partialRangeIsMissing": true,
       "group": null,
       "stack": null,
@@ -142,7 +142,7 @@
       "bar": {
         "widthFraction": 0.15
       },
-      "missingValues": "connect",
+      "missingValueMode": "connect",
       "partialRangeIsMissing": true,
       "group": null,
       "stack": null,
@@ -166,7 +166,7 @@
       "bar": {
         "widthFraction": 0.15
       },
-      "missingValues": "connect",
+      "missingValueMode": "connect",
       "partialRangeIsMissing": true,
       "group": null,
       "stack": null,
@@ -190,7 +190,7 @@
       "bar": {
         "widthFraction": 1
       },
-      "missingValues": "connect",
+      "missingValueMode": "connect",
       "partialRangeIsMissing": true,
       "group": null,
       "stack": null,
@@ -223,7 +223,7 @@
         "widthFraction": 1,
         "minExtent": 2
       },
-      "missingValues": "connect",
+      "missingValueMode": "connect",
       "partialRangeIsMissing": true,
       "group": null,
       "stack": null,

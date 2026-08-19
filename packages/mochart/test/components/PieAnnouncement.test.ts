@@ -77,7 +77,7 @@ beforeAll(() => {
 
 describe('pie tooltip announcement', () => {
   it('speaks the slice percentages the visible rows show', () => {
-    const { config, data } = pieConfigAndData({ tooltipValues: 'valuePercent', valueFormat: ',.0f' });
+    const { config, data } = pieConfigAndData({ tooltipValueType: 'valuePercent', valueFormat: ',.0f' });
     const container = mountChart(config, data);
     expect(liveText(container)).toBe('');
 
@@ -90,7 +90,7 @@ describe('pie tooltip announcement', () => {
   });
 
   it('speaks percent-only values without falling back to the raw slice values', () => {
-    const { config, data } = pieConfigAndData({ tooltipValues: 'percent' });
+    const { config, data } = pieConfigAndData({ tooltipValueType: 'percent' });
     const container = mountChart(config, data);
 
     key(plotRect(container), 'Enter');
@@ -98,7 +98,7 @@ describe('pie tooltip announcement', () => {
   });
 
   it('renormalizes the announced percentages against the unfiltered slices', () => {
-    const { config, data } = pieConfigAndData({ tooltipValues: 'percent' }, { tooltip: { hideFiltered: true } });
+    const { config, data } = pieConfigAndData({ tooltipValueType: 'percent' }, { tooltip: { hideFiltered: true } });
     const container = mountChart(config, data);
     filterSeries(container, 'slice0');
     expect(container.querySelectorAll(getIdCssSelector('series', 'slice0'))).toHaveLength(0);
@@ -110,7 +110,7 @@ describe('pie tooltip announcement', () => {
   });
 
   it('speaks the full-total shares when adjustForFiltering is off', () => {
-    const { config, data } = pieConfigAndData({ tooltipValues: 'percent' },
+    const { config, data } = pieConfigAndData({ tooltipValueType: 'percent' },
       { tooltip: { hideFiltered: true, adjustForFiltering: false } });
     const container = mountChart(config, data);
     filterSeries(container, 'slice0');

@@ -315,7 +315,7 @@ function buildHeatmapSnapshot(): ChartTypeDemoSnapshot {
     label: profile.label,
     values: HEATMAP_COLUMNS.map((column, c) => {
       if (profile.label === 'Sat' && column === 'Apr') {
-        return null; // no data collected — demos the missingValues 'connect' gap
+        return null; // no data collected — demos the missingValueMode 'connect' gap
       }
       const t = (1 + Math.cos((c / HEATMAP_COLUMNS.length) * 2 * Math.PI)) / 2;
       return Math.round(profile.min + t * (profile.max - profile.min));
@@ -658,7 +658,7 @@ function donutRows(random: PieRandomConfig, randomId: number): DataObject[] {
 }
 
 function buildPieSnapshot(): ChartTypeDemoSnapshot {
-  const pie = createPie(PIE_SLICE_POOL.map(({ label, value }) => ({ label, value })), { valueFormat: ',.0f', tooltipValues: 'valuePercent' });
+  const pie = createPie(PIE_SLICE_POOL.map(({ label, value }) => ({ label, value })), { valueFormat: ',.0f', tooltipValueType: 'valuePercent' });
   return {
     id: 'pie',
     config: {
@@ -674,7 +674,7 @@ function buildPieSnapshot(): ChartTypeDemoSnapshot {
 }
 
 function buildDonutSnapshot(): ChartTypeDemoSnapshot {
-  const pie = createPie(DONUT_SLICE_POOL.map(({ label, value }) => ({ label, value })), { donut: true, tooltipValues: 'percent' });
+  const pie = createPie(DONUT_SLICE_POOL.map(({ label, value }) => ({ label, value })), { donut: true, tooltipValueType: 'percent' });
   return {
     id: 'donut',
     config: {
@@ -704,7 +704,7 @@ function gaugeRows(random: PieRandomConfig, randomId: number): DataObject[] {
 }
 
 function buildGaugeSnapshot(): ChartTypeDemoSnapshot {
-  const pie = createPie(GAUGE_SLICE_POOL.map(({ label, value }) => ({ label, value })), { tooltipValues: 'percentValue' });
+  const pie = createPie(GAUGE_SLICE_POOL.map(({ label, value }) => ({ label, value })), { tooltipValueType: 'percentValue' });
   return {
     id: 'gauge',
     config: {

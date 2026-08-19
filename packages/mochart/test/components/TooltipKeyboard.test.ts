@@ -521,7 +521,7 @@ describe('tooltip rows a series can opt out of', () => {
         series: [
           { id: 'S0', property: 'sales' },
           { id: 'S1', property: 'open', rangeProperty: 'close', renderer: 'bar',
-            missingValues: 'connect', partialRangeIsMissing: true }
+            missingValueMode: 'connect', partialRangeIsMissing: true }
         ]
       } as unknown as MochartInputConfig,
       data: [

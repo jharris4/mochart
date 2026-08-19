@@ -1,5 +1,5 @@
 import validators from './validators';
-import { AUTO, NONE, PIE_LABEL_TYPES, PIE_TOOLTIP_LABEL_TYPES } from '../core/constants';
+import { AUTO, NONE, PIE_LABEL_TYPES, PIE_TOOLTIP_VALUE_TYPES } from '../core/constants';
 
 export default function getValidators() {
   return {
@@ -19,8 +19,10 @@ export default function getValidators() {
       minFraction: validators.numberMinMax(0, 1),
       adjustForFiltering: validators.boolean()
     }, true),
-    tooltipValues: validators.oneOf(PIE_TOOLTIP_LABEL_TYPES),
-    tooltipPercentFormat: validators.numberFormat().orEqual(AUTO),
+    tooltip: validators.partialObjectWithShape({
+      valueType: validators.oneOf(PIE_TOOLTIP_VALUE_TYPES),
+      percentFormat: validators.numberFormat().orEqual(AUTO)
+    }, true),
     centerLabel: validators.string().orEqual(NONE),
     centerLabelTextStyle: validators.style(),
     centerTotal: validators.partialObjectWithShape({

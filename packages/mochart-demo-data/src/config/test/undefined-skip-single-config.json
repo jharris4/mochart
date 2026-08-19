@@ -73,7 +73,7 @@
     "marker": {
       "size": 6
     },
-    "missingValues": "connect"
+    "missingValueMode": "connect"
   },
   "series": [
     {

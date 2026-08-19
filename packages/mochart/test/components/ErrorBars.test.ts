@@ -203,7 +203,7 @@ describe('missing bounds and values', () => {
       { label: 'C', value: 30, low: 28, high: 37 }
     ];
     const container = mountChart(makeConfig([
-      { id: 'V', property: 'value', renderer: 'bar', missingValues: 'connect', errorLowProperty: 'low', errorHighProperty: 'high' }
+      { id: 'V', property: 'value', renderer: 'bar', missingValueMode: 'connect', errorLowProperty: 'low', errorHighProperty: 'high' }
     ]), data);
     // A has no bounds and B has no point: only C gets an error bar, indexed
     // by its compacted position

@@ -172,7 +172,7 @@ describe('generateChartTypeDataProvider', () => {
   it('donut rows carry slice values only — its percent labels and tooltip shares are derived', () => {
     const donut = snapshots.find(snapshot => snapshot.id === 'donut')!;
     const mochartConfig = enhanceConfig(donut.config);
-    expect(mochartConfig.pie.tooltipValues).toBe('percent');
+    expect(mochartConfig.pie.tooltip.valueType).toBe('percent');
     const provider = generateChartTypeDataProvider('donut', mochartConfig, demoRandom('donut'), 6);
     const sliceProperties = (donut.config.series as { property: string }[]).map(seriesConfig => seriesConfig.property);
     const total = sliceProperties.reduce((sum: number, property) => sum + provider.seriesValues![property][0]!, 0);

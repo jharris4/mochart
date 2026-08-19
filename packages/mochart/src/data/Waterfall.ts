@@ -141,7 +141,7 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
       property: direction,
       rangeProperty: RANGE_PROPERTY,
       renderer: 'bar',
-      missingValues: 'connect',
+      missingValueMode: 'connect',
       partialRangeIsMissing: true,
       group: null,
       stack: null,
