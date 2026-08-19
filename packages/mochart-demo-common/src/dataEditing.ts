@@ -48,7 +48,7 @@ export function isObject(v: unknown): boolean {
 }
 
 export function isArrayOfObjects(candidate: unknown): boolean {
-  return Array.isArray(candidate) && !candidate.some(v => !isObject(v));
+  return Array.isArray(candidate) && !candidate.some(v => !isObject(v) || Array.isArray(v));
 }
 
 /** The config's category property, for category-value row matching. */
