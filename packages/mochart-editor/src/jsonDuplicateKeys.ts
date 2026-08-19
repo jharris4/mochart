@@ -59,14 +59,21 @@ export function findDuplicateJsonKeys(text: string): DuplicateJsonKey[] {
   return duplicates;
 }
 
+/** Keys a dot can join unambiguously; anything else is bracketed and quoted, the way JSON writes it. */
+const plainKey = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+
 /** `series[0].property` style rendering of a path; the empty path is the document root. */
 export function formatJsonPath(path: JsonPath): string {
-  return path.reduce<string>((text, segment) => typeof segment === 'number' ? `${text}[${segment}]` : text ? `${text}.${segment}` : segment, '');
+  return path.reduce<string>((text, segment) => {
+    if (typeof segment === 'number') return `${text}[${segment}]`;
+    if (!plainKey.test(segment)) return `${text}[${JSON.stringify(segment)}]`;
+    return text ? `${text}.${segment}` : segment;
+  }, '');
 }
 
 export function duplicateJsonKeyMessage(duplicate: DuplicateJsonKey): string {
   const container = formatJsonPath(duplicate.path);
-  return container ? `Duplicate key "${duplicate.key}" in ${container}` : `Duplicate key "${duplicate.key}"`;
+  return duplicate.path.length > 0 ? `Duplicate key "${duplicate.key}" in ${container}` : `Duplicate key "${duplicate.key}"`;
 }
 
 /** Thrown by `parseJson` for text that parses but repeats a key within one object. */

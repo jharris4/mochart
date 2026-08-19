@@ -29,6 +29,11 @@ describe('duplicate JSON keys', () => {
     expect(formatJsonPath([])).toBe('');
     expect(formatJsonPath(['series', 0, 'property'])).toBe('series[0].property');
     expect(formatJsonPath([2, 'x'])).toBe('[2].x');
+    expect(formatJsonPath(['a.b', 'x'])).toBe('["a.b"].x');
+    expect(formatJsonPath(['', 'x'])).toBe('[""].x');
+    expect(formatJsonPath(['a[0]'])).toBe('["a[0]"]');
+    expect(formatJsonPath(['a b', 'c-d'])).toBe('["a b"]["c-d"]');
+    expect(formatJsonPath(['say "hi"'])).toBe('["say \\"hi\\""]');
   });
 
   it('parses like JSON.parse but throws a SyntaxError listing the repeats', () => {
