@@ -582,6 +582,80 @@ describe('pattern fills', () => {
   });
 });
 
+describe('gradient fills', () => {
+  function gradientConfig(): any {
+    return {
+      ...rawConfig(),
+      linearGradients: [{ id: 'LG0', stops: [{ offset: 0.1, color: '#ff0000', opacity: 0.8 }, { offset: 0.9, color: '#0000ff', opacity: 0.8 }] }],
+      radialGradients: [{ id: 'RG0', stops: [{ offset: 0, color: '#00ff00', opacity: 1 }, { offset: 1, color: '#000000', opacity: 1 }] }],
+      series: [
+        { property: 'value', title: 'Linear', gradient: 'LG0' },
+        { property: 'value', title: 'Radial', gradient: 'RG0' }
+      ]
+    };
+  }
+
+  let gradientContainer: HTMLDivElement;
+  let gradientChart: ChartHandle<DefaultChartProps> | null = null;
+
+  beforeEach(() => {
+    gradientContainer = document.createElement('div');
+    document.body.appendChild(gradientContainer);
+    gradientChart = createDefaultChart(gradientContainer, { config: gradientConfig(), data: rows, width: 400, height: 300 });
+  });
+
+  afterEach(() => {
+    gradientChart?.destroy();
+    gradientChart = null;
+    gradientContainer.remove();
+  });
+
+  it('serializes both gradient defs with their stops and keeps every fill reference resolvable', () => {
+    const svgText = getChartSvgText(gradientContainer)!;
+    const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+    expect(doc.querySelector('parsererror')).toBeNull();
+
+    const linear = doc.querySelector('defs linearGradient[id^="linear__gradient__"]');
+    const radial = doc.querySelector('defs radialGradient[id^="radial__gradient__"]');
+    expect(linear).not.toBeNull();
+    expect(radial).not.toBeNull();
+
+    const stops = [...linear!.querySelectorAll('stop')]
+      .map(stop => [stop.getAttribute('offset'), stop.getAttribute('stop-color'), stop.getAttribute('stop-opacity')]);
+    expect(stops).toEqual([['10%', '#ff0000', '0.8'], ['90%', '#0000ff', '0.8']]);
+
+    const fills = [...doc.querySelectorAll('[fill]')].map(element => element.getAttribute('fill')!);
+    expect(fills).toContain(`url(#${linear!.id})`);
+    expect(fills).toContain(`url(#${radial!.id})`);
+    for (const fill of fills.filter(value => value.startsWith('url(#'))) {
+      const id = fill.slice('url(#'.length, -1);
+      expect(doc.querySelector(`[id="${id}"]`)).not.toBeNull();
+    }
+  });
+
+  it('keeps gradient ids distinct and resolvable across stitched charts', () => {
+    const second = document.createElement('div');
+    document.body.appendChild(second);
+    const secondChart = createDefaultChart(second, { config: gradientConfig(), data: rows, width: 400, height: 300 });
+    try {
+      const svgText = getStitchedChartsSvgText([gradientContainer, second], { cols: 2 })!;
+      const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+      expect(doc.querySelector('parsererror')).toBeNull();
+
+      const ids = [...doc.querySelectorAll('linearGradient, radialGradient')].map(gradient => gradient.id);
+      expect(ids).toHaveLength(4);
+      expect(new Set(ids).size).toBe(4);
+      for (const id of ids) {
+        expect(doc.querySelector(`[fill="url(#${id})"]`)).not.toBeNull();
+      }
+    }
+    finally {
+      secondChart.destroy();
+      second.remove();
+    }
+  });
+});
+
 // the PNG success paths and getStitchedSize once went untested; a broken width/height regex would rasterize every stitched export at 1x1
 describe('png export success paths', () => {
   const OriginalImage = globalThis.Image;
