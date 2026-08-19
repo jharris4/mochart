@@ -49,17 +49,18 @@ const demoIds: string[] = [];
 const testDemoIds: string[] = [];
 const demoObjectMap: Record<string, Demo> = {};
 
-demos.forEach(entry => {
-  const demo = buildDemo(entry, configModules, './config/');
-  demoIds.push(demo.id);
+// one map for both groups, so a repeated id would drop a demo while its id still lists twice
+function addDemo(entry: DemoManifestEntry, configModuleMap: ModuleMap, configDir: string, ids: string[]): void {
+  const demo = buildDemo(entry, configModuleMap, configDir);
+  if (demoObjectMap[demo.id] !== undefined) {
+    throw new Error('duplicate demo id: ' + demo.id);
+  }
+  ids.push(demo.id);
   demoObjectMap[demo.id] = demo;
-});
+}
 
-testDemos.forEach(entry => {
-  const demo = buildDemo(entry, testConfigModules, './config/test/');
-  testDemoIds.push(demo.id);
-  demoObjectMap[demo.id] = demo;
-});
+demos.forEach(entry => addDemo(entry, configModules, './config/', demoIds));
+testDemos.forEach(entry => addDemo(entry, testConfigModules, './config/test/', testDemoIds));
 
 const demoData: DemoData = {
   demoIds,
