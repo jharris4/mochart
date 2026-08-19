@@ -1,4 +1,5 @@
 import { checkUniqueLabels } from './labels';
+import { roundToSignificant } from '../utils/utils';
 import type { DeepPartial, CategoryAxisConfig, ValueAxisConfig, SeriesConfig } from '../types/config';
 
 export type CandlestickDirection = 'up' | 'down';
@@ -224,13 +225,13 @@ export function buildVolumeValueAxisConfigs(volumeOptions: Required<CandlestickV
   return [
     {
       id: PRICE_AXIS_ID,
-      minMarginFraction: (heightFraction + gapFraction) * (1 + PRICE_MAX_MARGIN_FRACTION) / priceHeightFraction,
+      minMarginFraction: roundToSignificant((heightFraction + gapFraction) * (1 + PRICE_MAX_MARGIN_FRACTION) / priceHeightFraction),
       maxMarginFraction: PRICE_MAX_MARGIN_FRACTION
     },
     {
       id: VOLUME_AXIS_ID,
       min: 0,
-      maxMarginFraction: (1 - heightFraction) / heightFraction,
+      maxMarginFraction: roundToSignificant((1 - heightFraction) / heightFraction),
       visible: false
     }
   ];

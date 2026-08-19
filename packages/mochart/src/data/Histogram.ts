@@ -1,4 +1,5 @@
 import { checkUniqueLabels } from './labels';
+import { roundToSignificant } from '../utils/utils';
 import type { CategoryAxisConfig, SeriesConfig } from '../types/config';
 
 export interface HistogramBin {
@@ -287,6 +288,3 @@ function roundToPrecision(value: number, step: number): number {
   return Number(value.toFixed(Math.min(20, decimals)));
 }
 
-function roundToSignificant(value: number): number {
-  return Number(value.toPrecision(12));
-}

@@ -11,7 +11,7 @@
   "valueAxes": [
     {
       "id": "price",
-      "minMarginFraction": 0.35000000000000003,
+      "minMarginFraction": 0.35,
       "maxMarginFraction": 0.05,
       "title": "$ per share"
     },

@@ -285,3 +285,8 @@ export function getArrayDeltas(array: readonly number[], otherArray: readonly nu
 export function accessibilityActive({ enabled, hidden }: { enabled: boolean; hidden: boolean }): boolean {
   return enabled && !hidden;
 }
+
+/** Snaps float noise off a computed value (0.1 + 0.2, 0.25 * 1.05 / 0.75) by keeping 12 significant digits. */
+export function roundToSignificant(value: number): number {
+  return Number(value.toPrecision(12));
+}
