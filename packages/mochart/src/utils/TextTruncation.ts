@@ -214,11 +214,12 @@ export function truncateSVGText(textElement: SVGTextContentElement, maxTextLengt
       const renderedLength = truncatedText === text ? textUnitList.length : prefixUnitCount(textUnitList, truncatedText) + suffixUnitCount;
       const initialTruncatedLength = Math.min(textUnitList.length - 1,
         Math.max(0, Math.floor((maxTextLength / textLength) * renderedLength) - suffixUnitCount));
-      // lastText marks the guess as a growing step, so a guess that fits grows on to the longest fitting prefix
+      // lastText marks the guess as a growing step, so a guess that fits grows on to the longest fitting
+      // prefix; a zero-length guess has nothing shorter to point at, and must not read as already settled
       return {
         text,
         truncatedText: joinUnits(textUnitList, initialTruncatedLength),
-        lastText: joinUnits(textUnitList, Math.max(0, initialTruncatedLength - 1))
+        lastText: initialTruncatedLength > 0 ? joinUnits(textUnitList, initialTruncatedLength - 1) : text
       };
     }
     else {
