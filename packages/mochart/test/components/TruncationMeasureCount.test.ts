@@ -122,10 +122,10 @@ describe('truncation measurement cost', () => {
 
     expect({ initial, valuesAnimated, resized, categoriesChurned }).toEqual({
       // the mount includes one bounded follow-up measure once the tick labels have truncated
-      initial: { tickLabels: 1324, title: 263, axisTitle: 136, legendItem: 524, other: 0 },
-      valuesAnimated: { tickLabels: 6542, title: 1104, axisTitle: 570, legendItem: 2208, other: 0 },
-      resized: { tickLabels: 108, title: 11, axisTitle: 73, legendItem: 26, other: 0 },
-      categoriesChurned: { tickLabels: 3815, title: 576, axisTitle: 296, legendItem: 1152, other: 0 }
+      initial: { tickLabels: 1348, title: 262, axisTitle: 144, legendItem: 524, other: 0 },
+      valuesAnimated: { tickLabels: 6594, title: 1104, axisTitle: 580, legendItem: 2208, other: 0 },
+      resized: { tickLabels: 136, title: 14, axisTitle: 22, legendItem: 26, other: 0 },
+      categoriesChurned: { tickLabels: 4281, title: 576, axisTitle: 302, legendItem: 1152, other: 0 }
     });
   });
 

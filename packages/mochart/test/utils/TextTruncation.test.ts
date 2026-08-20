@@ -22,33 +22,33 @@ describe('prepareTruncation', () => {
     expect(prepareTruncation(true, true, null)).toEqual({ truncationData: null, checkTruncation: true });
   });
 
-  it('resets prior single data (clears lastText) when changed and integrity changed', () => {
+  it('restores the full text in prior single data when changed and integrity changed', () => {
     const old: TruncationData = { text: 'Hello', truncatedText: 'Hel', lastText: 'Hell' };
     const { truncationData, checkTruncation } = prepareTruncation(true, true, old, true);
     expect(checkTruncation).toBe(true);
-    expect(truncationData).toEqual({ text: 'Hello', truncatedText: 'Hel', lastText: undefined });
+    expect(truncationData).toEqual({ text: 'Hello', truncatedText: 'Hello' });
   });
 
-  it('resets each entry of prior array data', () => {
+  it('restores the full text in each entry of prior array data', () => {
     const old: TruncationData[] = [
       { text: 'a', truncatedText: 'a', lastText: 'a' },
       { text: 'bb', truncatedText: 'b', lastText: 'bb' }
     ];
     const { truncationData } = prepareTruncation(true, true, old, true);
     expect(truncationData).toEqual([
-      { text: 'a', truncatedText: 'a', lastText: undefined },
-      { text: 'bb', truncatedText: 'b', lastText: undefined }
+      { text: 'a', truncatedText: 'a' },
+      { text: 'bb', truncatedText: 'bb' }
     ]);
   });
 
-  it('adopts new text for entries whose label changed, resets the rest', () => {
+  it('adopts new text for entries whose label changed, restoring the rest', () => {
     const old: TruncationData[] = [
       { text: 'aaaa', truncatedText: 'aa', lastText: 'aa' },
       { text: 'bbbb', truncatedText: 'bb', lastText: 'bb' }
     ];
     const { truncationData } = prepareTruncation(true, true, old, true, ['aaaa', 'cccc']);
     expect(truncationData).toEqual([
-      { text: 'aaaa', truncatedText: 'aa', lastText: undefined },
+      { text: 'aaaa', truncatedText: 'aaaa' },
       { text: 'cccc', truncatedText: 'cccc' }
     ]);
   });
@@ -107,13 +107,13 @@ describe('truncateSVGText', () => {
   it('makes an initial proportional guess when over the limit for the first time', () => {
     // length 200, max 100 => keep ~half minus the suffix: floor((100/200)*11)-1=4 chars of "Hello World"
     const out = truncateSVGText(el(200), 100, ELLIPSIS, { text: 'Hello World' });
-    expect(out).toEqual({ text: 'Hello World', truncatedText: 'Hell', lastText: 'Hello World' });
+    expect(out).toEqual({ text: 'Hello World', truncatedText: 'Hell', lastText: 'Hel' });
   });
 
   it('guesses from the rendered truncated length after a reset', () => {
     // rendered is "Hello Wo" + ellipsis (9 chars) at length 180, max 60 => floor((60/180)*9)-1=2 chars
     const out = truncateSVGText(el(180), 60, ELLIPSIS, { text: 'Hello World', truncatedText: 'Hello Wo' });
-    expect(out).toEqual({ text: 'Hello World', truncatedText: 'He', lastText: 'Hello World' });
+    expect(out).toEqual({ text: 'Hello World', truncatedText: 'He', lastText: 'H' });
   });
 
   it('shrinks by one character on a subsequent over-limit pass', () => {
@@ -191,7 +191,7 @@ describe('updateTruncation', () => {
   it('measures and truncates a single element that overflows', () => {
     const { checkTruncation, truncationData } = updateTruncation(ELLIPSIS, null, 'Hello World', 100, el(200));
     expect(checkTruncation).toBe(true);
-    expect(truncationData).toEqual({ text: 'Hello World', truncatedText: 'Hell', lastText: 'Hello World' });
+    expect(truncationData).toEqual({ text: 'Hello World', truncatedText: 'Hell', lastText: 'Hel' });
   });
 
   it('seeds and measures an array of elements', () => {

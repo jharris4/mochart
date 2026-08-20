@@ -6,16 +6,11 @@ export interface TruncationData {
 
 export type TruncationDataValue = TruncationData | TruncationData[] | null;
 
-function resetTruncationData(truncationData: TruncationData): TruncationData {
-  return { ...truncationData, lastText: undefined };
-}
-
-// Fresh untruncated entry when the text itself changed, plain reset otherwise.
+// Refinement always restarts from the full text, exactly as a first render does: growing back from a
+// stale prefix stops early whenever the truncation text is wider than the characters it replaces.
 function refreshTruncationData(truncationData: TruncationData, newText: string | undefined): TruncationData {
-  if (newText !== undefined && newText !== truncationData.text) {
-    return { text: newText, truncatedText: newText };
-  }
-  return resetTruncationData(truncationData);
+  const text = newText !== undefined ? newText : truncationData.text;
+  return { text, truncatedText: text };
 }
 
 export function prepareTruncation(truncationEnabled: boolean, truncationChanged: boolean, oldTruncationData: TruncationDataValue, integrityChanged = true, newText?: string | string[]) {
@@ -219,10 +214,11 @@ export function truncateSVGText(textElement: SVGTextContentElement, maxTextLengt
       const renderedLength = truncatedText === text ? textUnitList.length : prefixUnitCount(textUnitList, truncatedText) + suffixUnitCount;
       const initialTruncatedLength = Math.min(textUnitList.length - 1,
         Math.max(0, Math.floor((maxTextLength / textLength) * renderedLength) - suffixUnitCount));
+      // lastText marks the guess as a growing step, so a guess that fits grows on to the longest fitting prefix
       return {
         text,
         truncatedText: joinUnits(textUnitList, initialTruncatedLength),
-        lastText: text
+        lastText: joinUnits(textUnitList, Math.max(0, initialTruncatedLength - 1))
       };
     }
     else {
