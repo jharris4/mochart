@@ -588,12 +588,28 @@ function editorTypeForValue(value: unknown): EditorValueType {
   return 'string';
 }
 
+// custom validators report the name 'custom', so their own name is what identifies the value type
+const CUSTOM_VALIDATOR_TYPES: Record<string, EditorValueType[]> = {
+  color: ['string'],
+  svgColor: ['string'],
+  cssColor: ['string']
+};
+
+/** The one format shared by every named branch of a conditional, so a branch's tag is not lost. */
+function alternativeFormat(validator: Validator): string | undefined {
+  const names = unique((validator.alternativeValidators ?? [])
+    .map(alternative => alternative.customName)
+    .filter((name): name is string => typeof name === 'string'));
+  return names.length === 1 ? names[0] : undefined;
+}
+
 function editorTypesForValidator(validator: Validator): EditorValueType[] {
   const alternatives = validator.alternativeValidators ?? [];
   if (alternatives.length > 0) {
     return unique(alternatives.flatMap(editorTypesForValidator));
   }
   switch (validator.validatorName) {
+    case 'custom': return CUSTOM_VALIDATOR_TYPES[validator.customName ?? ''] ?? ['any'];
     case 'any': return ['any'];
     case 'array':
     case 'arrayOf':
@@ -626,7 +642,6 @@ function editorTypesForValidator(validator: Validator): EditorValueType[] {
     case 'stringWithLengthMax':
     case 'stringWithLengthMinMax':
     case 'regexp':
-    case 'color':
     case 'dateISO': return ['string'];
     case 'equal':
     case 'oneOf':
@@ -658,7 +673,8 @@ function buildEditorValue(validator: Validator): EditorValueDoc {
   }
   if (validator.rangeValues?.min !== undefined) editor.minimum = validator.rangeValues.min;
   if (validator.rangeValues?.max !== undefined) editor.maximum = validator.rangeValues.max;
-  if (validator.customName) editor.format = validator.customName;
+  const format = validator.customName ?? alternativeFormat(validator);
+  if (format) editor.format = format;
   if (validator.nestedValues) {
     editor.properties = Object.fromEntries(Object.entries(validator.nestedValues)
       .map(([key, nested]) => [key, buildEditorValue(nested)]));
