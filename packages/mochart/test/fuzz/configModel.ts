@@ -57,7 +57,7 @@ export interface Candidate {
 }
 
 /** Data property names: a made-up one changes which data is read, which is a different experiment. */
-const SKIPPED_FORMATS = new Set(['propertyRequired', 'propertyOptional']);
+export const SKIPPED_FORMATS = new Set(['propertyRequired', 'propertyOptional']);
 
 const COLOR_VALUES = ['#c02942', 'rgb(30 120 200)'];
 const DASH_ARRAY_VALUES = ['4 2', '6,3,1,3'];
@@ -139,12 +139,8 @@ function stringCandidates(value: EditorValue): string[] {
   }
 }
 
-/** The values to try for one property: its enum members first, then samples drawn from its types. */
-export function candidateValues(spec: PropertySpec, limit: number): Candidate[] {
-  const value = spec.value;
-  if (value.format !== undefined && SKIPPED_FORMATS.has(value.format)) {
-    return [];
-  }
+/** Scalar samples for one value descriptor: enum members first, then samples drawn from its types. */
+function scalarValues(value: EditorValue): unknown[] {
   const types = new Set(value.types);
   const values: unknown[] = [];
   if (value.enum) {
@@ -156,8 +152,52 @@ export function candidateValues(spec: PropertySpec, limit: number): Candidate[] 
   if (types.has('number')) {
     values.push(...numberCandidates(value));
   }
-  if (types.has('string')) {
+  // a format names the string shape, so it generates strings whether or not the type says 'string'
+  if (types.has('string') || value.format !== undefined) {
     values.push(...stringCandidates(value));
+  }
+  return values;
+}
+
+/** One entry for an array property: a whole object for object items, a sample value otherwise. */
+function itemValue(items: EditorValue, index: number): unknown {
+  if (items.properties) {
+    const entry: Record<string, unknown> = {};
+    for (const [key, nested] of Object.entries(items.properties)) {
+      const value = itemValue(nested, index);
+      if (value !== undefined) {
+        entry[key] = value;
+      }
+    }
+    return entry;
+  }
+  const values = scalarValues(items);
+  return values.length > 0 ? values[index % values.length] : undefined;
+}
+
+/** Empty, one entry and two entries: enough to move a list without inventing chart structure. */
+function arrayCandidates(value: EditorValue): unknown[] {
+  const { items } = value;
+  if (items === undefined) {
+    return [[]];
+  }
+  const first = itemValue(items, 0);
+  if (first === undefined) {
+    return [[]];
+  }
+  const second = itemValue(items, 1);
+  return [[], [first], [first, second]];
+}
+
+/** The values to try for one property: its enum members first, then samples drawn from its types. */
+export function candidateValues(spec: PropertySpec, limit: number): Candidate[] {
+  const value = spec.value;
+  if (value.format !== undefined && SKIPPED_FORMATS.has(value.format)) {
+    return [];
+  }
+  const values = scalarValues(value);
+  if (new Set(value.types).has('array')) {
+    values.push(...arrayCandidates(value));
   }
   const seen = new Set<string>();
   const candidates: Candidate[] = [];
@@ -179,18 +219,27 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+/** How many entries a base declares for a spec's list section; 1 for every non-list section. */
+export function entryCount(config: Record<string, unknown>, spec: PropertySpec): number {
+  if (!spec.isList) {
+    return 1;
+  }
+  const section = config[spec.configKey];
+  return Array.isArray(section) ? section.length : 0;
+}
+
 /**
  * Write `value` at the spec's path in a raw config, creating missing groups. Returns false when the
- * config has nowhere to put it — a list section the base never declares an entry for.
+ * config has nowhere to put it — a list section the base never declares that entry for.
  */
-export function applyValue(config: Record<string, unknown>, spec: PropertySpec, value: unknown): boolean {
+export function applyValue(config: Record<string, unknown>, spec: PropertySpec, value: unknown, entryIndex = 0): boolean {
   let target: Record<string, unknown>;
   if (spec.isList) {
     const section = config[spec.configKey];
-    if (!Array.isArray(section) || !isRecord(section[0])) {
+    if (!Array.isArray(section) || !isRecord(section[entryIndex])) {
       return false;
     }
-    target = section[0];
+    target = section[entryIndex];
   }
   else {
     if (!isRecord(config[spec.configKey])) {

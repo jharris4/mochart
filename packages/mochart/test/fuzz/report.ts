@@ -7,7 +7,7 @@ export interface RunSummary {
   startedAt: string;
   elapsedSeconds: number;
   bases: string[];
-  properties: number;
+  properties: { total: number; untested: string[] };
   units: { total: number; done: number };
   stats: Record<string, number>;
 }
@@ -40,7 +40,8 @@ function renderGroup(group: FindingGroup): string {
     ''
   ];
   for (const sample of group.samples) {
-    lines.push('- base `' + sample.base + '`, value `' + sample.value + '`, stage `' + sample.stage + '`');
+    lines.push('- base `' + sample.base + '`' + (sample.entry === undefined ? '' : ', entry ' + sample.entry)
+      + ', value `' + sample.value + '`, stage `' + sample.stage + '`');
     lines.push('');
     lines.push('  ```');
     lines.push(...sample.detail.split('\n').map(line => '  ' + line));
@@ -59,7 +60,8 @@ function renderMarkdown(summary: RunSummary, findings: FindingGroup[]): string {
     '',
     '- started: ' + summary.startedAt,
     '- elapsed: ' + formatDuration(summary.elapsedSeconds),
-    '- properties swept: ' + formatCount(summary.properties),
+    '- properties swept: ' + formatCount(summary.properties.total - summary.properties.untested.length)
+      + ' of ' + formatCount(summary.properties.total),
     '- units (property × base): ' + formatCount(summary.units.done) + ' of ' + formatCount(summary.units.total),
     '- bases: ' + summary.bases.join(', '),
     ''
@@ -69,6 +71,11 @@ function renderMarkdown(summary: RunSummary, findings: FindingGroup[]): string {
     lines.push('| ' + key + ' | ' + formatCount(value) + ' |');
   }
   lines.push('');
+  if (summary.properties.untested.length > 0) {
+    lines.push('## Untested properties — ' + formatCount(summary.properties.untested.length), '',
+      'No candidate values were generated for these, so no case ever moved them.', '',
+      ...summary.properties.untested.map(id => '- `' + id + '`'), '');
+  }
   if (findings.length === 0) {
     lines.push('## No findings', '', 'Every case passed all four oracles.', '');
     return lines.join('\n');

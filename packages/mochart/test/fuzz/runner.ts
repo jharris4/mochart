@@ -12,6 +12,8 @@ export type Oracle = 'error' | 'geometry' | 'path-independence' | 'input-mutatio
 
 export interface FindingSample {
   base: string;
+  /** Index of the list-section entry the value was written to; omitted for the first entry. */
+  entry?: number;
   value: string;
   stage: string;
   detail: string;
@@ -56,6 +58,8 @@ export class Fuzzer {
   };
 
   private readonly groups = new Map<string, FindingGroup>();
+  /** List-section entry the case in flight writes to, stamped onto its findings. */
+  private entry = 0;
 
   constructor(private readonly library: Library, private readonly options: RunnerOptions) {}
 
@@ -83,7 +87,7 @@ export class Fuzzer {
       group.bases.push(sample.base);
     }
     if (group.samples.length < MAX_SAMPLES) {
-      group.samples.push(sample);
+      group.samples.push(this.entry > 0 ? { ...sample, entry: this.entry } : sample);
     }
   }
 
@@ -125,9 +129,9 @@ export class Fuzzer {
     return this.library.createChart(container, props);
   }
 
-  runCase(base: BaseCase, spec: PropertySpec, candidate: Candidate): CaseStatus {
+  runCase(base: BaseCase, spec: PropertySpec, candidate: Candidate, entry = 0): CaseStatus {
     const rawB = structuredClone(base.config);
-    if (!applyValue(rawB, spec, candidate.value)) {
+    if (!applyValue(rawB, spec, candidate.value, entry)) {
       this.stats.inapplicable++;
       return 'inapplicable';
     }
@@ -144,13 +148,14 @@ export class Fuzzer {
       return 'data-mismatch';
     }
     this.stats.cases++;
-    this.execute(base, spec, candidate, rawB);
+    this.execute(base, spec, candidate, rawB, entry);
     return 'ran';
   }
 
-  private execute(base: BaseCase, spec: PropertySpec, candidate: Candidate, rawB: Record<string, unknown>): void {
+  private execute(base: BaseCase, spec: PropertySpec, candidate: Candidate, rawB: Record<string, unknown>, entry: number): void {
     const property = spec.id;
     const value = candidate.label;
+    this.entry = entry;
     const consoleMessages: string[] = [];
     const restoreConsole = captureConsole(consoleMessages);
     const containerA = mountContainer();

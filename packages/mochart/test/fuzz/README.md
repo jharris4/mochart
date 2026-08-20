@@ -57,7 +57,8 @@ gate, moving `categoryAxis.type` to `number` over string categories renders `NaN
 | `--width`, `--height` | 800×600 | chart size |
 | `--no-animation` | animation on | render without tweens |
 | `--shard=2/4` | — | run one shard; shards are disjoint and can run in parallel processes |
-| `--limit=N` | — | stop after N units (a unit is one property on one base) |
+| `--list-entries=N` / `--list-entries=all` | 1 | how many entries of each list section (`series`, `valueAxes`, gradients, …) to sweep; `all` roughly doubles the run |
+| `--limit=N` | — | stop after N units (a unit is one property on one base entry) |
 | `--resume` | — | continue the previous run of the same options, merging findings |
 | `--out=dir` | `packages/mochart/.fuzz` | report directory |
 | `--fail-on-findings` | — | exit non-zero when anything is found (for CI, once the report is clean) |
@@ -77,8 +78,14 @@ order and instance numbering are not observable, so they must not count as diffe
 
 - **Invalid values** — filtered out, not fed in. Checking that the validator rejects them and that
   the chart survives them is a separate oracle.
-- **Array-valued properties** (thresholds, tick lists) and **data property names** — changing these
-  changes the chart's structure or which data it reads, which needs its own value generation.
+- **Data property names** — a made-up one changes which data the chart reads, which is a different
+  experiment. Array-valued properties (thresholds, tick lists, colour lists) *are* swept: each gets an
+  empty list, a one-entry list and a two-entry list, with object entries built from the item model.
+- **List entries past the first** — `--list-entries` sweeps them, but the default is entry `[0]` only,
+  because sweeping every declared entry costs roughly another 7,200 units. List length and entry order
+  are never varied.
+- **Properties with no generated values** — named under "Untested properties" in the report rather than
+  quietly counted as swept, so the header reads `properties swept: N of M`.
 - **Property pairs** — every case moves exactly one property. Interactions are tier 2 (a pairwise
   covering array) and tier 3 (long random walks).
 - **Inertness** — whether a property change did anything at all. Easy to add on top of the captured

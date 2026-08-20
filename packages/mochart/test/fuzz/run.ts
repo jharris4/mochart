@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { installEnvironment } from './environment';
-import { candidateValues, loadPropertySpecs, type PropertySpec } from './configModel';
+import { candidateValues, entryCount, loadPropertySpecs, SKIPPED_FORMATS, type PropertySpec } from './configModel';
 import { Fuzzer, type BaseCase, type FindingGroup, type Library } from './runner';
 import { writeReport, type RunSummary } from './report';
 
@@ -30,6 +30,8 @@ interface Options {
   height: number;
   frames: number;
   shard: { index: number; count: number } | null;
+  /** How many entries of each list section to sweep; null sweeps every entry a base declares. */
+  listEntries: number | null;
   limit: number | null;
   animation: boolean;
   out: string;
@@ -47,6 +49,7 @@ function parseOptions(argv: string[]): Options {
     height: 600,
     frames: 600,
     shard: null,
+    listEntries: 1,
     limit: null,
     animation: true,
     out: path.resolve(here, '../../.fuzz'),
@@ -65,6 +68,7 @@ function parseOptions(argv: string[]): Options {
       case '--height': options.height = Number(value); break;
       case '--frames': options.frames = Number(value); break;
       case '--limit': options.limit = Number(value); break;
+      case '--list-entries': options.listEntries = value === 'all' ? null : Number(value); break;
       case '--out': options.out = path.resolve(process.cwd(), value); break;
       case '--no-animation': options.animation = false; break;
       case '--resume': options.resume = true; break;
@@ -172,12 +176,19 @@ async function main(): Promise<void> {
 
   const bases = loadBases(library, options);
   const specs = selectSpecs(options);
-  const units: { spec: PropertySpec; base: BaseCase }[] = [];
+  const units: { spec: PropertySpec; base: BaseCase; entry: number }[] = [];
   for (const spec of specs) {
     for (const base of bases) {
-      units.push({ spec, base });
+      const declared = entryCount(base.config, spec);
+      const entries = Math.max(1, options.listEntries === null ? declared : Math.min(declared, options.listEntries));
+      for (let entry = 0; entry < entries; entry++) {
+        units.push({ spec, base, entry });
+      }
     }
   }
+  // a property the generator has no values for runs no cases, so it is named rather than counted as swept
+  const untested = specs.filter(spec => candidateValues(spec, options.values).length === 0
+    && !(spec.value.format !== undefined && SKIPPED_FORMATS.has(spec.value.format)));
   const shard = options.shard;
   const shardUnits = shard ? units.filter((_, index) => index % shard.count === shard.index - 1) : units;
   const selected = options.limit === null ? shardUnits : shardUnits.slice(0, options.limit);
@@ -193,7 +204,7 @@ async function main(): Promise<void> {
       startedAt,
       elapsedSeconds: elapsedSeconds(),
       bases: bases.map(base => base.id),
-      properties: specs.length,
+      properties: { total: specs.length, untested: untested.map(spec => spec.id) },
       units: { total: selected.length, done },
       stats: { ...fuzzer.stats }
     };
@@ -207,14 +218,14 @@ async function main(): Promise<void> {
     interrupted = true;
   });
 
-  console.log('fuzzing ' + specs.length + ' properties × ' + bases.length + ' bases = '
+  console.log('fuzzing ' + specs.length + ' properties over ' + bases.length + ' bases = '
     + selected.length + ' units' + (previous.done > 0 ? ' (resuming at ' + previous.done + ')' : ''));
 
   let lastReport = elapsedSeconds();
   for (; done < selected.length && !interrupted; done++) {
-    const { spec, base } = selected[done]!;
+    const { spec, base, entry } = selected[done]!;
     for (const candidate of candidateValues(spec, options.values)) {
-      fuzzer.runCase(base, spec, candidate);
+      fuzzer.runCase(base, spec, candidate, entry);
     }
     if (elapsedSeconds() - lastReport > 5) {
       lastReport = elapsedSeconds();
