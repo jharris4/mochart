@@ -148,13 +148,26 @@ export class Fuzzer {
       return 'data-mismatch';
     }
     this.stats.cases++;
-    this.execute(base, spec, candidate, rawB, entry);
+    this.execute(base, spec.id, candidate.label, rawB, null, entry);
     return 'ran';
   }
 
-  private execute(base: BaseCase, spec: PropertySpec, candidate: Candidate, rawB: Record<string, unknown>, entry: number): void {
-    const property = spec.id;
-    const value = candidate.label;
+  /** One case for a config/data shape change: adding, removing or reordering entries and rows. */
+  runStructuralCase(base: BaseCase, property: string, label: string, config: Record<string, unknown>, data: unknown | null): CaseStatus {
+    if (!this.library.validateConfig(config).valid) {
+      this.stats.invalid++;
+      return 'invalid';
+    }
+    if (this.hasDataMismatch(config, data ?? base.data)) {
+      this.stats.dataMismatch++;
+      return 'data-mismatch';
+    }
+    this.stats.cases++;
+    this.execute(base, property, label, config, data, 0);
+    return 'ran';
+  }
+
+  private execute(base: BaseCase, property: string, value: string, rawB: Record<string, unknown>, dataB: unknown | null, entry: number): void {
     this.entry = entry;
     const consoleMessages: string[] = [];
     const restoreConsole = captureConsole(consoleMessages);
@@ -170,9 +183,13 @@ export class Fuzzer {
       const enhancedBFresh = this.enhance(structuredClone(rawB), property, base.id, value, 'enhance-B-fresh');
 
       const rowsA = structuredClone(base.data);
-      const rowsB = structuredClone(base.data);
+      const rowsB = structuredClone(dataB ?? base.data);
+      const rowsRevert = structuredClone(base.data);
       const guardedA = safeClone(enhancedA);
       const guardedB = safeClone(enhancedB);
+      const guardedRowsA = safeClone(rowsA);
+      const guardedRowsB = safeClone(rowsB);
+      const guardedRowsRevert = safeClone(rowsRevert);
 
       stage = 'render-A';
       chartA = this.createChart(containerA, {
@@ -185,7 +202,8 @@ export class Fuzzer {
       const domA = this.capture(property, base.id, value, stage, containerA);
 
       stage = 'update-A-to-B';
-      chartA.update({ mochartConfig: enhancedB });
+      chartA.update(dataB === null ? { mochartConfig: enhancedB }
+        : { mochartConfig: enhancedB, dataProvider: this.makeProvider(structuredClone(dataB)) });
       this.settle(property, base.id, value, stage);
       const domAB = this.capture(property, base.id, value, stage, containerA);
 
@@ -200,7 +218,8 @@ export class Fuzzer {
       const domB = this.capture(property, base.id, value, stage, containerB);
 
       stage = 'update-B-to-A';
-      chartA.update({ mochartConfig: enhancedA });
+      chartA.update(dataB === null ? { mochartConfig: enhancedA }
+        : { mochartConfig: enhancedA, dataProvider: this.makeProvider(rowsRevert) });
       this.settle(property, base.id, value, stage);
       const domABA = this.capture(property, base.id, value, stage, containerA);
 
@@ -220,8 +239,9 @@ export class Fuzzer {
       stage = 'input-mutation';
       this.checkUnchanged(guardedA, enhancedA, property, base.id, value, 'the config passed to createChart/update (A)');
       this.checkUnchanged(guardedB, enhancedB, property, base.id, value, 'the config passed to update (B)');
-      this.checkUnchanged(base.data, rowsA, property, base.id, value, 'the data rows behind chart A');
-      this.checkUnchanged(base.data, rowsB, property, base.id, value, 'the data rows behind chart B');
+      this.checkUnchanged(guardedRowsA, rowsA, property, base.id, value, 'the data rows behind chart A');
+      this.checkUnchanged(guardedRowsB, rowsB, property, base.id, value, 'the data rows behind chart B');
+      this.checkUnchanged(guardedRowsRevert, rowsRevert, property, base.id, value, 'the data rows passed when reverting');
     }
     catch (error) {
       this.record('error', property, errorSignature(error), {

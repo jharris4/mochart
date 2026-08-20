@@ -26,6 +26,17 @@ seconds, so a long run can be read while it is still going.
 4. **input-mutation** — the raw config, the enhanced config and the data rows handed to the library
    come back byte-identical.
 
+## Shape changes
+
+Alongside the property sweep, each base also runs a small set of cases that change the chart's shape
+rather than a value — the property sweep can only ever move a value *inside* an entry that already
+exists. Per base: drop each list entry in turn, duplicate the last one, swap the first two, and add or
+remove a data row. About 100 cases in total, a minute of a multi-hour run, checked by the same four
+oracles: reaching a shape by update must match building it directly.
+
+Turned off with `--no-structural`. List length and entry order are otherwise never varied, and the
+data is otherwise fixed for the whole run.
+
 ## What one case does
 
 For a base config A and a candidate value producing config B:
@@ -57,6 +68,7 @@ gate, moving `categoryAxis.type` to `number` over string categories renders `NaN
 | `--width`, `--height` | 800×600 | chart size |
 | `--no-animation` | animation on | render without tweens |
 | `--shard=2/4` | — | run one shard; shards are disjoint and can run in parallel processes |
+| `--no-structural` | shape changes on | skip the add/remove/reorder cases |
 | `--list-entries=N` / `--list-entries=all` | 1 | how many entries of each list section (`series`, `valueAxes`, gradients, …) to sweep; `all` roughly doubles the run |
 | `--limit=N` | — | stop after N units (a unit is one property on one base entry) |
 | `--resume` | — | continue the previous run of the same options, merging findings |
@@ -82,8 +94,7 @@ order and instance numbering are not observable, so they must not count as diffe
   experiment. Array-valued properties (thresholds, tick lists, colour lists) *are* swept: each gets an
   empty list, a one-entry list and a two-entry list, with object entries built from the item model.
 - **List entries past the first** — `--list-entries` sweeps them, but the default is entry `[0]` only,
-  because sweeping every declared entry costs roughly another 7,200 units. List length and entry order
-  are never varied.
+  because sweeping every declared entry costs roughly another 7,200 units.
 - **Properties with no generated values** — named under "Untested properties" in the report rather than
   quietly counted as swept, so the header reads `properties swept: N of M`.
 - **Property pairs** — every case moves exactly one property. Interactions are tier 2 (a pairwise
