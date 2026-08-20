@@ -52,8 +52,8 @@ const cssStyleKeyMap = {
 const dashArray = () => validators.regexp(dashArrayRegexp).withCustomName('dashArray').withMessage('should be a valid dash array');
 const numberFormat = () => validators.regexp(numberFormatRegexp).withCustomName('numberFormat').withMessage('should be a valid number format');
 const dateFormat = () => validators.string().withCustomName('dateFormat').withMessage('should be a valid date format');
-const propertyRequired = () => validators.notOneOf([undefined, NONE]).withCustomName('propertyRequired').withMessage('should be a defined value');
-const propertyOptional = () => validators.notEqual(undefined).orEqual(NONE).withCustomName('propertyOptional').withMessage('should be a defined value or equal to null');
+const propertyRequired = () => validators.string().withCustomName('propertyRequired').withMessage('should be a string naming a data property');
+const propertyOptional = () => validators.string().withCustomName('propertyOptional').withMessage('should be a string naming a data property').orEqual(NONE);
 // Partial like every nested config (deep-merged over its default); extras pass for the unknown-key walk.
 const partialObjectWith = (keys: string[], valueValidator: Validator): Validator => {
   const shape: Record<string, Validator> = {};

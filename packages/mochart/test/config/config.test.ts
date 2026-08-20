@@ -35,7 +35,7 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'categoryAxis - property - should be a defined value: undefined'
+        'categoryAxis - property - should be a string naming a data property: undefined'
       ],
       warnings: []
     });
@@ -135,7 +135,7 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'series[0] - property - should be a defined value: undefined'
+        'series[0] - property - should be a string naming a data property: undefined'
       ],
       warnings: []
     });
