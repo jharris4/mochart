@@ -134,7 +134,14 @@ const linearGradientIdPrefix = 'linear__gradient__';
 const radialGradientIdPrefix = 'radial__gradient__';
 const seriesPatternIdPrefix = 'series__pattern__';
 const seriesColorGradientIdPrefix = 'seriescolor__gradient__';
-let chartInstanceCounter = 1;
+// on the global registry, not module state: two bundled copies of the library share one document's ids
+const chartInstanceCounterKey = Symbol.for('mochart.chartInstanceCounter');
+function nextChartInstanceId(): string {
+  const scope = globalThis as unknown as Record<symbol, number | undefined>;
+  const instance = (scope[chartInstanceCounterKey] ?? 0) + 1;
+  scope[chartInstanceCounterKey] = instance;
+  return '' + instance;
+}
 
 // Shared body for the getXxxComponent factory defaults (they return a DOM Node or string): fills the box,
 // flex-centers the message (table-cell centering silently failed at 0-size), and quiets content drawing
@@ -370,7 +377,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   constructor() {
     super();
-    this.uniqueId = "" + chartInstanceCounter++;
+    this.uniqueId = nextChartInstanceId();
     this.state = getInitialState();
 
     // set while the full chart body is rendered (mirrors the old render ref)
