@@ -63,20 +63,35 @@ export function deepMergeAll<T extends object>(...layers: (object | null | undef
   return merged as T;
 }
 
-/** A fully independent copy: plain objects and arrays are copied recursively, dates are copied, anything else passes through by reference. */
+/** A fully independent copy: plain objects and arrays are copied recursively, dates are copied, anything else passes through by reference. Throws on a circular reference. */
 export function deepClone<T>(value: T): T {
-  if (Array.isArray(value)) {
-    return value.map(deepClone) as T;
+  return cloneValue(value, new Set());
+}
+
+// `ancestors` is the path back to the root, not everything seen: the same object twice in different branches is a legal shared value, only a loop is not
+function cloneValue<T>(value: T, ancestors: Set<unknown>): T {
+  if (Array.isArray(value) || isPlainObject(value)) {
+    if (ancestors.has(value)) {
+      throw new Error('deepClone cannot copy a circular reference: a built mochartConfig links series and axes to each other, so clone the config it was built from rather than the built config');
+    }
+    ancestors.add(value);
+    const clone = Array.isArray(value) ? cloneEntries(value, ancestors) : cloneKeys(value, ancestors);
+    ancestors.delete(value);
+    return clone as T;
   }
   if (value instanceof Date) {
     return new Date(value.getTime()) as T;
   }
-  if (isPlainObject(value)) {
-    const clone: MergeRecord = Object.create(null); // null proto: a JSON-owned __proto__ key must not rewrite the clone prototype
-    for (const key of Object.keys(value)) {
-      clone[key] = deepClone(value[key]);
-    }
-    return clone as T;
-  }
   return value;
 }
+
+const cloneEntries = (value: unknown[], ancestors: Set<unknown>): unknown[] =>
+  value.map(entry => cloneValue(entry, ancestors));
+
+const cloneKeys = (value: MergeRecord, ancestors: Set<unknown>): MergeRecord => {
+  const clone: MergeRecord = Object.create(null); // null proto: a JSON-owned __proto__ key must not rewrite the clone prototype
+  for (const key of Object.keys(value)) {
+    clone[key] = cloneValue(value[key], ancestors);
+  }
+  return clone;
+};

@@ -139,6 +139,24 @@ describe('deepClone', () => {
     expect(clone.b).toBe(null);
     expect(clone.c).toBe(callback);
   });
+
+  it('throws on a circular reference instead of recursing forever', () => {
+    const loop: Record<string, unknown> = { a: 1 };
+    loop.self = loop;
+    expect(() => deepClone(loop)).toThrow(/circular reference/);
+
+    const list: unknown[] = [1];
+    list.push(list);
+    expect(() => deepClone(list)).toThrow(/circular reference/);
+  });
+
+  // the same object on two branches is a shared value, not a loop, and must still clone
+  it('copies an object reached twice down separate branches', () => {
+    const shared = { x: 1 };
+    const clone = deepClone({ a: shared, b: shared });
+    expect(clone).toEqual({ a: { x: 1 }, b: { x: 1 } });
+    expect(clone.a).not.toBe(shared);
+  });
 });
 
 // ---------------------------------------------------------------------------

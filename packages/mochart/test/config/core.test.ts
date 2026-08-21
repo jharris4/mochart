@@ -8,6 +8,8 @@ import buildMochartConfig, {
 import { configWithAll, filterConfig, filterConfigs } from '../../src/config/core/configUtils';
 import { getDefaults } from '../../src/config/defaults/mochartConfig';
 import { makeConfig } from '../data/fixtures';
+import { enhanceConfig } from '../../src/config/helper';
+import validateConfig from '../../src/config/validation/mochartConfig';
 import type { MochartConfig } from '../../src/types/config';
 
 describe('sectionKeyAllMap', () => {
@@ -397,5 +399,29 @@ describe('hasConfigStructureChange', () => {
     expect(hasConfigStructureChange(withShowInLegend(true), withShowInLegend(true))).toBe(false);
     expect(hasConfigStructureChange(withShowInLegend(false), withShowInLegend(true))).toBe(false);
     expect(hasConfigStructureChange(withShowInLegend(true), withShowInLegend(false))).toBe(false);
+  });
+});
+
+// a built config's series <-> axis references are cyclic, so re-feeding one used to overflow the stack in deepClone
+describe('re-feeding a built config', () => {
+  const built = () => makeConfig({
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'sales' }]
+  }) as unknown as Record<string, unknown>;
+
+  it('rejects a built config in the functions that clone it', () => {
+    expect(() => getConfigWithDefaults(built())).toThrow(/circular reference/);
+    expect(() => getConfigWithoutDefaults(built())).toThrow(/circular reference/);
+  });
+
+  it('rejects a built config in the callers of those functions', () => {
+    expect(() => validateConfig(built())).toThrow(/circular reference/);
+    expect(() => enhanceConfig(built() as never)).toThrow(/circular reference/);
+    expect(() => buildMochartConfig(built())).toThrow(/circular reference/);
+  });
+
+  it('accepts a config that merely carries a validation property', () => {
+    const config = { version: '1.0.0', validation: { valid: true, errors: [], warnings: [] } };
+    expect(() => getConfigWithDefaults(config)).not.toThrow();
   });
 });
