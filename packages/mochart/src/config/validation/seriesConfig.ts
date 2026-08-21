@@ -66,7 +66,7 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
     suffix: 'when chart type is pie or renderer is area or bar, and gradient is ' + NONE
   };
   return {
-    id: validators.string(),
+    id: validators.id(),
     order: validators.integer(),
     axis: validators.string(),
     stack: validators.string().orEqual(NONE),

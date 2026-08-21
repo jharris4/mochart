@@ -155,6 +155,35 @@ describe('gradient id validation across both lists', () => {
   });
 });
 
+describe('id character validation', () => {
+  const stops = [{ offset: 0, color: '#000000', opacity: 1 }, { offset: 1, color: '#ffffff', opacity: 1 }];
+  const message = 'should be a string of letters, digits, dashes and underscores';
+
+  it('flags a gradient id holding characters that url(#...) cannot carry', () => {
+    for (const id of ['brand (blue)', 'has space', 'quote"id', 'semi;id']) {
+      expect(errorsFor({ version: V, categoryAxis: { property: 'p' }, series: [{ property: 'a', renderer: 'bar', gradient: id }],
+        linearGradients: [{ id, stops }] })).toContain(`linearGradients[0] - id - ${message}: ${JSON.stringify(id)}`);
+    }
+  });
+
+  it('flags an unsafe id in every section that mints one', () => {
+    const errors = errorsFor({ version: V, categoryAxis: { property: 'p' },
+      valueAxes: [{ id: 'va 0' }],
+      series: [{ id: 's 0', property: 'a', renderer: 'bar', axis: 'va 0', stack: 'ss 0', group: 'sg 0' }],
+      seriesStacks: [{ id: 'ss 0', axis: 'va 0' }],
+      seriesGroups: [{ id: 'sg 0' }],
+      patterns: [{ id: 'p 0', type: 'dots' }] });
+    for (const location of ['valueAxes[0]', 'series[0]', 'seriesStacks[0]', 'seriesGroups[0]', 'patterns[0]']) {
+      expect(errors).toContainEqual(expect.stringContaining(`${location} - id - ${message}`));
+    }
+  });
+
+  it('accepts letters, digits, dashes and underscores', () => {
+    expect(errorsFor({ version: V, categoryAxis: { property: 'p' }, series: [{ property: 'a', renderer: 'bar', gradient: 'brand-blue_2' }],
+      linearGradients: [{ id: 'brand-blue_2', stops }] })).toEqual([]);
+  });
+});
+
 describe('unique-key validation', () => {
   it('flags duplicate series ids at both offending indices', () => {
     const errors = errorsFor({

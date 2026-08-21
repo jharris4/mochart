@@ -87,6 +87,7 @@ describe("validators", () => {
     integerMax: { args: [100], valid: 0, invalid: 101 },
     integerMinMax: { args: [0, 50], valid: 0, invalid: 51 },
     regexp: { args: [/(match)/], valid: "match", invalid: "march" },
+    stringRegexp: { args: [/(match)/], valid: "match", invalid: "march" },
     stringWithLength: { args: [3], valid: "abc", invalid: "ab" },
     stringWithLengthMin: { args: [5], valid: "abcde", invalid: "abcd" },
     stringWithLengthMax: { args: [4], valid: "abcd", invalid: "abcde" },
@@ -1128,6 +1129,46 @@ describe("validators", () => {
         const regex = /a/g;
         regex.lastIndex = 5;
         expect(baseValidators.regexp(regex)("a")).toBe(true);
+      });
+    });
+
+    describe("stringRegexp", () => {
+      it("should not allow undefined", () => {
+        expect(baseValidators.stringRegexp(/[.]/)(undefined)).toBe(false);
+      });
+
+      it("should never match the stringified form of a non-string value", () => {
+        expect(baseValidators.stringRegexp(/^[a-z]+$/)(null)).toBe(false);
+        expect(baseValidators.stringRegexp(/^\d+$/)(Object.create(null))).toBe(false);
+        expect(baseValidators.stringRegexp(/^\d+$/)(true)).toBe(false);
+      });
+
+      it("should not allow numbers", () => {
+        expect(baseValidators.stringRegexp(/[0-9]+/)(92234)).toBe(false);
+        expect(baseValidators.regexp(/[0-9]+/)(92234)).toBe(true);
+      });
+
+      it("should allow empty strings if the regex allows it", () => {
+        expect(baseValidators.stringRegexp(/[.]*/)("")).toBe(true);
+      });
+
+      it("should allow strings that match the regex", () => {
+        expect(baseValidators.stringRegexp(/[abc]+/)("ababacca")).toBe(true);
+      });
+
+      it("should not allow strings that do not match the regex", () => {
+        expect(baseValidators.stringRegexp(/^[abc]+$/)("ababadcca")).toBe(false);
+      });
+
+      it("should return the same result for repeated calls with a global regex", () => {
+        const validator = baseValidators.stringRegexp(/a/g);
+        expect([validator("a"), validator("a"), validator("a")]).toEqual([true, true, true]);
+      });
+
+      it("should not modify the lastIndex of the regex it was given", () => {
+        const regex = /a/g;
+        baseValidators.stringRegexp(regex)("a");
+        expect(regex.lastIndex).toBe(0);
       });
     });
 

@@ -4,6 +4,10 @@ import validators from '@mochart/movalid';
 import type { CustomValidator, Validator } from '@mochart/movalid';
 import { NONE, TOP_RIGHT_BOTTOM_LEFT, COLOR_CURRENT } from '../core/constants';
 
+// an id is woven into dom ids and their url(#...) references, which have no escaping, so it is restricted to characters that need none
+const idRegexp = /^[A-Za-z0-9_-]+$/;
+
+
 // SVG stroke-dasharray: unitless numbers (decimals allowed) separated by whitespace and/or one comma
 const dashArrayRegexp = /^\s*(?:\d*\.\d+|\d+)(?:(?:\s*,\s*|\s+)(?:\d*\.\d+|\d+))*\s*$/;
 
@@ -49,6 +53,7 @@ const cssStyleKeyMap = {
   strokeWidth: strokeWidthValidator
 };
 
+const id = () => validators.stringRegexp(idRegexp).withCustomName('id').withMessage('should be a string of letters, digits, dashes and underscores');
 const dashArray = () => validators.regexp(dashArrayRegexp).withCustomName('dashArray').withMessage('should be a valid dash array');
 const numberFormat = () => validators.regexp(numberFormatRegexp).withCustomName('numberFormat').withMessage('should be a valid number format');
 const dateFormat = () => validators.string().withCustomName('dateFormat').withMessage('should be a valid date format');
@@ -82,6 +87,7 @@ const cssColor = () => cssColorValidator;
 // mapped Validators type — spreading it into a literal collapses them.
 const configValidators = Object.assign({}, validators, {
   color,
+  id,
   dashArray,
   numberFormat,
   dateFormat,

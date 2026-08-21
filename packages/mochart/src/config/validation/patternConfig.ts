@@ -11,7 +11,7 @@ const defaultRule = { condition: () => true };
 export default function getValidators(config: Partial<PatternConfig>) {
   const patternColor = () => validators.svgColor().orEqual(COLOR_SERIES);
   return {
-    id: validators.string(),
+    id: validators.id(),
     ignore: validators.boolean(),
     type: validators.oneOf(PATTERN_TYPES),
     spacing: validators.numberMin(1),

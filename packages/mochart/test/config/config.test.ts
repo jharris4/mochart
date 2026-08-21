@@ -485,12 +485,12 @@ describe('prototype-member-named ids', () => {
 describe('object-valued ids and references', () => {
   const base = { version: VERSION_STRING, categoryAxis: { property: 'g' } };
   const cases: [string, Record<string, unknown>, string][] = [
-    ['valueAxes id', { valueAxes: [{ id: {} }], series: [{ property: 'v' }] }, 'valueAxes[0] - id - should be a string'],
+    ['valueAxes id', { valueAxes: [{ id: {} }], series: [{ property: 'v' }] }, 'valueAxes[0] - id - should be a string of letters'],
     ['series order', { series: [{ property: 'v', order: {} }] }, 'series[0] - order - should be an integer'],
     ['series axis', { series: [{ property: 'v', axis: {} }] }, 'series[0] - axis - should be a string'],
     ['series stack', { series: [{ property: 'v', stack: {} }] }, 'series[0] - stack - should be a string'],
     ['stack axis + group', { series: [{ property: 'v', stack: 'S', group: {} }], seriesStacks: [{ id: 'S', axis: {} }] }, 'seriesStacks[0] - axis - should be a string'],
-    ['followSeries + id', { series: [{ property: 'v', id: {}, followSeries: {} }] }, 'series[0] - id - should be a string']
+    ['followSeries + id', { series: [{ property: 'v', id: {}, followSeries: {} }] }, 'series[0] - id - should be a string of letters']
   ];
   for (const [name, overrides, error] of cases) {
     it(`reports an object-valued ${name} instead of throwing`, () => {

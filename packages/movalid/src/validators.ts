@@ -261,6 +261,15 @@ customTypeValidatorKeys.forEach(customTypeValidatorKey => {
 
 export { customTypeValidators };
 
+// clone, and reset lastIndex per test: /g and /y regexes are stateful and would alternate results
+const regexpTester = (regex: RegExp): ((v: string) => boolean) => {
+  const testRegex = new RegExp(regex.source, regex.flags);
+  return v => {
+    testRegex.lastIndex = 0;
+    return testRegex.test(v);
+  };
+};
+
 const argumentTypeValidatorDefinitions = {
   instanceOf: {
     validator: (type: new (...args: any[]) => any) => v => v instanceof type,
@@ -313,19 +322,18 @@ const argumentTypeValidatorDefinitions = {
     message: (min: number, max: number) => "should be an integer and >= to " + min + " and <= " + max
   },
   regexp: {
-    // clone, and reset lastIndex per test: /g and /y regexes are stateful and would alternate results
     validator: (regex: RegExp) => {
-      const testRegex = new RegExp(regex.source, regex.flags);
-      // only text or a number is matched: RegExp.test would stringify anything else ("undefined", "[object Object]") or throw
-      return v => {
-        if (!typeValidators.string(v) && !typeValidators.number(v)) {
-          return false;
-        }
-        testRegex.lastIndex = 0;
-        return testRegex.test(String(v));
-      };
+      const test = regexpTester(regex);
+      return v => (typeValidators.string(v) || typeValidators.number(v)) && test(String(v));
     },
     message: (regex: RegExp) => "should match regex " + regex
+  },
+  stringRegexp: {
+    validator: (regex: RegExp) => {
+      const test = regexpTester(regex);
+      return v => typeValidators.string(v) && test(v);
+    },
+    message: (regex: RegExp) => "should be a string matching regex " + regex
   },
   stringWithLength: {
     validator: (length: number) => v => typeValidators.string(v) && v.length === length,

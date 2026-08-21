@@ -6,7 +6,7 @@ import validators from './validators';
 export default function getValidators() {
   return {
     axis: validators.string(),
-    id: validators.string(),
+    id: validators.id(),
     ignore: validators.boolean(),
     outerCap: validators.partialObjectWithShape({
       size: validators.numberMin(0),

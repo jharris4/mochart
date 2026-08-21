@@ -36,7 +36,8 @@ All are called as `validators.name(...args)`:
   `fn` a `message` property)
 - **Ranges** — `numberMin/Max/MinMax`, `numericMin/Max/MinMax`,
   `integerMin/Max/MinMax`
-- **Strings** — `regexp(re)`, `stringWithLength(n)`,
+- **Strings** — `regexp(re)` (a number is stringified and matched too),
+  `stringRegexp(re)` (text only), `stringWithLength(n)`,
   `stringWithLengthMin/Max/MinMax`
 - **Values** — `equal(v)`, `oneOf([...])`, `oneIn({...})`, `notEqual(v)`,
   `notOneOf([...])`, `notOneIn({...})`
