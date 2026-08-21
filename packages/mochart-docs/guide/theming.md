@@ -59,11 +59,11 @@ directly in either focus state, configure that state's palette arrays too.
 
 The four top-level palette groups serve different elements:
 
-- `series` colors the main line, area, bar, or pie shape.
+- `shape` colors the main line, area, bar, or pie shape.
 - `marker`, `label`, and `errorBar` provide independent colors when those
   elements' styles explicitly use `seriesIndex` or `categoryIndex`.
 - By default, markers and error bars use the owning `series` color, while
-  labels use the page's `currentColor`, so changing `series` is usually enough.
+  labels use the page's `currentColor`, so changing `shape` is usually enough.
 
 See the [`colorPalette` reference](/reference/colorPalette) for the complete
 shape and [the config model](/guide/config-model#partial-overrides) for merge

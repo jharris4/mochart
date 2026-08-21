@@ -66,7 +66,7 @@
             const mochartConfig = enhanceConfig({
                 version: '1.0.0',
                 title: { text: 'Distribution of 2,000 samples (μ = 100, σ = 15)' },
-                categoryAxis: { ...categoryAxisConfig, title: 'Value' },
+                categoryAxis: { ...categoryAxisConfig, title: { text: 'Value' } },
                 valueAxes: [{ id: 'va', min: 0 }],
                 series: [{ ...seriesConfig, axis: 'va' }]
             });

@@ -150,7 +150,7 @@ and property is optional and falls back to a sensible default — only
 | `legend` | legend placement, item style, series filtering on click |
 | `tooltip` | tooltip content, formatting, positioning |
 | `crosshair` | crosshair line style and snapping |
-| `animation` | `animate` on/off plus per-phase durations (initial, expansion, value change, contraction, focus) |
+| `animation` | `enabled` on/off plus per-phase durations (initial, expansion, value change, contraction, focus) |
 | `accessibility` | keyboard and screen-reader access: `enabled`/`hidden` switches, label localization, `respectReducedMotion` |
 | `plot` | plot area (e.g. `inverted` for horizontal charts) |
 | `pie` | pie/donut slice geometry and slice labels when `chart.type` is `pie`: radii, angles, label type and formats, tooltip values |
@@ -186,7 +186,7 @@ chart stays an ordinary xy or pie chart rather than a special mode.
 - `createCandlestick(rows, options)` — open/high/low/close candles; `computeCandlesticks` returns just the derived values
 - `createOhlc(rows, options)` — the same data drawn as open/close ticks on a high/low bar
 - `createPie(slices, options)` — a pie or donut; `computePieFractions` returns just the slice shares
-- `createSparklineConfig(options)` — a chart config stripped down to the line itself
+- `createSparklineConfig(config, options)` — strips a chart config down to a tiny inline chart: axes, legend, tooltip and markers off, margins collapsed
 
 See the [chart helpers reference](../mochart-docs/reference/api.md) for the full options.
 

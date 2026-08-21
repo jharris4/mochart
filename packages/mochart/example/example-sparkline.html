@@ -50,7 +50,7 @@
             version: '1.0.0',
             categoryAxis: { property: 'i', type: 'number', scale: 'linear' },
             valueAxes: [{ id: 'va' }],
-            series: [{ axis: 'va', property: 'value', renderer, strokeColor: color, fillColor: color }]
+            series: [{ axis: 'va', property: 'value', renderer, shapeStyle: { normal: { strokeColor: color, fillColor: color } } }]
         });
 
         // Win/loss reuses the waterfall trick: one property (and color) per
@@ -60,8 +60,8 @@
             categoryAxis: { property: 'i', type: 'string', scale: 'ordinal' },
             valueAxes: [{ id: 'va', base: 0, min: -1, max: 1 }],
             series: [
-                { axis: 'va', property: 'up', renderer: 'bar', missingValueMode: 'connect', fillColor: '#1baf7a' },
-                { axis: 'va', property: 'down', renderer: 'bar', missingValueMode: 'connect', fillColor: '#e34948' }
+                { axis: 'va', property: 'up', renderer: 'bar', missingValueMode: 'connect', shapeStyle: { normal: { fillColor: '#1baf7a' } } },
+                { axis: 'va', property: 'down', renderer: 'bar', missingValueMode: 'connect', shapeStyle: { normal: { fillColor: '#e34948' } } }
             ]
         };
 
