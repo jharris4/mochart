@@ -68,9 +68,8 @@ and the ramp splits in two: one color pair above the threshold, another below
   [`base`](/reference/series#series.colorScale.base) colors take
   over. Each anchors to its half's data extent: `aboveMin` sits *at* the base
   and `aboveMax` at the highest value; `belowMin` sits at the *most negative*
-  value and `belowMax` at the base. For the classic diverging look — palest at
-  the base, saturated at the extremes — order the below pair saturated → pale,
-  as above (the defaults, `#ff8f8f` → `#ff0000`, run it the other way).
+  value and `belowMax` at the base. The defaults give the classic diverging
+  look — palest at the base, saturated at both extremes.
 - Each half fits its own side of the color property's extent, so the deepest
   red and deepest blue always mark the current extremes.
 - The base splits only the *colors*. Here the bars measure revenue (all

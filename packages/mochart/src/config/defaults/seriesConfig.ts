@@ -297,13 +297,13 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, 
         belowMin: conditionalDefault([
           { condition: ({ colorProperty }) => colorProperty === NONE, suffix: colorPropertyNoneSuffix, default: NONE },
           { condition: ({ colorProperty, colorScale }) => colorProperty !== NONE && colorScale?.base?.value === NONE, suffix: colorBaseNoneSuffix, default: NONE },
-          { condition: ({ colorProperty, colorScale }) => colorProperty !== NONE && colorScale?.base?.value !== NONE, suffix: colorBaseSuffix, default: '#ff8f8f' },
+          { condition: ({ colorProperty, colorScale }) => colorProperty !== NONE && colorScale?.base?.value !== NONE, suffix: colorBaseSuffix, default: '#ff0000' },
           { ...defaultRule, default: NONE }
         ], configWithRegularDefaults, index),
         belowMax: conditionalDefault([
           { condition: ({ colorProperty }) => colorProperty === NONE, suffix: colorPropertyNoneSuffix, default: NONE },
           { condition: ({ colorProperty, colorScale }) => colorProperty !== NONE && colorScale?.base?.value === NONE, suffix: colorBaseNoneSuffix, default: NONE },
-          { condition: ({ colorProperty, colorScale }) => colorProperty !== NONE && colorScale?.base?.value !== NONE, suffix: colorBaseSuffix, default: '#ff0000' },
+          { condition: ({ colorProperty, colorScale }) => colorProperty !== NONE && colorScale?.base?.value !== NONE, suffix: colorBaseSuffix, default: '#ff8f8f' },
           { ...defaultRule, default: NONE }
         ], configWithRegularDefaults, index)
       }
