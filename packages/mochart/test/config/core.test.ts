@@ -152,6 +152,50 @@ describe('getConfigWithoutDefaults', () => {
     expect(getConfigWithDefaults(minimal, defaults)).toEqual(getConfigWithDefaults(config, defaults));
   });
 
+  // Regression: a grouped key was compared whole, so overriding one member kept every default-equal
+  // sibling — after the flat-keys-to-groups regrouping that was nearly every property in the config
+  it('strips default-equal members inside a grouped key', () => {
+    expect(getConfigWithoutDefaults(
+      { categoryAxis: { property: 'x', tickLabel: { rotation: 45, size: 12, format: null } } },
+      { categoryAxis: { property: 'x', tickLabel: { rotation: 0, size: 12, format: null } } }
+    )).toEqual({ categoryAxis: { tickLabel: { rotation: 45 } } });
+  });
+
+  it('drops a group whose members all match, and the section with it', () => {
+    expect(getConfigWithoutDefaults(
+      { categoryAxis: { property: 'x', tickLabel: { size: 12 } } },
+      { categoryAxis: { property: 'x', tickLabel: { size: 12 } } }
+    )).toEqual({});
+  });
+
+  it('recurses through nested groups', () => {
+    expect(getConfigWithoutDefaults(
+      { series: [{ shapeStyle: { normal: { fillColor: '#ff0000', fillOpacity: 1 }, focused: { fillOpacity: 1 } } }] },
+      { series: [{ shapeStyle: { normal: { fillColor: '#000000', fillOpacity: 1 }, focused: { fillOpacity: 1 } } }] }
+    )).toEqual({ series: [{ shapeStyle: { normal: { fillColor: '#ff0000' } } }] });
+  });
+
+  // an array is one value: dropping members would change what the remaining ones mean
+  it('compares an array member whole rather than stripping its entries', () => {
+    expect(getConfigWithoutDefaults(
+      { categoryAxis: { thresholds: [{ value: 1 }, { value: 2 }] } },
+      { categoryAxis: { thresholds: [{ value: 1 }, { value: 9 }] } }
+    )).toEqual({ categoryAxis: { thresholds: [{ value: 1 }, { value: 2 }] } });
+  });
+
+  it('keeps a group member equal to the base default when the all-config overrides it', () => {
+    const config = {
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      seriesDefaults: { marker: { size: 10 } },
+      series: [{ property: 'a', marker: { size: 6, minSize: 1 } }]
+    };
+    const defaults = getDefaults(config);
+    const minimal = getConfigWithoutDefaults(config, defaults);
+    // 6 is the base default, but the all-config would resolve it to 10 without it
+    expect((minimal.series as Record<string, unknown>[])[0]).toEqual({ property: 'a', marker: { size: 6 } });
+    expect(getConfigWithDefaults(minimal, defaults)).toEqual(getConfigWithDefaults(config, defaults));
+  });
+
   it('keeps sections the defaults do not know about', () => {
     expect(getConfigWithoutDefaults({ id: 'x', title: { text: 'T' } }, { title: {} }))
       .toEqual({ id: 'x', title: { text: 'T' } });

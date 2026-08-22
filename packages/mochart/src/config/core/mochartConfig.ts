@@ -245,6 +245,8 @@ function areEqual(a: unknown, b: unknown): boolean {
   return false;
 }
 
+const isGroup = (value: unknown): value is ConfigRecord => isObject(value) && !Array.isArray(value);
+
 function removeSectionDefaults(defaultSectionValue: unknown, allSection: ConfigRecord, configSection: unknown): unknown {
   if (isObject(configSection)) {
     const defaultSection = isObject(defaultSectionValue) ? defaultSectionValue : {};
@@ -253,8 +255,17 @@ function removeSectionDefaults(defaultSectionValue: unknown, allSection: ConfigR
     for (const sectionKey of sectionKeys) {
       // the all-config overrides the default, so an entry value equal to the default is still load-bearing under it
       const effectiveDefault = allSection[sectionKey] !== undefined ? allSection[sectionKey] : defaultSection[sectionKey];
-      if (!areEqual(effectiveDefault, configSection[sectionKey])) {
-        newSection[sectionKey] = configSection[sectionKey];
+      const sectionValue = configSection[sectionKey];
+      // a grouped key is a config of its own: strip its default-equal members instead of comparing the group whole
+      if (isGroup(sectionValue) && isGroup(effectiveDefault)) {
+        const allGroup = isGroup(allSection[sectionKey]) ? allSection[sectionKey] : {};
+        const newGroup = removeSectionDefaults(defaultSection[sectionKey], allGroup, sectionValue) as ConfigRecord;
+        if (Object.keys(newGroup).length > 0) {
+          newSection[sectionKey] = newGroup;
+        }
+      }
+      else if (!areEqual(effectiveDefault, sectionValue)) {
+        newSection[sectionKey] = sectionValue;
       }
     }
     return newSection;
