@@ -9,7 +9,8 @@ export const config: MochartInputConfig = {
   patternDefaults: {
     spacing: 9,
     foregroundColor: 'series',
-    backgroundColor: '#fff'
+    backgroundColor: 'series',
+    backgroundOpacity: 0.18
   },
   patterns: [
     { id: 'direct', type: 'lines', rotation: 45, lineWidth: 2 },
