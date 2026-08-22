@@ -164,23 +164,16 @@ function getCategoryAxisThresholdTitleCssSelector() {
   return getDescendantCssSelector('categoryAxisThreshold', 'axisThresholdTitle');
 }
 
-/** Attribute selector for a value axis id: an id class would split on spaces or break on css-significant characters. */
-export function getValueAxisIdSelector(axisId: string) {
-  // a quoted css string only needs backslashes, quotes and line breaks escaped
-  const escaped = axisId.replace(/[\\"]/g, '\\$&').replace(/[\n\r\f]/g, char => '\\' + char.charCodeAt(0).toString(16) + ' ');
-  return '[data-axis-id="' + escaped + '"]';
-}
-
 function getValueAxisTickLabelsCssSelectorForId(axisId: string) {
-  return getCssSelector('valueAxis') + getValueAxisIdSelector(axisId) + ' ' + getCssSelector('axisTickLabels') + ' text';
+  return getIdCssSelector('valueAxis', axisId) + ' ' + getCssSelector('axisTickLabels') + ' text';
 }
 
 function getValueAxisTitleCssSelectorForId(axisId: string) {
-  return getCssSelector('valueAxis') + getValueAxisIdSelector(axisId) + ' ' + getCssSelector('axisTitle') + ' text';
+  return getIdCssSelector('valueAxis', axisId) + ' ' + getCssSelector('axisTitle') + ' text';
 }
 
 function getValueAxisThresholdTitleCssSelectorForId(axisId: string) {
-  return getCssSelector('valueAxisThreshold') + getValueAxisIdSelector(axisId) + ' ' + getCssSelector('axisThresholdTitle');
+  return getIdCssSelector('valueAxisThreshold', axisId) + ' ' + getCssSelector('axisThresholdTitle');
 }
 
 function getLegendItemTextsCssSelector() {

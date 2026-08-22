@@ -20,8 +20,6 @@ interface AxisProps {
   axisLayoutInfo: AxisLayoutInfo;
   plotLayoutInfo: SpacingLayoutInfo;
   axisClass: string;
-  /** a value axis's id, written as data-axis-id so its text can be found by id regardless of the id's characters */
-  axisId?: string | null;
   axisTicks: AxisTick[];
   axisFocusPercentage?: number | null;
   seriesFocusPercentage?: number | null;
@@ -53,7 +51,7 @@ export default class Axis extends Renderer<AxisProps> {
   }
 
   sync() {
-    const { front, axisConfig, axisLayoutInfo, plotLayoutInfo, axisClass, axisId = null, axisTicks, axisFocusPercentage, seriesFocusPercentage,
+    const { front, axisConfig, axisLayoutInfo, plotLayoutInfo, axisClass, axisTicks, axisFocusPercentage, seriesFocusPercentage,
       focusPercentages, tickSpacing, titleClipPathUniqueId, tickLabelClipPathUniqueId,
       onPointerEnter, onPointerLeave, onClick, accessibility, accessibleLabel } = this.props;
     if (axisConfig.visible) {
@@ -65,7 +63,7 @@ export default class Axis extends Renderer<AxisProps> {
       const namedGroup = front === tickLabelFront && axisTicks.length > 0;
 
       this.setPresent(true);
-      this.root.set({ className: axisClass, dataAxisId: axisId,
+      this.root.set({ className: axisClass,
         role: accessibility && namedGroup ? 'group' : null,
         ariaLabel: accessibility && namedGroup ? accessibleLabel : null });
       this.inner.set({ transform: translateObject(axisLayoutInfo), onPointerEnter, onPointerLeave, onClick });
