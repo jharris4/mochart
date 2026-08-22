@@ -535,6 +535,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const seriesRowClickable = (leaderSeriesId: string): boolean => tooltipConfig.showControls ||
       tooltipConfig.focusSeriesOnClick || (tooltipConfig.filterSeriesOnClick && mochartConfig.seriesById[leaderSeriesId].filterable);
     const { lineStyle, targetLineStyle, lastLineStyle, lastTargetLineStyle } = this.getLineStyles(minWidth, tooltipConfig.lineSpacing, minTargetSize);
+    const collapsedLineStyle: LineStyle = { ...lineStyle, height: 0, paddingTop: 0, paddingBottom: 0, overflow: 'hidden' };
 
     const tooltipLines: RendererItem[] = [];
 
@@ -571,7 +572,10 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       const seriesIsFocused = focusSeriesId === focusedSeriesId;
       const seriesIsDefocused = !seriesIsFocused && focusedSeriesId !== null;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
-      if (!adjustForFiltering || !(seriesIsFiltered && !tooltipConfig.showFiltered)) {
+      // the sizer keeps a row the visible box drops so the width stays put, but collapses it so the
+      // measured height — which positions the box — is the height the visible box will have
+      const rowCollapsed = seriesIsFiltered && !tooltipConfig.showFiltered;
+      if (!adjustForFiltering || !rowCollapsed) {
         const valueFormat = valueFormats[seriesId];
         const pieValues: PieTooltipValues | undefined = piePercentFormat === null ? undefined : {
           valueType: pieTooltipValueType, percentFormat: piePercentFormat,
@@ -580,10 +584,12 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
         };
         const { labelText, valueText } = getSeriesText(tooltipConfig, seriesConfig, valueFormat, series, adjustForFiltering, pieValues);
         if (valueText !== null) {
-          lastSeriesLineIndex = tooltipLines.length;
           const rowKey = 'series-' + seriesId;
           const rowIsTarget = seriesRowClickable(focusSeriesId);
-          lastSeriesLineIsTarget = rowIsTarget;
+          if (!rowCollapsed) {
+            lastSeriesLineIndex = tooltipLines.length;
+            lastSeriesLineIsTarget = rowIsTarget;
+          }
           // filtering acts on the leader (followSeries), so its filterable decides
           const rowFilters = seriesRowFilters && mochartConfig.seriesById[focusSeriesId].filterable;
           const rowInteractive = a11yRows && (seriesRowFocuses || rowFilters);
@@ -595,7 +601,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
             ctor: TooltipSeriesLine,
             props: { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsFiltered, seriesFocusPercentage,
               colorPaletteConfig, svgUniqueId, visible, labelText, valueText,
-              style: rowIsTarget ? targetLineStyle : lineStyle,
+              style: rowCollapsed ? collapsedLineStyle : rowIsTarget ? targetLineStyle : lineStyle,
               rowKey, interactive: rowInteractive, tabStop: false,
               showsFilterState: a11yRows && rowFilters, focusSeriesId,
               onPointerEnter: this.onSeriesPointerEnter, onPointerLeave: this.onSeriesPointerLeave, onClick: this.onSeriesClick }

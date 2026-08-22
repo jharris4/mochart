@@ -72,6 +72,33 @@ describe('tooltip size for filtering', () => {
     expect(hasRow(container, 'tooltipSizer', 'S0')).toBe(true);
   });
 
+  // Regression: the sizer's height positions the box, so a row kept only for width made the visible
+  // box sit half the dropped rows' height off the pointer
+  it('collapses the row it keeps, so it reserves width but no height', () => {
+    const container = mountChart({ tooltip: { showFiltered: false } });
+    filterSeries(container, 'S0');
+    openTooltip(container);
+
+    const sizerRow = container.querySelector<HTMLElement>(
+      getCssSelector('tooltipSizer') + ' ' + getIdCssSelector('tooltipSeriesLine', 'S0'));
+    expect(sizerRow).not.toBeNull();
+    expect(sizerRow!.style.height).toBe('0px');
+    expect(sizerRow!.style.paddingTop).toBe('0px');
+    expect(sizerRow!.style.paddingBottom).toBe('0px');
+    expect(sizerRow!.style.overflow).toBe('hidden');
+  });
+
+  it('leaves the rows it shows at their own height', () => {
+    const container = mountChart({ tooltip: { showFiltered: false } });
+    filterSeries(container, 'S0');
+    openTooltip(container);
+
+    const shownRow = container.querySelector<HTMLElement>(
+      getCssSelector('tooltipSizer') + ' ' + getIdCssSelector('tooltipSeriesLine', 'S1'));
+    expect(shownRow).not.toBeNull();
+    expect(shownRow!.style.height).toBe('');
+  });
+
   it('lets the box shrink to the remaining rows when adjustSizeForFiltering is on', () => {
     const container = mountChart({ tooltip: { showFiltered: false, adjustSizeForFiltering: true } });
     filterSeries(container, 'S0');
