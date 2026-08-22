@@ -364,9 +364,9 @@ hasConfigStructureChange(prev: MochartConfig | null, next: MochartConfig | null)
 Compares two enhanced configs (from `enhanceConfig`; either side may be
 `null` while a host is still loading — a config appearing or going away is
 structural) and reports whether the change is *structural*: a different
-validity, config `id`, chart type, category axis (property, type, scale, or
-`dateUTC`), value axis set, stack set, or series set — series ids, data
-properties, or axis/stack/group membership. A structural change makes the
+validity, config `id`, chart type, category axis (property, key property,
+type, scale, or `dateUTC`), value axis set, stack set, or series set — series
+ids, data properties, or axis/stack/group membership. A structural change makes the
 chart rebuild and replay its initial animation instead of animating the
 difference in place, so a host can use this to know a config edit's blast
 radius before applying it. The entry points run the same check internally;

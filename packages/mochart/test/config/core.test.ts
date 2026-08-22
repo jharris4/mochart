@@ -363,6 +363,18 @@ describe('hasConfigStructureChange', () => {
     expect(hasConfigStructureChange(base(), other)).toBe(true);
   });
 
+  // keyProperty is what identifies categories, so switching it re-keys every one of them
+  it('reports a change when the category axis key property differs', () => {
+    const withKey = (keyProperty: string | null) =>
+      makeConfig({
+        categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', keyProperty },
+        series: [{ property: 'sales' }]
+      });
+    expect(hasConfigStructureChange(withKey('id'), withKey('id'))).toBe(false);
+    expect(hasConfigStructureChange(withKey(null), withKey('id'))).toBe(true);
+    expect(hasConfigStructureChange(withKey('id'), withKey('other'))).toBe(true);
+  });
+
   it('reports a change when the series count differs', () => {
     const other = makeConfig({
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },

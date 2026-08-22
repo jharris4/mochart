@@ -432,6 +432,7 @@ export function hasConfigStructureChange(configOld: MochartConfig | null, config
   const { categoryAxis: categoryAxisConfig } = configOld;
   const { categoryAxis: newCategoryAxisConfig } = configNew;
   if (categoryAxisConfig.property !== newCategoryAxisConfig.property ||
+      categoryAxisConfig.keyProperty !== newCategoryAxisConfig.keyProperty ||
       categoryAxisConfig.type !== newCategoryAxisConfig.type ||
       categoryAxisConfig.scale !== newCategoryAxisConfig.scale ||
       categoryAxisConfig.dateUTC !== newCategoryAxisConfig.dateUTC) {

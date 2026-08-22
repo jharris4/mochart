@@ -12,6 +12,10 @@ import type {
   CategoryValues
 } from '../types/data';
 
+export function getCategoryKeyProperty(categoryAxisConfig: CategoryAxisConfig): string {
+  return categoryAxisConfig.keyProperty !== NONE ? categoryAxisConfig.keyProperty : categoryAxisConfig.property!;
+}
+
 export function getCategoryData(categoryAxisConfig: CategoryAxisConfig, dataProvider: DataProvider): CategoryData {
   // config/provider mismatches and duplicate/missing categories are getDataErrors' job; this hot path trusts its input
   const displayCategoryValues = readCategoryValues(dataProvider, categoryAxisConfig.property!);

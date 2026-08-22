@@ -1,5 +1,6 @@
 import { hasConfigStructureChange } from '../config/core/mochartConfig';
 import { indexOfCategoryValue } from '../animation/CategoryAnimationData';
+import { getCategoryKeyProperty } from '../data/CategoryData';
 import type { ChartFocus, ChartSeriesFilter } from '../types/chart';
 import type { MochartConfig } from '../types/config';
 import type { CategoryValue, DataProvider } from '../types/data';
@@ -92,8 +93,8 @@ export class FocusController {
       if (dataProvider !== oldDataProvider) {
         if (oldDataProvider && dataProvider) {
           if (this.focusedCategoryIndex >= 0) {
-            // the config names the category property; absent values drop the focus like a vanished category
-            const categoryProperty = mochartConfig?.categoryAxis.property;
+            // categories are identified by their key values, like every other stage; absent values drop the focus like a vanished category
+            const categoryProperty = mochartConfig ? getCategoryKeyProperty(mochartConfig.categoryAxis) : undefined;
             const newCategoryValues = categoryProperty !== undefined
               ? dataProvider.getPropertyValues(categoryProperty) as readonly CategoryValue[] | undefined
               : undefined;

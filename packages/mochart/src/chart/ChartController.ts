@@ -1,6 +1,7 @@
 import Chart from '../components/Chart';
 import { isDataProviderValid } from '../data/ChartData';
 import { readCategoryValues } from '../data/PropertyData';
+import { getCategoryKeyProperty } from '../data/CategoryData';
 import { FocusController } from './FocusController';
 import { StaticDataSource } from './StaticDataSource';
 import { AnimatedDataSource } from './AnimatedDataSource';
@@ -111,7 +112,7 @@ export class ChartController {
     const mochartConfig = this.enhancedConfig();
     const dataProvider = this.readDataProvider;
     this.lastCategoryValues = mochartConfig?.validation.valid && dataProvider !== null && isDataProviderValid(dataProvider)
-      ? readCategoryValues(dataProvider, mochartConfig.categoryAxis.property!)
+      ? readCategoryValues(dataProvider, getCategoryKeyProperty(mochartConfig.categoryAxis))
       : null;
   }
 
