@@ -45,6 +45,8 @@ interface PlotProps extends Omit<PlotFrontBackProps, 'front'> {
   gradientIdMap: Record<string, string>;
   patternIdMap: Record<string, string>;
   tooltipClipPathUniqueId: string;
+  /** TooltipClip only mounts its node while the tooltip is visible; the crosshair must not reference it otherwise. */
+  tooltipClipPresent: boolean;
   onSeriesShapeClick: ((seriesId: string, categoryIndex: number, event: Event) => void) | null;
   shapeRef: (element: Element | null) => void;
   a11yProps: SeriesShapeA11yProps | null;
@@ -103,7 +105,7 @@ export default class Plot extends Renderer<PlotProps> {
   sync() {
     const { mochartConfig, categoryAxisLayoutInfo, valueAxisLayoutInfos, seriesLayoutInfo, plotLayoutInfo,
       chartData, focusData, axisData, stackData, categoryValueData, gradientIdMap, patternIdMap, categoryAxisTitleClipPathUniqueId,
-      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, seriesClipPathUniqueId, clippedEdges, clipIndicatorPatternUniqueId, onFocus, onSeriesShapeClick, shapeRef, a11yProps } = this.props;
+      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, tooltipClipPresent, seriesClipPathUniqueId, clippedEdges, clipIndicatorPatternUniqueId, onFocus, onSeriesShapeClick, shapeRef, a11yProps } = this.props;
     const { plot: plotConfig } = mochartConfig;
     const { categoryFocusDomainPercentages = [], seriesFocusDomainPercentages = [] } = focusData;
     const { value: valueAxisData } = axisData;
@@ -144,6 +146,6 @@ export default class Plot extends Renderer<PlotProps> {
 
     this.crosshair.set(Crosshair, { mochartConfig, seriesLayoutInfo,
       categoryPercentages: categoryFocusDomainPercentages, seriesPercentages: seriesFocusDomainPercentages,
-      tooltipClipPathUniqueId });
+      tooltipClipPathUniqueId, tooltipClipPresent });
   }
 }

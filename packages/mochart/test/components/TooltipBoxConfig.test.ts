@@ -187,8 +187,20 @@ describe('tooltip box style', () => {
 describe('crosshair behind the tooltip', () => {
   it('clips the crosshair away from under the tooltip by default', () => {
     const container = mountChart({ crosshair: { visible: true } });
+    openTooltip(container);
 
-    expect(container.querySelector(getCssSelector('crosshair'))!.getAttribute('clip-path')).toMatch(/^url\(#.+\)$/);
+    const clipPath = container.querySelector(getCssSelector('crosshair'))!.getAttribute('clip-path');
+    expect(clipPath).toMatch(/^url\(#.+\)$/);
+    // the clip it names is really there: the node is only mounted while the tooltip is
+    expect(container.querySelector('#' + clipPath!.slice(5, -1))).not.toBeNull();
+  });
+
+  // Regression: the reference was attached whatever the tooltip was doing, but the clip node is
+  // removed when the tooltip is closed, leaving a dangling url(#...) on every chart
+  it('drops the clip while the tooltip is closed', () => {
+    const container = mountChart({ crosshair: { visible: true } });
+
+    expect(container.querySelector(getCssSelector('crosshair'))!.getAttribute('clip-path')).toBeNull();
   });
 
   it('drops the clip when showBehindTooltip is on', () => {

@@ -1379,6 +1379,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     if (hasChartDataContent) {
       maxTickLabelLength = axisData!.category!.maxTickLabelLength;
 
+      // TooltipClip unmounts its node when the tooltip is not visible, so anything referencing the clip has to know
       clips.push({ key: 'tooltip-clip', ctor: TooltipClip, props: { mochartConfig, tooltipVisible, tooltipShown,
         tooltipLayoutInfo, chartContentLayoutInfo, width, height,
         tooltipClipPathUniqueId } });
@@ -1465,7 +1466,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           clippedEdges,
           clipIndicatorPatternUniqueId,
           valueAxisTitleClipPathUniqueIds,
-          tooltipClipPathUniqueId });
+          tooltipClipPathUniqueId,
+          tooltipClipPresent: mochartConfig.tooltip.visible && tooltipVisible });
       }
       body.plotEmpty.set(null);
 

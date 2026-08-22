@@ -15,6 +15,7 @@ interface CrosshairProps {
   categoryPercentages: number[];
   seriesPercentages: number[];
   tooltipClipPathUniqueId: string;
+  tooltipClipPresent: boolean;
 }
 
 class Crosshair extends Renderer<CrosshairProps> {
@@ -30,7 +31,7 @@ class Crosshair extends Renderer<CrosshairProps> {
   }
 
   sync() {
-    const { mochartConfig, seriesLayoutInfo, categoryPercentages, seriesPercentages, tooltipClipPathUniqueId } = this.props;
+    const { mochartConfig, seriesLayoutInfo, categoryPercentages, seriesPercentages, tooltipClipPathUniqueId, tooltipClipPresent } = this.props;
 
     if (mochartConfig.crosshair.visible) {
       const { plot: plotConfig, crosshair: crosshairConfig } = mochartConfig;
@@ -42,7 +43,9 @@ class Crosshair extends Renderer<CrosshairProps> {
       const minY = seriesLayoutInfo.y;
       const maxY = minY + seriesLayoutInfo.height;
 
-      const clipPath = crosshairConfig.showBehindTooltip ? null : getClipPathReference(tooltipClipPathUniqueId);
+      // the clip node is only in the dom while the tooltip is visible; referencing it otherwise would leave the crosshair unrendered
+      const clipPath = crosshairConfig.showBehindTooltip || !tooltipClipPresent
+        ? null : getClipPathReference(tooltipClipPathUniqueId);
 
       const categoryLineAttributes = styleToAttributes(crosshairConfig.categoryLine.style);
       const seriesLineAttributes = styleToAttributes(crosshairConfig.seriesLine.style);
