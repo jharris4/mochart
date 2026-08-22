@@ -61,6 +61,16 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
     condition: supportsFill,
     suffix: 'when chart type is pie or renderer is area or bar'
   };
+  // only the bar branch of Series.sync draws per-category colors; every other renderer draws the flat series color
+  const supportsColorProperty = ({ renderer }: RendererCondition) => !pieMode && renderer === RENDERER_BAR;
+  const colorRendererRule = {
+    condition: supportsColorProperty,
+    suffix: 'when chart type is xy and renderer is bar'
+  };
+  const nonColorRendererRule = {
+    condition: (condition: RendererCondition) => !supportsColorProperty(condition),
+    suffix: 'when chart type is not xy or renderer is not bar'
+  };
   const fillRendererWithoutGradientRule = {
     condition: (condition: PatternCondition) => supportsFill(condition) && condition.gradient === NONE,
     suffix: 'when chart type is pie or renderer is area or bar, and gradient is ' + NONE
@@ -84,7 +94,10 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
     markerProperty: validators.propertyOptional(),
     labelProperty: validators.propertyOptional(),
     tooltipProperty: validators.propertyOptional(),
-    colorProperty: validators.propertyOptional(),
+    colorProperty: validators.conditional([
+      { ...colorRendererRule, validator: validators.propertyOptional() },
+      { ...nonColorRendererRule, validator: validators.equal(NONE) }
+    ], config),
     allowAbsentDataProperties: validators.boolean(),
     ignore: validators.boolean(),
     renderer: validators.oneOf(RENDERERS),

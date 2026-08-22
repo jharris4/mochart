@@ -184,6 +184,46 @@ describe('id character validation', () => {
   });
 });
 
+// Only the bar branch of Series.sync draws per-category colors, so a colorProperty anywhere else
+// silently drew the flat series color while the legend swatch still showed the ramp.
+describe('colorProperty renderer validation', () => {
+  const colorSeries = (renderer: string, pie = false) => ({
+    version: V, ...(pie ? { chart: { type: 'pie' } } : {}), categoryAxis: { property: 'p' },
+    series: [{ property: 'a', renderer, colorProperty: 'temp' }]
+  });
+  const message = 'colorProperty - should be equal to null when chart type is not xy or renderer is not bar: "temp"';
+
+  it('accepts colorProperty on a bar series', () => {
+    expect(errorsFor(colorSeries('bar'))).toEqual([]);
+  });
+
+  it('rejects colorProperty on every other renderer', () => {
+    for (const renderer of ['line', 'area', 'none']) {
+      expect(errorsFor(colorSeries(renderer))).toContain(`series[0] - ${message}`);
+    }
+  });
+
+  it('rejects colorProperty on a pie slice, which never draws it either', () => {
+    expect(errorsFor(colorSeries('bar', true))).toContain(`series[0] - ${message}`);
+  });
+
+  // the colorScale members are gated on colorProperty being set, so an accompanying ramp does not pile on
+  it('reports the colorProperty once, with no cascade from its colorScale', () => {
+    expect(errorsFor({
+      version: V, categoryAxis: { property: 'p' },
+      series: [{ property: 'a', renderer: 'line', colorProperty: 'temp', colorScale: { min: '#0000ff', max: '#ff0000' } }]
+    })).toEqual([`series[0] - ${message}`]);
+  });
+
+  // and a ramp without a colorProperty was already rejected, on any renderer
+  it('still rejects a colorScale with no colorProperty', () => {
+    expect(errorsFor({
+      version: V, categoryAxis: { property: 'p' },
+      series: [{ property: 'a', renderer: 'line', colorScale: { min: '#0000ff', max: '#ff0000' } }]
+    })).toContainEqual(expect.stringContaining('series[0] - colorScale.min - should be equal to null when colorProperty is null'));
+  });
+});
+
 describe('unique-key validation', () => {
   it('flags duplicate series ids at both offending indices', () => {
     const errors = errorsFor({

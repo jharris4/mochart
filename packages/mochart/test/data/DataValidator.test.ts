@@ -214,7 +214,7 @@ describe('getDataErrors', () => {
     const config = makeConfig({
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
       series: [
-        { property: 'sales', rangeProperty: 'high', markerProperty: 'mk', colorProperty: 'c', labelProperty: 'lbl' }
+        { property: 'sales', renderer: 'bar', rangeProperty: 'high', markerProperty: 'mk', colorProperty: 'c', labelProperty: 'lbl' }
       ]
     });
     const provider = new ArrayOfObjectsDataProvider(

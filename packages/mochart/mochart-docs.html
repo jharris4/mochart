@@ -3670,7 +3670,9 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.colorProperty">
-<td><a href="#series.colorProperty">colorProperty</a></td><td>the property to retrieve from the data provider for the series color values (use null for none, to color by style instead)</td><td>should be a string naming a data property or be equal to null</td><td><div>null</div>
+<td><a href="#series.colorProperty">colorProperty</a></td><td>the property to retrieve from the data provider for the series color values (use null for none, to color by style instead)</td><td><p>should be a string naming a data property or be equal to null when chart type is xy and renderer is bar</p>
+<p>should be equal to null when chart type is not xy or renderer is not bar</p>
+</td><td><div>null</div>
 </td>
 </tr>
 <tr id="series.colorScale">

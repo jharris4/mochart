@@ -229,7 +229,7 @@ const groupedEndpoint = () => endpoint(config({
 
 const auxiliaryPropertiesEndpoint = () => endpoint(config({
   series: [{
-    id: 'primary', property: 'sales', axis: 'value', renderer: 'line', title: 'Primary',
+    id: 'primary', property: 'sales', axis: 'value', renderer: 'bar', title: 'Primary',
     errorLowProperty: 'low', errorHighProperty: 'high', markerProperty: 'costs',
     colorProperty: 'profit', labelProperty: 'profit'
   }]
