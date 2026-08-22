@@ -27,8 +27,11 @@ export interface ChartDataSource {
   readonly focusData: FocusData | null;
   /** 0..1 while the initial value tween runs (drives entrance effects like the pie sweep-in), else null. */
   readonly initialAnimationPercentage: number | null;
-  /** Initialize from scratch (also used when the animate flag flips). */
-  start(input: ChartDataSourceInput): void;
+  /**
+   * Initialize from scratch (also used when the animate flag flips). `fromChartData` is what the chart
+   * already has on screen: the animated source picks up from it instead of replaying its entrance.
+   */
+  start(input: ChartDataSourceInput, fromChartData?: ChartData | null): void;
   /** Reconcile with changed input. */
   update(prevInput: ChartDataSourceInput, input: ChartDataSourceInput): void;
   /** Translate a focus event raised against the currently rendered (possibly mid-tween) data. */

@@ -136,9 +136,11 @@ export class ChartController {
       this.captureCategoryValues();
     }
     if (this.source.animated !== this.isAnimated()) {
+      // hand the settled frame to the new source: flipping the flag is not a reason to replay the entrance
+      const renderedChartData = this.source.chartData;
       this.source.dispose();
       this.source = this.createSource();
-      this.source.start(input);
+      this.source.start(input, renderedChartData);
     }
     else {
       this.source.update(prevInput, input);

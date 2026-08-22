@@ -111,4 +111,26 @@ describe('accessibility.respectReducedMotion', () => {
     chart.destroy();
     reducedMotionQuery.dispatchEvent(new Event('change')); // listener removed: no throw
   });
+
+  // Regression: swapping back to the animated source restarted it from scratch, so the settled chart
+  // blanked for a frame and re-grew every bar over the entrance animation
+  it('keeps the settled chart on screen when animation is switched back on', () => {
+    reducedMotionQuery.matches = true;
+    const container = mountContainer();
+    const chart = mochart.createDefaultChart(container, { config, data: initialData(), width: 300, height: 200 });
+    runFrames();
+    const settled = barPaths(container);
+    expect(settled.length).toBeGreaterThan(0);
+
+    reducedMotionQuery.matches = false;
+    reducedMotionQuery.dispatchEvent(new Event('change'));
+
+    // the same geometry, still drawn: no blank frame and no entrance replay
+    expect(barPaths(container)).toEqual(settled);
+    expect(container.querySelector(getCssSelector('noData'))).toBeNull();
+    runFrames();
+    expect(barPaths(container)).toEqual(settled);
+
+    chart.destroy();
+  });
 });

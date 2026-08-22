@@ -54,7 +54,7 @@ export class AnimatedDataSource implements ChartDataSource {
     this.emit = emit;
   }
 
-  start(input: ChartDataSourceInput): void {
+  start(input: ChartDataSourceInput, fromChartData: ChartData | null = null): void {
     if (this.disposed) {
       return;
     }
@@ -75,12 +75,13 @@ export class AnimatedDataSource implements ChartDataSource {
     if (mochartConfig !== null && mochartConfig.validation.valid && dataProvider !== null && this.lastDataProviderValid) {
       const newChartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
       this.targetChartData = newChartData;
-      this.chartAnimationData = getChartAnimationData(mochartConfig, null, newChartData);
+      this.chartAnimationData = getChartAnimationData(mochartConfig, fromChartData, newChartData);
 
       this.startDataTween(mochartConfig, this.chartAnimationData);
 
-      // keep the chart data null until the animation starts...
-      this.chartData = null;
+      // keep the chart data null until the animation starts, unless the chart already has a frame on
+      // screen — an animate flag flip carries it over rather than blanking and replaying the entrance
+      this.chartData = fromChartData;
       // don't bother animating focus when initializing the data...
       this.focusData = getFocusData(mochartConfig, newChartData, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId);
     }
