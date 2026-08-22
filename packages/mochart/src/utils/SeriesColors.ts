@@ -161,7 +161,7 @@ export function getSeriesErrorBarStrokeColor(colorPaletteConfig: ColorPaletteCon
 }
 
 function getColorInterpolator(seriesConfig: EnhancedSeriesConfig): ColorInterpolator | null {
-  const colorInterpolation = seriesConfig.colorScale.interpolation;
+  const colorInterpolation = seriesConfig.colorScale?.interpolation;
   if (colorInterpolation === COLOR_INTERPOLATION_RGB) {
     return interpolateRgb;
   }
@@ -192,7 +192,7 @@ export function getSeriesColorGenerator(seriesConfig: EnhancedSeriesConfig, _foc
   const colorValues = filteredValues.color as NumericValues;
   const interpolator = getColorInterpolator(seriesConfig);
 
-  const { min, max, missing, base } = seriesConfig.colorScale;
+  const { min, max, missing, base } = seriesConfig.colorScale!;
   const [colorDomainMin, colorDomainMax] = rawDomains.color;
   if (colorDomainMin === null || colorDomainMax === null) {
     return () => missing;
@@ -231,7 +231,11 @@ export function getSeriesColorGenerator(seriesConfig: EnhancedSeriesConfig, _foc
 }
 
 export function getSeriesGradientColors(seriesConfig: EnhancedSeriesConfig): string[] | null {
-  const { min, max, base } = seriesConfig.colorScale;
+  const colorScale = seriesConfig.colorScale;
+  if (colorScale === null) {
+    return null;
+  }
+  const { min, max, base } = colorScale;
   let colors = null;
   if (base.value === NONE && min !== NONE && max !== NONE) {
     colors = [min, max];

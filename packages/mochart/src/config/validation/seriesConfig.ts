@@ -39,10 +39,9 @@ const stackNoneRule = { condition: ({ stack }: StackCondition) => stack === NONE
 const gradientRule = { condition: ({ gradient }: GradientCondition) => gradient !== NONE, suffix: 'when gradient is not ' + NONE };
 const colorPropertyRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty !== NONE, suffix: colorPropertySuffix };
 const colorPropertyNoneRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty === NONE, suffix: colorPropertyNoneSuffix };
-const colorBaseRule = { condition: ({ colorProperty, colorScale }: ColorCondition) => colorProperty !== NONE && colorScale?.base?.value !== NONE, suffix: colorBaseSuffix };
-const colorBaseNoneRule = { condition: ({ colorProperty, colorScale }: ColorCondition) => colorProperty !== NONE && colorScale?.base?.value === NONE, suffix: colorBaseNoneSuffix };
+const colorBaseRule = { condition: ({ colorProperty, colorScale }: ColorCondition) => colorProperty !== NONE && (colorScale?.base?.value ?? NONE) !== NONE, suffix: colorBaseSuffix };
+const colorBaseNoneRule = { condition: ({ colorProperty, colorScale }: ColorCondition) => colorProperty !== NONE && (colorScale?.base?.value ?? NONE) === NONE, suffix: colorBaseNoneSuffix };
 
-// The label placement bounds applied to one side of the base ("auto" falls back to the plain label setting).
 const labelBaseSideValidators = () => validators.partialObjectWithShape({
   minPositionFraction: validators.numberMinMax(0, 1).orOneOf([NONE, AUTO]),
   maxPositionFraction: validators.numberMinMax(0, 1).orOneOf([NONE, AUTO]),
@@ -61,7 +60,6 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
     condition: supportsFill,
     suffix: 'when chart type is pie or renderer is area or bar'
   };
-  // only the bar branch of Series.sync draws per-category colors; every other renderer draws the flat series color
   const supportsColorProperty = ({ renderer }: RendererCondition) => !pieMode && renderer === RENDERER_BAR;
   const colorRendererRule = {
     condition: supportsColorProperty,
@@ -103,7 +101,6 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
     renderer: validators.oneOf(RENDERERS),
     missingValueMode: validators.oneOf(MISSING_VALUE_MODES),
     partialRangeIsMissing: validators.boolean(),
-    // partial: curve deep-merges over its default, so { param } alone is valid; extras warn via the unknown-key walk
     curve: validators.partialObjectWithShape({
       type: validators.oneOf(CURVE_TYPES),
       param: validators.numberMinMax(0, 1)
@@ -195,7 +192,7 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
           { ...colorBaseRule, validator: validators.color() },
         ], config)
       }, true)
-    }, true),
+    }, true).orEqual(NONE),
     marker: validators.partialObjectWithShape({
       shape: validators.oneOf([NONE, ...MARKER_SHAPES]),
       minSize: validators.numberMin(0),

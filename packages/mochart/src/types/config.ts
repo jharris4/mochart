@@ -3084,9 +3084,11 @@ export interface SeriesConfig {
   /**
    * The color ramp the series color values are mapped through.
    *
-   * @default { interpolation: null, min: null, max: null, missing: null, base: { … } }
+   * Default:
+   * - `null` — when chart type is not xy or renderer is not bar
+   * - `the members below` — when chart type is xy and renderer is bar
    */
-  colorScale: SeriesColorScale;
+  colorScale: SeriesColorScale | null;
   /**
    * The unique identifier of the value axis that the series belongs to.
    *

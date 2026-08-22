@@ -8,6 +8,7 @@ import validateConfig, {
 import { getAxisBoundsMessage } from '../../src/config/validation/axisConfig';
 import { boundValue } from '../../src/config/validation/validators';
 import { getDefaults } from '../../src/config/defaults/mochartConfig';
+import { getConfigWithDefaults } from '../../src/config/core/mochartConfig';
 
 const V = '1.0.0';
 
@@ -213,6 +214,16 @@ describe('colorProperty renderer validation', () => {
       version: V, categoryAxis: { property: 'p' },
       series: [{ property: 'a', renderer: 'line', colorProperty: 'temp', colorScale: { min: '#0000ff', max: '#ff0000' } }]
     })).toEqual([`series[0] - ${message}`]);
+  });
+
+  it('resolves the colorScale to null on a series that draws none', () => {
+    const config = {
+      version: V, categoryAxis: { property: 'p' },
+      series: [{ property: 'a', renderer: 'line' }, { property: 'b', renderer: 'bar' }]
+    };
+    const withDefaults = getConfigWithDefaults(config, getDefaults(config)) as Record<string, Record<string, unknown>[]>;
+    expect(withDefaults.series[0].colorScale).toBeNull();
+    expect(withDefaults.series[1].colorScale).not.toBeNull();
   });
 
   // and a ramp without a colorProperty was already rejected, on any renderer
