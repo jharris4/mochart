@@ -25,13 +25,22 @@ export function conditionalDefault<C, E, T>(rules: ConditionalDefaultRule<NoInfe
   return conditionalFunction;
 }
 
+function evaluateDefault(value: unknown): unknown {
+  if (typeof value === 'function') {
+    return evaluateDefault((value as ConditionalDefaultFunction)());
+  }
+  if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+    return getActualDefaults(value as ConditionalDefaults);
+  }
+  return value;
+}
+
 /** Evaluate a conditional-defaults tree into plain values; the result is deep-merged over the regular defaults. */
 export function getActualDefaults<T extends ConditionalDefaults>(conditionalDefaults: T): ActualDefaults<T> {
   const keys = Object.keys(conditionalDefaults);
   const actualDefaults = {} as Record<string, unknown>;
   for (const key of keys) {
-    const value = (conditionalDefaults as ConditionalDefaults)[key]!;
-    actualDefaults[key] = typeof value === 'function' ? value() : getActualDefaults(value);
+    actualDefaults[key] = evaluateDefault((conditionalDefaults as ConditionalDefaults)[key]);
   }
   return actualDefaults as ActualDefaults<T>;
 }

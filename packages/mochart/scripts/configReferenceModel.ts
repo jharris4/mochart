@@ -126,7 +126,19 @@ function isConditionalDefaultLeaf(value: ConditionalDefaultLeaf | ConditionalDef
 }
 
 function conditionalDefaultBranch(value: ConditionalDefaultLeaf | ConditionalDefaults | undefined): ConditionalDefaults {
-  return value === undefined || isConditionalDefaultLeaf(value) ? {} : value;
+  if (value === undefined) {
+    return {};
+  }
+  if (isConditionalDefaultLeaf(value)) {
+    const members: ConditionalDefaults = {};
+    for (const rule of value.rules ?? []) {
+      if (rule.default !== null && typeof rule.default === 'object' && !Array.isArray(rule.default)) {
+        Object.assign(members, rule.default);
+      }
+    }
+    return members;
+  }
+  return value;
 }
 
 function nestedDefaults(value: unknown): Defaults {
@@ -428,8 +440,9 @@ function checkLevelIntegrity(level: IntegrityLevel, errors: string[]) {
       validators: nested,
       regularDefaults: nestedDefaults(level.regularDefaults[key]),
       conditionalDefaults: conditionalDefaultBranch(conditional),
-      // a conditional leaf produces the whole object, so its members have no regular defaults of their own
-      checkDefaults: level.checkDefaults && !isConditionalDefaultLeaf(conditional),
+      // a conditional group still documents its members, but one that resolves to a plain value has none to check
+      checkDefaults: level.checkDefaults
+        && (!isConditionalDefaultLeaf(conditional) || Object.keys(conditionalDefaultBranch(conditional)).length > 0),
       descriptions: nestedDescriptions(descriptions[key]),
       details: nestedDescriptions(details[key]),
       whitelist: level.whitelist

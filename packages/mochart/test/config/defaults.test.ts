@@ -107,6 +107,21 @@ describe('getActualDefaults', () => {
     });
   });
 
+  it('evaluates conditional members inside a conditional group', () => {
+    const group = (colored: boolean) => getActualDefaults({
+      colorScale: conditionalDefault(
+        [
+          { condition: (c: { colored: boolean }) => c.colored, suffix: null, default: { min: () => '#0000ff', max: () => '#ff0000' } },
+          { ...defaultRule, default: null }
+        ],
+        { colored },
+        undefined
+      )
+    });
+    expect(group(true)).toEqual({ colorScale: { min: '#0000ff', max: '#ff0000' } });
+    expect(group(false)).toEqual({ colorScale: null });
+  });
+
   it('leaves the members of a nested default the recursion does not name alone', () => {
     // the conditional map names one member and deepMerge keeps the siblings
     const regularDefaults = { shapeStyle: { normal: { strokeColor: '#000000', fillOpacity: 0.5 } } };
