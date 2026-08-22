@@ -204,12 +204,12 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             }
           }
           else {
+            // an unstacked value with no rangeProperty spans from where the bars start, like a stacked one
+            const unstackedMin = hasBase ? base : domainMin;
             withinPercentages = (maxSeriesValue: number, minSeriesValue?: number | null) => {
               let valueMin = maxSeriesValue;
               if (minSeriesValue !== undefined) {
-                // Preserve the original numeric coercion: a null minimum
-                // represents the zero baseline for an unstacked value.
-                valueMin = minSeriesValue ?? 0;
+                valueMin = minSeriesValue ?? unstackedMin;
               }
               return oldWithinPercentages(maxSeriesValue) && Math.abs(maxSeriesValue - valueMin) >= minAbsoluteValue;
             };
