@@ -9,7 +9,7 @@ export default defineConfig({
     testTimeout: 30000,
     coverage: {
       provider: 'v8',
-      include: ['src/**'],
+      include: ['src/**/*.ts'],
       // Type-only and generated modules carry no runtime behaviour to exercise.
       // The golden test pulls in demo-common's generators; they are not core code.
       exclude: ['src/types/**', 'src/**/*.d.ts', '**/mochart-demo-common/**'],
