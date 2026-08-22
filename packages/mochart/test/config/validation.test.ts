@@ -192,7 +192,7 @@ describe('colorProperty renderer validation', () => {
     version: V, ...(pie ? { chart: { type: 'pie' } } : {}), categoryAxis: { property: 'p' },
     series: [{ property: 'a', renderer, colorProperty: 'temp' }]
   });
-  const message = 'colorProperty - should be equal to null when chart type is not xy or renderer is not bar: "temp"';
+  const message = 'colorProperty - should be equal to null when chart type is not xy or renderer is not bar, or colorScale is null: "temp"';
 
   it('accepts colorProperty on a bar series', () => {
     expect(errorsFor(colorSeries('bar'))).toEqual([]);
@@ -214,6 +214,22 @@ describe('colorProperty renderer validation', () => {
       version: V, categoryAxis: { property: 'p' },
       series: [{ property: 'a', renderer: 'line', colorProperty: 'temp', colorScale: { min: '#0000ff', max: '#ff0000' } }]
     })).toEqual([`series[0] - ${message}`]);
+  });
+
+  // an explicit null and a group of nulls are the same absent ramp, so both are rejected alongside a colorProperty
+  it('rejects a colorProperty whose colorScale is null', () => {
+    expect(errorsFor({
+      version: V, categoryAxis: { property: 'p' },
+      series: [{ property: 'a', renderer: 'bar', colorProperty: 'temp', colorScale: null }]
+    })).toEqual([`series[0] - ${message}`]);
+  });
+
+  it('rejects a colorProperty whose colorScale members are all null', () => {
+    const errors = errorsFor({
+      version: V, categoryAxis: { property: 'p' },
+      series: [{ property: 'a', renderer: 'bar', colorProperty: 'temp', colorScale: { interpolation: null, min: null, max: null } }]
+    });
+    expect(errors).toContainEqual(expect.stringContaining('series[0] - colorScale.min - should be a valid color'));
   });
 
   it('resolves the colorScale to null on a series that draws none', () => {

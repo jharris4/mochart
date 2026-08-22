@@ -12,6 +12,7 @@ type ColorCondition = { colorProperty?: SeriesConfig['colorProperty'], colorScal
 type StackCondition = Pick<SeriesConfig, 'stack'>;
 type GradientCondition = Pick<SeriesConfig, 'gradient'>;
 type RendererCondition = Pick<SeriesConfig, 'renderer'>;
+type ColorRendererCondition = RendererCondition & { colorScale?: DeepPartial<SeriesConfig['colorScale']> | null };
 type PatternCondition = Pick<SeriesConfig, 'renderer' | 'gradient'>;
 
 function seriesColor(allowSeries: boolean, allowSame: boolean): Validator {
@@ -60,14 +61,15 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
     condition: supportsFill,
     suffix: 'when chart type is pie or renderer is area or bar'
   };
-  const supportsColorProperty = ({ renderer }: RendererCondition) => !pieMode && renderer === RENDERER_BAR;
+  const supportsColorProperty = ({ renderer, colorScale }: ColorRendererCondition) =>
+    !pieMode && renderer === RENDERER_BAR && colorScale !== NONE;
   const colorRendererRule = {
     condition: supportsColorProperty,
-    suffix: 'when chart type is xy and renderer is bar'
+    suffix: 'when chart type is xy and renderer is bar, and colorScale is not ' + NONE
   };
   const nonColorRendererRule = {
-    condition: (condition: RendererCondition) => !supportsColorProperty(condition),
-    suffix: 'when chart type is not xy or renderer is not bar'
+    condition: (condition: ColorRendererCondition) => !supportsColorProperty(condition),
+    suffix: 'when chart type is not xy or renderer is not bar, or colorScale is ' + NONE
   };
   const fillRendererWithoutGradientRule = {
     condition: (condition: PatternCondition) => supportsFill(condition) && condition.gradient === NONE,
