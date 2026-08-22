@@ -26,7 +26,7 @@ const linearDateRule = { condition: ({ scale, type }: CategoryAxisCondition) => 
 const linearNumberRule = { condition: ({ scale, type }: CategoryAxisCondition) => scale === SCALE_LINEAR && type === TYPE_NUMBER, suffix: linearNumberSuffix };
 const defaultRule = { condition: () => true };
 
-export default function getValidators(config: Partial<CategoryAxisConfig>) {
+export default function getValidators(config: Partial<CategoryAxisConfig>, pieMode = false) {
   return {
     ...getAxisValidators(validators.conditional([
       { ...typeDateRule, validator: validators.datePrimitive() },
@@ -46,7 +46,7 @@ export default function getValidators(config: Partial<CategoryAxisConfig>) {
       truncationMaxFraction: validators.numberMinMax(0, 1),
       truncationMinLength: validators.numberMin(0),
       truncationText: validators.string()
-    }),
+    }, pieMode),
 
     dateUTC: validators.boolean(),
 

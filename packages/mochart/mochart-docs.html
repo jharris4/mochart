@@ -1726,7 +1726,9 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.visible">
-<td><a href="#categoryAxis.visible">visible</a></td><td>whether the axis should be visible</td><td>should be a boolean</td><td><div>false (when chart.type is pie)</div>
+<td><a href="#categoryAxis.visible">visible</a></td><td>whether the axis should be visible</td><td><p>should be equal to false when chart type is not xy</p>
+<p>should be a boolean when chart type is xy</p>
+</td><td><div>false (when chart.type is pie)</div>
 <div>true (when chart.type is xy)</div>
 </td>
 </tr>
@@ -3598,7 +3600,9 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.visible">
-<td><a href="#valueAxes.visible">visible</a></td><td>whether the axis should be visible</td><td>should be a boolean</td><td><div>false (when chart.type is pie)</div>
+<td><a href="#valueAxes.visible">visible</a></td><td>whether the axis should be visible</td><td><p>should be equal to false when chart type is not xy</p>
+<p>should be a boolean when chart type is xy</p>
+</td><td><div>false (when chart.type is pie)</div>
 <div>true (when chart.type is xy)</div>
 </td>
 </tr>

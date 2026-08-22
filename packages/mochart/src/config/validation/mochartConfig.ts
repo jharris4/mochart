@@ -127,7 +127,10 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
   },
   categoryAxis: {
     validator: objectValidator,
-    validators: (configSection: ConfigRecord) => categoryAxisValidators(configSection)
+    validators: (configSection: ConfigRecord, config?: ConfigRecord) => {
+      const chart = config?.chart;
+      return categoryAxisValidators(configSection, isConfigRecord(chart) && chart.type === CHART_TYPE_PIE);
+    }
   },
   legend: {
     validator: objectValidator,
@@ -171,7 +174,10 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
   valueAxes: {
     list: true,
     validator: arrayOfObjectsNonEmpty,
-    validators: () => valueAxisValidators(),
+    validators: (_configSection: ConfigRecord, config?: ConfigRecord) => {
+      const chart = config?.chart;
+      return valueAxisValidators(isConfigRecord(chart) && chart.type === CHART_TYPE_PIE);
+    },
     uniqueKeys: ['id', 'order'],
     allExcludedKeys: ['ignore']
   },

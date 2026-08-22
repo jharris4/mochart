@@ -37,7 +37,7 @@ export function getTickLabelValidators(): Record<string, Validator> {
 }
 
 // a threshold sits on the axis's value scale, so its value takes the axis's own primitive: number by default, date on a date category axis
-export default function getValidators(thresholdValue = validators.number(), tickLabelValidators: Record<string, Validator> = getTickLabelValidators()) {
+export default function getValidators(thresholdValue = validators.number(), tickLabelValidators: Record<string, Validator> = getTickLabelValidators(), pieMode = false) {
   return {
     axisLine: group({
       visible: validators.boolean(),
@@ -128,7 +128,10 @@ export default function getValidators(thresholdValue = validators.number(), tick
       textStyle: styleStates(styleMembers)
     }),
 
-    visible: validators.boolean()
+    visible: validators.conditional([
+      { condition: () => pieMode, suffix: 'when chart type is not xy', validator: validators.equal(false) },
+      { condition: () => !pieMode, suffix: 'when chart type is xy', validator: validators.boolean() }
+    ], {})
   };
 }
 

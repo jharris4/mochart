@@ -4,13 +4,13 @@ import { AUTO, NONE, TYPE_NUMBER, SCALE_LINEAR } from '../core/constants';
 
 import getAxisValidators, { axisStyleValidators, getTickLabelValidators } from './axisConfig';
 
-export default function getValidators() {
+export default function getValidators(pieMode = false) {
   return {
     ...getAxisValidators(validators.number(), {
       ...getTickLabelValidators(),
       format: validators.numberFormat().orOneOf([NONE, AUTO]),
       adjustSizeForFiltering: validators.boolean()
-    }),
+    }, pieMode),
 
     adjustForFiltering: validators.boolean(),
 

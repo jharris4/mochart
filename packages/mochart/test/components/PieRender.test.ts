@@ -62,6 +62,29 @@ function mouse(target: Element, type: string, clientX: number, clientY: number):
   target.dispatchEvent(new MouseEvent(type, { clientX, clientY, bubbles: true }));
 }
 
+// Regression: axis layout reads only axisConfig.visible, so a pie with a visible axis reserved the
+// gutter while RadialPlot drew no axis — and grew real axes through PlotEmpty when the data emptied
+describe('axis visibility in pie mode', () => {
+  function validation(visible: boolean) {
+    const { config } = pieChartProps(ITEMS);
+    return mochart.enhanceConfig({ ...config, categoryAxis: { ...(config.categoryAxis as object), visible } } as MochartInputConfig).validation;
+  }
+
+  it('rejects a visible category axis', () => {
+    expect(validation(true).errors).toContain('categoryAxis - visible - should be equal to false when chart type is not xy: true');
+  });
+
+  it('rejects a visible value axis', () => {
+    const { config } = pieChartProps(ITEMS);
+    const withAxis = mochart.enhanceConfig({ ...config, valueAxes: [{ id: 'VA0', visible: true }] } as MochartInputConfig);
+    expect(withAxis.validation.errors).toContain('valueAxes[0] - visible - should be equal to false when chart type is not xy: true');
+  });
+
+  it('accepts the hidden axes a pie config resolves to', () => {
+    expect(validation(false).valid).toBe(true);
+  });
+});
+
 // Regression: a pie series keeps the default renderer 'line', so the legend and tooltip icons read
 // the stroke colour and stroke opacity while the slice itself is drawn from the fill members
 describe('pie legend and tooltip icons follow the slice fill', () => {
