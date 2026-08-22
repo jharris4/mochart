@@ -140,6 +140,21 @@ describe('tooltip box style', () => {
     openTooltip(container);
     expect(tooltipStyle(container).borderWidth).toBe('0px');
   });
+
+  // Regression: an unset border-color falls back to css currentColor, so a border the config asked
+  // to remove was drawn in the host page's text color at the default 2px width
+  it('draws no border for a null strokeColor, whatever the width says', () => {
+    const container = mountChart({ tooltip: { backgroundStyle: { strokeColor: null } } });
+    openTooltip(container);
+    expect(tooltipStyle(container).borderWidth).toBe('0px');
+  });
+
+  it('keeps the border when a color is given', () => {
+    const container = mountChart({ tooltip: { backgroundStyle: { strokeColor: '#ff0000', strokeWidth: 3 } } });
+    openTooltip(container);
+    expect(tooltipStyle(container).borderWidth).toBe('3px');
+    expect(tooltipStyle(container).borderColor).toBe('rgb(255, 0, 0)');
+  });
 });
 
 describe('crosshair behind the tooltip', () => {

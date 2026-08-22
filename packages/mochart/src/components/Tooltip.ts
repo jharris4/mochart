@@ -3,7 +3,7 @@ import { Renderer, htmlEl } from '../render';
 import TooltipContent from './TooltipContent';
 
 import { mochartCssClasses } from '../utils/ChartDom';
-import { cssStyleColor } from '../utils/style';
+import { cssBorderWidth, cssStyleColor } from '../utils/style';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { FocusPercentageMap } from '../types/animation';
 import type { SpacingLayoutInfo } from '../types/layout';
@@ -77,7 +77,7 @@ export default class Tooltip extends Renderer<TooltipProps> {
         paddingBottom: tooltipConfig.padding.bottom,
         paddingLeft: tooltipConfig.padding.left,
         // a null width must not leave the solid border at css 'medium'; the layout counts it as 0 too
-        borderWidth: backgroundStyle.strokeWidth ?? 0,
+        borderWidth: cssBorderWidth(backgroundStyle.strokeColor, backgroundStyle.strokeWidth),
         borderColor: cssStyleColor(backgroundStyle.strokeColor, backgroundStyle.strokeOpacity),
         borderRadius: tooltipConfig.cornerRadius,
         boxShadow: boxShadowStyle,

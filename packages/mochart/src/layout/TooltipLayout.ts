@@ -1,4 +1,5 @@
 import { getWithMutations } from '../utils/WithMutations';
+import { cssBorderWidth } from '../utils/style';
 import type { Bounds, Size } from '../types/geometry';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { ChartLayoutInfo } from '../types/layout';
@@ -16,8 +17,9 @@ export function getTooltipLayoutInfo(mochartConfig: EnhancedMochartConfig, toolt
   const { tooltip: tooltipConfig, plot: plotConfig } = mochartConfig;
   const { chartContentLayoutInfo, seriesLayoutInfo, containerLayoutInfo } = layoutInfo!;
   let { width, height } = tooltipBounds;
-  // A null border width leaves the css unset, so the border occupies nothing.
-  const borderWidth = tooltipConfig.backgroundStyle.strokeWidth ?? 0;
+  // A null border width leaves the css unset, so the border occupies nothing — and neither does a border with no color.
+  const { strokeColor, strokeWidth } = tooltipConfig.backgroundStyle;
+  const borderWidth = cssBorderWidth(strokeColor, strokeWidth);
   const { padding } = tooltipConfig;
   width += 2 * borderWidth + padding.left + padding.right;
   height += 2 * borderWidth + padding.top + padding.bottom;
