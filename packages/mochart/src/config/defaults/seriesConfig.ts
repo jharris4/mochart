@@ -1,13 +1,12 @@
 import {
   AUTO, NONE, RENDERER_AREA, RENDERER_BAR, RENDERER_LINE, RENDERER_NONE, MARKER_SHAPE_CIRCLE, MARKER_SIZE_SCALE_SQRT, CURVE_TYPE_LINEAR,
   COLOR_SAME, COLOR_SERIES, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX, COLOR_CURRENT, LABEL_POSITION_CENTER,
-  COLOR_INTERPOLATION_HCL, MISSING_VALUE_MODE_BREAK
+  COLOR_INTERPOLATION_HCL, MISSING_VALUE_MODE_BREAK, STYLE_STATES
 } from '../core/constants';
 
 import { resolveDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 import type { DeepPartial, SeriesConfig } from '../../types/config';
 
-// The suffixes are the prose the generated config reference shows for each branch.
 const colorPropertySuffix = 'when colorProperty is not ' + NONE;
 const colorPropertyNoneSuffix = 'when colorProperty is ' + NONE;
 const colorBaseSuffix = 'when colorProperty is not ' + NONE + ' and colorScale.base.value is not ' + NONE;
@@ -120,9 +119,6 @@ export function getRegularDefaults() {
   };
 }
 
-// A category-index colored shape has no one color to put in a legend or tooltip swatch, so such a series
-// defaults to no color icon. Only the normal state counts; the other two resolve back to it via 'same'.
-// Defaults run before validation, so a non-object shapeStyle/normal must fall through to the validator, not throw.
 function isCategoryIndexColored({ shapeStyle }: SeriesConfig): boolean {
   const normal = shapeStyle !== null && typeof shapeStyle === 'object' && !Array.isArray(shapeStyle) ? shapeStyle.normal : undefined;
   const { strokeColor, fillColor } = normal !== null && typeof normal === 'object' ? normal : {};
@@ -133,8 +129,15 @@ function usesFillRenderer({ renderer }: SeriesConfig, pieMode: boolean): boolean
   return pieMode || renderer === RENDERER_AREA || renderer === RENDERER_BAR;
 }
 
+function isCategoryIndexFilled({ shapeStyle }: SeriesConfig): boolean {
+  const states = shapeStyle !== null && typeof shapeStyle === 'object' && !Array.isArray(shapeStyle)
+    ? shapeStyle as unknown as Record<string, { fillColor?: unknown } | undefined>
+    : {};
+  return STYLE_STATES.some(state => states[state]?.fillColor === COLOR_CATEGORY_INDEX);
+}
+
 function supportsAutomaticGradient(config: SeriesConfig, pieMode: boolean): boolean {
-  return usesFillRenderer(config, pieMode) && config.colorProperty === NONE;
+  return usesFillRenderer(config, pieMode) && config.colorProperty === NONE && !isCategoryIndexFilled(config);
 }
 
 const followSeriesSuffix = 'when followSeries is not ' + NONE;
@@ -167,7 +170,7 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, 
       { ...defaultRule, default: soleSeriesGroupId }
     ], configWithRegularDefaults, index),
     gradient: conditionalDefault([
-      { condition: config => supportsAutomaticGradient(config, pieMode), suffix: 'when chart type is pie or renderer is area or bar, and colorProperty is null', default: soleGradientConfigId, defaultText: 'sole gradient id' },
+      { condition: config => supportsAutomaticGradient(config, pieMode), suffix: 'when chart type is pie or renderer is area or bar, colorProperty is null, and no shapeStyle fillColor is ' + COLOR_CATEGORY_INDEX, default: soleGradientConfigId, defaultText: 'sole gradient id' },
       { ...defaultRule, default: NONE }
     ], configWithRegularDefaults, index),
     pattern: conditionalDefault([

@@ -166,6 +166,13 @@ export const LABEL_POSITIONS = [
   LABEL_POSITION_INSIDE, LABEL_POSITION_CENTER, LABEL_POSITION_OUTSIDE
 ];
 
+export const STYLE_STATE_NORMAL = 'normal';
+export const STYLE_STATE_FOCUSED = 'focused';
+export const STYLE_STATE_DEFOCUSED = 'defocused';
+export const STYLE_STATES = [
+  STYLE_STATE_NORMAL, STYLE_STATE_FOCUSED, STYLE_STATE_DEFOCUSED
+] as const;
+
 export const COLOR_SERIES = 'series'
 export const COLOR_SAME = 'same';
 export const COLOR_SERIES_INDEX = 'seriesIndex';

@@ -140,6 +140,38 @@ describe('built-in pattern config', () => {
     expect(gradient.validation.valid).toBe(true);
   });
 
+  // Regression: a categoryIndex fill colors each bar from the palette, which used to silently
+  // overwrite the gradient reference the same series asked for
+  it('rejects a gradient when a shapeStyle fillColor is categoryIndex', () => {
+    for (const state of ['normal', 'focused', 'defocused']) {
+      const gradient = enhance({ ...base,
+        linearGradients: [{ id: 'fade', stops: [{ offset: 0, color: '#000', opacity: 1 }] }],
+        series: [{ property: 'v', renderer: 'bar', gradient: 'fade', shapeStyle: { [state]: { fillColor: 'categoryIndex' } } }]
+      });
+      expect(gradient.validation.errors).toContain(
+        'series[0] - gradient - should be equal to null when a shapeStyle fillColor is categoryIndex: "fade"'
+      );
+    }
+  });
+
+  it('does not adopt the sole gradient for a series whose fill is categoryIndex', () => {
+    const gradient = enhance({ ...base,
+      linearGradients: [{ id: 'fade', stops: [{ offset: 0, color: '#000', opacity: 1 }] }],
+      series: [{ property: 'v', renderer: 'bar', shapeStyle: { normal: { fillColor: 'categoryIndex' } } }]
+    });
+    expect(gradient.validation.valid).toBe(true);
+    expect(gradient.series[0].gradient).toBeNull();
+  });
+
+  it('still adopts the sole gradient when only the stroke is categoryIndex', () => {
+    const gradient = enhance({ ...base,
+      linearGradients: [{ id: 'fade', stops: [{ offset: 0, color: '#000', opacity: 1 }] }],
+      series: [{ property: 'v', renderer: 'bar', shapeStyle: { normal: { strokeColor: 'categoryIndex' } } }]
+    });
+    expect(gradient.validation.valid).toBe(true);
+    expect(gradient.series[0].gradient).toBe('fade');
+  });
+
   it('rejects gradients but permits patterns when colorProperty is set', () => {
     const gradient = enhance({ ...base,
       linearGradients: [{ id: 'fade', stops: [{ offset: 0, color: '#000', opacity: 1 }] }],

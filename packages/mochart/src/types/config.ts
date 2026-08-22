@@ -3138,7 +3138,7 @@ export interface SeriesConfig {
    *
    * Default:
    * - `sole gradient id` — when chart type is pie or renderer is area or bar,
-   *   and colorProperty is null
+   *   colorProperty is null, and no shapeStyle fillColor is categoryIndex
    */
   gradient: string | null;
   /**

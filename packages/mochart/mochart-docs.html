@@ -3882,9 +3882,10 @@ table thead td { border-bottom-width: 2px; }
 <tr id="series.gradient">
 <td><a href="#series.gradient">gradient</a></td><td>the unique id of the gradient config used to fill an area or bar series, or a pie slice (use null for none; cannot be combined with pattern or colorProperty)</td><td><p>should be equal to null when chart type is not pie and renderer is not area or bar</p>
 <p>should be equal to null when colorProperty is not null</p>
+<p>should be equal to null when a shapeStyle fillColor is categoryIndex</p>
 <p>should be a string or be equal to null when chart type is pie or renderer is area or bar</p>
 <p>should equal the id property of one of the linearGradients or radialGradients</p>
-</td><td><div>sole gradient id (when chart type is pie or renderer is area or bar, and colorProperty is null)</div>
+</td><td><div>sole gradient id (when chart type is pie or renderer is area or bar, colorProperty is null, and no shapeStyle fillColor is categoryIndex)</div>
 </td>
 </tr>
 <tr id="series.group">

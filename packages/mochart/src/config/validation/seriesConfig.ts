@@ -14,6 +14,7 @@ type GradientCondition = Pick<SeriesConfig, 'gradient'>;
 type RendererCondition = Pick<SeriesConfig, 'renderer'>;
 type ColorRendererCondition = RendererCondition & { colorScale?: DeepPartial<SeriesConfig['colorScale']> | null };
 type PatternCondition = Pick<SeriesConfig, 'renderer' | 'gradient'>;
+type ShapeFillCondition = { shapeStyle?: DeepPartial<SeriesConfig['shapeStyle']> };
 
 function seriesColor(allowSeries: boolean, allowSame: boolean): Validator {
   const keywords: string[] = [];
@@ -39,6 +40,13 @@ const stackRule = { condition: ({ stack }: StackCondition) => stack !== NONE, su
 const stackNoneRule = { condition: ({ stack }: StackCondition) => stack === NONE, suffix: stackNoneSuffix };
 const gradientRule = { condition: ({ gradient }: GradientCondition) => gradient !== NONE, suffix: 'when gradient is not ' + NONE };
 const colorPropertyRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty !== NONE, suffix: colorPropertySuffix };
+const categoryIndexFillRule = {
+  condition: ({ shapeStyle }: ShapeFillCondition) =>
+    shapeStyle?.normal?.fillColor === COLOR_CATEGORY_INDEX
+    || shapeStyle?.focused?.fillColor === COLOR_CATEGORY_INDEX
+    || shapeStyle?.defocused?.fillColor === COLOR_CATEGORY_INDEX,
+  suffix: 'when a shapeStyle fillColor is ' + COLOR_CATEGORY_INDEX
+};
 const colorPropertyNoneRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty === NONE, suffix: colorPropertyNoneSuffix };
 const colorBaseRule = { condition: ({ colorProperty, colorScale }: ColorCondition) => colorProperty !== NONE && (colorScale?.base?.value ?? NONE) !== NONE, suffix: colorBaseSuffix };
 const colorBaseNoneRule = { condition: ({ colorProperty, colorScale }: ColorCondition) => colorProperty !== NONE && (colorScale?.base?.value ?? NONE) === NONE, suffix: colorBaseNoneSuffix };
@@ -145,6 +153,7 @@ export default function getValidators(config: DeepPartial<SeriesConfig>, pieMode
     gradient: validators.conditional([
       { ...nonFillRendererRule, validator: validators.equal(NONE) },
       { ...colorPropertyRule, validator: validators.equal(NONE) },
+      { ...categoryIndexFillRule, validator: validators.equal(NONE) },
       { ...fillRendererRule, validator: validators.string().orEqual(NONE) }
     ], config),
     pattern: validators.conditional([

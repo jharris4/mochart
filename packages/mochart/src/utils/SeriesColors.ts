@@ -4,7 +4,7 @@ import { interpolateRgb, interpolateHsl, interpolateLab, interpolateHcl } from '
 import {
   NONE, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX, COLOR_SAME, COLOR_SERIES,
   COLOR_INTERPOLATION_HCL, COLOR_INTERPOLATION_HSL, COLOR_INTERPOLATION_LAB, COLOR_INTERPOLATION_RGB,
-  RENDERER_AREA, RENDERER_BAR, RENDERER_LINE
+  RENDERER_AREA, RENDERER_BAR, RENDERER_LINE, STYLE_STATES
 } from '../config/core/constants';
 import { getFocusedDefocused } from './FocusValue';
 import { isMissingValue } from './utils';
@@ -29,7 +29,7 @@ const styleMemberKeys = {
 
 type FillOrStrokeKey = keyof typeof styleMemberKeys;
 type ColorMapKey = keyof typeof elementKeys;
-type FocusKey = 'normal' | 'focused' | 'defocused';
+type FocusKey = typeof STYLE_STATES[number];
 type StyleStateRecord = Record<FocusKey, Record<string, SeriesColor | number | null | undefined>>;
 type ColorArgs = [seriesIndex?: number, focusPercentage?: FocusPercentage, defaultColor?: SeriesColor | null, categoryIndex?: number];
 type ColorInterpolator = (start: string, end: string) => (value: number) => string;
@@ -47,9 +47,7 @@ function readColor(seriesConfig: EnhancedSeriesConfig, mapKey: ColorMapKey, focu
 
 export function usesCategoryIndexColor(styleStates: unknown, member: 'strokeColor' | 'fillColor'): boolean {
   const states = styleStates as StyleStateRecord;
-  return states.normal[member] === COLOR_CATEGORY_INDEX
-    || states.focused[member] === COLOR_CATEGORY_INDEX
-    || states.defocused[member] === COLOR_CATEGORY_INDEX;
+  return STYLE_STATES.some(state => states[state][member] === COLOR_CATEGORY_INDEX);
 }
 
 function getColor(fillOrStrokeKey: FillOrStrokeKey, mapKey: ColorMapKey, colorPaletteConfig: ColorPaletteConfig, seriesConfig: EnhancedSeriesConfig, seriesIndex = 0, focusPercentage: FocusPercentage = null, defaultColor: SeriesColor | null = '', categoryIndex?: number): SeriesColor | null {
