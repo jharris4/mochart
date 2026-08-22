@@ -49,6 +49,20 @@ describe('charts smaller than their own spacing', () => {
     }), 640, 420)).toEqual([]);
   });
 
+  // title spacing reaches createSpacingLayoutInfo already negative, where the small-box path used to
+  // hand its bounds straight through to the background rect
+  it('emits no negative rect when title padding exceeds the width', () => {
+    expect(negativeRects(config({
+      title: { text: 'T', padding: { left: 400, right: 0, top: 0, bottom: 0 } }
+    }), 300, 200)).toEqual([]);
+  });
+
+  it('emits no negative rect when title margin exceeds the height', () => {
+    expect(negativeRects(config({
+      title: { text: 'T', margin: { left: 0, right: 0, top: 300, bottom: 0 } }
+    }), 300, 200)).toEqual([]);
+  });
+
   it('still lays out a normal chart', () => {
     expect(negativeRects(config({ title: { text: 'T' }, legend: { visible: true } }), 640, 420)).toEqual([]);
     const container = document.body.querySelector('div')!;

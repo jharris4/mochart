@@ -39,13 +39,13 @@ export function getSpacingInnerBounds(bounds: SpacingBoundsInput, margin?: Margi
   return {
     x: x + getSpacingLeft(margin, padding),
     y: y + getSpacingTop(margin, padding),
-    // margin and padding can exceed the box on a small chart; these become rect attributes
     width: Math.max(0, getSpacingInnerWidth(bounds, margin, padding)),
     height: Math.max(0, getSpacingInnerHeight(bounds, margin, padding))
   }
 }
 
 export function createSpacingLayoutInfo(bounds: SpacingBoundsInput, margin: MarginPadding = emptyMarginPadding, padding: MarginPadding = emptyMarginPadding, inner = true): SpacingLayoutInfo {
+  bounds = { ...bounds, width: Math.max(0, bounds.width), height: Math.max(0, bounds.height) };
   const { width, height } = bounds;
   const spacious = width > 0 && height > 0;
   const marginBounds = inner ? spacious ? getSpacingInnerBounds(bounds, margin) : bounds : getSpacingOuterBounds(bounds, padding);
