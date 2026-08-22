@@ -45,6 +45,13 @@ function readColor(seriesConfig: EnhancedSeriesConfig, mapKey: ColorMapKey, focu
   return styleStates[focusKey][member] as SeriesColor;
 }
 
+export function usesCategoryIndexColor(styleStates: unknown, member: 'strokeColor' | 'fillColor'): boolean {
+  const states = styleStates as StyleStateRecord;
+  return states.normal[member] === COLOR_CATEGORY_INDEX
+    || states.focused[member] === COLOR_CATEGORY_INDEX
+    || states.defocused[member] === COLOR_CATEGORY_INDEX;
+}
+
 function getColor(fillOrStrokeKey: FillOrStrokeKey, mapKey: ColorMapKey, colorPaletteConfig: ColorPaletteConfig, seriesConfig: EnhancedSeriesConfig, seriesIndex = 0, focusPercentage: FocusPercentage = null, defaultColor: SeriesColor | null = '', categoryIndex?: number): SeriesColor | null {
   const { focused, defocused } = getFocusedDefocused(focusPercentage);
   const member = styleMemberKeys[fillOrStrokeKey];

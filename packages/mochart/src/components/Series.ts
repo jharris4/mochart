@@ -2,14 +2,13 @@ import { Renderer, svgEl, ElList } from '../render';
 
 import { getSeriesPositionData } from '../utils/SeriesPositions';
 import { getLineGenerator, getRangeLineGenerator, getAreaGenerator, getColumnGenerator } from '../utils/SeriesShapes';
-import { getSeriesColorGenerator } from '../utils/SeriesColors';
+import { getSeriesColorGenerator, usesCategoryIndexColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { getSeriesTitle } from '../utils/SeriesTitle';
 import { seriesIsInteractive } from '../utils/RovingFocus';
 import { mochartCssClasses } from '../utils/ChartDom';
 import { areArraysAndEqual, translateObject, isHoverPointer } from '../utils/utils';
 import { NONE, RENDERER_AREA, RENDERER_LINE, RENDERER_BAR } from '../config/core/constants';
-import { COLOR_CATEGORY_INDEX } from '../config/core/constants';
 import { getSeriesFillColor, getSeriesStrokeColor } from '../utils/SeriesColors';
 import { getGradientReference, getPatternReference } from '../utils/svgUtils';
 import { getFocusStyle, getCategoryFocusPercentage } from '../utils/FocusValue';
@@ -241,7 +240,6 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       const { categoryFocusPercentages, valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
 
-      const { normal: shapeNormal } = seriesConfig.shapeStyle;
       const seriesStrokeColor = getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       let seriesFillColor = seriesConfig.renderer === RENDERER_LINE ? 'none' : getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       let seriesColorGenerator = null;
@@ -294,8 +292,9 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         else if (seriesConfig.gradient !== NONE) {
           barFillColor = getGradientReference(gradientIdMap[seriesConfig.gradient]);
         }
-        const hasDifferentStrokeColors = shapeNormal.strokeColor === COLOR_CATEGORY_INDEX;
-        const hasDifferentFillColors = shapeNormal.fillColor === COLOR_CATEGORY_INDEX;
+        // any state may name categoryIndex, and the state in force changes with the focus, so all three decide
+        const hasDifferentStrokeColors = usesCategoryIndexColor(seriesConfig.shapeStyle, 'strokeColor');
+        const hasDifferentFillColors = usesCategoryIndexColor(seriesConfig.shapeStyle, 'fillColor');
         const hasDifferentColors = hasDifferentStrokeColors || hasDifferentFillColors;
         let focusPercentage;
         const { skipped, skipCategoryIndexMap } = seriesPositionData;

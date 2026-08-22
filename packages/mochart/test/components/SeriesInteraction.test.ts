@@ -76,6 +76,47 @@ describe('category focus colours with a categoryIndex member', () => {
   });
 });
 
+// Regression: only shapeStyle.normal decided whether a shape colored per category, so a categoryIndex
+// named in the focused or defocused state alone resolved to an empty color attribute
+describe('categoryIndex named only in a focus state', () => {
+  it('colors the focused bar from the palette rather than emptying its fill', () => {
+    const container = mountChart({
+      shapeStyle: {
+        normal: { fillColor: '#4477aa' },
+        focused: { fillColor: 'categoryIndex' }
+      }
+    }, { focusedCategoryIndex: 1 } as Partial<DefaultChartProps>);
+    const focusedFill = bar(container, 1).getAttribute('fill');
+    expect(focusedFill).not.toBe('');
+    expect(focusedFill).toMatch(/^#|^rgb/);
+    expect(bar(container, 0).getAttribute('fill')).toBe('#4477aa');
+  });
+
+  it('colors the defocused bars from the palette rather than emptying their stroke', () => {
+    const container = mountChart({
+      shapeStyle: {
+        normal: { strokeColor: '#4477aa', strokeWidth: 1 },
+        defocused: { strokeColor: 'categoryIndex' }
+      }
+    }, { focusedCategoryIndex: 1 } as Partial<DefaultChartProps>);
+    const defocusedStroke = bar(container, 0).getAttribute('stroke');
+    expect(defocusedStroke).not.toBe('');
+    expect(defocusedStroke).toMatch(/^#|^rgb/);
+    expect(bar(container, 1).getAttribute('stroke')).toBe('#4477aa');
+  });
+
+  it('gives two categories different colors when the focused state names categoryIndex', () => {
+    const container = mountChart({
+      shapeStyle: {
+        normal: { fillColor: '#4477aa' },
+        focused: { fillColor: 'categoryIndex' },
+        defocused: { fillColor: 'categoryIndex' }
+      }
+    }, { focusedCategoryIndex: 1 } as Partial<DefaultChartProps>);
+    expect(bar(container, 0).getAttribute('fill')).not.toBe(bar(container, 2).getAttribute('fill'));
+  });
+});
+
 describe('series shape hover focus', () => {
   it('reports no focus when neither focus-on-hover config is set', () => {
     const focuses: ChartFocus[] = [];
