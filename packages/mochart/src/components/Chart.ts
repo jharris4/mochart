@@ -1521,15 +1521,22 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         maxWidth: width
       };
 
-      const noDataContentFactory = isErrorActive(error) ? errorFactory
-        : !loading && hasChartData && categoryCount === 0 ? noDataFactory
-        : loadingFactory;
+      // the loading overlay below owns the loading state; rendering it here too would stack two copies
+      if (loading && !isErrorActive(error)) {
+        body.noDataSlot.set(null);
+        this.messageRef = null;
+      }
+      else {
+        const noDataContentFactory = isErrorActive(error) ? errorFactory
+          : hasChartData && categoryCount === 0 ? noDataFactory
+          : loadingFactory;
 
-      const noDataEl = body.noDataSlot.set('div', () => htmlEl('div'));
-      // -1: never a tab stop, but focusable for the teardown restore below, which reads out the message
-      noDataEl!.set({ className: mochartCssClasses['noData'], style: noDataStyle, tabindex: accessibility ? '-1' : null });
-      syncFactoryContent(noDataEl!, noDataContentFactory, this.factoryContext(width, height, error));
-      this.messageRef = accessibility ? noDataEl!.node as HTMLElement : null;
+        const noDataEl = body.noDataSlot.set('div', () => htmlEl('div'));
+        // -1: never a tab stop, but focusable for the teardown restore below, which reads out the message
+        noDataEl!.set({ className: mochartCssClasses['noData'], style: noDataStyle, tabindex: accessibility ? '-1' : null });
+        syncFactoryContent(noDataEl!, noDataContentFactory, this.factoryContext(width, height, error));
+        this.messageRef = accessibility ? noDataEl!.node as HTMLElement : null;
+      }
     }
 
     body.legend.set(Legend, { mochartConfig, filteredFlags, focusedSeriesId,
@@ -1550,8 +1557,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       };
 
       const loadingEl = body.loadingSlot.set('div', () => htmlEl('div'));
-      loadingEl!.set({ className: mochartCssClasses['loading'], style: loadingStyle });
+      // the overlay is the only message while loading, so it carries the teardown restore's focus target
+      loadingEl!.set({ className: mochartCssClasses['loading'], style: loadingStyle, tabindex: accessibility ? '-1' : null });
       syncFactoryContent(loadingEl!, loadingFactory, this.factoryContext(width, height, error));
+      this.messageRef = accessibility ? loadingEl!.node as HTMLElement : null;
     }
     else {
       body.loadingSlot.set(null);

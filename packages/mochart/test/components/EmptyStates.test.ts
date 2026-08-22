@@ -148,6 +148,19 @@ describe('ChartFactories overrides', () => {
     expect(container.querySelector('.factory-marker')!.textContent).toBe('custom loading');
   });
 
+  // Regression: with no categories the no-data slot fell through to the loading factory as well, so the
+  // overlay and the placeholder were mounted on top of each other and a custom factory ran twice
+  it('renders the loading content once, in the loading overlay only', () => {
+    let calls = 0;
+    const loadingFactory = () => { calls++; return marker('custom loading')(); };
+    const container = mountChart({ loading: true, getLoadingComponent: loadingFactory }, makeConfig(), []);
+
+    expect(calls).toBe(1);
+    expect(container.querySelectorAll('.factory-marker').length).toBe(1);
+    expect(container.querySelector(getCssSelector('loading'))).not.toBeNull();
+    expect(container.querySelector(getCssSelector('noData'))).toBeNull();
+  });
+
   it('uses getErrorComponent', () => {
     const container = mountChart({ error: 'boom', getErrorComponent: marker('custom error') });
     expect(container.querySelector('.factory-marker')!.textContent).toBe('custom error');
