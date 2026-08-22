@@ -3850,7 +3850,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.filterable">
-<td><a href="#series.filterable">filterable</a></td><td>whether or not the series can be filtered out of the chart via the legend or tooltip</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#series.filterable">filterable</a></td><td>whether or not the series can be filtered out of the chart via the legend or tooltip (no effect when `followSeries` is set: the followed series’ `filterable` decides)</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="series.focusCategoryOnClick">
@@ -3870,7 +3870,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.followSeries">
-<td><a href="#series.followSeries">followSeries</a></td><td>the unique identifier of another series whose legend filtering and focus this series follows (use null for none)<br/><br/>When the referenced series is toggled out of (or back into) the chart via the legend, this series follows it, and it shares the referenced series’ focus state both ways: focusing the leader highlights this series too, and focus interactions on this series target the leader. For companion series hidden from the legend (`showInLegend: false`) that visually belong to a legend series — e.g. a candlestick wick following its body — so filtering or focusing treats the whole mark as one.</td><td><p>should be a string or be equal to null</p>
+<td><a href="#series.followSeries">followSeries</a></td><td>the unique identifier of another series whose legend filtering and focus this series follows (use null for none)<br/><br/>When the referenced series is toggled out of (or back into) the chart via the legend, this series follows it, and it shares the referenced series’ focus state both ways: focusing the leader highlights this series too, and focus interactions on this series target the leader. For companion series that visually belong to a legend series — e.g. a candlestick wick following its body — so filtering or focusing treats the whole mark as one. It has no focus or filter state of its own for either: `focusedSeriesId` and the `filteredSeriesIds` keys should be ids of series that do not set `followSeries`, and this series’ own id has no effect there. It is kept out of the legend by default (`showInLegend`), since its item could only repeat the followed series’ own.</td><td><p>should be a string or be equal to null</p>
 <p>should equal the id property of one of the series</p>
 <p>should equal the id property of a series that does not itself set followSeries</p>
 </td><td><div>null</div>
@@ -4347,7 +4347,8 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.showInLegend">
-<td><a href="#series.showInLegend">showInLegend</a></td><td>whether to show the series in the legend</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#series.showInLegend">showInLegend</a></td><td>whether to show the series in the legend</td><td>should be a boolean</td><td><div>false (when followSeries is not null)</div>
+<div>true (when followSeries is null)</div>
 </td>
 </tr>
 <tr id="series.showInTooltip">

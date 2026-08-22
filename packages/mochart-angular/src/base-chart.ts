@@ -56,11 +56,12 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
   @Input() focusedCategoryIndex?: number;
   /** Controlled focused value-axis id (null = none). See `focusedCategoryIndex`. */
   @Input() focusedValueAxisId?: string | null;
-  /** Controlled focused series id (null = none). See `focusedCategoryIndex`. */
+  /** Controlled focused series id (null = none); use the id of a series that does not set `followSeries`. See `focusedCategoryIndex`. */
   @Input() focusedSeriesId?: string | null;
   /**
    * Controlled filter map (series id → true = filtered out); pass back the
    * map reported by `seriesFilter` to sync legend filtering across charts.
+   * Key it by series that do not set `followSeries`: a series that follows another filters with it.
    */
   @Input() filteredSeriesIds?: Record<string, boolean>;
 

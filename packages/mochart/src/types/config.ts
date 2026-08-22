@@ -3303,7 +3303,9 @@ export interface SeriesConfig {
   /**
    * Whether to show the series in the legend.
    *
-   * @default true
+   * Default:
+   * - `false` — when followSeries is not null
+   * - `true` — when followSeries is null
    */
   showInLegend: boolean;
   /**
@@ -3336,7 +3338,8 @@ export interface SeriesConfig {
   showColorInTooltip: boolean;
   /**
    * Whether or not the series can be filtered out of the chart via the legend
-   * or tooltip.
+   * or tooltip (no effect when `followSeries` is set: the followed series’
+   * `filterable` decides).
    *
    * @default true
    */
@@ -3349,9 +3352,13 @@ export interface SeriesConfig {
    * the legend, this series follows it, and it shares the referenced series’
    * focus state both ways: focusing the leader highlights this series too, and
    * focus interactions on this series target the leader. For companion series
-   * hidden from the legend (`showInLegend: false`) that visually belong to a
-   * legend series — e.g. a candlestick wick following its body — so filtering
-   * or focusing treats the whole mark as one.
+   * that visually belong to a legend series — e.g. a candlestick wick following
+   * its body — so filtering or focusing treats the whole mark as one. It has no
+   * focus or filter state of its own for either: `focusedSeriesId` and the
+   * `filteredSeriesIds` keys should be ids of series that do not set
+   * `followSeries`, and this series’ own id has no effect there. It is kept out
+   * of the legend by default (`showInLegend`), since its item could only repeat
+   * the followed series’ own.
    *
    * @default null
    */

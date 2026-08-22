@@ -54,11 +54,12 @@ export const baseChartProps = {
   focusedCategoryIndex: { type: Number, default: undefined },
   /** Controlled focused value-axis id (null = none). See `focusedCategoryIndex`. */
   focusedValueAxisId: { type: String as PropType<string | null>, default: undefined },
-  /** Controlled focused series id (null = none). See `focusedCategoryIndex`. */
+  /** Controlled focused series id (null = none); use the id of a series that does not set `followSeries`. See `focusedCategoryIndex`. */
   focusedSeriesId: { type: String as PropType<string | null>, default: undefined },
   /**
    * Controlled filter map (series id → true = filtered out); pass back the
    * map reported by `onSeriesFilter` to sync legend filtering across charts.
+   * Key it by series that do not set `followSeries`: a series that follows another filters with it.
    */
   filteredSeriesIds: { type: Object as PropType<Record<string, boolean>>, default: undefined }
 };

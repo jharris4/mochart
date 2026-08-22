@@ -40,7 +40,9 @@ export function getFocusData(mochartConfig: EnhancedMochartConfig, chartData: Ch
     focusedCategoryIndex = -1;
   }
   // likewise an id naming no series/axis: hosts mirror focus between charts that need not share ids
-  if (focusedSeriesId !== null && mochartConfig.seriesById[focusedSeriesId] === undefined) {
+  // a following series (followSeries) has no focus state of its own, so its id focuses nothing
+  if (focusedSeriesId !== null && (mochartConfig.seriesById[focusedSeriesId] === undefined
+    || mochartConfig.seriesById[focusedSeriesId].followSeries !== NONE)) {
     focusedSeriesId = null;
   }
   if (focusedValueAxisId !== null && mochartConfig.valueAxesById[focusedValueAxisId] === undefined) {

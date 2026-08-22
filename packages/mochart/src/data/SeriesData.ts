@@ -401,10 +401,11 @@ function setSeriesDomain(seriesDomainObject: SeriesDomainObject, seriesValuesObj
 function getSeriesFilteredFlags(seriesConfigs: EnhancedSeriesConfig[], filteredSeriesMap: Record<string, unknown>): Record<string, boolean> {
   const seriesFilteredFlags: Record<string, boolean> = Object.create(null);
   for (const seriesConfig of seriesConfigs) {
+    const filterId = seriesConfig.followSeries !== NONE ? seriesConfig.followSeries : seriesConfig.id;
     // own-key check: the map may be a host-provided plain object, so ids like constructor must not hit Object.prototype
     // only true filters: a controlled map may carry false for the series it wants shown
-    seriesFilteredFlags[seriesConfig.id] = Object.prototype.hasOwnProperty.call(filteredSeriesMap, seriesConfig.id) &&
-      filteredSeriesMap[seriesConfig.id] === true;
+    seriesFilteredFlags[seriesConfig.id] = Object.prototype.hasOwnProperty.call(filteredSeriesMap, filterId) &&
+      filteredSeriesMap[filterId] === true;
   }
   return seriesFilteredFlags;
 }

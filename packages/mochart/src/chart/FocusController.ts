@@ -70,8 +70,7 @@ export class FocusController {
 
   /**
    * Reconcile focus/filter state with a config or provider change: structural resets everything, a
-   * followSeries change re-derives follower filtering, a data change remaps the focused category by
-   * value (dropped when gone). `renderedCategoryValues` is the last committed ordering — the old
+   * data change remaps the focused category by value (dropped when gone). `renderedCategoryValues` is the last committed ordering — the old
    * provider can't be re-read after an in-place refresh(). A controlled value the host changed in
    * this same update supersedes the remap/reset of its field and is not reported back (it came from
    * the host); one carried along unchanged is reported so the host can sync. Fires no callbacks:
@@ -90,9 +89,6 @@ export class FocusController {
       this.reset();
     }
     else {
-      if (mochartConfig !== oldMochartConfig) {
-        this.reconcileFollowerFilters(oldMochartConfig!, mochartConfig!);
-      }
       if (dataProvider !== oldDataProvider) {
         if (oldDataProvider && dataProvider) {
           if (this.focusedCategoryIndex >= 0) {
@@ -149,41 +145,6 @@ export class FocusController {
   }
 
   /**
-   * Re-derive filtered states after a non-structural `followSeries` change: a new follower takes its
-   * leader's filtered state, an ex-follower unfilters (else it could stay filtered forever).
-   */
-  private reconcileFollowerFilters(oldMochartConfig: MochartConfig, mochartConfig: MochartConfig): void {
-    let filteredSeriesIds: Record<string, boolean> | null = null;
-    for (let seriesIndex = 0; seriesIndex < mochartConfig.series.length; seriesIndex++) {
-      const seriesConfig = mochartConfig.series[seriesIndex];
-      const { followSeries } = seriesConfig;
-      if (followSeries === oldMochartConfig.series[seriesIndex]?.followSeries) {
-        continue;
-      }
-      const wasFiltered = this.filteredSeriesIds[seriesConfig.id] === true;
-      const filtered = followSeries != null && this.filteredSeriesIds[followSeries] === true;
-      if (filtered !== wasFiltered) {
-        // copy before mutating so snapshots handed to host callbacks stay frozen
-        // null proto: an id of __proto__ must land as an own key, not hit the prototype setter
-        filteredSeriesIds ??= Object.assign(Object.create(null), this.filteredSeriesIds) as Record<string, boolean>;
-        if (filtered) {
-          filteredSeriesIds[seriesConfig.id] = true;
-        }
-        else {
-          delete filteredSeriesIds[seriesConfig.id];
-        }
-      }
-    }
-    if (filteredSeriesIds !== null) {
-      this.filteredSeriesIds = filteredSeriesIds;
-      // a filtered series cannot stay focused
-      if (this.focusedSeriesId !== null && filteredSeriesIds[this.focusedSeriesId] === true) {
-        this.focusedSeriesId = null;
-      }
-    }
-  }
-
-  /**
    * Apply the host's controlled focus/filter props: set fields override internal state, undefined
    * fields stay chart-managed. No callbacks fire — the values came from the host.
    */
@@ -219,19 +180,17 @@ export class FocusController {
     return this.focus();
   }
 
-  /** Toggle a series in/out of the filtered set; follower series (`followSeries`) take the same state. */
-  toggleSeriesFilter(seriesId: string, followerSeriesIds: readonly string[] = []): ChartSeriesFilter {
+  /** Toggle a series in/out of the filtered set; follower series (`followSeries`) derive their state from it. */
+  toggleSeriesFilter(seriesId: string): ChartSeriesFilter {
     // copy before mutating so snapshots handed to host callbacks stay frozen
     // null proto: an id of __proto__ must land as an own key, not hit the prototype setter
     const filteredSeriesIds: Record<string, boolean> = Object.assign(Object.create(null), this.filteredSeriesIds);
     const filtered = filteredSeriesIds[seriesId] !== true;
-    for (const id of [seriesId, ...followerSeriesIds]) {
-      if (filtered) {
-        filteredSeriesIds[id] = true;
-      }
-      else {
-        delete filteredSeriesIds[id];
-      }
+    if (filtered) {
+      filteredSeriesIds[seriesId] = true;
+    }
+    else {
+      delete filteredSeriesIds[seriesId];
     }
     this.filteredSeriesIds = filteredSeriesIds;
     // a filtered series cannot stay focused

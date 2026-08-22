@@ -1,5 +1,6 @@
 import { ALIGN_LEFT, ALIGN_CENTER, AUTO } from '../config/core/constants';
 import { getLegendItemBoundsList } from '../utils/TextMeasurement';
+import { leaderSeriesId } from '../utils/SeriesFocus';
 import { createSpacingLayoutInfo, getSpacingLeft, getSpacingWidth, getSpacingTop, getSpacingHeight } from './SpacingLayoutInfo';
 import type { Bounds, TextBounds } from '../types/geometry';
 import type { LegendConfig } from '../types/config';
@@ -9,15 +10,17 @@ import type { ChartTextBoundsData, LayoutInfo, LegendLayoutResult, SpacingLayout
 const fallbackLegendIconSize = 14;
 
 /** clicking the item filters or focuses its series, which is what makes the item a click target */
-export function legendItemClickable(legendConfig: LegendConfig, seriesConfig: EnhancedSeriesConfig): boolean {
-  return (legendConfig.filterOnClick && seriesConfig.filterable) || legendConfig.focusOnClick;
+export function legendItemClickable(mochartConfig: EnhancedMochartConfig, seriesConfig: EnhancedSeriesConfig): boolean {
+  const { legend: legendConfig } = mochartConfig;
+  const { filterable } = mochartConfig.seriesById[leaderSeriesId(mochartConfig, seriesConfig.id)];
+  return (legendConfig.filterOnClick && filterable) || legendConfig.focusOnClick;
 }
 
 // accessibility.minTargetSize is the floor for the item boxes, and only while clicking one does
 // something; a legend nothing responds to is not a target and stays at its content size
 function getLegendItemMinSize(mochartConfig: EnhancedMochartConfig): number {
-  const { legend: legendConfig, series: seriesConfigs, accessibility: accessibilityConfig } = mochartConfig;
-  const clickable = seriesConfigs.some(seriesConfig => seriesConfig.showInLegend && legendItemClickable(legendConfig, seriesConfig));
+  const { series: seriesConfigs, accessibility: accessibilityConfig } = mochartConfig;
+  const clickable = seriesConfigs.some(seriesConfig => seriesConfig.showInLegend && legendItemClickable(mochartConfig, seriesConfig));
   return clickable ? accessibilityConfig.minTargetSize : 0;
 }
 

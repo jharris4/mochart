@@ -108,7 +108,6 @@ export function getRegularDefaults() {
         defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.8, strokeWidth: 1, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 0.8 }
       }
     },
-    showInLegend: true,
     showInTooltip: true,
     filterable: true,
     followSeries: NONE,
@@ -138,6 +137,8 @@ function supportsAutomaticGradient(config: SeriesConfig, pieMode: boolean): bool
   return usesFillRenderer(config, pieMode) && config.colorProperty === NONE;
 }
 
+const followSeriesSuffix = 'when followSeries is not ' + NONE;
+const followSeriesNoneSuffix = 'when followSeries is ' + NONE;
 const categoryIndexColorSuffix = 'when shapeStyle.normal.strokeColor or shapeStyle.normal.fillColor is ' + COLOR_CATEGORY_INDEX;
 const notCategoryIndexColorSuffix = 'when neither shapeStyle.normal.strokeColor nor shapeStyle.normal.fillColor is ' + COLOR_CATEGORY_INDEX;
 
@@ -308,6 +309,11 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, 
         ], configWithRegularDefaults, index)
       }
     },
+    showInLegend: conditionalDefault([
+      { condition: ({ followSeries }) => followSeries !== NONE, suffix: followSeriesSuffix, default: false },
+      { condition: ({ followSeries }) => followSeries === NONE, suffix: followSeriesNoneSuffix, default: true },
+      { ...defaultRule, default: true }
+    ], configWithRegularDefaults, index),
     showColorInLegend: conditionalDefault([
       { condition: (config) => isCategoryIndexColored(config), suffix: categoryIndexColorSuffix, default: false },
       { condition: (config) => !isCategoryIndexColored(config), suffix: notCategoryIndexColorSuffix, default: true },

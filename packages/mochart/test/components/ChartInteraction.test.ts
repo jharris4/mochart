@@ -1091,7 +1091,8 @@ describe('followSeries legend filtering', () => {
 
     clickLegendItem(container, 'body');
     expect(filters).toHaveLength(1);
-    expect(filters[0].filteredSeriesIds).toEqual({ body: true, wick: true, volume: true });
+    // the following series derive their state rather than being listed alongside it
+    expect(filters[0].filteredSeriesIds).toEqual({ body: true });
     expect(renderedSeriesIds(container)).toEqual(['other']);
 
     clickLegendItem(container, 'body');
@@ -1100,25 +1101,25 @@ describe('followSeries legend filtering', () => {
     expect(renderedSeriesIds(container)).toEqual(['wick', 'body', 'volume', 'other']);
   });
 
-  it('leaves the leader and its other followers alone when the host filters one follower', () => {
+  it('ignores a follower id in the host filter map, and keeps the key inert', () => {
     const filters: Array<{ filteredSeriesIds: Record<string, boolean> }> = [];
     const container = mountChart(candleConfig(), {
       onSeriesFilter: filter => { filters.push(filter); },
       filteredSeriesIds: { volume: true }
     }, candleRows);
-    expect(renderedSeriesIds(container)).toEqual(['wick', 'body', 'other']);
+    // a following series has no filter state of its own, so the host's key filters nothing
+    expect(renderedSeriesIds(container)).toEqual(['wick', 'body', 'volume', 'other']);
 
-    // the leader click adds the rest of the group on top of the host's filter...
     clickLegendItem(container, 'body');
-    expect(filters[0].filteredSeriesIds).toEqual({ body: true, wick: true, volume: true });
+    expect(filters[0].filteredSeriesIds).toEqual({ volume: true, body: true });
+    expect(renderedSeriesIds(container)).toEqual(['other']);
 
-    // ...and the second click clears the whole group, the host-filtered follower included
     clickLegendItem(container, 'body');
-    expect(filters[1].filteredSeriesIds).toEqual({});
+    expect(filters[1].filteredSeriesIds).toEqual({ volume: true });
     expect(renderedSeriesIds(container)).toEqual(['wick', 'body', 'volume', 'other']);
   });
 
-  it('clears series focus when the leader click filters the focused follower', () => {
+  it('ignores a follower id in the host focusedSeriesId', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(candleConfig(), {
       onFocus: focus => { focuses.push(focus); },
@@ -1126,14 +1127,10 @@ describe('followSeries legend filtering', () => {
     }, candleRows);
     expect(focuses).toHaveLength(0);
 
-    // the follower is filtered through its leader, so it cannot stay focused
+    // nothing was focused, so filtering the followed series has no focus to clear
     clickLegendItem(container, 'body');
-    expect(focuses).toHaveLength(1);
-    expect(focuses[0].focusedSeriesId).toBeNull();
-
-    // unfiltering does not bring the focus back
-    clickLegendItem(container, 'body');
-    expect(focuses).toHaveLength(1);
+    expect(focuses).toHaveLength(0);
+    expect(renderedSeriesIds(container)).toEqual(['other']);
   });
 
   it('reports no focus change when the leader click leaves the focused series alone', () => {

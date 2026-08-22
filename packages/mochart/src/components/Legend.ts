@@ -9,7 +9,7 @@ import { accessibilityActive, translate, translateObject, centerTextY, isHoverPo
 import { moveRovingFocus, resolveRovingId, focusedSeriesNode, restoreSeriesFocus } from '../utils/RovingFocus';
 import { getClipPathReference } from '../utils/svgUtils';
 import { getSeriesTitle } from '../utils/SeriesTitle';
-import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
+import { getSeriesFocusPercentage, leaderSeriesId } from '../utils/SeriesFocus';
 import { styleToAttributes } from '../utils/style';
 import Background from './Background';
 import SeriesColorIcon from './SeriesColorIcon';
@@ -103,7 +103,7 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
   legendItemPointerEnter = (seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
     if (mochartConfig.legend.focusOnHover) {
-      onFocus({ seriesId });
+      onFocus({ seriesId: leaderSeriesId(mochartConfig, seriesId) });
     }
   }
 
@@ -116,15 +116,16 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
 
   legendItemClick = (seriesId: string) => {
     const { mochartConfig, focusedSeriesId, onFocus, onSeriesFilter } = this.props;
-    const seriesConfig = mochartConfig.seriesById[seriesId];
+    // a following series acts as the one it follows, whose filterable decides
+    const leaderId = leaderSeriesId(mochartConfig, seriesId);
     const legendConfig = mochartConfig.legend;
-    if (legendConfig.filterOnClick && seriesConfig.filterable) {
-      onSeriesFilter(seriesId);
+    if (legendConfig.filterOnClick && mochartConfig.seriesById[leaderId].filterable) {
+      onSeriesFilter(leaderId);
     }
     if (legendConfig.focusOnClick) {
       // toggle per series like the other click-to-focus sites: clicking the
       // focused item clears, clicking any other item moves the focus
-      onFocus({ seriesId: seriesId === focusedSeriesId ? null : seriesId });
+      onFocus({ seriesId: leaderId === focusedSeriesId ? null : leaderId });
     }
   }
 
@@ -149,7 +150,7 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
       const { legendLabel } = mochartConfig.accessibility;
       // keyboard reach needs both: the click has to do something, and accessibility has to be on
       const itemIsInteractive = (seriesConfig: EnhancedSeriesConfig): boolean =>
-        accessibility && legendItemClickable(legendConfig, seriesConfig);
+        accessibility && legendItemClickable(mochartConfig, seriesConfig);
       const interactiveIds = seriesConfigs
         .filter(seriesConfig => seriesConfig.showInLegend && itemIsInteractive(seriesConfig))
         .map(seriesConfig => seriesConfig.id);
@@ -173,7 +174,7 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
           const i = itemIndex++;
           const seriesIndex = seriesConfigIndicesById[id];
           const seriesIsFiltered = filteredFlags[id] === true;
-          const seriesIsFocused = focusedSeriesId === id;
+          const seriesIsFocused = focusedSeriesId === leaderSeriesId(mochartConfig, id);
           const seriesIsDefocused = !seriesIsFocused && focusedSeriesId !== null;
           const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
 
@@ -188,7 +189,8 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
               seriesFocusPercentage, clipPath,
               interactive: itemIsInteractive(seriesConfig),
               tabStop: id === effectiveRovingId,
-              showsFilterState: accessibility && legendConfig.filterOnClick && seriesConfig.filterable,
+              showsFilterState: accessibility && legendConfig.filterOnClick
+                && mochartConfig.seriesById[leaderSeriesId(mochartConfig, id)].filterable,
               onClick: this.legendItemClick,
               onPointerEnter: this.legendItemPointerEnter, onPointerLeave: this.legendItemPointerLeave }
           });

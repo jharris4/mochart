@@ -176,11 +176,16 @@ export interface BaseChartProps extends ChartCallbacks, ChartFactories {
   focusedCategoryIndex?: number;
   /** Externally-controlled focused value-axis id (null = none). See `focusedCategoryIndex`. */
   focusedValueAxisId?: string | null;
-  /** Externally-controlled focused series id (null = none). See `focusedCategoryIndex`. */
+  /**
+   * Externally-controlled focused series id (null = none). See `focusedCategoryIndex`. Use the id of a
+   * series that does not set `followSeries`: one that follows another has no focus state of its own.
+   */
   focusedSeriesId?: string | null;
   /**
    * Externally-controlled filter map (series id → true = filtered out). When set it
    * overrides internal filter state on every update; pass back `onSeriesFilter` maps to sync.
+   * Key it by series that do not set `followSeries` — a series that follows another filters with the
+   * series it follows, and its own id has no effect.
    */
   filteredSeriesIds?: Record<string, boolean>;
 }

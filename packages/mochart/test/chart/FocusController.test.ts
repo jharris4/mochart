@@ -147,39 +147,7 @@ describe('FocusController focus handling', () => {
     expect(harness.controller.focusedSeriesId).toBe('S0');
   });
 
-  it('unfilters an ex-follower when its followSeries link is removed in place', () => {
-    const harness = makeHarness();
-    const series = (followers: boolean) => [
-      { id: 'S0', property: 'sales' },
-      { id: 'S1', property: 'other', showInLegend: false, ...(followers ? { followSeries: 'S0' } : {}) }
-    ];
-    harness.reconcileWith({ mochartConfig: makeConfig({ series: series(true) }) }); // structural vs base, resets nothing set
-    harness.controller.toggleSeriesFilter('S0', ['S1']);
-    expect(harness.controller.filteredSeriesIds).toEqual({ S0: true, S1: true });
-
-    harness.reconcileWith({ mochartConfig: makeConfig({ series: series(false) }) }); // followSeries-only change
-    expect(harness.controller.filteredSeriesIds).toEqual({ S0: true });
-    expect(harness.filters[harness.filters.length - 1].filteredSeriesIds).toEqual({ S0: true });
-  });
-
-  it('filters a series that starts following an already-filtered leader', () => {
-    const harness = makeHarness();
-    const series = (followers: boolean) => [
-      { id: 'S0', property: 'sales' },
-      { id: 'S1', property: 'other', ...(followers ? { followSeries: 'S0' } : {}) }
-    ];
-    harness.reconcileWith({ mochartConfig: makeConfig({ series: series(false) }) });
-    harness.controller.toggleSeriesFilter('S0');
-    harness.controller.applyFocus({ seriesId: 'S1' });
-
-    harness.reconcileWith({ mochartConfig: makeConfig({ series: series(true) }) });
-    expect(harness.controller.filteredSeriesIds).toEqual({ S0: true, S1: true });
-    // the new follower was focused; a filtered series cannot stay focused
-    expect(harness.controller.focusedSeriesId).toBe(null);
-    expect(harness.focuses[harness.focuses.length - 1].focusedSeriesId).toBe(null);
-  });
-
-  it('reports no filter change for a non-structural update without a followSeries delta', () => {
+  it('reports no filter change for a non-structural update', () => {
     const harness = makeHarness();
     harness.controller.toggleSeriesFilter('S0');
 
@@ -229,22 +197,21 @@ describe('FocusController focus handling', () => {
     expect(controller.toggleSeriesFilter('S0').filteredSeriesIds).toEqual({ S1: true });
   });
 
-  it('toggles follower series (followSeries) together with their series', () => {
+  it('writes only the toggled series, leaving followSeries series to derive their state', () => {
     const { controller } = makeHarness();
 
-    expect(controller.toggleSeriesFilter('S0', ['S0Wick']).filteredSeriesIds).toEqual({ S0: true, S0Wick: true });
-    expect(controller.toggleSeriesFilter('S1').filteredSeriesIds).toEqual({ S0: true, S0Wick: true, S1: true });
-    expect(controller.toggleSeriesFilter('S0', ['S0Wick']).filteredSeriesIds).toEqual({ S1: true });
+    expect(controller.toggleSeriesFilter('S0').filteredSeriesIds).toEqual({ S0: true });
+    expect(controller.toggleSeriesFilter('S1').filteredSeriesIds).toEqual({ S0: true, S1: true });
+    expect(controller.toggleSeriesFilter('S0').filteredSeriesIds).toEqual({ S1: true });
   });
 
-  it('snaps followers to the toggled series state even when they diverged', () => {
+  it('leaves a following series id supplied by the host in the map, inert', () => {
     const { controller } = makeHarness();
     controller.applyExternal({ filteredSeriesIds: { S0Wick: true } });
 
-    // the primary was unfiltered, so toggling filters it — and the follower
-    // stays filtered with it rather than toggling independently
-    expect(controller.toggleSeriesFilter('S0', ['S0Wick']).filteredSeriesIds).toEqual({ S0: true, S0Wick: true });
-    expect(controller.toggleSeriesFilter('S0', ['S0Wick']).filteredSeriesIds).toEqual({});
+    // kept, not stripped: it is the host's own key coming back, and it filters nothing
+    expect(controller.toggleSeriesFilter('S0').filteredSeriesIds).toEqual({ S0Wick: true, S0: true });
+    expect(controller.toggleSeriesFilter('S0').filteredSeriesIds).toEqual({ S0Wick: true });
   });
 
   it('applies external controlled values, leaving undefined fields untouched', () => {

@@ -183,10 +183,32 @@ what the callbacks report to keep several charts in sync:
 - [`filteredSeriesIds`](/reference/props#props.filteredSeriesIds) — the
   controlled form of `onSeriesFilter`
 
+`focusedSeriesId`, and every key of `filteredSeriesIds`, should be the id of a
+series that does not set [`followSeries`](/reference/series#series.followSeries).
+A series that follows another has no focus or filter state of its own — it takes
+both from the series it follows — so its own id has no effect in either prop.
+`onSeriesFilter` reports maps keyed the same way, so passing them straight back
+keeps charts in sync.
+
 ```js
 chart.update({
-  focusedCategoryIndex: focus.focusedCategoryIndex,
-  focusedSeriesId: focus.focusedSeriesId
+  focusedCategoryIndex: 2,
+  focusedValueAxisId: 'VA0',
+  focusedSeriesId: 'S0',
+  filteredSeriesIds: { S1: true, S2: true }
+});
+```
+
+```js
+// mirror one chart's focus and filtering onto another
+createChart(el, {
+  ...props,
+  onFocus: focus => other.update({
+    focusedCategoryIndex: focus.focusedCategoryIndex,
+    focusedValueAxisId: focus.focusedValueAxisId,
+    focusedSeriesId: focus.focusedSeriesId
+  }),
+  onSeriesFilter: ({ filteredSeriesIds }) => other.update({ filteredSeriesIds })
 });
 ```
 

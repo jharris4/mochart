@@ -67,11 +67,12 @@ export interface BaseChartProps extends ChartCallbackProps {
   focusedCategoryIndex?: number;
   /** Controlled focused value-axis id (null = none). See `focusedCategoryIndex`. */
   focusedValueAxisId?: string | null;
-  /** Controlled focused series id (null = none). See `focusedCategoryIndex`. */
+  /** Controlled focused series id (null = none); use the id of a series that does not set `followSeries`. See `focusedCategoryIndex`. */
   focusedSeriesId?: string | null;
   /**
    * Controlled filter map (series id → true = filtered out); pass back the
    * map reported by `onSeriesFilter` to sync legend filtering across charts.
+   * Key it by series that do not set `followSeries`: a series that follows another filters with it.
    */
   filteredSeriesIds?: Record<string, boolean>;
 }
