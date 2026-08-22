@@ -125,6 +125,9 @@ export class ChartController {
 
   /** Recompute the source output for the current props + focus state and push it into the Chart. */
   private applyInput(): void {
+    if (this.destroyed) {
+      return;
+    }
     const prevInput = this.lastInput;
     const input = this.buildInput();
     this.lastInput = input;
@@ -167,12 +170,18 @@ export class ChartController {
   }
 
   private handleFocus = (focus: InternalFocus): void => {
+    if (this.destroyed) {
+      return;
+    }
     const snapshot = this.focus.applyFocus(this.source.remapFocus(focus));
     this.applyInput();
     this.props.onFocus?.(snapshot);
   }
 
   private handleSeriesFilter = (seriesId: string): void => {
+    if (this.destroyed) {
+      return;
+    }
     const prevFocusedSeriesId = this.focus.focusedSeriesId;
     const snapshot = this.focus.toggleSeriesFilter(seriesId);
     this.applyInput();

@@ -31,6 +31,7 @@ export class AnimatedDataSource implements ChartDataSource {
   initialAnimationPercentage: number | null = null;
 
   private input!: ChartDataSourceInput;
+  private disposed = false;
   /** Entrance progress already rendered when a config-only change rebuilt the tween; its percentages resume from here. */
   private initialAnimationOffset = 0;
   /** The running data tween's destination data (chartData lags it by a frame). */
@@ -54,6 +55,9 @@ export class AnimatedDataSource implements ChartDataSource {
   }
 
   start(input: ChartDataSourceInput): void {
+    if (this.disposed) {
+      return;
+    }
     this.input = input;
     const { mochartConfig, dataProvider, filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId } = input;
     this.chartAnimationData = null;
@@ -88,10 +92,14 @@ export class AnimatedDataSource implements ChartDataSource {
   }
 
   dispose(): void {
+    this.disposed = true;
     this.tweenManager.cancelTweens();
   }
 
   update(prevInput: ChartDataSourceInput, input: ChartDataSourceInput): void {
+    if (this.disposed) {
+      return;
+    }
     this.input = input;
     const { mochartConfig, dataProvider, filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId } = input;
 
