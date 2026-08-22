@@ -304,8 +304,8 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
       }
       this.regions = [];
       if (removeDom) {
-        if (this.element !== null && this.present) {
-          this.parentDom.removeChild(this.element);
+        if (this.element !== null && this.present && this.element.parentNode) {
+          this.element.parentNode.removeChild(this.element);
         }
         if (this.anchor.parentNode) {
           this.anchor.parentNode.removeChild(this.anchor);

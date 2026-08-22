@@ -73,3 +73,23 @@ describe('destroy() from a chart callback', () => {
     chart.destroy();
   });
 });
+
+// Regression: the root element was removed with an unguarded removeChild, so a host that cleared the
+// mount point itself got a NotFoundError out of destroy() and the rest of the teardown was skipped
+describe('destroy() after the host emptied the container', () => {
+  it('tears down without throwing', () => {
+    const { chart, container } = mountChart({});
+    container.replaceChildren();
+
+    expect(() => chart.destroy()).not.toThrow();
+    expect(container.childNodes.length).toBe(0);
+  });
+
+  it('still removes the chart when the container is untouched', () => {
+    const { chart, container } = mountChart({});
+    expect(container.childNodes.length).toBeGreaterThan(0);
+
+    chart.destroy();
+    expect(container.childNodes.length).toBe(0);
+  });
+});
