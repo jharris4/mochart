@@ -30,9 +30,10 @@ export interface ChartHandle<TProps extends object = ManagedChartProps> {
 
 /** A delegating copy with a new identity, so the pipeline re-reads a provider it has already seen. */
 function withFreshIdentity(dataProvider: DataProvider): DataProvider {
-  const fresh: DataProvider = {
-    getPropertyValues: property => dataProvider.getPropertyValues(property)
-  };
+  const fresh = {} as DataProvider;
+  if (typeof dataProvider.getPropertyValues === 'function') {
+    fresh.getPropertyValues = property => dataProvider.getPropertyValues(property);
+  }
   if (dataProvider.getError) {
     fresh.getError = () => dataProvider.getError!();
   }
