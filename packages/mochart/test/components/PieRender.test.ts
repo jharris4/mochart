@@ -62,6 +62,43 @@ function mouse(target: Element, type: string, clientX: number, clientY: number):
   target.dispatchEvent(new MouseEvent(type, { clientX, clientY, bubbles: true }));
 }
 
+// Regression: a pie series keeps the default renderer 'line', so the legend and tooltip icons read
+// the stroke colour and stroke opacity while the slice itself is drawn from the fill members
+describe('pie legend and tooltip icons follow the slice fill', () => {
+  function legendIcon(container: Element, sliceId: string): Element {
+    const item = container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', sliceId)));
+    expect(item, sliceId).not.toBeNull();
+    const icon = item!.querySelector(getCssSelector('legendItemIcon') + ' rect,' + getCssSelector('legendItemIcon') + ' path');
+    expect(icon, sliceId + ' icon').not.toBeNull();
+    return icon!;
+  }
+
+  it('takes the icon colour from the slice fill, not the stroke', () => {
+    const { config, data } = pieChartProps(ITEMS);
+    (config.series as Array<Record<string, unknown>>)[0]!.shapeStyle = {
+      normal: { fillColor: '#ff0000', strokeColor: '#00ff00' }
+    };
+    const { container } = mountChart(config, data);
+    expect(slicePaths(container)[0]!.getAttribute('fill')).toBe('#ff0000');
+    expect(legendIcon(container, 'slice0').getAttribute('fill')).toBe('#ff0000');
+  });
+
+  it('takes the icon opacity from the slice fill opacity', () => {
+    const { config, data } = pieChartProps(ITEMS);
+    (config.series as Array<Record<string, unknown>>)[0]!.shapeStyle = {
+      normal: { fillOpacity: 0.25, strokeOpacity: 1 }
+    };
+    const { container } = mountChart(config, data);
+    expect(legendIcon(container, 'slice0').getAttribute('fill-opacity')).toBe('0.25');
+  });
+
+  it('draws the icon as a swatch rather than a marker circle', () => {
+    const { config, data } = pieChartProps(ITEMS);
+    const { container } = mountChart(config, data);
+    expect(legendIcon(container, 'slice0').tagName.toLowerCase()).toBe('rect');
+  });
+});
+
 describe('pie chart rendering', () => {
   it('mounts a radial plot with one slice path per series and no axes or crosshair', () => {
     const { config, data } = pieChartProps(ITEMS);

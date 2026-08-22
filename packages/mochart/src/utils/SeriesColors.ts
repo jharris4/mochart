@@ -87,16 +87,22 @@ function isHollowShape(seriesConfig: EnhancedSeriesConfig): boolean {
   return fillOpacity === 0 && strokeWidth! > 0;
 }
 
-export function getSeriesOpacities(seriesConfig: EnhancedSeriesConfig) {
+
+function isFilledShape(seriesConfig: EnhancedSeriesConfig, pieMode: boolean): boolean {
+  const { renderer } = seriesConfig;
+  return pieMode || renderer === RENDERER_AREA || renderer === RENDERER_BAR;
+}
+
+export function getSeriesOpacities(seriesConfig: EnhancedSeriesConfig, pieMode = false) {
   const { renderer } = seriesConfig;
   let opacity, focusedOpacity, defocusedOpacity;
-  if ((renderer === RENDERER_AREA || renderer === RENDERER_BAR) && !isHollowShape(seriesConfig)) {
+  if (isFilledShape(seriesConfig, pieMode) && !isHollowShape(seriesConfig)) {
     const { normal, focused, defocused } = seriesConfig.shapeStyle;
     opacity = normal.fillOpacity!;
     focusedOpacity = focused.fillOpacity!;
     defocusedOpacity = defocused.fillOpacity!;
   }
-  else if (renderer === RENDERER_LINE || renderer === RENDERER_AREA || renderer === RENDERER_BAR) {
+  else if (pieMode || renderer === RENDERER_LINE || renderer === RENDERER_AREA || renderer === RENDERER_BAR) {
     // a line series, or a hollow fill shape falling back to its stroke
     const { normal, focused, defocused } = seriesConfig.shapeStyle;
     opacity = normal.strokeOpacity!;
@@ -117,12 +123,12 @@ export function getSeriesOpacities(seriesConfig: EnhancedSeriesConfig) {
   };
 }
 
-export function getSeriesColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: EnhancedSeriesConfig, ...args: ColorArgs): SeriesColor | null {
+export function getSeriesColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: EnhancedSeriesConfig, pieMode: boolean, ...args: ColorArgs): SeriesColor | null {
   const { renderer } = seriesConfig;
-  if ((renderer === RENDERER_AREA || renderer === RENDERER_BAR) && !isHollowShape(seriesConfig)) {
+  if (isFilledShape(seriesConfig, pieMode) && !isHollowShape(seriesConfig)) {
     return getSeriesFillColor(colorPaletteConfig, seriesConfig, ...args);
   }
-  else if (renderer === RENDERER_LINE || renderer === RENDERER_AREA || renderer === RENDERER_BAR) {
+  else if (pieMode || renderer === RENDERER_LINE || renderer === RENDERER_AREA || renderer === RENDERER_BAR) {
     // a line series, or a hollow fill shape falling back to its stroke
     return getSeriesStrokeColor(colorPaletteConfig, seriesConfig, ...args);
   }

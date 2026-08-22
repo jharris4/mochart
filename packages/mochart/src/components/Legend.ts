@@ -10,6 +10,7 @@ import { moveRovingFocus, resolveRovingId, focusedSeriesNode, restoreSeriesFocus
 import { getClipPathReference } from '../utils/svgUtils';
 import { getSeriesTitle } from '../utils/SeriesTitle';
 import { getSeriesFocusPercentage, leaderSeriesId } from '../utils/SeriesFocus';
+import { CHART_TYPE_PIE } from '../config/core/constants';
 import { styleToAttributes } from '../utils/style';
 import Background from './Background';
 import SeriesColorIcon from './SeriesColorIcon';
@@ -44,6 +45,7 @@ interface LegendProps {
 
 interface LegendItemProps {
   legendConfig: LegendConfig;
+  pieMode: boolean;
   seriesConfig: EnhancedSeriesConfig;
   legendLayoutInfo: SpacingLayoutInfo;
   legendItemLayoutInfo: SpacingLayoutInfo;
@@ -181,7 +183,7 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
           items.push({
             key: id,
             ctor: LegendItem,
-            props: { legendConfig, seriesConfig, legendLayoutInfo,
+            props: { legendConfig, seriesConfig, legendLayoutInfo, pieMode: mochartConfig.chart.type === CHART_TYPE_PIE,
               legendItemLayoutInfo: legendItemLayoutInfos[i],
               legendItemRawLayoutInfo: legendItemRawLayoutInfos[i], legendItemTextLayoutInfo,
               uniqueIds, colorPaletteConfig, seriesIndex,
@@ -348,7 +350,8 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
       onFocusOut: interactive ? this.onFocusOut : null });
     this.background.set(Background, { config: legendConfig.item, classKey: 'legendItemBackground', spacingRelative: true, spacingLayoutInfo: legendItemLayoutInfo });
     this.iconGroup.set({ className: mochartCssClasses['legendItemIcon'], transform: iconTransform });
-    this.icon.set(SeriesColorIcon, { seriesContextConfig: legendConfig, seriesConfig, focused: seriesIsFocused, defocused: seriesIsDefocused,
+    this.icon.set(SeriesColorIcon, { seriesContextConfig: legendConfig, seriesConfig, pieMode: this.props.pieMode,
+      focused: seriesIsFocused, defocused: seriesIsDefocused,
       focusPercentage: seriesFocusPercentage, colorPaletteConfig, seriesIndex,
       seriesShowColorProperty: 'showColorInLegend', uniqueIds,
       seriesIsFiltered, renderHTML: false, resolvedIconSize: iconSize });

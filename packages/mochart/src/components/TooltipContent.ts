@@ -267,7 +267,8 @@ export class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
     const labelStyle = { textDecoration: tooltipConfig.strikeThroughFiltered && seriesIsFiltered ? 'line-through' : null };
 
     const iconProps = {
-      seriesContextConfig: tooltipConfig, seriesConfig, focused: seriesIsFocused, defocused: seriesIsDefocused,
+      seriesContextConfig: tooltipConfig, seriesConfig, pieMode: mochartConfig.chart.type === CHART_TYPE_PIE,
+      focused: seriesIsFocused, defocused: seriesIsDefocused,
       focusPercentage: seriesFocusPercentage, colorPaletteConfig, seriesIndex,
       svgUniqueId: svgUniqueId + '-tooltip', seriesShowColorProperty: 'showColorInTooltip' as const,
       seriesIsFiltered, iconClassName: mochartCssClasses['tooltipLineIcon'],

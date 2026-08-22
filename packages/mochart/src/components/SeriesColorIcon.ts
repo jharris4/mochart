@@ -28,6 +28,7 @@ interface SeriesColorIconProps {
   seriesContextConfig: LegendConfig | TooltipConfig;
   seriesShowColorProperty: 'showColorInLegend' | 'showColorInTooltip';
   seriesConfig: EnhancedSeriesConfig;
+  pieMode: boolean;
   seriesIndex: number;
   colorPaletteConfig: ColorPaletteConfig;
   seriesIsFiltered: boolean;
@@ -202,7 +203,8 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     const { gradient, pattern } = seriesConfig;
     const markerShape = seriesConfig.marker.shape;
 
-    const { opacity, focusedOpacity, defocusedOpacity } = getSeriesOpacities(seriesConfig);
+    const { pieMode } = this.props;
+    const { opacity, focusedOpacity, defocusedOpacity } = getSeriesOpacities(seriesConfig, pieMode);
     const hasFillDefinition = pattern !== NONE || gradient !== NONE || getSeriesGradientColors(seriesConfig);
     const halfBorderSize = iconBorderSize / 2.0;
     // icon.size and icon.borderStyle.strokeWidth validate independently, so a border wider than the icon would
@@ -211,7 +213,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     const fillDefinitionReference = pattern !== NONE
       ? getPatternReference(fillDefinitionId)
       : getGradientReference(fillDefinitionId);
-    const seriesColor = getSeriesColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, iconUnfilteredColor);
+    const seriesColor = getSeriesColor(colorPaletteConfig, seriesConfig, pieMode, seriesIndex, focusPercentage, iconUnfilteredColor);
 
     // a filtered icon takes iconFilteredColor as given: it stands in for the series color rather
     // than dimming it, so it carries its own alpha and ignores the focus opacity
@@ -232,7 +234,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
       className
     };
 
-    if (showIconShapes && markerShape !== NONE && pattern === NONE) {
+    if (showIconShapes && !pieMode && markerShape !== NONE && pattern === NONE) {
       const symbolSize = Math.max(shapeSize - 3, 0);
       const halfSize = Math.floor(iconSize / 2.0);
       const symbolGenerator = getSymbolGenerator(symbolSize, markerShape);

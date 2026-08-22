@@ -56,19 +56,26 @@ describe('getSeriesColor dispatch', () => {
   const { colorPaletteConfig, series } = setup();
 
   it('uses the fill color for bar/area', () => {
-    expect(getSeriesColor(colorPaletteConfig, series({ renderer: 'bar', shapeStyle: { normal: { fillColor: '#abc' } } }))).toBe('#abc');
+    expect(getSeriesColor(colorPaletteConfig, series({ renderer: 'bar', shapeStyle: { normal: { fillColor: '#abc' } } }), false)).toBe('#abc');
   });
 
   it('uses the stroke color for line', () => {
-    expect(getSeriesColor(colorPaletteConfig, series({ renderer: 'line', shapeStyle: { normal: { strokeColor: '#def' } } }))).toBe('#def');
+    expect(getSeriesColor(colorPaletteConfig, series({ renderer: 'line', shapeStyle: { normal: { strokeColor: '#def' } } }), false)).toBe('#def');
   });
 
   it('uses the marker fill color when there is a marker and no shape', () => {
-    expect(getSeriesColor(colorPaletteConfig, series({ renderer: 'none', marker: { shape: 'circle', style: { normal: { fillColor: '#123' } } } }))).toBe('#123');
+    expect(getSeriesColor(colorPaletteConfig, series({ renderer: 'none', marker: { shape: 'circle', style: { normal: { fillColor: '#123' } } } }), false)).toBe('#123');
   });
 
   it('uses the label fill color when there is no shape and no marker', () => {
-    expect(getSeriesColor(colorPaletteConfig, series({ renderer: 'none', marker: { shape: null }, label: { textStyle: { normal: { fillColor: '#456' } } } }))).toBe('#456');
+    expect(getSeriesColor(colorPaletteConfig, series({ renderer: 'none', marker: { shape: null }, label: { textStyle: { normal: { fillColor: '#456' } } } }), false)).toBe('#456');
+  });
+
+  // a pie slice is drawn filled whatever its renderer says, and it keeps the default 'line'
+  it('uses the fill color in pie mode, whatever the renderer says', () => {
+    const pieSeries = series({ renderer: 'line', shapeStyle: { normal: { fillColor: '#abc', strokeColor: '#def' } } });
+    expect(getSeriesColor(colorPaletteConfig, pieSeries, true)).toBe('#abc');
+    expect(getSeriesColor(colorPaletteConfig, pieSeries, false)).toBe('#def');
   });
 });
 
