@@ -185,9 +185,16 @@ describe('titleSnapToValue', () => {
   });
 
   it('flips a horizontal high title left of a line near the plot end', () => {
-    const snapped = titlePosition(categoryThreshold({ value: 95, title: { text: 'T', side: 'high', snapToValue: true } }));
-    const clamped = titlePosition(categoryThreshold({ value: 95, title: { text: 'T', side: 'high', snapToValue: false } }));
+    const snapped = titlePosition(categoryThreshold({ value: 99, title: { text: 'T', side: 'high', snapToValue: true } }));
+    const clamped = titlePosition(categoryThreshold({ value: 99, title: { text: 'T', side: 'high', snapToValue: false } }));
     expect(snapped.x).toBeLessThan(clamped.x);
+  });
+
+  // room on its own side, so it stays there: the flip is for a title with nowhere to go
+  it('leaves a horizontal high title right of a line that still has room', () => {
+    const snapped = titlePosition(categoryThreshold({ value: 95, title: { text: 'T', side: 'high', snapToValue: true } }));
+    const unsnapped = titlePosition(categoryThreshold({ value: 95, title: { text: 'T', side: 'high', snapToValue: false } }));
+    expect(snapped).toEqual(unsnapped);
   });
 
   it('leaves a mid-domain vertical title where it is', () => {
@@ -198,10 +205,12 @@ describe('titleSnapToValue', () => {
     }
   });
 
-  it('leaves a mid-domain horizontal low title where it is', () => {
-    const snapped = titlePosition(categoryThreshold({ value: 50, title: { text: 'T', side: 'low', snapToValue: true } }));
-    const unsnapped = titlePosition(categoryThreshold({ value: 50, title: { text: 'T', side: 'low', snapToValue: false } }));
-    expect(snapped).toEqual(unsnapped);
+  it('leaves a mid-domain horizontal title where it is', () => {
+    for (const titleSide of ['low', 'high'] as const) {
+      const snapped = titlePosition(categoryThreshold({ value: 50, title: { text: 'T', side: titleSide, snapToValue: true } }));
+      const unsnapped = titlePosition(categoryThreshold({ value: 50, title: { text: 'T', side: titleSide, snapToValue: false } }));
+      expect(snapped).toEqual(unsnapped);
+    }
   });
 });
 

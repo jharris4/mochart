@@ -166,7 +166,7 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
               }
 
             }
-            else if (!left && titleX < (thresholdX + width)) {
+            else if (!left && titleX < thresholdX) {
               if (thresholdX - width >= seriesLayoutInfo.x) {
                 titleX = thresholdX - width;
               }
